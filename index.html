@@ -188,6 +188,26 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .hire-type-btn{font-family:'Nunito Sans',sans-serif;font-size:10px;font-weight:700;padding:4px 14px;border-radius:999px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s}
 .hire-type-btn.active{background:var(--fb);border-color:var(--fb);color:#fff}
 .hire-type-btn:hover:not(.active){border-color:var(--fb);color:var(--fb)}
+
+/* POSITION DETAIL CARD */
+.pos-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.pos-card-hdr{padding:10px 16px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center;justify-content:space-between}
+.pos-card-title{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--mb)}
+.pos-card-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+.pos-field{padding:9px 14px;border-right:1px solid var(--border-lt);border-bottom:1px solid var(--border-lt)}
+.pos-field:nth-child(3n){border-right:none}
+.pos-field-lbl{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:3px}
+.pos-field-val{font-size:11px;font-weight:700;color:var(--fb)}
+.pos-field-val.empty{color:var(--border);font-style:italic;font-weight:400}
+.pos-field-val.editable{cursor:pointer;border-bottom:1.5px dashed var(--border);display:inline-block;min-width:80px}
+.pos-field-val.editable:hover{border-bottom-color:var(--mb);color:var(--mb)}
+.pos-field-val.editable.empty:hover{color:var(--mb)}
+.pos-field-input{font-family:'Nunito Sans',sans-serif;font-size:11px;font-weight:700;color:var(--fb);border:none;border-bottom:1.5px solid var(--mb);outline:none;background:transparent;width:100%;padding:0}
+.pos-tag{display:inline-flex;gap:5px;flex-wrap:wrap;margin-top:2px}
+/* inline edit overlay */
+.edit-overlay{display:none;position:fixed;inset:0;z-index:998}
+.edit-overlay.open{display:block}
+
 </style>
 </head>
 <body>
@@ -426,18 +446,18 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 
 <!-- MODAL (fixed to viewport) -->
 <div class="modal-bg" id="modal-bg">
-  <div class="modal-box" style="width:480px">
-    <div class="modal-title">+ New Hire</div>
+  <div class="modal-box" style="width:500px;max-height:90vh;overflow-y:auto">
+    <div class="modal-title">Open a Position</div>
 
-    <!-- Type toggle -->
+    <!-- Net New / Backfill toggle -->
     <div style="display:flex;gap:6px;margin-bottom:14px">
-      <button class="hire-type-btn active" id="btn-newnew" onclick="setHireType('new')">Net New Hire</button>
+      <button class="hire-type-btn active" id="btn-newnew" onclick="setHireType('new')">Net New</button>
       <button class="hire-type-btn" id="btn-backfill" onclick="setHireType('backfill')">Backfill</button>
     </div>
 
-    <!-- Backfill selector (hidden by default) -->
+    <!-- Backfill selector -->
     <div id="backfill-row" style="display:none;margin-bottom:12px">
-      <div class="ml" style="margin-bottom:3px">Backfilling For</div>
+      <div class="ml" style="margin-bottom:3px">Backfilling For <span style="color:var(--orange)">*</span></div>
       <select class="mi" id="m-backfill" style="width:100%">
         <option value="">Select departed employee...</option>
         <option>Alex Thompson (ES Rep, Las Vegas)</option>
@@ -449,24 +469,21 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       </select>
     </div>
 
-    <div class="modal-grid" style="grid-template-columns:1fr 1fr;gap:8px">
-      <div class="mf">
-        <div class="ml">First Name <span style="color:var(--orange)">*</span></div>
-        <input class="mi" id="m-fname" placeholder="First"/>
-      </div>
-      <div class="mf">
-        <div class="ml">Last Name <span style="color:var(--orange)">*</span></div>
-        <input class="mi" id="m-lname" placeholder="Last"/>
-      </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="mf">
         <div class="ml">Role <span style="color:var(--orange)">*</span></div>
         <select class="mi" id="m-role">
           <option value="">Select role...</option>
-          <option>ES Representative</option>
-          <option>ES Supervisor</option>
-          <option>ES Manager</option>
-          <option>ES Director</option>
+          <option>ES Representative</option><option>ES Supervisor</option>
+          <option>ES Manager</option><option>ES Director</option>
           <option>Event Experience Supervisor</option>
+        </select>
+      </div>
+      <div class="mf">
+        <div class="ml">Full-Time or Part-Time <span style="color:var(--orange)">*</span></div>
+        <select class="mi" id="m-ftpt">
+          <option value="">Select...</option>
+          <option>Full-Time</option><option>Part-Time</option>
         </select>
       </div>
       <div class="mf">
@@ -482,9 +499,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
           <option>San Francisco</option><option>Toronto</option><option>Washington D.C.</option>
         </select>
       </div>
-      <div class="mf" style="grid-column:1/-1">
+      <div class="mf">
         <div class="ml">Hiring Manager <span style="color:var(--orange)">*</span></div>
-        <select class="mi" id="m-hm" style="width:100%">
+        <select class="mi" id="m-hm">
           <option value="">Select hiring manager...</option>
           <option>Anne Wolkenhauer</option><option>Cassandra Karns</option>
           <option>Chenille Book</option><option>Cory Marin</option>
@@ -504,17 +521,24 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
           <option>Tiffany Jarrett</option><option>Tricia Orme</option>
         </select>
       </div>
-      <div class="mf" style="grid-column:1/-1">
-        <div class="ml">Target Start Date <span style="color:var(--orange)">*</span></div>
-        <input class="mi" id="m-start" type="date" style="width:100%"/>
+      <div class="mf">
+        <div class="ml">Proposed Start Date <span style="color:var(--orange)">*</span></div>
+        <input class="mi" id="m-start" type="date"/>
       </div>
-      <div class="modal-actions" style="grid-column:1/-1">
+      <div class="mf">
+        <div class="ml">Proposed NET Class Start</div>
+        <input class="mi" id="m-net" type="date"/>
+      </div>
+      <div class="modal-actions" style="grid-column:1/-1;margin-top:8px">
         <button class="m-cancel" onclick="closeModal()">Cancel</button>
-        <button class="m-submit" onclick="createHire()">Add to Active Pipeline</button>
+        <button class="m-submit" onclick="createHire()">Open Position</button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Invisible overlay to close inline edits on outside click -->
+<div class="edit-overlay" id="edit-overlay" onclick="closeInlineEdit()"></div>
 
 <script>
 // ── NAVIGATION ──
@@ -634,9 +658,35 @@ var TASKS = [
 ];
 
 var hires = [
-  {id:'h1',name:'Jordan Patel',firstName:'Jordan',lastName:'Patel',role:'ES Representative',branch:'Las Vegas',hiringManager:'Cory Marin',start:'2026-06-16',hireType:'new',backfillFor:'',stage:'interviewing',checked:['t1','t2','t3','t4','t5','t6','t7','t8'],open:{}},
-  {id:'h2',name:'Samantha Reyes',firstName:'Samantha',lastName:'Reyes',role:'ES Supervisor',branch:'Chicago',hiringManager:'Mary Ligammari',start:'2026-06-09',hireType:'backfill',backfillFor:'Maria Gonzalez (ES Supervisor, Chicago)',stage:'offer',checked:['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],open:{}},
-  {id:'h3',name:'Marcus Webb',firstName:'Marcus',lastName:'Webb',role:'ES Representative',branch:'Dallas',hiringManager:'Tiffany Jarrett',start:'2026-07-07',hireType:'new',backfillFor:'',stage:'requisition',checked:['t1','t2'],open:{}}
+  {id:'h1',
+   // Position details (set at creation)
+   role:'ES Representative', ftpt:'Full-Time', branch:'Las Vegas',
+   hiringManager:'Cory Marin', hireType:'new', backfillFor:'',
+   proposedStart:'2026-06-16', proposedNet:'2026-06-02',
+   // Fields filled in as process progresses
+   reqNum:'', hrRecruiter:'', firstName:'Jordan', lastName:'Patel',
+   confirmedStart:'', confirmedNet:'',
+   // Pipeline state
+   stage:'interviewing', checked:['t1','t2','t3','t4','t5','t6','t7','t8'], open:{}
+  },
+  {id:'h2',
+   role:'ES Supervisor', ftpt:'Full-Time', branch:'Chicago',
+   hiringManager:'Mary Ligammari', hireType:'backfill',
+   backfillFor:'Maria Gonzalez (ES Supervisor, Chicago)',
+   proposedStart:'2026-06-09', proposedNet:'2026-05-26',
+   reqNum:'84291', hrRecruiter:'Megan Wierick',
+   firstName:'Samantha', lastName:'Reyes',
+   confirmedStart:'2026-06-09', confirmedNet:'2026-05-26',
+   stage:'offer', checked:['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'], open:{}
+  },
+  {id:'h3',
+   role:'ES Representative', ftpt:'Part-Time', branch:'Dallas',
+   hiringManager:'Tiffany Jarrett', hireType:'new', backfillFor:'',
+   proposedStart:'2026-07-07', proposedNet:'2026-06-23',
+   reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
+   confirmedStart:'', confirmedNet:'',
+   stage:'requisition', checked:['t1','t2'], open:{}
+  }
 ];
 var selId = 'h1';
 var rhReady = false;
@@ -658,50 +708,112 @@ function countOverdue(h){
   return n;
 }
 
+function posLabel(h) {
+  var name = (h.firstName||'') + (h.lastName ? ' '+ h.lastName : '');
+  return name.trim() || h.role + ' — ' + h.branch;
+}
+
 function renderList(){
   var el=document.getElementById('hire-list'); if(!el)return;
   el.innerHTML='';
-  var sL={requisition:'Requisition',interviewing:'Interviewing',offer:'Offer Stage',complete:'Complete'};
+  var sL={requisition:'Seeking Candidates',interviewing:'Interviewing',offer:'Offer Stage',complete:'Complete'};
   var sC={requisition:'chip-mb',interviewing:'chip-amber',offer:'chip-green',complete:'chip-ghost'};
   hires.forEach(function(h){
     var pct=Math.round(h.checked.length/TASKS.length*100);
     var d=document.createElement('div');
     d.className='hire-item'+(h.id===selId?' sel':'');
     d.setAttribute('data-id', h.id);
-    d.innerHTML='<div class="hire-name">'+h.name+'</div>'+
-      '<div class="hire-role">'+h.role+' &mdash; '+h.branch+'</div>'+
-      '<div class="hire-prog-row">'+
+    var candidateLine = (h.firstName||h.lastName)
+      ? '<div class="hire-role" style="margin-top:2px">&#128100; '+(h.firstName||'')+(h.lastName?' '+h.lastName:'')+'</div>'
+      : '<div class="hire-role" style="margin-top:2px;font-style:italic;color:var(--border)">Candidate TBD</div>';
+    var typeChip = h.hireType==='backfill'
+      ? '<span class="chip chip-amber" style="font-size:8px;padding:1px 5px">Backfill</span>'
+      : '<span class="chip chip-mb" style="font-size:8px;padding:1px 5px">Net New</span>';
+    var ftptChip = h.ftpt==='Part-Time'
+      ? '<span class="chip chip-ghost" style="font-size:8px;padding:1px 5px">PT</span>'
+      : '';
+    d.innerHTML=
+      '<div class="hire-name">'+h.role+'</div>'+
+      '<div class="hire-role">'+h.branch+' &nbsp;&middot;&nbsp; HM: '+h.hiringManager+'</div>'+
+      candidateLine+
+      '<div class="hire-prog-row" style="margin-top:5px">'+
         '<div class="hire-prog-wrap"><div class="hire-prog-fill" style="width:'+pct+'%"></div></div>'+
         '<span class="hire-prog-pct">'+pct+'%</span>'+
-        '<span class="chip '+(sC[h.stage]||'chip-ghost')+'" style="font-size:8px;padding:1px 6px">'+(sL[h.stage]||h.stage)+'</span>'+
+        typeChip+ftptChip+
+        '<span class="chip '+(sC[h.stage]||'chip-ghost')+'" style="font-size:8px;padding:1px 5px">'+(sL[h.stage]||h.stage)+'</span>'+
       '</div>';
     d.onclick = (function(hid){ return function(){ selId=hid; renderList(); renderDetail(); }; })(h.id);
     el.appendChild(d);
   });
 }
 
+function fmtDateStr(s){ if(!s)return ''; var p=s.split('-'); var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return m[parseInt(p[1])-1]+' '+parseInt(p[2])+', '+p[0]; }
+
 function renderDetail(){
   var panel=document.getElementById('rh-detail'); if(!panel)return;
   var h=hires.find(function(x){return x.id===selId;});
-  if(!h){panel.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);font-size:12px">Select a candidate to view their checklist</div>';return;}
+  if(!h){panel.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);font-size:12px">Select a position to view details</div>';return;}
+
   var done=h.checked.length, total=TASKS.length, pct=Math.round(done/total*100), ov=countOverdue(h);
+
+  // ── Position Details Card ──
+  function field(lbl, val, editKey, editType) {
+    var isEmpty = !val;
+    var displayVal = val || 'Not yet set';
+    var cls = isEmpty ? 'pos-field-val empty editable' : 'pos-field-val editable';
+    var editAttr = editKey ? ' data-edit="'+editKey+'" data-type="'+(editType||'text')+'" data-hire="'+h.id+'"' : '';
+    return '<div class="pos-field"><div class="pos-field-lbl">'+lbl+'</div>'+
+      '<div class="'+cls+'"'+editAttr+(editKey?' onclick="startInlineEdit(this)"':'')+'>'+(isEmpty?'<span style="color:var(--border-lt)">&#9702;</span> '+displayVal:displayVal)+'</div></div>';
+  }
+  function fieldStatic(lbl, val, chip) {
+    return '<div class="pos-field"><div class="pos-field-lbl">'+lbl+'</div>'+
+      '<div class="pos-field-val">'+(chip||val)+'</div></div>';
+  }
+
+  var typeChip = h.hireType==='backfill'
+    ? '<span class="chip chip-amber">Backfill</span>'
+    : '<span class="chip chip-mb">Net New</span>';
+  var ftptChip = h.ftpt==='Part-Time'
+    ? '<span class="chip chip-orange">Part-Time</span>'
+    : '<span class="chip chip-green">Full-Time</span>';
+
+  var posHtml = '<div class="pos-card">'+
+    '<div class="pos-card-hdr">'+
+      '<span class="pos-card-title">Position Details</span>'+
+      '<div style="display:flex;gap:5px">'+typeChip+ftptChip+(ov>0?'<span class="chip chip-red">'+ov+' Overdue</span>':'<span class="chip chip-green">On Track</span>')+'</div>'+
+    '</div>'+
+    '<div class="pos-card-body">'+
+      fieldStatic('Role', h.role)+
+      fieldStatic('Branch / Team', h.branch)+
+      fieldStatic('Hiring Manager', h.hiringManager)+
+      (h.hireType==='backfill' ? fieldStatic('Backfilling For', h.backfillFor||'—') : fieldStatic('Type', 'Net New Position'))+
+      field('Req # (5 digits)', h.reqNum, 'reqNum', 'text')+
+      field('HR Recruiter', h.hrRecruiter, 'hrRecruiter', 'select-recruiter')+
+      fieldStatic('Proposed Start Date', fmtDateStr(h.proposedStart))+
+      field('Proposed NET Class Start', h.proposedNet ? fmtDateStr(h.proposedNet) : '', 'proposedNet', 'date')+
+      field('Candidate First Name', h.firstName, 'firstName', 'text')+
+      field('Candidate Last Name', h.lastName, 'lastName', 'text')+
+      field('Confirmed Start Date', h.confirmedStart ? fmtDateStr(h.confirmedStart) : '', 'confirmedStart', 'date')+
+      field('Confirmed NET Class Start', h.confirmedNet ? fmtDateStr(h.confirmedNet) : '', 'confirmedNet', 'date')+
+    '</div>'+
+    '<div style="padding:8px 14px;border-top:1px solid var(--border-lt)">'+
+      '<div class="det-prog-wrap" style="max-width:100%"><div class="det-prog-fill" style="width:'+pct+'%"></div></div>'+
+      '<div class="det-prog-lbl" style="margin-top:4px">'+done+'/'+total+' checklist tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
+    '</div>'+
+  '</div>';
+
+  // ── Checklist ──
   var phases=[]; var seen={};
   TASKS.forEach(function(t){if(!seen[t.phase]){seen[t.phase]=true;phases.push(t.phase);}});
-  var html='<div class="det-hdr"><div>'+
-    '<div class="det-name">'+h.name+'</div>'+
-    '<div class="det-sub">'+h.role+' &mdash; '+h.branch+' &mdash; HM: '+(h.hiringManager||'&mdash;')+' &mdash; Start: '+h.start+(h.hireType==='backfill'&&h.backfillFor?' &mdash; Backfilling: '+h.backfillFor:'')+'</div>'+
-    '<div class="det-prog-wrap"><div class="det-prog-fill" style="width:'+pct+'%"></div></div>'+
-    '<div class="det-prog-lbl">'+done+'/'+total+' tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
-    '</div><div>'+(ov>0?'<span class="chip chip-red">'+ov+' Overdue</span>':'<span class="chip chip-green">On Track</span>')+'</div></div>';
-  html+='<div class="det-scroll">';
+  var clHtml='<div class="rh-detail" style="margin-top:0">';
   phases.forEach(function(phase){
     var pt=TASKS.filter(function(t){return t.phase===phase;});
     var dn=pt.filter(function(t){return h.checked.indexOf(t.id)>=0;}).length;
     var allD=dn===pt.length, anyA=!allD&&dn>0;
     var icCls=allD?'ph-done':anyA?'ph-active':'ph-locked';
-    var icCh=allD?'✓':anyA?'◎':'○';
+    var icCh=allD?'&#10003;':anyA?'&#9678;':'&#9675;';
     var isOpen=h.open[phase]!==false;
-    html+='<div class="phase-sec">'+
+    clHtml+='<div class="phase-sec">'+
       '<div class="phase-hdr" data-hire="'+h.id+'" data-phase="'+phase+'">'+
         '<div class="ph-icon '+icCls+'">'+icCh+'</div>'+
         '<span class="ph-label">'+phase+'</span>'+
@@ -711,7 +823,7 @@ function renderDetail(){
       '<div class="phase-body" style="display:'+(isOpen?'block':'none')+'">';
     pt.forEach(function(t){
       var ck=h.checked.indexOf(t.id)>=0;
-      var due=addDays(h.start,t.off);
+      var due=addDays(h.proposedStart||h.start||'2026-06-16',t.off);
       var st=dueStatus(new Date(due),ck);
       var lnks='';
       if(t.links&&t.links.length){
@@ -719,7 +831,7 @@ function renderDetail(){
         t.links.forEach(function(l){lnks+='<a class="tlink" href="'+l.url+'" target="_blank">'+l.label+' &#8599;</a>';});
         lnks+='</div>';
       }
-      html+='<div class="task-row">'+
+      clHtml+='<div class="task-row">'+
         '<div class="task-chk'+(ck?' checked':st==='overdue'?' overdue-chk':'')+'" data-hire="'+h.id+'" data-task="'+t.id+'"><span class="chk-mark">&#10003;</span></div>'+
         '<div class="task-body">'+
           '<div class="task-title'+(ck?' done':'')+'">'+t.title+'</div>'+
@@ -731,12 +843,13 @@ function renderDetail(){
         '</div>'+
       '</div>';
     });
-    html+='</div></div>';
+    clHtml+='</div></div>';
   });
-  html+='</div>';
-  panel.innerHTML=html;
+  clHtml+='</div>';
 
-  // Attach phase toggle listeners
+  panel.innerHTML = '<div style="overflow-y:auto;max-height:calc(100vh - 220px);padding-right:2px">'+posHtml+clHtml+'</div>';
+
+    // Attach phase toggle listeners
   panel.querySelectorAll('.phase-hdr').forEach(function(hdr){
     hdr.onclick = function(){
       var hId=this.getAttribute('data-hire');
@@ -802,43 +915,115 @@ function openModal(){
   document.getElementById('btn-newnew').classList.add('active');
   document.getElementById('btn-backfill').classList.remove('active');
   document.getElementById('backfill-row').style.display = 'none';
-  document.getElementById('m-backfill').value = '';
-  document.getElementById('m-fname').value = '';
-  document.getElementById('m-lname').value = '';
-  document.getElementById('m-role').value = '';
-  document.getElementById('m-branch').value = '';
-  document.getElementById('m-hm').value = '';
-  document.getElementById('m-start').value = '';
+  ['m-backfill','m-role','m-ftpt','m-branch','m-hm','m-start','m-net'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
   document.getElementById('modal-bg').classList.add('open');
-  document.getElementById('m-fname').focus();
+  document.getElementById('m-role').focus();
 }
 function closeModal(){
   document.getElementById('modal-bg').classList.remove('open');
 }
 function createHire(){
-  var fname = document.getElementById('m-fname').value.trim();
-  var lname = document.getElementById('m-lname').value.trim();
   var role = document.getElementById('m-role').value;
+  var ftpt = document.getElementById('m-ftpt').value;
   var branch = document.getElementById('m-branch').value;
   var hm = document.getElementById('m-hm').value;
   var start = document.getElementById('m-start').value;
+  var net = document.getElementById('m-net').value;
   var backfill = currentHireType === 'backfill' ? document.getElementById('m-backfill').value : '';
-  if(!fname || !lname || !role || !branch || !hm || !start){
+  if(!role || !ftpt || !branch || !hm || !start){
     alert('Please fill in all required fields.');return;
   }
   if(currentHireType === 'backfill' && !backfill){
     alert('Please select who this hire is backfilling for.');return;
   }
-  var fullName = fname + ' ' + lname;
   hires.unshift({
-    id:'h'+Date.now(), name:fullName, firstName:fname, lastName:lname,
-    role:role, branch:branch, hiringManager:hm, start:start,
+    id:'h'+Date.now(),
+    role:role, ftpt:ftpt, branch:branch, hiringManager:hm,
     hireType:currentHireType, backfillFor:backfill,
+    proposedStart:start, proposedNet:net,
+    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
+    confirmedStart:'', confirmedNet:'',
     stage:'requisition', checked:[], open:{}
   });
   selId = hires[0].id;
   closeModal();
   renderList(); renderDetail();
+}
+
+// ── Inline field editing ──
+var currentEditEl = null;
+var currentEditHireId = null;
+var currentEditKey = null;
+
+function startInlineEdit(el) {
+  if(currentEditEl) closeInlineEdit();
+  var hireId = el.getAttribute('data-hire');
+  var key = el.getAttribute('data-edit');
+  var type = el.getAttribute('data-type');
+  var h = hires.find(function(x){return x.id===hireId;});
+  if(!h) return;
+
+  currentEditEl = el;
+  currentEditHireId = hireId;
+  currentEditKey = key;
+
+  var currentVal = h[key] || '';
+  var input;
+
+  if(type === 'select-recruiter') {
+    input = document.createElement('select');
+    input.className = 'pos-field-input';
+    ['','Megan Wierick'].forEach(function(opt){
+      var o = document.createElement('option');
+      o.value = opt; o.textContent = opt || 'Select...';
+      if(currentVal === opt) o.selected = true;
+      input.appendChild(o);
+    });
+  } else if(type === 'date') {
+    input = document.createElement('input');
+    input.type = 'date';
+    input.className = 'pos-field-input';
+    input.value = currentVal;
+  } else {
+    input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'pos-field-input';
+    input.value = currentVal;
+    if(key === 'reqNum') { input.maxLength = 5; input.placeholder = '00000'; }
+  }
+
+  input.onkeydown = function(e) {
+    if(e.key === 'Enter') { e.preventDefault(); saveInlineEdit(input.value); }
+    if(e.key === 'Escape') closeInlineEdit();
+  };
+  input.onblur = function() { setTimeout(function(){ saveInlineEdit(input.value); }, 120); };
+
+  el.innerHTML = '';
+  el.appendChild(input);
+  document.getElementById('edit-overlay').classList.add('open');
+  input.focus();
+  if(input.type === 'text' || input.tagName === 'SELECT') input.select && input.select();
+}
+
+function saveInlineEdit(val) {
+  if(!currentEditEl || !currentEditHireId || !currentEditKey) return;
+  var h = hires.find(function(x){return x.id===currentEditHireId;});
+  if(h) {
+    h[currentEditKey] = val.trim();
+    // If first/last name set, update stage hint
+  }
+  currentEditEl = null; currentEditHireId = null; currentEditKey = null;
+  document.getElementById('edit-overlay').classList.remove('open');
+  renderList(); renderDetail();
+}
+
+function closeInlineEdit() {
+  if(currentEditEl) {
+    var input = currentEditEl.querySelector('input,select');
+    if(input) saveInlineEdit(input.value);
+  }
 }
 
 // Close modal on background click
