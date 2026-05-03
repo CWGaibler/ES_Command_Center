@@ -559,7 +559,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 <div class="edit-overlay" id="edit-overlay" onclick="closeInlineEdit()"></div>
 
 <script>
-// ── NAVIGATION ──
+// -- NAVIGATION --
 function showPage(id, el) {
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
@@ -639,7 +639,7 @@ function onRegionChange() {
   }
 }
 
-// ── DATE ──
+// -- DATE --
 (function(){
   var d = new Date();
   var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -651,7 +651,7 @@ function onRegionChange() {
   if (el2) el2.textContent = str;
 })();
 
-// ── RECRUITING DATA ──
+// -- RECRUITING DATA --
 var TASKS = [
   {phase:'Job Requisition',id:'t1',title:'Identify the hiring need',desc:'New role or backfill? Clarify purpose, budget, urgency.',owner:'Hiring Manager',off:-70,links:[]},
   {phase:'Job Requisition',id:'t2',title:'Select ES role & confirm job details',desc:'Confirm responsibilities, qualifications, and reporting structure.',owner:'Hiring Manager',off:-68,links:[{label:'ES Roles',url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/Handbook/Roles_%26_Responsibilities.aspx'}]},
@@ -747,7 +747,7 @@ function countOverdue(h){
 
 function posLabel(h) {
   var name = (h.firstName||'') + (h.lastName ? ' '+ h.lastName : '');
-  return name.trim() || h.role + ' — ' + h.branch;
+  return name.trim() || h.role + '  &mdash;  ' + h.branch;
 }
 
 function canView(h) {
@@ -852,7 +852,7 @@ function openRejectModal(hireId) {
   pendingRejectId = hireId;
   var h = hires.find(function(x){return x.id===hireId;});
   var sub = document.getElementById('reject-modal-sub');
-  if(sub && h) sub.textContent = 'Rejecting: '+h.role+' — '+h.branch+'. Please provide a reason.';
+  if(sub && h) sub.textContent = 'Rejecting: '+h.role+'  &mdash;  '+h.branch+'. Please provide a reason.';
   document.getElementById('reject-notes').value = '';
   document.getElementById('reject-modal').style.display = 'flex';
   document.getElementById('reject-notes').focus();
@@ -888,7 +888,7 @@ function renderDetail(){
 
   var done=h.checked.length, total=TASKS.length, pct=Math.round(done/total*100), ov=countOverdue(h);
 
-  // ── Position Details Card ──
+  // -- Position Details Card --
   function field(lbl, val, editKey, editType) {
     var isEmpty = !val;
     var displayVal = val || 'Not yet set';
@@ -918,7 +918,7 @@ function renderDetail(){
       fieldStatic('Role', h.role)+
       fieldStatic('Branch / Team', h.branch)+
       fieldStatic('Hiring Manager', h.hiringManager)+
-      (h.hireType==='backfill' ? fieldStatic('Backfilling For', h.backfillFor||'—') : fieldStatic('Type', 'Net New Position'))+
+      (h.hireType==='backfill' ? fieldStatic('Backfilling For', h.backfillFor||' &mdash; ') : fieldStatic('Type', 'Net New Position'))+
       field('Req # (5 digits)', h.reqNum, 'reqNum', 'text')+
       field('HR Recruiter', h.hrRecruiter, 'hrRecruiter', 'select-recruiter')+
       fieldStatic('Proposed Start Date', fmtDateStr(h.proposedStart))+
@@ -934,7 +934,7 @@ function renderDetail(){
     '</div>'+
   '</div>';
 
-  // ── Checklist ──
+  // -- Checklist --
   var phases=[]; var seen={};
   TASKS.forEach(function(t){if(!seen[t.phase]){seen[t.phase]=true;phases.push(t.phase);}});
   var clHtml='<div class="rh-detail" style="margin-top:0">';
@@ -1134,7 +1134,7 @@ function createHire(){
   renderList(); renderDetail();
 }
 
-// ── Inline field editing ──
+// -- Inline field editing --
 var currentEditEl = null;
 var currentEditHireId = null;
 var currentEditKey = null;
