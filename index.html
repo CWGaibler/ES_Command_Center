@@ -167,6 +167,20 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .m-cancel:hover{border-color:var(--fb);color:var(--fb)}
 .m-submit{font-family:'Nunito Sans',sans-serif;font-size:9px;font-weight:700;padding:5px 14px;border-radius:999px;border:none;background:var(--fb);color:#fff;cursor:pointer}
 .m-submit:hover{opacity:.85}
+
+.scope-select {
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 10px; font-weight: 700;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1.5px solid var(--mb);
+  background: rgba(0,189,246,.12); color: var(--mb);
+  cursor: pointer; outline: none;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2300BDF6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
 </style>
 </head>
 <body>
@@ -183,6 +197,19 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <button class="scope-pill active" onclick="setScope('enterprise',this)">Enterprise</button>
     <button class="scope-pill" onclick="setScope('region',this)">Region</button>
     <button class="scope-pill" onclick="setScope('branch',this)">Branch</button>
+    <select class="scope-select" id="region-select" onchange="onRegionChange()" style="display:none">
+      <option value="">Select Region</option>
+      <option>Canada</option>
+      <option>Las Vegas</option>
+      <option>North Central</option>
+      <option>Northeast</option>
+      <option>NW/SoCal</option>
+      <option>South Central</option>
+      <option>Southeast</option>
+    </select>
+    <select class="scope-select" id="branch-select" style="display:none">
+      <option value="">Select Branch</option>
+    </select>
   </div>
   <div class="hdr-right">
     <span class="hdr-date" id="hdr-date"></span>
@@ -399,9 +426,48 @@ function showPage(id, el) {
   if (id === 'recruiting') initRecruiting();
 }
 
+var BRANCH_MAP = {
+  'Canada': ['Toronto'],
+  'Las Vegas': ['Las Vegas'],
+  'North Central': ['Chicago', 'Des Moines'],
+  'Northeast': ['Boston', 'New York', 'Washington D.C.'],
+  'NW/SoCal': ['Anaheim', 'Denver', 'Reno', 'San Francisco'],
+  'South Central': ['Dallas', 'Houston', 'San Antonio'],
+  'Southeast': ['Atlanta', 'Nashville', 'New Orleans', 'Orlando']
+};
+
 function setScope(scope, el) {
   document.querySelectorAll('.scope-pill').forEach(function(p){ p.classList.remove('active'); });
   el.classList.add('active');
+  var rSel = document.getElementById('region-select');
+  var bSel = document.getElementById('branch-select');
+  if (scope === 'enterprise') {
+    rSel.style.display = 'none';
+    bSel.style.display = 'none';
+    rSel.value = '';
+    bSel.innerHTML = '<option value="">Select Branch</option>';
+  } else if (scope === 'region') {
+    rSel.style.display = 'inline-block';
+    bSel.style.display = 'none';
+    bSel.innerHTML = '<option value="">Select Branch</option>';
+  } else if (scope === 'branch') {
+    rSel.style.display = 'inline-block';
+    bSel.style.display = 'inline-block';
+    onRegionChange();
+  }
+}
+
+function onRegionChange() {
+  var region = document.getElementById('region-select').value;
+  var bSel = document.getElementById('branch-select');
+  bSel.innerHTML = '<option value="">Select Branch</option>';
+  if (region && BRANCH_MAP[region]) {
+    BRANCH_MAP[region].forEach(function(b) {
+      var opt = document.createElement('option');
+      opt.value = b; opt.textContent = b;
+      bSel.appendChild(opt);
+    });
+  }
 }
 
 // ── DATE ──
