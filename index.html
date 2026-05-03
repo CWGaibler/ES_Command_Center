@@ -888,6 +888,14 @@ function submitForApproval(hireId) {
 }
 
 
+function fmtDateStr(s) {
+  if(!s) return '';
+  var p = s.split('-');
+  if(p.length < 3) return s;
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[parseInt(p[1])-1] + ' ' + parseInt(p[2]) + ', ' + p[0];
+}
+
 function renderDetail(){
   var panel=document.getElementById('rh-detail'); if(!panel)return;
   var h=hires.find(function(x){return x.id===selId;});
