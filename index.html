@@ -1338,6 +1338,11 @@ function initRecruiting() {
   renderChecklist();
 }
 
+// Boot the dashboard on load
+document.addEventListener('DOMContentLoaded', function() {
+  var firstNav = document.querySelector('.nav-item');
+  if (firstNav) showPage('today', firstNav);
+});
 </script>
 </body>
 </html>
