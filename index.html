@@ -4,515 +4,189 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ES Command Center</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --fb: #001F5F;
-  --mb: #00BDF6;
-  --green: #42BB37;
-  --gold: #FFB500;
-  --orange: #FB471F;
-  --gray: #ADB1B1;
-  --surface: #F5F6FA;
-  --white: #FFFFFF;
-  --border: #E2E5EF;
-  --border-light: #ECEEF5;
-  --muted: #7A8099;
-  --fb-light: #EBF0FA;
-  --fb-xlight: #F4F6FC;
-  --sidebar-w: 210px;
-  --header-h: 56px;
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --fb:#001F5F;--mb:#00BDF6;--green:#42BB37;--gold:#FFB500;--orange:#FB471F;
+  --surface:#F5F6FA;--white:#fff;--border:#E2E5EF;--border-lt:#ECEEF5;
+  --muted:#7A8099;--fb-lt:#EBF0FA;--fb-xlt:#F4F6FC;
+  --sidebar-w:210px;--header-h:56px;
 }
-body {
-  font-family: 'Nunito Sans', 'Calibri', sans-serif;
-  background: var(--surface);
-  color: var(--fb);
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-}
+body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--fb);display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-/* ─── HEADER ─── */
-.header {
-  height: var(--header-h);
-  background: var(--fb);
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  flex-shrink: 0;
-  padding: 0 20px;
-}
-.header-left { display: flex; align-items: center; gap: 14px; }
-.header-logo { height: 18px; display: block; }
-.header-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.15); flex-shrink: 0; }
-.header-title { font-size: 18px; font-weight: 800; color: white; letter-spacing: -0.01em; white-space: nowrap; line-height: 1; }
-.header-center { display: flex; align-items: center; justify-content: center; gap: 8px; }
-.header-right { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+/* HEADER */
+.header{height:var(--header-h);background:var(--fb);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;flex-shrink:0;padding:0 20px}
+.hdr-left{display:flex;align-items:center;gap:14px}
+.hdr-logo{height:18px}
+.hdr-divider{width:1px;height:18px;background:rgba(255,255,255,.15)}
+.hdr-title{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.01em;white-space:nowrap}
+.hdr-center{display:flex;align-items:center;gap:6px}
+.scope-pill{font-family:'Nunito Sans',sans-serif;font-size:10px;font-weight:700;padding:4px 14px;border-radius:999px;border:1.5px solid rgba(255,255,255,.25);background:transparent;color:rgba(255,255,255,.6);cursor:pointer;transition:all .15s}
+.scope-pill.active{background:rgba(0,189,246,.18);border-color:var(--mb);color:var(--mb)}
+.hdr-right{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.hdr-date{font-size:10px;color:rgba(255,255,255,.6)}
+.hdr-user{font-size:11px;font-weight:700;color:#fff}
 
-/* scope controls — fixed width so nothing ever shifts */
-.scope-toggle { display: flex; gap: 6px; }
-.scope-btn {
-  font-family: 'Nunito Sans', sans-serif;
-  font-size: 11px; font-weight: 700;
-  padding: 5px 16px;
-  border-radius: 999px;
-  border: 1.5px solid rgba(255,255,255,0.2);
-  background: transparent;
-  color: rgba(255,255,255,0.45);
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.scope-btn:hover { color: rgba(255,255,255,0.75); border-color: rgba(255,255,255,0.4); }
-.scope-btn.active {
-  background: rgba(0,189,246,0.18);
-  border-color: #00BDF6;
-  color: #00BDF6;
-}
+/* APP BODY */
+.app-body{display:flex;flex:1;overflow:hidden}
 
-/* dropdown — always present, fades when Enterprise selected */
-.scope-select {
-  font-family: 'Nunito Sans', sans-serif;
-  font-size: 11px; font-weight: 700;
-  background: transparent;
-  color: rgba(255,255,255,0.75);
-  border: 1.5px solid rgba(255,255,255,0.2);
-  border-radius: 999px;
-  padding: 5px 28px 5px 14px;
-  cursor: pointer;
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.5)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  transition: opacity 0.2s, pointer-events 0.2s;
-  min-width: 160px;
-}
-.scope-select.disabled {
-  opacity: 0.2;
-  pointer-events: none;
-  cursor: default;
-}
-.scope-select option { background: var(--fb); color: white; }
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--white);border-right:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto;padding-bottom:16px}
+.nav-section{font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:14px 16px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;border-left:3px solid transparent;transition:background .1s}
+.nav-item:hover{background:var(--fb-xlt)}
+.nav-item.active{background:var(--fb-xlt);border-left-color:var(--mb)}
+.nav-icon{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.nav-label{font-size:11px;font-weight:700;color:var(--fb)}
+.nav-item.active .nav-label{color:var(--mb)}
 
-.header-date { font-size: 10px; color: rgba(255,255,255,0.35); white-space: nowrap; }
-.header-user { width: 28px; height: 28px; border-radius: 50%; background: var(--mb); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--fb); flex-shrink: 0; }
+/* MAIN */
+.main{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+.page{display:none}
+.page.active{display:block}
+.page-hdr{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.page-title{font-size:18px;font-weight:800}
+.page-sub{font-size:11px;color:var(--muted)}
 
-/* ─── LAYOUT ─── */
-.app-body { display: flex; flex: 1; overflow: hidden; }
+/* KPI STRIP */
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;border-top:3px solid var(--border)}
+.kpi-lbl{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:4px}
+.kpi-val{font-size:26px;font-weight:800;line-height:1}
+.kpi-sub{font-size:9px;color:var(--muted);margin-top:3px}
 
-/* ─── SIDEBAR ─── */
-.sidebar {
-  width: var(--sidebar-w);
-  background: var(--white);
-  border-right: 1px solid var(--border);
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  padding-bottom: 16px;
-}
-.sidebar::-webkit-scrollbar { width: 3px; }
-.sidebar::-webkit-scrollbar-thumb { background: var(--border); }
-.nav-section { font-size: 9px; font-weight: 800; letter-spacing: 0.13em; text-transform: uppercase; color: var(--gray); padding: 16px 14px 4px; }
-.nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 14px 7px 11px; cursor: pointer; transition: background 0.1s; border-left: 3px solid transparent; }
-.nav-item:hover { background: var(--fb-xlight); }
-.nav-item.active { background: var(--fb-xlight); border-left-color: var(--mb); }
-.nav-icon { width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; opacity: 0.3; }
-.nav-item.active .nav-icon { opacity: 1; }
-.nav-icon svg { width: 12px; height: 12px; }
-.nav-label { font-size: 11px; font-weight: 600; color: var(--muted); flex: 1; line-height: 1.2; }
-.nav-item.active .nav-label { color: var(--fb); font-weight: 700; }
-.nav-badge { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 999px; min-width: 18px; text-align: center; background: var(--orange); color: white; }
-.nav-badge.amber { background: var(--gold); color: var(--fb); }
-.nav-divider { height: 1px; background: var(--border-light); margin: 5px 12px; }
+/* COCKPIT */
+.cockpit{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.panel-hdr{padding:10px 14px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb)}
+.panel-hdr.gold{border-top-color:var(--gold)}
+.panel-hdr.orange{border-top-color:var(--orange)}
+.panel-title{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.panel-body{padding:10px 14px}
 
-/* ─── MAIN ─── */
-.main { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-.main::-webkit-scrollbar { width: 5px; }
-.main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-.page { display: none; }
-.page.active { display: block; }
+/* CHIPS */
+.chip{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:3px 9px;border-radius:999px;border:1.5px solid transparent;white-space:nowrap}
+.chip-mb{background:rgba(0,189,246,.1);color:#006A8A;border-color:rgba(0,189,246,.3)}
+.chip-amber{background:#FFF5D6;color:#7A5C00;border-color:rgba(255,181,0,.25)}
+.chip-green{background:#EAFAF0;color:#1A6B35;border-color:rgba(66,187,55,.25)}
+.chip-red{background:#FFEDE7;color:var(--orange);border-color:rgba(251,71,31,.2)}
+.chip-ghost{background:transparent;color:var(--muted);border-color:var(--border)}
+.chip-orange{background:#FFF0EB;color:#7A2A00;border-color:rgba(251,71,31,.25)}
 
-/* ─── PAGE HEADER ─── */
-.page-hdr { display: flex; align-items: baseline; gap: 10px; }
-.page-title { font-size: 20px; font-weight: 800; color: var(--fb); }
-.page-sub { font-size: 11px; color: var(--muted); }
+/* EVENT CARDS */
+.event-card{border:1px solid var(--border-lt);border-radius:8px;padding:10px;margin-bottom:8px}
+.event-card:last-child{margin-bottom:0}
+.event-name{font-size:12px;font-weight:800}
+.event-meta{font-size:9px;color:var(--muted);margin-top:2px}
+.event-tags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
 
-/* ─── KPI STRIP ─── */
-.kpi-strip { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; }
-.kpi-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
-.kpi-label { font-size: 9px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-.kpi-value { font-size: 28px; font-weight: 800; color: var(--fb); line-height: 1; }
-.kpi-goal { font-size: 10px; color: var(--muted); margin-top: 3px; }
-.kpi-bar-wrap { height: 4px; background: var(--border-light); border-radius: 2px; overflow: hidden; margin: 8px 0 6px; }
-.kpi-bar { height: 100%; border-radius: 2px; }
-.kpi-callout { font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
-.kpi-callout::before { content: ''; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.kpi-callout.bad { color: var(--orange); }
-.kpi-callout.bad::before { background: var(--orange); }
-.kpi-callout.warn { color: #7A5C00; }
-.kpi-callout.warn::before { background: var(--gold); }
-.kpi-callout.good { color: #1A6B35; }
-.kpi-callout.good::before { background: var(--green); }
+/* COMING SOON */
+.coming-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center;background:var(--white);border:1px solid var(--border);border-radius:10px}
+.cs-icon{font-size:32px;margin-bottom:12px;opacity:.3}
+.cs-title{font-size:15px;font-weight:800;color:var(--fb);margin-bottom:6px}
+.cs-sub{font-size:11px;color:var(--muted);max-width:320px;line-height:1.5}
 
-/* ─── COCKPIT ─── */
-.cockpit { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+/* ── RECRUITING WORKSPACE ── */
+.rh-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.rh-stat{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 13px}
+.rh-stat-lbl{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:3px}
+.rh-stat-val{font-size:22px;font-weight:800;color:var(--fb);line-height:1}
+.rh-stat-sub{font-size:9px;color:var(--muted);margin-top:2px}
+.rh-layout{display:grid;grid-template-columns:260px 1fr;gap:12px}
+.rh-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.rh-sidebar-hdr{padding:9px 13px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center;justify-content:space-between}
+.rh-sidebar-title{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mb)}
+.new-hire-btn{font-family:'Nunito Sans',sans-serif;font-size:10px;font-weight:700;padding:3px 11px;border-radius:999px;border:1.5px solid var(--mb);background:transparent;color:var(--mb);cursor:pointer}
+.new-hire-btn:hover{background:var(--mb);color:#fff}
+.hire-item{padding:9px 13px;border-bottom:1px solid var(--border-lt);cursor:pointer;border-left:3px solid transparent;transition:background .1s}
+.hire-item:hover{background:var(--fb-xlt)}
+.hire-item.sel{background:var(--fb-xlt);border-left-color:var(--mb)}
+.hire-item:last-child{border-bottom:none}
+.hire-name{font-size:12px;font-weight:700}
+.hire-role{font-size:10px;color:var(--muted);margin-top:1px}
+.hire-prog-row{display:flex;align-items:center;gap:6px;margin-top:5px}
+.hire-prog-wrap{flex:1;height:4px;background:var(--border-lt);border-radius:2px;overflow:hidden}
+.hire-prog-fill{height:100%;background:var(--mb);border-radius:2px;transition:width .3s}
+.hire-prog-pct{font-size:9px;font-weight:800;color:var(--muted)}
+.rh-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.det-hdr{padding:13px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.det-name{font-size:16px;font-weight:800}
+.det-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.det-prog-wrap{height:5px;background:var(--border-lt);border-radius:3px;overflow:hidden;margin-top:7px;max-width:300px}
+.det-prog-fill{height:100%;background:var(--mb);transition:width .3s}
+.det-prog-lbl{font-size:9px;color:var(--muted);margin-top:3px}
+.det-scroll{max-height:calc(100vh - 340px);overflow-y:auto}
+.phase-sec{border-bottom:1px solid var(--border-lt)}
+.phase-hdr{padding:7px 16px;display:flex;align-items:center;gap:8px;background:var(--fb-xlt);cursor:pointer;border-bottom:1px solid var(--border-lt);user-select:none}
+.phase-hdr:hover{background:var(--fb-lt)}
+.ph-icon{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;flex-shrink:0}
+.ph-done{background:#EAFAF0;color:#1A6B35}
+.ph-active{background:rgba(0,189,246,.15);color:var(--mb)}
+.ph-locked{background:var(--border-lt);color:var(--muted)}
+.ph-label{font-size:11px;font-weight:800;flex:1}
+.ph-count{font-size:9px;color:var(--muted)}
+.ph-chev{font-size:9px;color:var(--muted);transition:transform .2s}
+.ph-chev.open{transform:rotate(180deg)}
+.task-row{display:flex;align-items:flex-start;gap:10px;padding:9px 16px;border-bottom:1px solid var(--border-lt)}
+.task-row:last-child{border-bottom:none}
+.task-row:hover{background:var(--fb-xlt)}
+.task-chk{width:17px;height:17px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--white);transition:all .15s}
+.task-chk:hover{border-color:var(--mb)}
+.task-chk.checked{background:var(--green);border-color:var(--green)}
+.task-chk.overdue-chk{border-color:var(--orange)}
+.chk-mark{font-size:10px;color:#fff;font-weight:800;display:none}
+.task-chk.checked .chk-mark{display:block}
+.task-body{flex:1;min-width:0}
+.task-title{font-size:11px;font-weight:700;line-height:1.4}
+.task-title.done{text-decoration:line-through;color:var(--muted)}
+.task-desc{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4}
+.task-links{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.tlink{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;border:1px solid rgba(0,189,246,.3);background:rgba(0,189,246,.07);color:#006A8A;text-decoration:none;display:inline-block}
+.tlink:hover{background:rgba(0,189,246,.2)}
+.task-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.task-owner{font-size:9px;color:var(--muted)}
+.task-due{font-size:9px;font-weight:700}
+.due-overdue{color:var(--orange)}
+.due-today{color:#7A5C00}
+.due-upcoming{color:var(--muted)}
+.due-done{color:#1A6B35}
 
-/* ─── PANEL ─── */
-.panel { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
-.panel-hdr { padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-light); }
-.panel-hdr.t-blue { border-top: 3px solid var(--mb); }
-.panel-hdr.t-red { border-top: 3px solid var(--orange); }
-.panel-hdr.t-navy { border-top: 3px solid var(--fb); }
-.panel-hdr.t-gold { border-top: 3px solid var(--gold); }
-.panel-title { font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.panel-hdr.t-blue .panel-title { color: var(--mb); }
-.panel-hdr.t-red .panel-title { color: var(--orange); }
-.panel-hdr.t-navy .panel-title { color: var(--fb); }
-.panel-hdr.t-gold .panel-title { color: #7A5C00; }
-.panel-meta { display: flex; align-items: center; gap: 8px; }
-.see-all { font-size: 9px; font-weight: 800; color: var(--mb); cursor: pointer; letter-spacing: 0.04em; }
-
-/* ─── PILL CHIPS — matches calculator style ─── */
-.chip {
-  display: inline-flex; align-items: center;
-  font-family: 'Nunito Sans', sans-serif;
-  font-size: 10px; font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 999px;
-  white-space: nowrap;
-  border: 1.5px solid transparent;
-}
-.chip-red { background: #FFEDE7; color: var(--orange); border-color: rgba(251,71,31,0.2); }
-.chip-amber { background: #FFF5D6; color: #7A5C00; border-color: rgba(255,181,0,0.25); }
-.chip-green { background: #EAFAF0; color: #1A6B35; border-color: rgba(66,187,55,0.25); }
-.chip-blue { background: var(--fb-light); color: var(--fb); border-color: rgba(0,31,95,0.15); }
-.chip-mb { background: rgba(0,189,246,0.1); color: #006A8A; border-color: rgba(0,189,246,0.3); }
-.chip-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
-
-/* ─── ACTIVE EVENTS ─── */
-.event-row { padding: 9px 14px; border-bottom: 1px solid var(--border-light); display: flex; align-items: flex-start; gap: 9px; cursor: pointer; transition: background 0.1s; }
-.event-row:hover { background: var(--fb-xlight); }
-.event-row:last-child { border-bottom: none; }
-.event-info { flex: 1; min-width: 0; }
-.event-name { font-size: 12px; font-weight: 700; color: var(--fb); }
-.event-detail { font-size: 10px; color: var(--muted); margin-top: 1px; }
-
-/* ─── NEEDS ATTENTION ─── */
-.na-section { font-size: 8px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; padding: 6px 14px; color: var(--orange); background: rgba(251,71,31,0.05); border-bottom: 1px solid var(--border-light); border-top: 1px solid var(--border-light); }
-.na-section.soon { color: #7A5C00; background: rgba(255,181,0,0.05); }
-.alert-row { padding: 8px 14px; border-bottom: 1px solid var(--border-light); display: flex; align-items: flex-start; gap: 9px; cursor: pointer; transition: background 0.1s; }
-.alert-row:hover { background: var(--fb-xlight); }
-.alert-row:last-child { border-bottom: none; }
-.na-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
-.na-dot.red { background: var(--orange); }
-.na-dot.amber { background: var(--gold); }
-.alert-body { flex: 1; }
-.alert-title { font-size: 11px; font-weight: 700; color: var(--fb); line-height: 1.3; }
-.alert-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
-.alert-age { font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
-.alert-age.red { color: var(--orange); }
-.alert-age.amber { color: #7A5C00; }
-
-/* ─── SR ─── */
-.sr-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid var(--border-light); }
-.sr-stat { padding: 10px 12px; text-align: center; border-right: 1px solid var(--border-light); }
-.sr-stat:last-child { border-right: none; }
-.sr-stat-val { font-size: 22px; font-weight: 800; color: var(--fb); line-height: 1; }
-.sr-stat-val.bad { color: var(--orange); }
-.sr-stat-val.good { color: #1A6B35; }
-.sr-stat-lbl { font-size: 8px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
-.sr-row { padding: 8px 14px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: 9px; }
-.sr-row:last-child { border-bottom: none; }
-.sr-info { flex: 1; }
-.sr-name { font-size: 11px; font-weight: 700; color: var(--fb); }
-.sr-detail { font-size: 9px; color: var(--muted); margin-top: 1px; }
-.ai-signal { margin: 8px 14px 10px; background: #FFFBF0; border: 1px solid rgba(255,181,0,0.3); border-left: 3px solid var(--gold); border-radius: 8px; padding: 8px 10px; cursor: pointer; }
-.ai-label { font-size: 9px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: #7A5C00; margin-bottom: 3px; }
-.ai-text { font-size: 10px; color: #4A3800; line-height: 1.45; }
-
-/* ─── CLOSED LOOP ─── */
-.cl-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid var(--border-light); }
-.cl-stat { padding: 10px 12px; text-align: center; border-right: 1px solid var(--border-light); }
-.cl-stat:last-child { border-right: none; }
-.cl-val { font-size: 22px; font-weight: 800; color: var(--fb); }
-.cl-val.bad { color: var(--orange); }
-.cl-val.warn { color: #7A5C00; }
-.cl-lbl { font-size: 8px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
-.cl-row { padding: 8px 14px; border-bottom: 1px solid var(--border-light); display: flex; align-items: flex-start; gap: 8px; }
-.cl-row:last-child { border-bottom: none; }
-.cl-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
-.cl-dot.red { background: var(--orange); }
-.cl-dot.amber { background: var(--gold); }
-.cl-info { flex: 1; }
-.cl-title { font-size: 11px; font-weight: 700; color: var(--fb); }
-.cl-sub { font-size: 9px; color: var(--muted); margin-top: 1px; }
-.cl-age { font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
-.cl-age.red { color: var(--orange); }
-.cl-age.amber { color: #7A5C00; }
-
-/* ─── PERFORMANCE ─── */
-.kpi-full-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
-.kpi-big { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 16px; border-top: 3px solid var(--mb); }
-.kpi-big-lbl { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 6px; }
-.kpi-big-val { font-size: 32px; font-weight: 800; color: var(--fb); line-height: 1; }
-.kpi-big-goal { font-size: 11px; color: var(--muted); margin-top: 4px; }
-.spark { margin-top: 10px; height: 30px; display: flex; align-items: flex-end; gap: 3px; }
-.spark-bar { flex: 1; background: var(--fb-light); border-radius: 2px 2px 0 0; }
-.spark-bar.hi { background: var(--mb); }
-
-/* ─── TRAINING ─── */
-.training-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
-.training-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
-.training-title { font-size: 11px; font-weight: 700; color: var(--fb); margin-bottom: 8px; line-height: 1.3; }
-.training-pct { font-size: 22px; font-weight: 800; }
-.bar-wrap { height: 5px; background: var(--fb-light); border-radius: 3px; overflow: hidden; margin-bottom: 5px; }
-.bar-fill { height: 100%; border-radius: 3px; background: var(--mb); }
-.bar-fill.warn { background: var(--gold); }
-.bar-fill.bad { background: var(--orange); }
-.bar-fill.good { background: var(--green); }
-.training-meta { font-size: 10px; color: var(--muted); }
-
-/* ─── TASK CARDS ─── */
-.filter-bar { display: flex; gap: 6px; flex-wrap: wrap; }
-.filter-btn { font-family: 'Nunito Sans', sans-serif; font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 999px; border: 1.5px solid var(--border); background: white; color: var(--muted); cursor: pointer; transition: all 0.12s; }
-.filter-btn:hover { border-color: var(--mb); color: var(--fb); }
-.filter-btn.active { background: var(--fb); color: white; border-color: var(--fb); }
-.task-card { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.task-card-hdr { padding: 8px 14px; background: var(--fb-xlight); border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: 8px; }
-.task-event-nm { font-size: 12px; font-weight: 700; color: var(--fb); }
-.task-event-meta { font-size: 10px; color: var(--muted); margin-left: auto; }
-.task-row { padding: 7px 14px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: 9px; }
-.task-row:last-child { border-bottom: none; }
-.task-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.task-dot.complete { background: var(--green); }
-.task-dot.overdue { background: var(--orange); }
-.task-dot.today { background: var(--gold); }
-.task-dot.upcoming { background: var(--border); }
-.task-nm { font-size: 11px; color: var(--fb); flex: 1; }
-.task-owner { font-size: 10px; color: var(--muted); min-width: 90px; text-align: right; }
-.task-due { font-size: 10px; font-weight: 700; min-width: 75px; text-align: right; }
-.task-due.overdue { color: var(--orange); }
-.task-due.today { color: #7A5C00; }
-.task-due.ok { color: #1A6B35; }
-.task-due.upcoming { color: var(--muted); }
-
-/* ─── LENS ─── */
-.lens-grid { display: grid; grid-template-columns: 280px 1fr; gap: 12px; align-items: start; }
-.list-panel { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.list-hdr { padding: 9px 14px; border-bottom: 1px solid var(--border-light); border-top: 3px solid var(--mb); }
-.list-hdr-title { font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mb); }
-.list-item { padding: 9px 14px; border-bottom: 1px solid var(--border-light); cursor: pointer; transition: background 0.1s; border-left: 3px solid transparent; }
-.list-item:hover { background: var(--fb-xlight); }
-.list-item.selected { background: var(--fb-xlight); border-left-color: var(--mb); }
-.list-item:last-child { border-bottom: none; }
-.list-item-nm { font-size: 12px; font-weight: 700; color: var(--fb); }
-.list-item-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
-.detail-panel { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-.detail-title { font-size: 18px; font-weight: 800; color: var(--fb); margin-bottom: 3px; }
-.detail-meta { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-.detail-stat { background: var(--fb-xlight); border-radius: 8px; padding: 10px 12px; }
-.detail-stat-lbl { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 3px; }
-.detail-stat-val { font-size: 20px; font-weight: 800; color: var(--fb); }
-.detail-sec-lbl { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 7px; }
-
-/* ─── PLACEHOLDER ─── */
-.coming-soon { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 48px 24px; text-align: center; }
-.cs-title { font-size: 16px; font-weight: 800; color: var(--fb); margin-bottom: 6px; }
-.cs-sub { font-size: 12px; color: var(--muted); line-height: 1.5; max-width: 320px; margin: 0 auto; }
-
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-/* ─── RECRUITING WORKSPACE ─── */
-.rh-layout { display: grid; grid-template-columns: 300px 1fr; gap: 14px; align-items: start; position: relative; }
-.rh-sidebar-panel { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.rh-sidebar-hdr { padding: 10px 14px; border-bottom: 1px solid var(--border-light); border-top: 3px solid var(--mb); display: flex; align-items: center; justify-content: space-between; }
-.rh-sidebar-title { font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mb); }
-.new-hire-btn {
-  font-family: 'Nunito Sans', sans-serif;
-  font-size: 10px; font-weight: 700;
-  padding: 4px 12px; border-radius: 999px;
-  border: 1.5px solid var(--mb);
-  background: transparent; color: var(--mb);
-  cursor: pointer; transition: all 0.15s;
-}
-.new-hire-btn:hover { background: var(--mb); color: white; }
-.hire-list-item {
-  padding: 10px 14px; border-bottom: 1px solid var(--border-light);
-  cursor: pointer; border-left: 3px solid transparent;
-  transition: background 0.1s;
-}
-.hire-list-item:hover { background: var(--fb-xlight); }
-.hire-list-item.selected { background: var(--fb-xlight); border-left-color: var(--mb); }
-.hire-list-item:last-child { border-bottom: none; }
-.hire-name { font-size: 12px; font-weight: 700; color: var(--fb); }
-.hire-role { font-size: 10px; color: var(--muted); margin-top: 1px; }
-.hire-meta { display: flex; align-items: center; gap: 6px; margin-top: 5px; }
-.hire-progress-wrap { flex: 1; height: 4px; background: var(--border-light); border-radius: 2px; overflow: hidden; }
-.hire-progress-fill { height: 100%; border-radius: 2px; background: var(--mb); }
-.hire-pct { font-size: 9px; font-weight: 800; color: var(--muted); }
-
-/* Checklist detail panel */
-.rh-detail { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.rh-detail-hdr { padding: 14px 18px; border-bottom: 1px solid var(--border-light); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.rh-detail-name { font-size: 18px; font-weight: 800; color: var(--fb); }
-.rh-detail-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.rh-detail-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-.rh-progress-bar-wrap { height: 6px; background: var(--border-light); border-radius: 3px; overflow: hidden; margin-top: 8px; max-width: 320px; }
-.rh-progress-bar-fill { height: 100%; border-radius: 3px; background: var(--mb); transition: width 0.3s; }
-.rh-progress-label { font-size: 10px; color: var(--muted); margin-top: 4px; }
-
-/* Phase sections */
-.phase-section { border-bottom: 1px solid var(--border-light); }
-.phase-hdr {
-  padding: 8px 18px; display: flex; align-items: center; gap: 8px;
-  background: var(--fb-xlight); cursor: pointer; user-select: none;
-  border-bottom: 1px solid var(--border-light);
-}
-.phase-hdr:hover { background: var(--fb-light); }
-.phase-icon { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; flex-shrink: 0; }
-.phase-icon.complete { background: #EAFAF0; color: #1A6B35; }
-.phase-icon.active { background: rgba(0,189,246,0.15); color: var(--mb); }
-.phase-icon.locked { background: var(--border-light); color: var(--muted); }
-.phase-label { font-size: 11px; font-weight: 800; color: var(--fb); flex: 1; }
-.phase-count { font-size: 9px; font-weight: 700; color: var(--muted); }
-.phase-chevron { font-size: 9px; color: var(--muted); transition: transform 0.2s; }
-.phase-chevron.open { transform: rotate(180deg); }
-.phase-body { padding: 4px 0; }
-
-/* Task rows */
-.task-item {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 10px 18px; border-bottom: 1px solid var(--border-light);
-  transition: background 0.1s;
-}
-.task-item:last-child { border-bottom: none; }
-.task-item:hover { background: var(--fb-xlight); }
-.task-check {
-  width: 18px; height: 18px; border-radius: 4px;
-  border: 2px solid var(--border); flex-shrink: 0; margin-top: 1px;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s; background: white;
-}
-.task-check:hover { border-color: var(--mb); }
-.task-check.checked { background: var(--green); border-color: var(--green); }
-.task-check.checked::after { content: '✓'; font-size: 11px; color: white; font-weight: 800; }
-.task-check.overdue { border-color: var(--orange); }
-.task-body { flex: 1; min-width: 0; }
-.task-title { font-size: 11px; font-weight: 700; color: var(--fb); line-height: 1.4; }
-.task-title.done { text-decoration: line-through; color: var(--muted); }
-.task-desc { font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
-.task-links { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; }
-.task-link {
-  font-family: 'Nunito Sans', sans-serif;
-  font-size: 9px; font-weight: 700; letter-spacing: 0.04em;
-  padding: 2px 8px; border-radius: 999px;
-  border: 1px solid rgba(0,189,246,0.3);
-  background: rgba(0,189,246,0.07); color: #006A8A;
-  cursor: pointer; text-decoration: none; display: inline-block;
-  transition: all 0.1s;
-}
-.task-link:hover { background: rgba(0,189,246,0.18); border-color: var(--mb); }
-.task-link.ext::after { content: ' ↗'; }
-.task-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-.task-owner-lbl { font-size: 9px; color: var(--muted); }
-.task-due-lbl { font-size: 9px; font-weight: 700; }
-.task-due-lbl.overdue { color: var(--orange); }
-.task-due-lbl.today { color: #7A5C00; }
-.task-due-lbl.upcoming { color: var(--muted); }
-.task-due-lbl.done { color: #1A6B35; }
-
-/* New hire modal */
-.modal-overlay {
-  display: none; position: absolute; inset: 0;
-  background: rgba(0,31,95,0.45); z-index: 100;
-  align-items: flex-start; justify-content: center;
-  padding-top: 32px; border-radius: 10px;
-}
-.modal-overlay.visible { display: flex; }
-.modal-box {
-  background: white; border-radius: 10px; padding: 16px 18px;
-  width: 420px; max-width: 90%;
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-}
-.modal-title { font-size: 11px; font-weight: 800; color: var(--fb); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
-.modal-field { margin-bottom: 10px; }
-.modal-label { font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 3px; }
-.modal-input {
-  font-family: 'Nunito Sans', sans-serif;
-  font-size: 10px; font-weight: 600; color: var(--fb);
-  width: 100%; padding: 5px 8px; border: 1.5px solid var(--border);
-  border-radius: 6px; outline: none; background: var(--surface);
-  transition: border-color 0.15s;
-}
-.modal-input:focus { border-color: var(--mb); background: white; }
-.modal-select {
-  font-family: 'Nunito Sans', sans-serif;
-  font-size: 10px; font-weight: 600; color: var(--fb);
-  width: 100%; padding: 5px 8px; border: 1.5px solid var(--border);
-  border-radius: 6px; outline: none; background: var(--surface);
-  appearance: none; cursor: pointer;
-}
-.modal-actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 12px; }
-.modal-cancel {
-  font-family: 'Nunito Sans', sans-serif; font-size: 9px; font-weight: 700;
-  padding: 5px 14px; border-radius: 999px; border: 1.5px solid var(--border);
-  background: white; color: var(--muted); cursor: pointer;
-}
-.modal-cancel:hover { border-color: var(--fb); color: var(--fb); }
-.modal-submit {
-  font-family: 'Nunito Sans', sans-serif; font-size: 9px; font-weight: 700;
-  padding: 5px 14px; border-radius: 999px; border: none;
-  background: var(--fb); color: white; cursor: pointer; transition: opacity 0.15s;
-}
-.modal-submit:hover { opacity: 0.85; }
-
-/* Stats bar */
-.rh-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 14px; }
-.rh-stat-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
-.rh-stat-lbl { font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 4px; }
-.rh-stat-val { font-size: 24px; font-weight: 800; color: var(--fb); line-height: 1; }
-.rh-stat-sub { font-size: 9px; color: var(--muted); margin-top: 3px; }
-
-/* Empty state */
-.rh-empty { padding: 48px 24px; text-align: center; }
-.rh-empty-title { font-size: 15px; font-weight: 800; color: var(--fb); margin-bottom: 6px; }
-.rh-empty-sub { font-size: 11px; color: var(--muted); }
-
+/* MODAL */
+.modal-bg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,31,95,.5);z-index:999;align-items:flex-start;justify-content:center;padding-top:80px}
+.modal-bg.open{display:flex}
+.modal-box{background:var(--white);border-radius:10px;padding:16px 18px;width:400px;border:1px solid var(--border);box-shadow:0 8px 40px rgba(0,0,0,.2)}
+.modal-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--fb);margin-bottom:12px}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mf{display:flex;flex-direction:column;gap:3px}
+.ml{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.mi{font-family:'Nunito Sans',sans-serif;font-size:10px;font-weight:600;color:var(--fb);width:100%;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;background:var(--surface)}
+.mi:focus{border-color:var(--mb);background:#fff}
+.modal-actions{display:flex;gap:6px;justify-content:flex-end;grid-column:1/-1;margin-top:4px}
+.m-cancel{font-family:'Nunito Sans',sans-serif;font-size:9px;font-weight:700;padding:5px 14px;border-radius:999px;border:1.5px solid var(--border);background:#fff;color:var(--muted);cursor:pointer}
+.m-cancel:hover{border-color:var(--fb);color:var(--fb)}
+.m-submit{font-family:'Nunito Sans',sans-serif;font-size:9px;font-weight:700;padding:5px 14px;border-radius:999px;border:none;background:var(--fb);color:#fff;cursor:pointer}
+.m-submit:hover{opacity:.85}
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <header class="header">
-  <div class="header-left">
-    <img src="data:image/png;base64,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" class="header-logo" alt="Freeman" />
-    <div class="header-divider"></div>
-    <span class="header-title">Exhibitor Services Command Center</span>
+  <div class="hdr-left">
+    <img class="hdr-logo" src="https://i.imgur.com/placeholder.png" onerror="this.style.display='none'" alt="Freeman">
+    <span style="font-size:18px;font-weight:900;color:#00BDF6;letter-spacing:.05em">FREEMAN</span>
+    <div class="hdr-divider"></div>
+    <span class="hdr-title">Exhibitor Services Command Center</span>
   </div>
-  <div class="header-center">
-    <div class="scope-toggle">
-      <button class="scope-btn" onclick="setScope('enterprise',this)">Enterprise</button>
-      <button class="scope-btn active" onclick="setScope('region',this)">Region</button>
-      <button class="scope-btn" onclick="setScope('branch',this)">Branch</button>
-    </div>
-    <select class="scope-select" id="scope-select">
-      <option>Southwest Region</option>
-      <option>Southeast Region</option>
-      <option>Northeast Region</option>
-      <option>Midwest Region</option>
-      <option>West Region</option>
-    </select>
+  <div class="hdr-center">
+    <button class="scope-pill active" onclick="setScope('enterprise',this)">Enterprise</button>
+    <button class="scope-pill" onclick="setScope('region',this)">Region</button>
+    <button class="scope-pill" onclick="setScope('branch',this)">Branch</button>
   </div>
-  <div class="header-right">
-    <span class="header-date">Sun, May 3 &middot; 11:39 AM CST</span>
-    <div class="header-user">CG</div>
+  <div class="hdr-right">
+    <span class="hdr-date" id="hdr-date"></span>
+    <span class="hdr-user">Craig Gaibler</span>
   </div>
 </header>
 
@@ -522,826 +196,430 @@ body {
 <nav class="sidebar">
   <div class="nav-section">Overview</div>
   <div class="nav-item active" onclick="showPage('today',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg></div>
     <span class="nav-label">Today's Priorities</span>
-    <span class="nav-badge">7</span>
   </div>
-  <div class="nav-divider"></div>
   <div class="nav-section">Responsibilities</div>
   <div class="nav-item" onclick="showPage('recruiting',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><path d="M8 8a3 3 0 100-6 3 3 0 000 6z"/><path d="M2 14s1-3 6-3 6 3 6 3"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><circle cx="8" cy="6" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div>
     <span class="nav-label">Recruiting & Hiring</span>
   </div>
   <div class="nav-item" onclick="showPage('onboarding',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 3V1M11 3V1M2 7h12"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M8 2v12M4 6l4-4 4 4"/></svg></div>
     <span class="nav-label">Onboarding & Offboarding</span>
   </div>
   <div class="nav-item" onclick="showPage('training',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><path d="M2 4l6-2 6 2v4c0 3-3 5-6 5S2 11 2 8V4z"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><rect x="2" y="3" width="12" height="9" rx="1"/><path d="M5 14h6"/></svg></div>
     <span class="nav-label">Training & Change Mgmt</span>
-    <span class="nav-badge amber">3</span>
   </div>
   <div class="nav-item" onclick="showPage('staffing',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><circle cx="5.5" cy="6" r="2.5"/><path d="M1 13s1-3 4.5-3 4.5 3 4.5 3"/><path d="M10 6h5M10 9h4"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M2 12h12M4 12V7m4 5V4m4 8V9"/></svg></div>
     <span class="nav-label">Staffing & Scheduling</span>
   </div>
   <div class="nav-item" onclick="showPage('timekeeping',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3h3"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg></div>
     <span class="nav-label">Timekeeping & Utilization</span>
   </div>
   <div class="nav-item" onclick="showPage('teambuilding',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><circle cx="5" cy="6" r="2.5"/><circle cx="11" cy="6" r="2.5"/><path d="M1 14s1-3 4-3 4 3 4 3"/><path d="M8 14s1-3 4-3 3 1.5 3 3"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><circle cx="5" cy="6" r="2.5"/><circle cx="11" cy="6" r="2.5"/><path d="M1 14c0-2.2 1.8-4 4-4s4 1.8 4 4"/><path d="M9 14c0-2.2 1.8-4 4-4"/></svg></div>
     <span class="nav-label">Team Building & Collab</span>
   </div>
   <div class="nav-item" onclick="showPage('performance',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><path d="M2 12l3.5-4 3 2.5 3-5L15 9"/><path d="M2 14h12"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M2 12l4-4 3 3 5-6"/></svg></div>
     <span class="nav-label">Performance Management</span>
   </div>
   <div class="nav-item" onclick="showPage('elevated',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><polygon points="8,1 10,6 15,6 11,9.5 12.5,14.5 8,11.5 3.5,14.5 5,9.5 1,6 6,6"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M8 2l1.8 3.6L14 6.3l-3 2.9.7 4.1L8 11.1l-3.7 2.2.7-4.1-3-2.9 4.2-.7z"/></svg></div>
     <span class="nav-label">Elevated Service</span>
-    <span class="nav-badge">2</span>
   </div>
   <div class="nav-item" onclick="showPage('career',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><path d="M3 14V6a1 1 0 011-1h8a1 1 0 011 1v8M1 14h14"/><path d="M6 5V3a1 1 0 011-1h2a1 1 0 011 1v2"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M8 2v12M5 5h6M5 9h6"/></svg></div>
     <span class="nav-label">Career Development</span>
   </div>
-  <div class="nav-divider"></div>
   <div class="nav-section">Lenses</div>
   <div class="nav-item" onclick="showPage('events',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><rect x="1" y="3" width="14" height="11" rx="1"/><path d="M5 1v3M11 1v3M1 7h14"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M5 2v2M11 2v2M2 7h12"/></svg></div>
     <span class="nav-label">Events</span>
   </div>
   <div class="nav-item" onclick="showPage('team',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14s1.5-4 6-4 6 4 6 4"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div>
     <span class="nav-label">Team</span>
   </div>
   <div class="nav-item" onclick="showPage('compliance',this)">
-    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#001F5F" stroke-width="1.5"><rect x="3" y="1" width="10" height="14" rx="1"/><path d="M6 5h4M6 8h4M6 11h2"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M8 2l5 2v5c0 3-2.2 5.2-5 6-2.8-.8-5-3-5-6V4z"/></svg></div>
     <span class="nav-label">Process Compliance</span>
-    <span class="nav-badge">4</span>
   </div>
 </nav>
 
-<!-- MAIN -->
+<!-- MAIN CONTENT -->
 <main class="main">
 
   <!-- TODAY'S PRIORITIES -->
   <div class="page active" id="page-today">
     <div class="page-hdr">
       <span class="page-title">Today's Priorities</span>
-      <span class="page-sub">Sunday, May 3, 2026 &mdash; Craig Gaibler, Senior Director &mdash; Southwest Region</span>
+      <span class="page-sub" id="today-date"></span>
     </div>
-
     <div class="kpi-strip">
-      <div class="kpi-card">
-        <div class="kpi-label">Collections MTD</div>
-        <div class="kpi-value">91%</div>
-        <div class="kpi-goal">Goal: 96%</div>
-        <div class="kpi-bar-wrap"><div class="kpi-bar" style="width:91%;background:var(--orange)"></div></div>
-        <div class="kpi-callout warn">7pts below goal</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">NPS &mdash; Post-Show</div>
-        <div class="kpi-value">+13</div>
-        <div class="kpi-goal">Goal: +20</div>
-        <div class="kpi-bar-wrap"><div class="kpi-bar" style="width:65%;background:var(--gold)"></div></div>
-        <div class="kpi-callout warn">7pts below goal</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">ES Service Score</div>
-        <div class="kpi-value">93%</div>
-        <div class="kpi-goal">Goal: 90%</div>
-        <div class="kpi-bar-wrap"><div class="kpi-bar" style="width:93%;background:var(--green)"></div></div>
-        <div class="kpi-callout good">Above goal</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">SR Health</div>
-        <div class="kpi-value">47</div>
-        <div class="kpi-goal">Open SRs &middot; 8.3% SLA breach</div>
-        <div class="kpi-bar-wrap"><div class="kpi-bar" style="width:60%;background:var(--gold)"></div></div>
-        <div class="kpi-callout warn">2 events elevated</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Closed Loop Cases</div>
-        <div class="kpi-value">8</div>
-        <div class="kpi-goal">Open &middot; 3 past SLA</div>
-        <div class="kpi-bar-wrap"><div class="kpi-bar" style="width:45%;background:var(--orange)"></div></div>
-        <div class="kpi-callout bad">3 requires immediate action</div>
-      </div>
+      <div class="kpi-card" style="border-top-color:var(--mb)"><div class="kpi-lbl">Collections MTD</div><div class="kpi-val" style="color:var(--fb)">$2.4M</div><div class="kpi-sub">↑ 8% vs prior month</div></div>
+      <div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-lbl">NPS Post-Show</div><div class="kpi-val" style="color:var(--green)">74</div><div class="kpi-sub">+3 pts vs Q1 avg</div></div>
+      <div class="kpi-card" style="border-top-color:var(--mb)"><div class="kpi-lbl">ES Service Score</div><div class="kpi-val" style="color:var(--fb)">4.6</div><div class="kpi-sub">Out of 5.0</div></div>
+      <div class="kpi-card" style="border-top-color:var(--gold)"><div class="kpi-lbl">SR Health</div><div class="kpi-val" style="color:var(--gold)">91%</div><div class="kpi-sub">Resolved within SLA</div></div>
+      <div class="kpi-card" style="border-top-color:var(--orange)"><div class="kpi-lbl">Closed Loop Cases</div><div class="kpi-val" style="color:var(--orange)">7</div><div class="kpi-sub">3 past due</div></div>
     </div>
-
     <div class="cockpit">
-
-      <!-- ACTIVE EVENTS -->
       <div class="panel">
-        <div class="panel-hdr t-blue">
-          <span class="panel-title">Active Events</span>
-          <div class="panel-meta">
-            <span class="chip chip-blue">7 Events</span>
-            <span class="see-all" onclick="showPage('events',null)">SEE ALL &rarr;</span>
+        <div class="panel-hdr"><div class="panel-title">Active Events</div></div>
+        <div class="panel-body">
+          <div class="event-card">
+            <div class="event-name">SEMA Show 2026</div>
+            <div class="event-meta">Las Vegas Convention Center · Move-in May 6</div>
+            <div class="event-tags"><span class="chip chip-green">On Track</span><span class="chip chip-mb">On-Site Lead: Torres</span></div>
+          </div>
+          <div class="event-card">
+            <div class="event-name">Healthcare Summit</div>
+            <div class="event-meta">Chicago McCormick · Move-in May 9</div>
+            <div class="event-tags"><span class="chip chip-amber">SERF Due</span><span class="chip chip-mb">On-Site Lead: Kim</span></div>
+          </div>
+          <div class="event-card">
+            <div class="event-name">AHR Expo</div>
+            <div class="event-meta">Orlando Convention · Move-in May 12</div>
+            <div class="event-tags"><span class="chip chip-green">On Track</span><span class="chip chip-mb">Remote</span></div>
           </div>
         </div>
-        <div class="event-row"><div class="event-info"><div class="event-name">NADA Annual Show</div><div class="event-detail">Las Vegas &middot; 1,840 booths &middot; Tom Fleming</div></div><span class="chip chip-green">Show Open</span></div>
-        <div class="event-row"><div class="event-info"><div class="event-name">Healthcare IT Summit</div><div class="event-detail">Dallas &middot; 420 booths &middot; Maria Chen</div></div><span class="chip chip-green">Show Open</span></div>
-        <div class="event-row"><div class="event-info"><div class="event-name">RSNA Annual Meeting</div><div class="event-detail">Chicago &middot; 2,100 booths &middot; Jamie Lawson</div></div><span class="chip chip-amber">Move-In Day 2</span></div>
-        <div class="event-row"><div class="event-info"><div class="event-name">World of Concrete</div><div class="event-detail">Las Vegas &middot; 1,560 booths &middot; Dana Kim</div></div><span class="chip chip-amber">Move-In Day 1</span></div>
-        <div class="event-row"><div class="event-info"><div class="event-name">Coverings 2026</div><div class="event-detail">Orlando &middot; 800 booths &middot; Sam Wallace</div></div><span class="chip chip-amber">Move-In Day 1</span></div>
-        <div class="event-row"><div class="event-info"><div class="event-name">SW Dental Conference</div><div class="event-detail">Phoenix &middot; 215 booths &middot; Remote</div></div><span class="chip chip-ghost">Remote</span></div>
-        <div class="event-row"><div class="event-info"><div class="event-name">InfoComm 2026</div><div class="event-detail">Las Vegas &middot; 1,240 booths &middot; Lead TBD</div></div><span class="chip chip-mb">Pre-Show</span></div>
-      </div>
-
-      <!-- NEEDS ATTENTION -->
-      <div class="panel">
-        <div class="panel-hdr t-red">
-          <span class="panel-title">&#9888; Needs Attention</span>
-          <div class="panel-meta">
-            <span class="chip chip-red">6 Overdue</span>
-            <span class="see-all" onclick="showPage('compliance',null)">SEE ALL &rarr;</span>
-          </div>
-        </div>
-        <div class="na-section">OVERDUE</div>
-        <div class="alert-row"><div class="na-dot red"></div><div class="alert-body"><div class="alert-title">SERF Not Submitted &mdash; RSNA Annual Meeting</div><div class="alert-sub">Owner: On-Site Lead (Jamie Lawson)</div></div><span class="alert-age red">3 days late</span></div>
-        <div class="alert-row"><div class="na-dot red"></div><div class="alert-body"><div class="alert-title">Event Notes Not Initiated &mdash; InfoComm 2026</div><div class="alert-sub">Owner: On-Site Lead (TBD)</div></div><span class="alert-age red">1 day late</span></div>
-        <div class="alert-row"><div class="na-dot red"></div><div class="alert-body"><div class="alert-title">Event Site Contacts Not Entered &mdash; InfoComm 2026</div><div class="alert-sub">Owner: On-Site Lead / Supervisor</div></div><span class="alert-age red">Overdue</span></div>
-        <div class="alert-row"><div class="na-dot red"></div><div class="alert-body"><div class="alert-title">Pre-Event Freight Audit Incomplete &mdash; RSNA</div><div class="alert-sub">Owner: On-Site Lead (Jamie Lawson)</div></div><span class="alert-age red">Late</span></div>
-        <div class="alert-row"><div class="na-dot red"></div><div class="alert-body"><div class="alert-title">Data Privacy Training Overdue &mdash; 3 Team Members</div><div class="alert-sub">Sam W., Morgan C., Jordan P. &mdash; MCC due date passed</div></div><span class="alert-age red">3 days late</span></div>
-        <div class="na-section soon">DUE TODAY / SOON</div>
-        <div class="alert-row"><div class="na-dot amber"></div><div class="alert-body"><div class="alert-title">Post-Event Survey &mdash; NPS Action Items Due</div><div class="alert-sub">NADA Annual Show closes today &middot; Owner: Tom Fleming</div></div><span class="alert-age amber">Due today</span></div>
-        <div class="alert-row"><div class="na-dot amber"></div><div class="alert-body"><div class="alert-title">NERF Due &mdash; InfoComm 2026</div><div class="alert-sub">60-day deadline approaching &middot; Owner: On-Site Lead</div></div><span class="alert-age amber">3 days</span></div>
-        <div class="alert-row"><div class="na-dot amber"></div><div class="alert-body"><div class="alert-title">Freight Audit In Progress &mdash; World of Concrete</div><div class="alert-sub">Owner: Dana Kim &middot; Expected before move-in close</div></div><span class="alert-age amber">Today</span></div>
-      </div>
-
-      <!-- CUSTOMER RESOLUTION -->
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <div class="panel">
-          <div class="panel-hdr t-navy">
-            <span class="panel-title">Service Requests</span>
-            <div class="panel-meta">
-              <span class="chip chip-red">2 Elevated</span>
-              <span class="see-all" onclick="showPage('elevated',null)">SEE ALL &rarr;</span>
-            </div>
-          </div>
-          <div class="sr-stats">
-            <div class="sr-stat"><div class="sr-stat-val">47</div><div class="sr-stat-lbl">Open SRs</div></div>
-            <div class="sr-stat"><div class="sr-stat-val bad">8.3%</div><div class="sr-stat-lbl">SLA Breach</div></div>
-            <div class="sr-stat"><div class="sr-stat-val good">+34%</div><div class="sr-stat-lbl">vs. Prior Yr</div></div>
-          </div>
-          <div class="sr-row"><div class="sr-info"><div class="sr-name">RSNA Annual Meeting</div><div class="sr-detail">18 open &middot; 3 breaching SLA &middot; +61% vs. PY</div></div><span class="chip chip-red">Elevated</span></div>
-          <div class="sr-row"><div class="sr-info"><div class="sr-name">World of Concrete</div><div class="sr-detail">14 open &middot; 3 breaching SLA &middot; +28% vs. PY</div></div><span class="chip chip-amber">Watch</span></div>
-          <div class="sr-row"><div class="sr-info"><div class="sr-name">NADA Annual Show</div><div class="sr-detail">9 open &middot; 0 breaching &middot; -4% vs. PY</div></div><span class="chip chip-green">Normal</span></div>
-          <div class="ai-signal" onclick="showPage('elevated',null)">
-            <div class="ai-label">&#9888; AI Signal &mdash; RSNA</div>
-            <div class="ai-text">7 of 18 SRs mention <strong>freight not delivered to booth</strong>. 3 flag <strong>repeated calls</strong>. Check with Operations.</div>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-hdr t-gold">
-            <span class="panel-title">Closed Loop Cases</span>
-            <div class="panel-meta">
-              <span class="chip chip-red">3 Past SLA</span>
-              <span class="see-all" onclick="showPage('elevated',null)">SEE ALL &rarr;</span>
-            </div>
-          </div>
-          <div class="cl-stats">
-            <div class="cl-stat"><div class="cl-val">8</div><div class="cl-lbl">Open Cases</div></div>
-            <div class="cl-stat"><div class="cl-val bad">3</div><div class="cl-lbl">Past SLA</div></div>
-            <div class="cl-stat"><div class="cl-val warn">5</div><div class="cl-lbl">Pending Resp.</div></div>
-          </div>
-          <div class="cl-row"><div class="cl-dot red"></div><div class="cl-info"><div class="cl-title">NADA &mdash; Billing Dispute Unresolved</div><div class="cl-sub">Customer flagged overcharge on freight &middot; Off-site owner</div></div><span class="cl-age red">6 days</span></div>
-          <div class="cl-row"><div class="cl-dot red"></div><div class="cl-info"><div class="cl-title">WOC &mdash; Labor Quality Complaint</div><div class="cl-sub">Booth assembly incomplete at show open</div></div><span class="cl-age red">4 days</span></div>
-          <div class="cl-row"><div class="cl-dot red"></div><div class="cl-info"><div class="cl-title">HIT Summit &mdash; Service Response Time</div><div class="cl-sub">Exhibitor waited 45 min for desk assistance</div></div><span class="cl-age red">3 days</span></div>
-          <div class="cl-row"><div class="cl-dot amber"></div><div class="cl-info"><div class="cl-title">Coverings &mdash; Furniture Not Delivered</div><div class="cl-sub">3 items still outstanding per exhibitor</div></div><span class="cl-age amber">1 day</span></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- PERFORMANCE -->
-  <div class="page" id="page-performance">
-    <div class="page-hdr"><span class="page-title">Performance Management</span><span class="page-sub">KPI Scorecard &mdash; FY26 YTD</span></div>
-    <div class="kpi-full-grid">
-      <div class="kpi-big"><div class="kpi-big-lbl">Collections %</div><div class="kpi-big-val">93.2%</div><div class="kpi-big-goal">Goal: 96% — Below target</div><div class="spark"><div class="spark-bar" style="height:50%"></div><div class="spark-bar" style="height:62%"></div><div class="spark-bar" style="height:58%"></div><div class="spark-bar" style="height:70%"></div><div class="spark-bar" style="height:65%"></div><div class="spark-bar" style="height:72%"></div><div class="spark-bar hi" style="height:80%"></div></div></div>
-      <div class="kpi-big"><div class="kpi-big-lbl">NPS Score</div><div class="kpi-big-val">+13</div><div class="kpi-big-goal">Goal: +20 — 847 responses</div><div class="spark"><div class="spark-bar" style="height:45%"></div><div class="spark-bar" style="height:50%"></div><div class="spark-bar" style="height:48%"></div><div class="spark-bar" style="height:55%"></div><div class="spark-bar" style="height:52%"></div><div class="spark-bar" style="height:58%"></div><div class="spark-bar hi" style="height:60%"></div></div></div>
-      <div class="kpi-big"><div class="kpi-big-lbl">ES Service Score</div><div class="kpi-big-val">88.4%</div><div class="kpi-big-goal">Goal: 90% — Trending up</div><div class="spark"><div class="spark-bar" style="height:70%"></div><div class="spark-bar" style="height:72%"></div><div class="spark-bar" style="height:75%"></div><div class="spark-bar" style="height:78%"></div><div class="spark-bar" style="height:80%"></div><div class="spark-bar" style="height:84%"></div><div class="spark-bar hi" style="height:88%"></div></div></div>
-      <div class="kpi-big"><div class="kpi-big-lbl">SR SLA Breach Rate</div><div class="kpi-big-val">14.2%</div><div class="kpi-big-goal">Target &lt;10% — Needs attention</div><div class="spark"><div class="spark-bar" style="height:30%"></div><div class="spark-bar" style="height:45%"></div><div class="spark-bar" style="height:38%"></div><div class="spark-bar" style="height:50%"></div><div class="spark-bar" style="height:55%"></div><div class="spark-bar" style="height:60%"></div><div class="spark-bar hi" style="height:70%"></div></div></div>
-      <div class="kpi-big"><div class="kpi-big-lbl">Closed Loop Cases</div><div class="kpi-big-val">12</div><div class="kpi-big-goal">Open — 3 aging &gt;14 days</div><div class="spark"><div class="spark-bar" style="height:60%"></div><div class="spark-bar" style="height:45%"></div><div class="spark-bar" style="height:70%"></div><div class="spark-bar" style="height:55%"></div><div class="spark-bar" style="height:65%"></div><div class="spark-bar" style="height:50%"></div><div class="spark-bar hi" style="height:58%"></div></div></div>
-      <div class="kpi-big"><div class="kpi-big-lbl">Post-Event Survey Reports</div><div class="kpi-big-val">32</div><div class="kpi-big-goal">PDFs filed YTD</div><div class="spark"><div class="spark-bar" style="height:20%"></div><div class="spark-bar" style="height:35%"></div><div class="spark-bar" style="height:50%"></div><div class="spark-bar" style="height:65%"></div><div class="spark-bar" style="height:75%"></div><div class="spark-bar" style="height:85%"></div><div class="spark-bar hi" style="height:95%"></div></div></div>
-    </div>
-  </div>
-
-  <!-- COMPLIANCE -->
-  <div class="page" id="page-compliance">
-    <div class="page-hdr"><span class="page-title">Process Compliance</span><span class="page-sub">Task tracking across all active events</span></div>
-    <div class="filter-bar">
-      <button class="filter-btn active">All (24)</button>
-      <button class="filter-btn">Overdue (4)</button>
-      <button class="filter-btn">Due Today (2)</button>
-      <button class="filter-btn">Upcoming (8)</button>
-      <button class="filter-btn">Complete (10)</button>
-    </div>
-    <div class="task-card">
-      <div class="task-card-hdr"><span class="task-event-nm">RSNA Annual Meeting</span><span class="chip chip-red">2 Overdue</span><span class="task-event-meta">CHI &mdash; Jamie Lawson &mdash; Move-In Today</span></div>
-      <div class="task-row"><div class="task-dot overdue"></div><span class="task-nm">SERF Submitted</span><span class="task-owner">Jamie Lawson</span><span class="task-due overdue">3 days late</span></div>
-      <div class="task-row"><div class="task-dot overdue"></div><span class="task-nm">Pre-Event Freight Audit Complete</span><span class="task-owner">Jamie Lawson</span><span class="task-due overdue">Late</span></div>
-      <div class="task-row"><div class="task-dot complete"></div><span class="task-nm">NERF Submitted</span><span class="task-owner">Jamie Lawson</span><span class="task-due ok">Complete</span></div>
-      <div class="task-row"><div class="task-dot complete"></div><span class="task-nm">E3 Calls Attended (120/90/60 Day)</span><span class="task-owner">Jamie Lawson</span><span class="task-due ok">Complete</span></div>
-    </div>
-    <div class="task-card">
-      <div class="task-card-hdr"><span class="task-event-nm">InfoComm 2026</span><span class="chip chip-red">2 Overdue</span><span class="task-event-meta">LV &mdash; Lead TBD &mdash; Pre-Show</span></div>
-      <div class="task-row"><div class="task-dot overdue"></div><span class="task-nm">Event Notes Initiated</span><span class="task-owner">Lead TBD</span><span class="task-due overdue">1 day late</span></div>
-      <div class="task-row"><div class="task-dot overdue"></div><span class="task-nm">Event Site Contacts Entered</span><span class="task-owner">Supervisor</span><span class="task-due overdue">Overdue</span></div>
-      <div class="task-row"><div class="task-dot today"></div><span class="task-nm">NERF Submitted</span><span class="task-owner">Lead TBD</span><span class="task-due today">Due in 3 days</span></div>
-    </div>
-  </div>
-
-  <!-- TRAINING -->
-  <div class="page" id="page-training">
-    <div class="page-hdr"><span class="page-title">Training & Change Management</span><span class="page-sub">MCC Compliance &mdash; All Team Members</span></div>
-    <div class="training-grid">
-      <div class="training-card"><div class="training-title">FNext ES Training</div><div class="training-pct" style="color:var(--orange)">71%</div><div class="bar-wrap"><div class="bar-fill bad" style="width:71%"></div></div><div class="training-meta">3 overdue &mdash; Due Apr 30</div></div>
-      <div class="training-card"><div class="training-title">Managing Motivation During Change</div><div class="training-pct" style="color:#7A5C00">85%</div><div class="bar-wrap"><div class="bar-fill warn" style="width:85%"></div></div><div class="training-meta">2 in progress &mdash; Due May 15</div></div>
-      <div class="training-card"><div class="training-title">ES Safety Certification</div><div class="training-pct" style="color:var(--fb)">94%</div><div class="bar-wrap"><div class="bar-fill" style="width:94%"></div></div><div class="training-meta">1 not started &mdash; Due Jun 1</div></div>
-      <div class="training-card"><div class="training-title">Salesforce Service Cloud Basics</div><div class="training-pct" style="color:#1A6B35">100%</div><div class="bar-wrap"><div class="bar-fill good" style="width:100%"></div></div><div class="training-meta">All complete</div></div>
-    </div>
-    <div class="coming-soon"><div class="cs-title">Individual Member Drill-Down</div><div class="cs-sub">Click a course card above to see completion per team member — available once MCC data connection is live (Phase 5)</div></div>
-  </div>
-
-  <!-- ELEVATED SERVICE -->
-  <div class="page" id="page-elevated">
-    <div class="page-hdr"><span class="page-title">Elevated Service</span><span class="page-sub">Service Requests, AI Signal, Closed Loop Cases</span></div>
-    <div class="two-col">
-      <div class="panel">
-        <div class="panel-hdr t-red"><span class="panel-title">&#9888; AI Signal &mdash; Elevated Language</span><span class="chip chip-red">3 Flags</span></div>
-        <div class="alert-row"><div class="na-dot red"></div><div class="alert-body"><div class="alert-title">PAX East &mdash; "Completely unacceptable, never again"</div><div class="alert-sub">SR #44821 &mdash; Freight delay at dock</div></div></div>
-        <div class="alert-row"><div class="na-dot red"></div><div class="alert-body"><div class="alert-title">PAX East &mdash; "No one helped us for 3 hours"</div><div class="alert-sub">SR #44803 &mdash; Staffing coverage gap</div></div></div>
-        <div class="alert-row"><div class="na-dot red"></div><div class="alert-body"><div class="alert-title">ISC West &mdash; "Charged incorrectly again"</div><div class="alert-sub">SR #44756 &mdash; Billing dispute</div></div></div>
       </div>
       <div class="panel">
-        <div class="panel-hdr t-navy"><span class="panel-title">Closed Loop Cases</span><span class="chip chip-red">12 Open</span></div>
-        <div class="sr-row"><div class="sr-info"><div class="sr-name">ORL &mdash; Orlando</div><div class="sr-detail">3 cases open</div></div><span style="font-size:10px;font-weight:700;color:var(--orange)">Oldest: 18 days</span></div>
-        <div class="sr-row"><div class="sr-info"><div class="sr-name">CHI &mdash; Chicago</div><div class="sr-detail">2 cases open</div></div><span style="font-size:10px;font-weight:700;color:var(--orange)">Oldest: 15 days</span></div>
-        <div class="sr-row"><div class="sr-info"><div class="sr-name">LV &mdash; Las Vegas</div><div class="sr-detail">4 cases open</div></div><span style="font-size:10px;font-weight:700;color:#7A5C00">Oldest: 9 days</span></div>
-        <div class="sr-row"><div class="sr-info"><div class="sr-name">SF &mdash; San Francisco</div><div class="sr-detail">3 cases open</div></div><span style="font-size:10px;font-weight:700;color:var(--muted)">Oldest: 4 days</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- EVENTS LENS -->
-  <div class="page" id="page-events">
-    <div class="page-hdr"><span class="page-title">Events</span><span class="page-sub">Drill Down by Event</span></div>
-    <div class="lens-grid">
-      <div class="list-panel">
-        <div class="list-hdr"><span class="list-hdr-title">Active & Upcoming</span></div>
-        <div class="list-item selected"><div class="list-item-nm">NADA Annual Show</div><div class="list-item-sub">LV &mdash; Show Open &mdash; Tom Fleming</div></div>
-        <div class="list-item"><div class="list-item-nm">Healthcare IT Summit</div><div class="list-item-sub">Dallas &mdash; Show Open &mdash; Maria Chen</div></div>
-        <div class="list-item"><div class="list-item-nm">RSNA Annual Meeting</div><div class="list-item-sub">Chicago &mdash; Move-In &mdash; Jamie Lawson</div></div>
-        <div class="list-item"><div class="list-item-nm">World of Concrete</div><div class="list-item-sub">LV &mdash; Move-In &mdash; Dana Kim</div></div>
-        <div class="list-item"><div class="list-item-nm">InfoComm 2026</div><div class="list-item-sub">LV &mdash; Pre-Show &mdash; Lead TBD</div></div>
-      </div>
-      <div class="detail-panel">
-        <div class="detail-title">NADA Annual Show</div>
-        <div class="detail-meta">Las Vegas Convention Center &mdash; Tom Fleming, LV Director &mdash; 1,840 booths</div>
-        <div class="detail-grid">
-          <div class="detail-stat"><div class="detail-stat-lbl">Phase</div><div class="detail-stat-val">Show Open</div></div>
-          <div class="detail-stat"><div class="detail-stat-lbl">Open SRs</div><div class="detail-stat-val">9</div></div>
-          <div class="detail-stat"><div class="detail-stat-lbl">NPS (This Show)</div><div class="detail-stat-val">+15</div></div>
-          <div class="detail-stat"><div class="detail-stat-lbl">Tasks Overdue</div><div class="detail-stat-val" style="color:#1A6B35">0</div></div>
+        <div class="panel-hdr gold"><div class="panel-title">Needs Attention</div></div>
+        <div class="panel-body">
+          <div class="event-card">
+            <div class="event-name">Healthcare Summit — SERF Overdue</div>
+            <div class="event-meta">Due 5 weeks pre move-in · 3 days past deadline</div>
+            <div class="event-tags"><span class="chip chip-red">Overdue</span><span class="chip chip-ghost">Lead: Kim</span></div>
+          </div>
+          <div class="event-card">
+            <div class="event-name">Hiring — 2 Tasks Past Due</div>
+            <div class="event-meta">Jordan Patel pipeline · Interview scheduling overdue</div>
+            <div class="event-tags"><span class="chip chip-red">2 Overdue</span><span class="chip chip-ghost">Recruiting</span></div>
+          </div>
+          <div class="event-card">
+            <div class="event-name">Timekeeping — Approval Window</div>
+            <div class="event-meta">Kronos timecards due Monday 12pm CST</div>
+            <div class="event-tags"><span class="chip chip-amber">Due Today</span><span class="chip chip-ghost">Timekeeping</span></div>
+          </div>
         </div>
-        <div class="detail-sec-lbl">Compliance Status</div>
-        <div class="task-card">
-          <div class="task-row"><div class="task-dot complete"></div><span class="task-nm">SERF Submitted</span><span class="task-due ok">Complete</span></div>
-          <div class="task-row"><div class="task-dot complete"></div><span class="task-nm">Event Notes Initiated</span><span class="task-due ok">Complete</span></div>
-          <div class="task-row"><div class="task-dot complete"></div><span class="task-nm">NERF Submitted</span><span class="task-due ok">Complete</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr orange"><div class="panel-title">Customer Resolution</div></div>
+        <div class="panel-body">
+          <div class="event-card">
+            <div class="event-name">BBB Complaint — Booth 4412</div>
+            <div class="event-meta">Response due May 10 · 7 days remaining</div>
+            <div class="event-tags"><span class="chip chip-amber">In Progress</span><span class="chip chip-ghost">Elaine Yesh</span></div>
+          </div>
+          <div class="event-card">
+            <div class="event-name">SR #88142 — Freight Dispute</div>
+            <div class="event-meta">SEMA Show · Opened 2 days ago</div>
+            <div class="event-tags"><span class="chip chip-orange">Open</span><span class="chip chip-ghost">Backroom</span></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- TEAM LENS -->
-  <div class="page" id="page-team">
-    <div class="page-hdr"><span class="page-title">Team</span><span class="page-sub">Drill Down by Person</span></div>
-    <div class="lens-grid">
-      <div class="list-panel">
-        <div class="list-hdr"><span class="list-hdr-title">Team Members</span></div>
-        <div class="list-item selected"><div class="list-item-nm">Tom Fleming</div><div class="list-item-sub">Director &mdash; Las Vegas</div></div>
-        <div class="list-item"><div class="list-item-nm">Maria Chen</div><div class="list-item-sub">Director &mdash; Dallas</div></div>
-        <div class="list-item"><div class="list-item-nm">Jamie Lawson</div><div class="list-item-sub">Manager &mdash; Chicago</div></div>
-        <div class="list-item"><div class="list-item-nm">Dana Kim</div><div class="list-item-sub">Director &mdash; Las Vegas</div></div>
-        <div class="list-item"><div class="list-item-nm">Sam Wallace</div><div class="list-item-sub">Director &mdash; Orlando</div></div>
-      </div>
-      <div class="detail-panel">
-        <div class="detail-title">Tom Fleming</div>
-        <div class="detail-meta">Director &mdash; Las Vegas &mdash; Reports to Craig Gaibler</div>
-        <div class="detail-grid">
-          <div class="detail-stat"><div class="detail-stat-lbl">Active Events</div><div class="detail-stat-val">2</div></div>
-          <div class="detail-stat"><div class="detail-stat-lbl">Open Tasks</div><div class="detail-stat-val" style="color:#1A6B35">0</div></div>
-          <div class="detail-stat"><div class="detail-stat-lbl">Training</div><div class="detail-stat-val">4 / 4</div></div>
-          <div class="detail-stat"><div class="detail-stat-lbl">SR Breach Rate</div><div class="detail-stat-val">0%</div></div>
-        </div>
-        <div class="detail-sec-lbl">Current Assignments</div>
-        <div class="event-row" style="padding:8px 0;border-bottom:1px solid var(--border-light)"><div class="event-info"><div class="event-name">NADA Annual Show</div><div class="event-detail">Show open &mdash; all tasks complete</div></div><span class="chip chip-green">Show Open</span></div>
-        <div class="event-row" style="padding:8px 0"><div class="event-info"><div class="event-name">InfoComm 2026</div><div class="event-detail">Pre-show &mdash; 60 days out</div></div><span class="chip chip-mb">Pre-Show</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PLACEHOLDERS -->
-
-  <!-- RECRUITING & HIRING WORKSPACE -->
-  <div class="page" id="page-recruiting" style="position:relative">
+  <!-- RECRUITING & HIRING -->
+  <div class="page" id="page-recruiting">
     <div class="page-hdr">
       <span class="page-title">Recruiting & Hiring</span>
       <span class="page-sub">Active candidate pipelines — Southwest Region</span>
     </div>
-
-    <!-- Summary stats -->
     <div class="rh-stats">
-      <div class="rh-stat-card">
-        <div class="rh-stat-lbl">Open Requisitions</div>
-        <div class="rh-stat-val" id="stat-open">3</div>
-        <div class="rh-stat-sub">Pending approval or posted</div>
-      </div>
-      <div class="rh-stat-card">
-        <div class="rh-stat-lbl">In-Process</div>
-        <div class="rh-stat-val" id="stat-inprocess">2</div>
-        <div class="rh-stat-sub">Interviewing or offer stage</div>
-      </div>
-      <div class="rh-stat-card">
-        <div class="rh-stat-lbl">Offers Extended</div>
-        <div class="rh-stat-val" id="stat-offers">1</div>
-        <div class="rh-stat-sub">Awaiting signature</div>
-      </div>
-      <div class="rh-stat-card">
-        <div class="rh-stat-lbl">Tasks Overdue</div>
-        <div class="rh-stat-val" id="stat-overdue" style="color:var(--orange)">2</div>
-        <div class="rh-stat-sub">Across all active hires</div>
-      </div>
+      <div class="rh-stat"><div class="rh-stat-lbl">Open Requisitions</div><div class="rh-stat-val" id="stat-open">1</div><div class="rh-stat-sub">Pending or posted</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">In-Process</div><div class="rh-stat-val" id="stat-proc">1</div><div class="rh-stat-sub">Interviewing</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">Offer Stage</div><div class="rh-stat-val" id="stat-offer">1</div><div class="rh-stat-sub">Awaiting signature</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">Tasks Overdue</div><div class="rh-stat-val" id="stat-over" style="color:var(--orange)">0</div><div class="rh-stat-sub">Across all hires</div></div>
     </div>
-
     <div class="rh-layout">
-      <!-- Left: hire list -->
-      <div class="rh-sidebar-panel">
+      <div class="rh-sidebar">
         <div class="rh-sidebar-hdr">
           <span class="rh-sidebar-title">Active Pipelines</span>
-          <button class="new-hire-btn" onclick="openNewHireModal()">+ New Hire</button>
+          <button class="new-hire-btn" onclick="openModal()">+ New Hire</button>
         </div>
         <div id="hire-list"></div>
       </div>
-
-      <!-- Right: checklist detail -->
-      <div id="rh-detail-panel"></div>
-    </div>
-
-    <!-- New Hire Modal -->
-    <div class="modal-overlay" id="new-hire-modal">
-      <div class="modal-box">
-        <div class="modal-title">New Hire Checklist</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div class="modal-field">
-            <div class="modal-label">Candidate Name</div>
-            <input class="modal-input" id="modal-name" placeholder="First Last" />
-          </div>
-          <div class="modal-field">
-            <div class="modal-label">Role</div>
-            <select class="modal-select" id="modal-role">
-              <option>ES Representative</option>
-              <option>ES Supervisor</option>
-              <option>ES Manager</option>
-              <option>ES Director</option>
-              <option>Event Experience Supervisor</option>
-            </select>
-          </div>
-          <div class="modal-field">
-            <div class="modal-label">Branch / Location</div>
-            <input class="modal-input" id="modal-branch" placeholder="e.g. Las Vegas" />
-          </div>
-          <div class="modal-field">
-            <div class="modal-label">Target Start Date</div>
-            <input class="modal-input" id="modal-start" type="date" />
-          </div>
-          <div class="modal-actions" style="grid-column:1/-1">
-            <button class="modal-cancel" onclick="closeNewHireModal()">Cancel</button>
-            <button class="modal-submit" onclick="createNewHire()">Create Checklist</button>
-          </div>
-        </div>
-      </div>
+      <div id="rh-detail" class="rh-detail"></div>
     </div>
   </div>
 
-  <div class="page" id="page-onboarding"><div class="page-hdr"><span class="page-title">Onboarding & Offboarding</span></div><div class="coming-soon"><div class="cs-title">Onboarding & Offboarding</div><div class="cs-sub">New hire onboarding checklists, Day 1 readiness, and offboarding status — future phase.</div></div></div>
-  <div class="page" id="page-staffing"><div class="page-hdr"><span class="page-title">Staffing & Scheduling</span></div><div class="coming-soon"><div class="cs-title">Staffing & Scheduling</div><div class="cs-sub">National Show Schedule coverage, regional utilization, and travel needs — connects to NSS and Staffing Calculator.</div></div></div>
-  <div class="page" id="page-timekeeping"><div class="page-hdr"><span class="page-title">Timekeeping & Utilization</span></div><div class="coming-soon"><div class="cs-title">Timekeeping & Utilization</div><div class="cs-sub">Workfront task compliance, Kronos timecard approvals, and billable-to-job reporting — future phase.</div></div></div>
-  <div class="page" id="page-teambuilding"><div class="page-hdr"><span class="page-title">Team Building & Collaboration</span></div><div class="coming-soon"><div class="cs-title">Team Building & Collaboration</div><div class="cs-sub">Leader meeting cascade topics, recognition activity, and Managers' Minutes — future phase.</div></div></div>
-  <div class="page" id="page-career"><div class="page-hdr"><span class="page-title">Career Development</span></div><div class="coming-soon"><div class="cs-title">Career Development</div><div class="cs-sub">Individual Development Plan status, development conversations, and live training completion — future phase.</div></div></div>
+  <!-- COMING SOON PAGES -->
+  <div class="page" id="page-onboarding"><div class="coming-soon"><div class="cs-icon">📋</div><div class="cs-title">Onboarding & Offboarding</div><div class="cs-sub">New hire onboarding checklists, Day 1 readiness, and offboarding workflows — coming next.</div></div></div>
+  <div class="page" id="page-training"><div class="coming-soon"><div class="cs-icon">🎓</div><div class="cs-title">Training & Change Management</div><div class="cs-sub">FNext dashboards, NET participant performance, and training compliance tracking.</div></div></div>
+  <div class="page" id="page-staffing"><div class="coming-soon"><div class="cs-icon">📅</div><div class="cs-title">Staffing & Scheduling</div><div class="cs-sub">NSS coverage, regional utilization, and travel needs — connects to Staffing Calculator.</div></div></div>
+  <div class="page" id="page-timekeeping"><div class="coming-soon"><div class="cs-icon">⏱</div><div class="cs-title">Timekeeping & Utilization</div><div class="cs-sub">Workfront approvals, Kronos timecards, and billable-to-job reporting.</div></div></div>
+  <div class="page" id="page-teambuilding"><div class="coming-soon"><div class="cs-icon">🤝</div><div class="cs-title">Team Building & Collaboration</div><div class="cs-sub">Meeting cascade, recognition activity, and Managers' Minutes.</div></div></div>
+  <div class="page" id="page-performance"><div class="coming-soon"><div class="cs-icon">📈</div><div class="cs-title">Performance Management</div><div class="cs-sub">Five9 QA, on-site evaluations, annual review cycle tracking.</div></div></div>
+  <div class="page" id="page-elevated"><div class="coming-soon"><div class="cs-icon">⭐</div><div class="cs-title">Elevated Service</div><div class="cs-sub">BBB complaint tracking, social media escalations, and response management.</div></div></div>
+  <div class="page" id="page-career"><div class="coming-soon"><div class="cs-icon">🚀</div><div class="cs-title">Career Development</div><div class="cs-sub">IDP status, development conversations, and live training completion.</div></div></div>
+  <div class="page" id="page-events"><div class="coming-soon"><div class="cs-icon">🗓</div><div class="cs-title">Events Lens</div><div class="cs-sub">ESM task compliance across all active events — SERF, NERF, FOL, show close status.</div></div></div>
+  <div class="page" id="page-team"><div class="coming-soon"><div class="cs-icon">👥</div><div class="cs-title">Team Lens</div><div class="cs-sub">Utilization, training status, and performance flags by team member.</div></div></div>
+  <div class="page" id="page-compliance"><div class="coming-soon"><div class="cs-icon">✅</div><div class="cs-title">Process Compliance</div><div class="cs-sub">Deadline adherence across all ESM tasks — rolled up by branch, region, and enterprise.</div></div></div>
 
 </main>
 </div>
 
+<!-- MODAL (fixed to viewport) -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal-box">
+    <div class="modal-title">New Hire Checklist</div>
+    <div class="modal-grid">
+      <div class="mf"><div class="ml">Candidate Name</div><input class="mi" id="m-name" placeholder="First Last"/></div>
+      <div class="mf"><div class="ml">Role</div>
+        <select class="mi" id="m-role">
+          <option>ES Representative</option><option>ES Supervisor</option>
+          <option>ES Manager</option><option>ES Director</option><option>Event Experience Supervisor</option>
+        </select>
+      </div>
+      <div class="mf"><div class="ml">Branch</div><input class="mi" id="m-branch" placeholder="e.g. Las Vegas"/></div>
+      <div class="mf"><div class="ml">Target Start Date</div><input class="mi" id="m-start" type="date"/></div>
+      <div class="modal-actions">
+        <button class="m-cancel" onclick="closeModal()">Cancel</button>
+        <button class="m-submit" onclick="createHire()">Create Checklist</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+// ── NAVIGATION ──
 function showPage(id, el) {
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
   var page = document.getElementById('page-' + id);
   if (page) page.classList.add('active');
+  if (el) el.classList.add('active');
   if (id === 'recruiting') initRecruiting();
-  if (el) { el.classList.add('active'); }
-  else {
-    document.querySelectorAll('.nav-item').forEach(function(item){
-      var oc = item.getAttribute('onclick') || '';
-      if (oc.indexOf("'" + id + "'") !== -1) item.classList.add('active');
-    });
-  }
-}
-function setScope(scope, btn) {
-  document.querySelectorAll('.scope-btn').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  var sel = document.getElementById('scope-select');
-  if (scope === 'enterprise') {
-    sel.classList.add('disabled');
-    sel.innerHTML = '<option>All Regions</option>';
-  } else if (scope === 'region') {
-    sel.classList.remove('disabled');
-    sel.innerHTML = '<option>Southwest Region</option><option>Southeast Region</option><option>Northeast Region</option><option>Midwest Region</option><option>West Region</option>';
-  } else if (scope === 'branch') {
-    sel.classList.remove('disabled');
-    sel.innerHTML = '<option>Las Vegas</option><option>Chicago</option><option>Dallas</option><option>Orlando</option><option>San Francisco</option><option>Boston</option><option>Atlanta</option>';
-  }
 }
 
-// ─── RECRUITING & HIRING DATA & LOGIC ───
+function setScope(scope, el) {
+  document.querySelectorAll('.scope-pill').forEach(function(p){ p.classList.remove('active'); });
+  el.classList.add('active');
+}
 
-var RH_TASKS = [
-  // Phase 1: Job Requisition
-  { phase: 'Job Requisition', id: 't1', title: 'Identify the hiring need',
-    desc: 'Determine if new role or backfill. Clarify job purpose, budget, and urgency.',
-    owner: 'Hiring Manager', offsetDays: -70,
-    links: [{ label: 'ES Roles & Responsibilities', url: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/Handbook/Roles_%26_Responsibilities.aspx' }]
-  },
-  { phase: 'Job Requisition', id: 't2', title: 'Select ES role and confirm job details',
-    desc: 'Review responsibilities, qualifications, working environment, and reporting structure.',
-    owner: 'Hiring Manager', offsetDays: -70,
-    links: [{ label: 'ES Roles & Responsibilities', url: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/Handbook/Roles_%26_Responsibilities.aspx' }]
-  },
-  { phase: 'Job Requisition', id: 't3', title: 'Submit request to Regional Director',
-    desc: 'Email Regional Director with position title, requested salary, start date, and any pre-identified candidates.',
-    owner: 'Hiring Manager', offsetDays: -68,
-    links: []
-  },
-  { phase: 'Job Requisition', id: 't4', title: 'Regional Director submits to ES Leadership for approval',
-    desc: 'Forward to Nesana Wieger / Craig Gaibler for sign-off. Include role, salary, start date, and whether new or backfill.',
-    owner: 'Regional Director', offsetDays: -65,
-    links: [{ label: 'ES Leadership Contacts', url: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/Leader_Resources/Recruiting_and_Hiring_Procedures.aspx#appendix-recruiting-and-hiring-contacts' }]
-  },
-  { phase: 'Job Requisition', id: 't5', title: 'ES Leadership submits to Growth Leadership (if needed)',
-    desc: 'Submit detailed request to Laure Chachere / Anytra Lowe if additional approval required.',
-    owner: 'ES Leadership', offsetDays: -62,
-    links: []
-  },
-  // Phase 2: Recruiting & Interviewing
-  { phase: 'Recruiting & Interviewing', id: 't6', title: 'Submit job request to HR Business Partner',
-    desc: 'Email Chastity Austin (cc: Megan Wierick, Hiring Manager, Regional Director, Erica Cochran, Erii Rodriguez). Confirm approved start date and NET class date.',
-    owner: 'ES Leadership', offsetDays: -60,
-    links: [
-      { label: 'HR HRBP: Chastity Austin', url: 'mailto:Chastity.Austin@freeman.com' },
-      { label: 'Recruiting Contacts', url: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/Leader_Resources/Recruiting_and_Hiring_Procedures.aspx#appendix-recruiting-and-hiring-contacts' }
-    ]
-  },
-  { phase: 'Recruiting & Interviewing', id: 't7', title: 'HR posts the position',
-    desc: 'HRBP publishes to company website and external platforms (LinkedIn, job boards). Monitor for applications.',
-    owner: 'HR Business Partner', offsetDays: -55,
-    links: [{ label: 'Career Opportunities', url: 'https://career8.successfactors.com/career?company=freemanP1' }]
-  },
-  { phase: 'Recruiting & Interviewing', id: 't8', title: 'HR screens candidates and shares shortlist',
-    desc: 'HR Recruiter aligns with Hiring Manager on expectations, conducts phone screens, shares qualified candidates.',
-    owner: 'HR Recruiter', offsetDays: -45,
-    links: []
-  },
-  { phase: 'Recruiting & Interviewing', id: 't9', title: 'Schedule interviews with key stakeholders',
-    desc: 'Arrange behavioral/technical interviews. Panel interviews required for leadership positions.',
-    owner: 'Hiring Manager', offsetDays: -40,
-    links: [{ label: 'ES Interview Questions', url: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/Shared%20Documents/General/Recruiting%20and%20Hiring%20%28docs%20accessible%20to%20all%29/Exhibitor%20Services%20Interview%20Questions.pdf' }]
-  },
-  { phase: 'Recruiting & Interviewing', id: 't10', title: 'Conduct interviews',
-    desc: 'Follow structured format: intros → job overview → candidate intro → questions → candidate Q&A → close. Take notes and review all feedback.',
-    owner: 'Hiring Manager / ES Leadership', offsetDays: -35,
-    links: [{ label: 'ES Interview Questions', url: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/Shared%20Documents/General/Recruiting%20and%20Hiring%20%28docs%20accessible%20to%20all%29/Exhibitor%20Services%20Interview%20Questions.pdf' }]
-  },
-  { phase: 'Recruiting & Interviewing', id: 't11', title: 'Select final candidate',
-    desc: 'Review interview feedback. Discuss compensation internally. Get approval from ES Leadership and HRBP.',
-    owner: 'Hiring Manager', offsetDays: -30,
-    links: []
-  },
-  // Phase 3: Job Offer
-  { phase: 'Job Offer', id: 't12', title: 'Make verbal job offer to candidate',
-    desc: 'Call the candidate with the offer. Be prepared to discuss and negotiate salary and details.',
-    owner: 'Hiring Manager', offsetDays: -25,
-    links: []
-  },
-  { phase: 'Job Offer', id: 't13', title: 'Email HR Recruiter & HRBP upon acceptance',
-    desc: 'Notify Megan Wierick and Chastity Austin to initiate the offer letter process.',
-    owner: 'Hiring Manager', offsetDays: -24,
-    links: [
-      { label: 'HR Recruiter: Megan Wierick', url: 'mailto:Megan.Wierick@freeman.com' },
-      { label: 'HRBP: Chastity Austin', url: 'mailto:Chastity.Austin@freeman.com' }
-    ]
-  },
-  { phase: 'Job Offer', id: 't14', title: 'Review and sign offer letter (DocuSign)',
-    desc: 'HR creates letter via DocuSign → you sign → candidate signs. Employee must sign no later than 11 business days before start date.',
-    owner: 'Hiring Manager', offsetDays: -18,
-    links: []
-  },
-  { phase: 'Job Offer', id: 't15', title: 'Background check clears',
-    desc: 'HR completes background screening (criminal, employment, education). Hire date confirmed once cleared.',
-    owner: 'HR Business Partner', offsetDays: -14,
-    links: []
-  },
-  // Phase 4: Pre-Start Preparation
-  { phase: 'Pre-Start Preparation', id: 't16', title: 'Complete CX Team Member Contact Info Smartsheet',
-    desc: 'Must be completed immediately upon offer acceptance. Accuracy is critical — this data is used downstream.',
-    owner: 'Hiring Manager', offsetDays: -20,
-    links: [{ label: 'Onboarding Procedures', url: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/Leader_Resources/Onboarding_Offboarding_Procedures.aspx' }]
-  },
-  { phase: 'Pre-Start Preparation', id: 't17', title: 'Confirm NET class date and location',
-    desc: 'Coordinate with Erica Cochran / Lauren Medina / Kacie Kugel / Amber Segura for training assignment.',
-    owner: 'Hiring Manager', offsetDays: -14,
-    links: [
-      { label: 'NET Performance Tracker', url: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/Leader_Resources/NET_Participant_Performance.aspx' }
-    ]
-  },
-  { phase: 'Pre-Start Preparation', id: 't18', title: 'Ensure branch badge / office access is arranged',
-    desc: 'Coordinate with branch to ensure new hire can access the office on Day 1.',
-    owner: 'Hiring Manager', offsetDays: -7,
-    links: []
-  },
-  { phase: 'Pre-Start Preparation', id: 't19', title: 'Prepare team introduction (email or meeting)',
-    desc: 'Draft a team introduction email or schedule a team meeting for the new hire's first week.',
-    owner: 'Hiring Manager', offsetDays: -3,
-    links: []
-  },
-  { phase: 'Pre-Start Preparation', id: 't20', title: 'Execute Hiring Manager checklist from HR',
-    desc: 'Complete all steps in HR's formal Hiring Manager onboarding checklist.',
-    owner: 'Hiring Manager', offsetDays: 0,
-    links: [
-      { label: 'Hiring Manager Guide', url: 'https://freemanco.sharepoint.com/teams/EmployeeOnboarding/Shared%20Documents/HM%20Resources/Hiring%20Manager%20Guide_2023.pdf' },
-      { label: 'Onboarding Home', url: 'https://freemanco.sharepoint.com/teams/EmployeeOnboarding' }
-    ]
-  }
+// ── DATE ──
+(function(){
+  var d = new Date();
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var str = days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  var el = document.getElementById('hdr-date');
+  if (el) el.textContent = str;
+  var el2 = document.getElementById('today-date');
+  if (el2) el2.textContent = str;
+})();
+
+// ── RECRUITING DATA ──
+var TASKS = [
+  {phase:'Job Requisition',id:'t1',title:'Identify the hiring need',desc:'New role or backfill? Clarify purpose, budget, urgency.',owner:'Hiring Manager',off:-70,links:[]},
+  {phase:'Job Requisition',id:'t2',title:'Select ES role & confirm job details',desc:'Confirm responsibilities, qualifications, and reporting structure.',owner:'Hiring Manager',off:-68,links:[{label:'ES Roles',url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/Handbook/Roles_%26_Responsibilities.aspx'}]},
+  {phase:'Job Requisition',id:'t3',title:'Submit request to Regional Director',desc:'Email with title, salary, start date, any pre-identified candidates.',owner:'Hiring Manager',off:-65,links:[]},
+  {phase:'Job Requisition',id:'t4',title:'RD submits to ES Leadership for approval',desc:'Forward to Nesana Wieger / Craig Gaibler. Role, salary, start date, new vs. backfill.',owner:'Regional Director',off:-62,links:[]},
+  {phase:'Job Requisition',id:'t5',title:'ES Leadership submits to Growth (if needed)',desc:'Submit to Laure Chachere / Anytra Lowe for additional approval.',owner:'ES Leadership',off:-59,links:[]},
+  {phase:'Recruiting & Interviewing',id:'t6',title:'Submit job request to HR Business Partner',desc:'Email Chastity Austin (cc: Megan Wierick, Hiring Mgr, RD, Erica Cochran, Erii Rodriguez).',owner:'ES Leadership',off:-56,links:[{label:'HRBP: Chastity Austin',url:'mailto:Chastity.Austin@freeman.com'}]},
+  {phase:'Recruiting & Interviewing',id:'t7',title:'HR posts the position',desc:'HRBP publishes to company site, LinkedIn, and job boards.',owner:'HR Business Partner',off:-49,links:[]},
+  {phase:'Recruiting & Interviewing',id:'t8',title:'HR screens & shares candidate shortlist',desc:'Recruiter aligns on expectations, screens applicants, shares qualified candidates.',owner:'HR Recruiter',off:-42,links:[]},
+  {phase:'Recruiting & Interviewing',id:'t9',title:'Schedule interviews',desc:'Arrange behavioral/technical interviews. Panel required for leadership roles.',owner:'Hiring Manager',off:-35,links:[{label:'Interview Questions',url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296/Shared%20Documents/General/Recruiting%20and%20Hiring%20%28docs%20accessible%20to%20all%29/Exhibitor%20Services%20Interview%20Questions.pdf'}]},
+  {phase:'Recruiting & Interviewing',id:'t10',title:'Conduct interviews',desc:'Intro, job overview, candidate Q&A, close. Take notes.',owner:'Hiring Manager',off:-28,links:[]},
+  {phase:'Recruiting & Interviewing',id:'t11',title:'Select final candidate',desc:'Review feedback, discuss compensation, get approval from ES Leadership & HRBP.',owner:'Hiring Manager',off:-21,links:[]},
+  {phase:'Job Offer',id:'t12',title:'Make verbal job offer',desc:'Call the candidate. Be prepared to negotiate.',owner:'Hiring Manager',off:-18,links:[]},
+  {phase:'Job Offer',id:'t13',title:'Email HR upon acceptance',desc:'Notify Megan Wierick & Chastity Austin to initiate DocuSign offer letter.',owner:'Hiring Manager',off:-17,links:[{label:'Megan Wierick',url:'mailto:Megan.Wierick@freeman.com'}]},
+  {phase:'Job Offer',id:'t14',title:'Review & sign offer letter (DocuSign)',desc:'HR creates, you sign, candidate signs. Must sign 11+ business days before start.',owner:'Hiring Manager',off:-14,links:[]},
+  {phase:'Job Offer',id:'t15',title:'Background check clears',desc:'HR completes screening. Hire date confirmed once cleared.',owner:'HR Business Partner',off:-11,links:[]},
+  {phase:'Pre-Start Preparation',id:'t16',title:'Complete CX Contact Info Smartsheet',desc:'Complete immediately upon offer acceptance. Critical for system setup.',owner:'Hiring Manager',off:-17,links:[]},
+  {phase:'Pre-Start Preparation',id:'t17',title:'Confirm NET class date & location',desc:'Coordinate with Erica Cochran / Lauren Medina / Kacie Kugel / Amber Segura.',owner:'Hiring Manager',off:-14,links:[{label:'NET Tracker',url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/Leader_Resources/NET_Participant_Performance.aspx'}]},
+  {phase:'Pre-Start Preparation',id:'t18',title:'Arrange branch badge & office access',desc:'Ensure new hire can access the office on Day 1.',owner:'Hiring Manager',off:-5,links:[]},
+  {phase:'Pre-Start Preparation',id:'t19',title:'Prepare team introduction',desc:'Draft intro email or schedule a team meeting for the first week.',owner:'Hiring Manager',off:-2,links:[]},
+  {phase:'Pre-Start Preparation',id:'t20',title:'Execute HM onboarding checklist from HR',desc:'Complete all steps in HR\'s formal Hiring Manager checklist on Day 1.',owner:'Hiring Manager',off:0,links:[{label:'Onboarding Home',url:'https://freemanco.sharepoint.com/teams/EmployeeOnboarding'}]}
 ];
 
-var rhHires = [
-  {
-    id: 'h1', name: 'Jordan Patel', role: 'ES Representative', branch: 'Las Vegas',
-    startDate: '2026-06-16', stage: 'interviewing',
-    checked: ['t1','t2','t3','t4','t5','t6','t7','t8']
-  },
-  {
-    id: 'h2', name: 'Samantha Reyes', role: 'ES Supervisor', branch: 'Chicago',
-    startDate: '2026-06-09', stage: 'offer',
-    checked: ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13']
-  },
-  {
-    id: 'h3', name: 'Marcus Webb', role: 'ES Representative', branch: 'Dallas',
-    startDate: '2026-07-07', stage: 'requisition',
-    checked: ['t1','t2']
-  }
+var hires = [
+  {id:'h1',name:'Jordan Patel',role:'ES Representative',branch:'Las Vegas',start:'2026-06-16',stage:'interviewing',checked:['t1','t2','t3','t4','t5','t6','t7','t8'],open:{}},
+  {id:'h2',name:'Samantha Reyes',role:'ES Supervisor',branch:'Chicago',start:'2026-06-09',stage:'offer',checked:['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],open:{}},
+  {id:'h3',name:'Marcus Webb',role:'ES Representative',branch:'Dallas',start:'2026-07-07',stage:'requisition',checked:['t1','t2'],open:{}}
 ];
+var selId = 'h1';
+var rhReady = false;
 
-var selectedHireId = 'h1';
-
-function getDayOffset(startDateStr, offsetDays) {
-  var d = new Date(startDateStr);
-  d.setDate(d.getDate() + offsetDays);
-  return d;
+function addDays(s,n){var d=new Date(s);d.setDate(d.getDate()+n);return d;}
+function fmtDate(d){var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getDate();}
+function dueStatus(d,ck){
+  if(ck)return'done';
+  var now=new Date();now.setHours(0,0,0,0);
+  var dd=new Date(d);dd.setHours(0,0,0,0);
+  var diff=(dd-now)/86400000;
+  return diff<0?'overdue':diff<=2?'today':'upcoming';
+}
+function countOverdue(h){
+  var n=0;
+  TASKS.forEach(function(t){
+    if(h.checked.indexOf(t.id)<0 && dueStatus(addDays(h.start,t.off),false)==='overdue') n++;
+  });
+  return n;
 }
 
-function formatDueDate(d) {
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return months[d.getMonth()] + ' ' + d.getDate();
-}
-
-function getDueStatus(d, checked) {
-  if (checked) return 'done';
-  var now = new Date();
-  now.setHours(0,0,0,0);
-  d.setHours(0,0,0,0);
-  var diff = (d - now) / (1000*60*60*24);
-  if (diff < 0) return 'overdue';
-  if (diff <= 2) return 'today';
-  return 'upcoming';
-}
-
-function renderHireList() {
-  var list = document.getElementById('hire-list');
-  if (!list) return;
-  list.innerHTML = '';
-  rhHires.forEach(function(h) {
-    var total = RH_TASKS.length;
-    var done = h.checked.length;
-    var pct = Math.round((done/total)*100);
-    var div = document.createElement('div');
-    div.className = 'hire-list-item' + (h.id === selectedHireId ? ' selected' : '');
-    div.onclick = function() { selectedHireId = h.id; renderHireList(); renderChecklist(); };
-    var stageColors = { requisition: 'chip-mb', interviewing: 'chip-amber', offer: 'chip-green', complete: 'chip-ghost' };
-    var stageLabels = { requisition: 'Requisition', interviewing: 'Interviewing', offer: 'Offer Stage', complete: 'Complete' };
-    div.innerHTML =
-      '<div class="hire-name">' + h.name + '</div>' +
-      '<div class="hire-role">' + h.role + ' &mdash; ' + h.branch + '</div>' +
-      '<div class="hire-meta">' +
-        '<div class="hire-progress-wrap"><div class="hire-progress-fill" style="width:' + pct + '%"></div></div>' +
-        '<span class="hire-pct">' + pct + '%</span>' +
-        '<span class="chip ' + (stageColors[h.stage]||'chip-ghost') + '" style="font-size:9px;padding:2px 8px">' + (stageLabels[h.stage]||h.stage) + '</span>' +
+function renderList(){
+  var el=document.getElementById('hire-list'); if(!el)return;
+  el.innerHTML='';
+  var sL={requisition:'Requisition',interviewing:'Interviewing',offer:'Offer Stage',complete:'Complete'};
+  var sC={requisition:'chip-mb',interviewing:'chip-amber',offer:'chip-green',complete:'chip-ghost'};
+  hires.forEach(function(h){
+    var pct=Math.round(h.checked.length/TASKS.length*100);
+    var d=document.createElement('div');
+    d.className='hire-item'+(h.id===selId?' sel':'');
+    d.setAttribute('data-id', h.id);
+    d.innerHTML='<div class="hire-name">'+h.name+'</div>'+
+      '<div class="hire-role">'+h.role+' &mdash; '+h.branch+'</div>'+
+      '<div class="hire-prog-row">'+
+        '<div class="hire-prog-wrap"><div class="hire-prog-fill" style="width:'+pct+'%"></div></div>'+
+        '<span class="hire-prog-pct">'+pct+'%</span>'+
+        '<span class="chip '+(sC[h.stage]||'chip-ghost')+'" style="font-size:8px;padding:1px 6px">'+(sL[h.stage]||h.stage)+'</span>'+
       '</div>';
-    list.appendChild(div);
+    d.onclick = (function(hid){ return function(){ selId=hid; renderList(); renderDetail(); }; })(h.id);
+    el.appendChild(d);
   });
 }
 
-function renderChecklist() {
-  var panel = document.getElementById('rh-detail-panel');
-  if (!panel) return;
-  var hire = rhHires.find(function(h){ return h.id === selectedHireId; });
-  if (!hire) {
-    panel.innerHTML = '<div class="rh-detail"><div class="rh-empty"><div class="rh-empty-title">Select a hire to view checklist</div></div></div>';
-    return;
-  }
-
-  var total = RH_TASKS.length;
-  var done = hire.checked.length;
-  var pct = Math.round((done/total)*100);
-
-  // Count overdue tasks
-  var overdueCount = 0;
-  RH_TASKS.forEach(function(t) {
-    if (hire.checked.indexOf(t.id) === -1) {
-      var dueDate = getDayOffset(hire.startDate, t.offsetDays);
-      if (getDueStatus(dueDate, false) === 'overdue') overdueCount++;
-    }
-  });
-
-  // Group tasks by phase
-  var phases = [];
-  var seenPhases = {};
-  RH_TASKS.forEach(function(t) {
-    if (!seenPhases[t.phase]) { seenPhases[t.phase] = true; phases.push(t.phase); }
-  });
-
-  var html =
-    '<div class="rh-detail">' +
-    '<div class="rh-detail-hdr">' +
-      '<div>' +
-        '<div class="rh-detail-name">' + hire.name + '</div>' +
-        '<div class="rh-detail-sub">' + hire.role + ' &mdash; ' + hire.branch + ' &mdash; Target Start: ' + hire.startDate + '</div>' +
-        '<div class="rh-progress-bar-wrap"><div class="rh-progress-bar-fill" style="width:' + pct + '%"></div></div>' +
-        '<div class="rh-progress-label">' + done + ' of ' + total + ' tasks complete' + (overdueCount > 0 ? ' &mdash; <span style="color:var(--orange);font-weight:800">' + overdueCount + ' overdue</span>' : '') + '</div>' +
-      '</div>' +
-      '<div class="rh-detail-actions">' +
-        (overdueCount > 0 ? '<span class="chip chip-red">' + overdueCount + ' Overdue</span>' : '<span class="chip chip-green">On Track</span>') +
-      '</div>' +
-    '</div>';
-
-  phases.forEach(function(phase) {
-    var phaseTasks = RH_TASKS.filter(function(t){ return t.phase === phase; });
-    var doneInPhase = phaseTasks.filter(function(t){ return hire.checked.indexOf(t.id) >= 0; }).length;
-    var allDone = doneInPhase === phaseTasks.length;
-    var anyActive = !allDone && doneInPhase > 0;
-    var iconClass = allDone ? 'complete' : (anyActive ? 'active' : 'locked');
-    var iconChar = allDone ? '✓' : (anyActive ? '◎' : '○');
-
-    html +=
-      '<div class="phase-section">' +
-      '<div class="phase-hdr" onclick="togglePhase(this)">' +
-        '<div class="phase-icon ' + iconClass + '">' + iconChar + '</div>' +
-        '<span class="phase-label">' + phase + '</span>' +
-        '<span class="phase-count">' + doneInPhase + '/' + phaseTasks.length + '</span>' +
-        '<span class="phase-chevron open">▼</span>' +
-      '</div>' +
-      '<div class="phase-body">';
-
-    phaseTasks.forEach(function(t) {
-      var isChecked = hire.checked.indexOf(t.id) >= 0;
-      var dueDate = getDayOffset(hire.startDate, t.offsetDays);
-      var status = getDueStatus(new Date(dueDate.getTime()), isChecked);
-      var dueLbl = isChecked ? 'Complete' : formatDueDate(dueDate);
-      var dueCls = 'task-due-lbl ' + status;
-      var checkCls = 'task-check' + (isChecked ? ' checked' : (status === 'overdue' ? ' overdue' : ''));
-
-      var linksHtml = '';
-      if (t.links && t.links.length) {
-        linksHtml = '<div class="task-links">';
-        t.links.forEach(function(lnk) {
-          linksHtml += '<a class="task-link ext" href="' + lnk.url + '" target="_blank">' + lnk.label + '</a>';
-        });
-        linksHtml += '</div>';
+function renderDetail(){
+  var panel=document.getElementById('rh-detail'); if(!panel)return;
+  var h=hires.find(function(x){return x.id===selId;});
+  if(!h){panel.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);font-size:12px">Select a candidate to view their checklist</div>';return;}
+  var done=h.checked.length, total=TASKS.length, pct=Math.round(done/total*100), ov=countOverdue(h);
+  var phases=[]; var seen={};
+  TASKS.forEach(function(t){if(!seen[t.phase]){seen[t.phase]=true;phases.push(t.phase);}});
+  var html='<div class="det-hdr"><div>'+
+    '<div class="det-name">'+h.name+'</div>'+
+    '<div class="det-sub">'+h.role+' &mdash; '+h.branch+' &mdash; Start: '+h.start+'</div>'+
+    '<div class="det-prog-wrap"><div class="det-prog-fill" style="width:'+pct+'%"></div></div>'+
+    '<div class="det-prog-lbl">'+done+'/'+total+' tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
+    '</div><div>'+(ov>0?'<span class="chip chip-red">'+ov+' Overdue</span>':'<span class="chip chip-green">On Track</span>')+'</div></div>';
+  html+='<div class="det-scroll">';
+  phases.forEach(function(phase){
+    var pt=TASKS.filter(function(t){return t.phase===phase;});
+    var dn=pt.filter(function(t){return h.checked.indexOf(t.id)>=0;}).length;
+    var allD=dn===pt.length, anyA=!allD&&dn>0;
+    var icCls=allD?'ph-done':anyA?'ph-active':'ph-locked';
+    var icCh=allD?'✓':anyA?'◎':'○';
+    var isOpen=h.open[phase]!==false;
+    html+='<div class="phase-sec">'+
+      '<div class="phase-hdr" data-hire="'+h.id+'" data-phase="'+phase+'">'+
+        '<div class="ph-icon '+icCls+'">'+icCh+'</div>'+
+        '<span class="ph-label">'+phase+'</span>'+
+        '<span class="ph-count">'+dn+'/'+pt.length+'</span>'+
+        '<span class="ph-chev'+(isOpen?' open':'')+'">&#9660;</span>'+
+      '</div>'+
+      '<div class="phase-body" style="display:'+(isOpen?'block':'none')+'">';
+    pt.forEach(function(t){
+      var ck=h.checked.indexOf(t.id)>=0;
+      var due=addDays(h.start,t.off);
+      var st=dueStatus(new Date(due),ck);
+      var lnks='';
+      if(t.links&&t.links.length){
+        lnks='<div class="task-links">';
+        t.links.forEach(function(l){lnks+='<a class="tlink" href="'+l.url+'" target="_blank">'+l.label+' &#8599;</a>';});
+        lnks+='</div>';
       }
-
-      html +=
-        '<div class="task-item">' +
-          '<div class="' + checkCls + '" onclick="toggleTask('' + hire.id + '','' + t.id + '')" title="Mark ' + (isChecked ? 'incomplete' : 'complete') + '"></div>' +
-          '<div class="task-body">' +
-            '<div class="task-title' + (isChecked ? ' done' : '') + '">' + t.title + '</div>' +
-            '<div class="task-desc">' + t.desc + '</div>' +
-            linksHtml +
-          '</div>' +
-          '<div class="task-right">' +
-            '<span class="task-owner-lbl">' + t.owner + '</span>' +
-            '<span class="' + dueCls + '">' + dueLbl + '</span>' +
-          '</div>' +
-        '</div>';
+      html+='<div class="task-row">'+
+        '<div class="task-chk'+(ck?' checked':st==='overdue'?' overdue-chk':'')+'" data-hire="'+h.id+'" data-task="'+t.id+'"><span class="chk-mark">&#10003;</span></div>'+
+        '<div class="task-body">'+
+          '<div class="task-title'+(ck?' done':'')+'">'+t.title+'</div>'+
+          '<div class="task-desc">'+t.desc+'</div>'+lnks+
+        '</div>'+
+        '<div class="task-right">'+
+          '<span class="task-owner">'+t.owner+'</span>'+
+          '<span class="task-due due-'+st+'">'+(ck?'Complete':fmtDate(due))+'</span>'+
+        '</div>'+
+      '</div>';
     });
+    html+='</div></div>';
+  });
+  html+='</div>';
+  panel.innerHTML=html;
 
-    html += '</div></div>';
+  // Attach phase toggle listeners
+  panel.querySelectorAll('.phase-hdr').forEach(function(hdr){
+    hdr.onclick = function(){
+      var hId=this.getAttribute('data-hire');
+      var ph=this.getAttribute('data-phase');
+      var hire=hires.find(function(x){return x.id===hId;});
+      if(!hire)return;
+      hire.open[ph] = hire.open[ph]===false ? true : false;
+      var body=this.nextElementSibling;
+      body.style.display = hire.open[ph]===false ? 'none' : 'block';
+      var chev=this.querySelector('.ph-chev');
+      chev.className = 'ph-chev' + (hire.open[ph]===false ? '' : ' open');
+    };
   });
 
-  html += '</div>';
-  panel.innerHTML = html;
+  // Attach checkbox listeners
+  panel.querySelectorAll('.task-chk').forEach(function(chk){
+    chk.onclick = function(){
+      var hId=this.getAttribute('data-hire');
+      var tId=this.getAttribute('data-task');
+      var hire=hires.find(function(x){return x.id===hId;});
+      if(!hire)return;
+      var i=hire.checked.indexOf(tId);
+      if(i>=0) hire.checked.splice(i,1); else hire.checked.push(tId);
+      renderList(); renderDetail(); updateStats();
+    };
+  });
+
   updateStats();
 }
 
-function toggleTask(hireId, taskId) {
-  var hire = rhHires.find(function(h){ return h.id === hireId; });
-  if (!hire) return;
-  var idx = hire.checked.indexOf(taskId);
-  if (idx >= 0) {
-    hire.checked.splice(idx, 1);
-  } else {
-    hire.checked.push(taskId);
-  }
-  renderHireList();
-  renderChecklist();
-}
-
-function togglePhase(hdr) {
-  var body = hdr.nextElementSibling;
-  var chevron = hdr.querySelector('.phase-chevron');
-  if (body.style.display === 'none') {
-    body.style.display = '';
-    chevron.classList.add('open');
-  } else {
-    body.style.display = 'none';
-    chevron.classList.remove('open');
-  }
-}
-
-function updateStats() {
-  var totalOpen = 0, inProcess = 0, offers = 0, overdue = 0;
-  rhHires.forEach(function(h) {
-    if (h.stage === 'requisition') totalOpen++;
-    else if (h.stage === 'interviewing') inProcess++;
-    else if (h.stage === 'offer') offers++;
-    RH_TASKS.forEach(function(t) {
-      if (h.checked.indexOf(t.id) < 0) {
-        var dueDate = getDayOffset(h.startDate, t.offsetDays);
-        if (getDueStatus(new Date(dueDate.getTime()), false) === 'overdue') overdue++;
-      }
-    });
+function updateStats(){
+  var op=0,pr=0,of=0,ov=0;
+  hires.forEach(function(h){
+    if(h.stage==='requisition')op++;
+    else if(h.stage==='interviewing')pr++;
+    else if(h.stage==='offer')of++;
+    ov+=countOverdue(h);
   });
-  var s1 = document.getElementById('stat-open'); if (s1) s1.textContent = totalOpen;
-  var s2 = document.getElementById('stat-inprocess'); if (s2) s2.textContent = inProcess;
-  var s3 = document.getElementById('stat-offers'); if (s3) s3.textContent = offers;
-  var s4 = document.getElementById('stat-overdue'); if (s4) s4.textContent = overdue;
+  var e;
+  e=document.getElementById('stat-open'); if(e)e.textContent=op;
+  e=document.getElementById('stat-proc'); if(e)e.textContent=pr;
+  e=document.getElementById('stat-offer'); if(e)e.textContent=of;
+  e=document.getElementById('stat-over'); if(e)e.textContent=ov;
 }
 
-function openNewHireModal() {
-  document.getElementById('new-hire-modal').classList.add('visible');
-  document.getElementById('modal-name').focus();
-}
-function closeNewHireModal() {
-  document.getElementById('new-hire-modal').classList.remove('visible');
-}
-function createNewHire() {
-  var name = document.getElementById('modal-name').value.trim();
-  var role = document.getElementById('modal-role').value;
-  var branch = document.getElementById('modal-branch').value.trim();
-  var start = document.getElementById('modal-start').value;
-  if (!name || !branch || !start) { alert('Please fill in all fields.'); return; }
-  var newHire = {
-    id: 'h' + Date.now(), name: name, role: role, branch: branch,
-    startDate: start, stage: 'requisition', checked: []
-  };
-  rhHires.unshift(newHire);
-  selectedHireId = newHire.id;
-  closeNewHireModal();
-  document.getElementById('modal-name').value = '';
-  document.getElementById('modal-branch').value = '';
-  document.getElementById('modal-start').value = '';
-  renderHireList();
-  renderChecklist();
+function initRecruiting(){
+  if(rhReady)return; rhReady=true;
+  renderList(); renderDetail();
 }
 
-// Initialize recruiting page when first shown
-var rhInitialized = false;
-function initRecruiting() {
-  if (rhInitialized) return;
-  rhInitialized = true;
-  renderHireList();
-  renderChecklist();
+// Modal
+function openModal(){
+  document.getElementById('modal-bg').classList.add('open');
+  document.getElementById('m-name').focus();
+}
+function closeModal(){
+  document.getElementById('modal-bg').classList.remove('open');
+}
+function createHire(){
+  var name=document.getElementById('m-name').value.trim();
+  var role=document.getElementById('m-role').value;
+  var branch=document.getElementById('m-branch').value.trim();
+  var start=document.getElementById('m-start').value;
+  if(!name||!branch||!start){alert('Please fill in all fields.');return;}
+  hires.unshift({id:'h'+Date.now(),name:name,role:role,branch:branch,start:start,stage:'requisition',checked:[],open:{}});
+  selId=hires[0].id;
+  closeModal();
+  document.getElementById('m-name').value='';
+  document.getElementById('m-branch').value='';
+  document.getElementById('m-start').value='';
+  renderList(); renderDetail();
 }
 
-// Boot the dashboard on load
-document.addEventListener('DOMContentLoaded', function() {
-  var firstNav = document.querySelector('.nav-item');
-  if (firstNav) showPage('today', firstNav);
+// Close modal on background click
+document.getElementById('modal-bg').addEventListener('click', function(e){
+  if(e.target===this) closeModal();
 });
 </script>
 </body>
