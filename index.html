@@ -21,7 +21,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .hdr-logo{height:18px}
 .hdr-divider{width:1px;height:18px;background:rgba(255,255,255,.15)}
 .hdr-title{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.01em;white-space:nowrap}
-.hdr-center{display:flex;align-items:center;gap:6px}
+.hdr-center{position:relative;display:flex;align-items:center;justify-content:center}
+.scope-pills{display:flex;align-items:center;gap:6px}
+.scope-dropdowns{position:absolute;left:calc(100% + 10px);display:flex;align-items:center;gap:6px;white-space:nowrap}
 .scope-pill{font-family:'Nunito Sans',sans-serif;font-size:10px;font-weight:700;padding:4px 14px;border-radius:999px;border:1.5px solid rgba(255,255,255,.25);background:transparent;color:rgba(255,255,255,.6);cursor:pointer;transition:all .15s}
 .scope-pill.active{background:rgba(0,189,246,.18);border-color:var(--mb);color:var(--mb)}
 .hdr-right{display:flex;align-items:center;justify-content:flex-end;gap:10px}
@@ -194,22 +196,44 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <span class="hdr-title">Exhibitor Services Command Center</span>
   </div>
   <div class="hdr-center">
-    <button class="scope-pill active" onclick="setScope('enterprise',this)">Enterprise</button>
-    <button class="scope-pill" onclick="setScope('region',this)">Region</button>
-    <button class="scope-pill" onclick="setScope('branch',this)">Branch</button>
-    <select class="scope-select hidden" id="region-select" onchange="onRegionChange()">
-      <option value="">Select Region</option>
-      <option>Canada</option>
-      <option>Las Vegas</option>
-      <option>North Central</option>
-      <option>Northeast</option>
-      <option>NW/SoCal</option>
-      <option>South Central</option>
-      <option>Southeast</option>
-    </select>
-    <select class="scope-select hidden" id="branch-select">
-      <option value="">Select Branch</option>
-    </select>
+    <div class="scope-pills">
+      <button class="scope-pill active" onclick="setScope('enterprise',this)">Enterprise</button>
+      <button class="scope-pill" onclick="setScope('region',this)">Region</button>
+      <button class="scope-pill" onclick="setScope('branch',this)">Branch</button>
+    </div>
+    <div class="scope-dropdowns">
+      <select class="scope-select hidden" id="region-select">
+        <option value="">Select Region</option>
+        <option>Canada</option>
+        <option>Las Vegas</option>
+        <option>North Central</option>
+        <option>Northeast</option>
+        <option>NW/SoCal</option>
+        <option>South Central</option>
+        <option>Southeast</option>
+      </select>
+      <select class="scope-select hidden" id="branch-select">
+        <option value="">Select Branch</option>
+        <option>Anaheim</option>
+        <option>Atlanta</option>
+        <option>Boston</option>
+        <option>Chicago</option>
+        <option>Dallas</option>
+        <option>Denver</option>
+        <option>Des Moines</option>
+        <option>Houston</option>
+        <option>Las Vegas</option>
+        <option>Nashville</option>
+        <option>New Orleans</option>
+        <option>New York</option>
+        <option>Orlando</option>
+        <option>Reno</option>
+        <option>San Antonio</option>
+        <option>San Francisco</option>
+        <option>Toronto</option>
+        <option>Washington D.C.</option>
+      </select>
+    </div>
   </div>
   <div class="hdr-right">
     <span class="hdr-date" id="hdr-date"></span>
@@ -444,16 +468,12 @@ function setScope(scope, el) {
   if (scope === 'enterprise') {
     rSel.classList.add('hidden');
     bSel.classList.add('hidden');
-    rSel.value = '';
-    bSel.innerHTML = '<option value="">Select Branch</option>';
   } else if (scope === 'region') {
     rSel.classList.remove('hidden');
     bSel.classList.add('hidden');
-    bSel.innerHTML = '<option value="">Select Branch</option>';
   } else if (scope === 'branch') {
-    rSel.classList.remove('hidden');
+    rSel.classList.add('hidden');
     bSel.classList.remove('hidden');
-    onRegionChange();
   }
 }
 
