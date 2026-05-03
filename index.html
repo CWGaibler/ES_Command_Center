@@ -777,11 +777,18 @@ function setViewAs(role, el) {
   renderList(); renderDetail(); renderNeedsAttention();
 }
 
+function goToHire(el) {
+  var hireId = el.getAttribute('data-gotohire');
+  var navItem = document.querySelectorAll('.nav-item')[1];
+  showPage('recruiting', navItem);
+  setTimeout(function(){ selId = hireId; renderList(); renderDetail(); }, 50);
+}
+
 function renderNeedsAttention() {
   var el = document.getElementById('needs-attention-body'); if(!el) return;
   var items = hires.filter(needsMyAction);
   var html = items.map(function(h){
-    return '<div class="na-card" onclick="showPage('recruiting',document.querySelectorAll('.nav-item')[1]);setTimeout(function(){selId=''+h.id+'';renderList();renderDetail();},100)">'+
+    return '<div class="na-card" data-gotohire="'+h.id+'" onclick="goToHire(this)">'+
       '<div class="na-card-title">Position: '+h.role+' &mdash; '+h.branch+'</div>'+
       '<div class="na-card-meta">Requested by '+h.hiringManager+' &middot; '+h.ftpt+' &middot; Proposed start: '+h.proposedStart+'</div>'+
       '<div class="na-card-tags"><span class="chip chip-amber">Pending Approval</span><span class="chip chip-ghost">Recruiting</span></div>'+
@@ -985,13 +992,13 @@ function renderDetail(){
   if(h.stage === 'draft') {
     approvalBarHtml = '<div class="approval-bar">'+
       '<div class="approval-msg">Ready to submit for approval?<div class="sub">This will send the request to the Regional Director for review.</div></div>'+
-      '<button class="btn-submit" onclick="submitForApproval(''+h.id+'')">Submit to RD</button>'+
+      '<button class="btn-submit" data-action="submit" data-id="'+h.id+'">Submit to RD</button>'+
     '</div>';
   } else if(h.stage === 'pending-rd' && currentViewAs === 'rd') {
     approvalBarHtml = '<div class="approval-bar needs-action">'+
       '<div class="approval-msg">&#9889; This position request needs your approval<div class="sub">Requested by '+h.hiringManager+' &middot; '+h.ftpt+' &middot; '+h.branch+'</div></div>'+
-      '<button class="btn-approve" onclick="approvePosition(''+h.id+'')">Approve</button>'+
-      '<button class="btn-reject" onclick="openRejectModal(''+h.id+'')">Reject</button>'+
+      '<button class="btn-approve" data-action="approve" data-id="'+h.id+'">Approve</button>'+
+      '<button class="btn-reject" data-action="reject" data-id="'+h.id+'">Reject</button>'+
     '</div>';
   } else if(h.stage === 'pending-rd' && currentViewAs !== 'rd') {
     approvalBarHtml = '<div class="approval-bar">'+
@@ -1001,8 +1008,8 @@ function renderDetail(){
   } else if(h.stage === 'pending-es' && currentViewAs === 'es') {
     approvalBarHtml = '<div class="approval-bar needs-action">'+
       '<div class="approval-msg">&#9889; This position request needs ES Leadership approval<div class="sub">Approved by RD &middot; Requested by '+h.hiringManager+'</div></div>'+
-      '<button class="btn-approve" onclick="approvePosition(''+h.id+'')">Approve</button>'+
-      '<button class="btn-reject" onclick="openRejectModal(''+h.id+'')">Reject</button>'+
+      '<button class="btn-approve" data-action="approve" data-id="'+h.id+'">Approve</button>'+
+      '<button class="btn-reject" data-action="reject" data-id="'+h.id+'">Reject</button>'+
     '</div>';
   } else if(h.stage === 'pending-es' && currentViewAs !== 'es') {
     approvalBarHtml = '<div class="approval-bar">'+
@@ -1018,7 +1025,7 @@ function renderDetail(){
     approvalBarHtml = '<div class="approval-bar rejected-bar">'+
       '<div class="approval-msg">&#10007; Request rejected<div class="sub">Reason: '+(h.rejectionNote||'See notes')+'</div></div>'+
       '<span class="chip chip-rejected">Rejected</span>'+
-      (currentViewAs==='hm'?'<button class="btn-submit" onclick="resubmit(''+h.id+'')">Revise &amp; Resubmit</button>':'')+
+      (currentViewAs==='hm'?'<button class="btn-submit" data-action="resubmit" data-id="'+h.id+'">Revise &amp; Resubmit</button>':'')+
     '</div>';
   }
 
@@ -1219,6 +1226,18 @@ document.addEventListener('DOMContentLoaded', function() {
   renderNeedsAttention();
 });
 
+
+// Delegated handler for approval action buttons
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('[data-action]');
+  if(!btn) return;
+  var action = btn.getAttribute('data-action');
+  var id = btn.getAttribute('data-id');
+  if(action === 'submit') submitForApproval(id);
+  else if(action === 'approve') approvePosition(id);
+  else if(action === 'reject') openRejectModal(id);
+  else if(action === 'resubmit') resubmit(id);
+});
 </script>
 
 <div style="display:none;position:fixed;inset:0;background:rgba(0,31,95,.5);z-index:1000;align-items:center;justify-content:center" id="reject-modal">
