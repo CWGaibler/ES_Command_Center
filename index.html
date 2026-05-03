@@ -184,6 +184,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   background-position: right 8px center;
   padding-right: 24px;
 }
+
+.hire-type-btn{font-family:'Nunito Sans',sans-serif;font-size:10px;font-weight:700;padding:4px 14px;border-radius:999px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s}
+.hire-type-btn.active{background:var(--fb);border-color:var(--fb);color:#fff}
+.hire-type-btn:hover:not(.active){border-color:var(--fb);color:var(--fb)}
 </style>
 </head>
 <body>
@@ -199,7 +203,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div class="scope-pills">
       <button class="scope-pill active" onclick="setScope('enterprise',this)">Enterprise</button>
       <button class="scope-pill" onclick="setScope('region',this)">Region</button>
-      <button class="scope-pill" onclick="setScope('branch',this)">Branch</button>
+      <button class="scope-pill" onclick="setScope('branch',this)">Branch / Team</button>
     </div>
     <div class="scope-dropdowns">
       <select class="scope-select hidden" id="region-select">
@@ -209,6 +213,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         <option>North Central</option>
         <option>Northeast</option>
         <option>NW/SoCal</option>
+        <option>Off-Site</option>
         <option>South Central</option>
         <option>Southeast</option>
       </select>
@@ -392,7 +397,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div class="rh-layout">
       <div class="rh-sidebar">
         <div class="rh-sidebar-hdr">
-          <span class="rh-sidebar-title">Active Pipelines</span>
+          <span class="rh-sidebar-title">Active Pipeline</span>
           <button class="new-hire-btn" onclick="openModal()">+ New Hire</button>
         </div>
         <div id="hire-list"></div>
@@ -419,21 +424,91 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 
 <!-- MODAL (fixed to viewport) -->
 <div class="modal-bg" id="modal-bg">
-  <div class="modal-box">
-    <div class="modal-title">New Hire Checklist</div>
-    <div class="modal-grid">
-      <div class="mf"><div class="ml">Candidate Name</div><input class="mi" id="m-name" placeholder="First Last"/></div>
-      <div class="mf"><div class="ml">Role</div>
+  <div class="modal-box" style="width:480px">
+    <div class="modal-title">+ New Hire</div>
+
+    <!-- Type toggle -->
+    <div style="display:flex;gap:6px;margin-bottom:14px">
+      <button class="hire-type-btn active" id="btn-newnew" onclick="setHireType('new')">Net New Hire</button>
+      <button class="hire-type-btn" id="btn-backfill" onclick="setHireType('backfill')">Backfill</button>
+    </div>
+
+    <!-- Backfill selector (hidden by default) -->
+    <div id="backfill-row" style="display:none;margin-bottom:12px">
+      <div class="ml" style="margin-bottom:3px">Backfilling For</div>
+      <select class="mi" id="m-backfill" style="width:100%">
+        <option value="">Select departed employee...</option>
+        <option>Alex Thompson (ES Rep, Las Vegas)</option>
+        <option>Maria Gonzalez (ES Supervisor, Chicago)</option>
+        <option>James Wilson (ES Rep, Dallas)</option>
+        <option>Sarah Kim (ES Manager, Atlanta)</option>
+        <option>Derek Johnson (ES Rep, Houston)</option>
+        <option>Priya Patel (ES Supervisor, Boston)</option>
+      </select>
+    </div>
+
+    <div class="modal-grid" style="grid-template-columns:1fr 1fr;gap:8px">
+      <div class="mf">
+        <div class="ml">First Name <span style="color:var(--orange)">*</span></div>
+        <input class="mi" id="m-fname" placeholder="First"/>
+      </div>
+      <div class="mf">
+        <div class="ml">Last Name <span style="color:var(--orange)">*</span></div>
+        <input class="mi" id="m-lname" placeholder="Last"/>
+      </div>
+      <div class="mf">
+        <div class="ml">Role <span style="color:var(--orange)">*</span></div>
         <select class="mi" id="m-role">
-          <option>ES Representative</option><option>ES Supervisor</option>
-          <option>ES Manager</option><option>ES Director</option><option>Event Experience Supervisor</option>
+          <option value="">Select role...</option>
+          <option>ES Representative</option>
+          <option>ES Supervisor</option>
+          <option>ES Manager</option>
+          <option>ES Director</option>
+          <option>Event Experience Supervisor</option>
         </select>
       </div>
-      <div class="mf"><div class="ml">Branch</div><input class="mi" id="m-branch" placeholder="e.g. Las Vegas"/></div>
-      <div class="mf"><div class="ml">Target Start Date</div><input class="mi" id="m-start" type="date"/></div>
-      <div class="modal-actions">
+      <div class="mf">
+        <div class="ml">Branch / Team <span style="color:var(--orange)">*</span></div>
+        <select class="mi" id="m-branch">
+          <option value="">Select branch / team...</option>
+          <option>Anaheim</option><option>Atlanta</option><option>Boston</option>
+          <option>Chicago</option><option>Dallas</option><option>Denver</option>
+          <option>Des Moines</option><option>High-Touch Accounts</option>
+          <option>Houston</option><option>Las Vegas</option><option>Nashville</option>
+          <option>New Orleans</option><option>New York</option><option>Off-Site</option>
+          <option>Orlando</option><option>Reno</option><option>San Antonio</option>
+          <option>San Francisco</option><option>Toronto</option><option>Washington D.C.</option>
+        </select>
+      </div>
+      <div class="mf" style="grid-column:1/-1">
+        <div class="ml">Hiring Manager <span style="color:var(--orange)">*</span></div>
+        <select class="mi" id="m-hm" style="width:100%">
+          <option value="">Select hiring manager...</option>
+          <option>Anne Wolkenhauer</option><option>Cassandra Karns</option>
+          <option>Chenille Book</option><option>Cory Marin</option>
+          <option>Courtney Gonzalez</option><option>Craig Gaibler</option>
+          <option>Ellen Crowley</option><option>Emily Dodd</option>
+          <option>Erica Cochran</option><option>Gina Alberto</option>
+          <option>Jennifer Pearson</option><option>Jennifer Vaughan</option>
+          <option>Jessica Montoro</option><option>Joan Davis</option>
+          <option>Joanne Peau</option><option>Jose Medina</option>
+          <option>Laura Ewell</option><option>Leslie Davis</option>
+          <option>Lisa Park</option><option>Lisette Bergeron</option>
+          <option>Lubi Garza</option><option>Lymari Colon</option>
+          <option>Mary Ligammari</option><option>Maud Langlois</option>
+          <option>Michelle Bogdan</option><option>Nesana Wieger</option>
+          <option>Nicole Hanna</option><option>Niall McCarthy</option>
+          <option>Regina Serigne</option><option>T. Lam</option>
+          <option>Tiffany Jarrett</option><option>Tricia Orme</option>
+        </select>
+      </div>
+      <div class="mf" style="grid-column:1/-1">
+        <div class="ml">Target Start Date <span style="color:var(--orange)">*</span></div>
+        <input class="mi" id="m-start" type="date" style="width:100%"/>
+      </div>
+      <div class="modal-actions" style="grid-column:1/-1">
         <button class="m-cancel" onclick="closeModal()">Cancel</button>
-        <button class="m-submit" onclick="createHire()">Create Checklist</button>
+        <button class="m-submit" onclick="createHire()">Add to Active Pipeline</button>
       </div>
     </div>
   </div>
@@ -456,9 +531,39 @@ var BRANCH_MAP = {
   'North Central': ['Chicago', 'Des Moines'],
   'Northeast': ['Boston', 'New York', 'Washington D.C.'],
   'NW/SoCal': ['Anaheim', 'Denver', 'Reno', 'San Francisco'],
+  'Off-Site': ['High-Touch Accounts', 'Off-Site'],
   'South Central': ['Dallas', 'Houston', 'San Antonio'],
   'Southeast': ['Atlanta', 'Nashville', 'New Orleans', 'Orlando']
 };
+
+var ALL_BRANCHES = [
+  'Anaheim','Atlanta','Boston','Chicago','Dallas','Denver','Des Moines',
+  'High-Touch Accounts','Houston','Las Vegas','Nashville','New Orleans',
+  'New York','Off-Site','Orlando','Reno','San Antonio','San Francisco',
+  'Toronto','Washington D.C.'
+];
+
+var ALL_REGIONS = [
+  'Canada','Las Vegas','North Central','Northeast','NW/SoCal',
+  'Off-Site','South Central','Southeast'
+];
+
+var HIRING_MANAGERS = [
+  'Anne Wolkenhauer','Cassandra Karns','Chenille Book','Cory Marin',
+  'Courtney Gonzalez','Craig Gaibler','Ellen Crowley','Emily Dodd',
+  'Erica Cochran','Gina Alberto','Jennifer Pearson','Jennifer Vaughan',
+  'Jessica Montoro','Joan Davis','Joanne Peau','Jose Medina',
+  'Laura Ewell','Leslie Davis','Lisa Park','Lisette Bergeron',
+  'Lubi Garza','Lymari Colon','Mary Ligammari','Maud Langlois',
+  'Michelle Bogdan','Nesana Wieger','Nicole Hanna','Niall McCarthy',
+  'Regina Serigne','T. Lam','Tiffany Jarrett','Tricia Orme'
+];
+
+var DEPARTED_EMPLOYEES = [
+  'Alex Thompson (ES Rep, Las Vegas)','Maria Gonzalez (ES Supervisor, Chicago)',
+  'James Wilson (ES Rep, Dallas)','Sarah Kim (ES Manager, Atlanta)',
+  'Derek Johnson (ES Rep, Houston)','Priya Patel (ES Supervisor, Boston)'
+];
 
 function setScope(scope, el) {
   document.querySelectorAll('.scope-pill').forEach(function(p){ p.classList.remove('active'); });
@@ -527,9 +632,9 @@ var TASKS = [
 ];
 
 var hires = [
-  {id:'h1',name:'Jordan Patel',role:'ES Representative',branch:'Las Vegas',start:'2026-06-16',stage:'interviewing',checked:['t1','t2','t3','t4','t5','t6','t7','t8'],open:{}},
-  {id:'h2',name:'Samantha Reyes',role:'ES Supervisor',branch:'Chicago',start:'2026-06-09',stage:'offer',checked:['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],open:{}},
-  {id:'h3',name:'Marcus Webb',role:'ES Representative',branch:'Dallas',start:'2026-07-07',stage:'requisition',checked:['t1','t2'],open:{}}
+  {id:'h1',name:'Jordan Patel',firstName:'Jordan',lastName:'Patel',role:'ES Representative',branch:'Las Vegas',hiringManager:'Cory Marin',start:'2026-06-16',hireType:'new',backfillFor:'',stage:'interviewing',checked:['t1','t2','t3','t4','t5','t6','t7','t8'],open:{}},
+  {id:'h2',name:'Samantha Reyes',firstName:'Samantha',lastName:'Reyes',role:'ES Supervisor',branch:'Chicago',hiringManager:'Mary Ligammari',start:'2026-06-09',hireType:'backfill',backfillFor:'Maria Gonzalez (ES Supervisor, Chicago)',stage:'offer',checked:['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],open:{}},
+  {id:'h3',name:'Marcus Webb',firstName:'Marcus',lastName:'Webb',role:'ES Representative',branch:'Dallas',hiringManager:'Tiffany Jarrett',start:'2026-07-07',hireType:'new',backfillFor:'',stage:'requisition',checked:['t1','t2'],open:{}}
 ];
 var selId = 'h1';
 var rhReady = false;
@@ -582,7 +687,7 @@ function renderDetail(){
   TASKS.forEach(function(t){if(!seen[t.phase]){seen[t.phase]=true;phases.push(t.phase);}});
   var html='<div class="det-hdr"><div>'+
     '<div class="det-name">'+h.name+'</div>'+
-    '<div class="det-sub">'+h.role+' &mdash; '+h.branch+' &mdash; Start: '+h.start+'</div>'+
+    '<div class="det-sub">'+h.role+' &mdash; '+h.branch+' &mdash; HM: '+(h.hiringManager||'&mdash;')+' &mdash; Start: '+h.start+(h.hireType==='backfill'&&h.backfillFor?' &mdash; Backfilling: '+h.backfillFor:'')+'</div>'+
     '<div class="det-prog-wrap"><div class="det-prog-fill" style="width:'+pct+'%"></div></div>'+
     '<div class="det-prog-lbl">'+done+'/'+total+' tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
     '</div><div>'+(ov>0?'<span class="chip chip-red">'+ov+' Overdue</span>':'<span class="chip chip-green">On Track</span>')+'</div></div>';
@@ -681,25 +786,56 @@ function initRecruiting(){
 }
 
 // Modal
+var currentHireType = 'new';
+
+function setHireType(type) {
+  currentHireType = type;
+  document.getElementById('btn-newnew').classList.toggle('active', type === 'new');
+  document.getElementById('btn-backfill').classList.toggle('active', type === 'backfill');
+  document.getElementById('backfill-row').style.display = type === 'backfill' ? 'block' : 'none';
+}
+
 function openModal(){
+  currentHireType = 'new';
+  document.getElementById('btn-newnew').classList.add('active');
+  document.getElementById('btn-backfill').classList.remove('active');
+  document.getElementById('backfill-row').style.display = 'none';
+  document.getElementById('m-backfill').value = '';
+  document.getElementById('m-fname').value = '';
+  document.getElementById('m-lname').value = '';
+  document.getElementById('m-role').value = '';
+  document.getElementById('m-branch').value = '';
+  document.getElementById('m-hm').value = '';
+  document.getElementById('m-start').value = '';
   document.getElementById('modal-bg').classList.add('open');
-  document.getElementById('m-name').focus();
+  document.getElementById('m-fname').focus();
 }
 function closeModal(){
   document.getElementById('modal-bg').classList.remove('open');
 }
 function createHire(){
-  var name=document.getElementById('m-name').value.trim();
-  var role=document.getElementById('m-role').value;
-  var branch=document.getElementById('m-branch').value.trim();
-  var start=document.getElementById('m-start').value;
-  if(!name||!branch||!start){alert('Please fill in all fields.');return;}
-  hires.unshift({id:'h'+Date.now(),name:name,role:role,branch:branch,start:start,stage:'requisition',checked:[],open:{}});
-  selId=hires[0].id;
+  var fname = document.getElementById('m-fname').value.trim();
+  var lname = document.getElementById('m-lname').value.trim();
+  var role = document.getElementById('m-role').value;
+  var branch = document.getElementById('m-branch').value;
+  var hm = document.getElementById('m-hm').value;
+  var start = document.getElementById('m-start').value;
+  var backfill = currentHireType === 'backfill' ? document.getElementById('m-backfill').value : '';
+  if(!fname || !lname || !role || !branch || !hm || !start){
+    alert('Please fill in all required fields.');return;
+  }
+  if(currentHireType === 'backfill' && !backfill){
+    alert('Please select who this hire is backfilling for.');return;
+  }
+  var fullName = fname + ' ' + lname;
+  hires.unshift({
+    id:'h'+Date.now(), name:fullName, firstName:fname, lastName:lname,
+    role:role, branch:branch, hiringManager:hm, start:start,
+    hireType:currentHireType, backfillFor:backfill,
+    stage:'requisition', checked:[], open:{}
+  });
+  selId = hires[0].id;
   closeModal();
-  document.getElementById('m-name').value='';
-  document.getElementById('m-branch').value='';
-  document.getElementById('m-start').value='';
   renderList(); renderDetail();
 }
 
