@@ -1722,17 +1722,9 @@ function renderSsDetail() {
     "<div>" + (confirmed ? "<span class=\"chip chip-green\">\u2713 Plan Confirmed</span>" : "<span class=\"chip chip-amber\">Needs Plan</span>") + "</div>" +
     "</div>";
 
-  html += "<div class=\"det-scroll\" style=\"max-height:calc(100vh - 300px);overflow-y:auto\">";
+  html += "<div class=\"det-scroll\" style=\"max-height:calc(100vh - 300px);overflow-y:auto;padding-top:8px\">";
 
-  // Leadership Steps — sequential locking
-  var p1done = plan.checked.filter(function(x){ return ["s1","s2","s5","s6","s7"].indexOf(x) >= 0; }).length;
-  html += "<div class=\"phase-sec\"><div class=\"phase-hdr\" id=\"ss-phdr-p1\" data-phase=\"p1\">" +
-    "<div class=\"ph-icon ph-active\">1</div>" +
-    "<div class=\"ph-label\">Leadership Steps</div>" +
-    "<div class=\"ph-count\">" + p1done + "/5 complete</div>" +
-    "<div class=\"ph-chev open\" id=\"ss-chev-p1\">\u25BC</div>" +
-    "</div>" +
-    "<div id=\"ss-body-p1\">";
+  // Staffing steps — sequential locking, no collapsible wrapper
 
   SS_TASKS.forEach(function(t, idx) {
     var checked = plan.checked.indexOf(t.id) >= 0;
@@ -1759,7 +1751,7 @@ function renderSsDetail() {
       "</div>";
   });
 
-  html += "</div></div>";
+
   html += "</div>"; // close det-scroll
 
   // Confirm bar
@@ -1780,10 +1772,6 @@ function renderSsDetail() {
 
   // Attach event handlers via delegation on det
   det.onclick = function(e) {
-    // Phase header toggle
-    var phdr = e.target.closest(".phase-hdr[data-phase]");
-    if (phdr) { toggleSsPhase(phdr.getAttribute("data-phase")); return; }
-
     // Task checkbox
     var chk = e.target.closest(".task-chk[data-taskid]");
     if (chk) { toggleSsCheck(chk.getAttribute("data-showid"), chk.getAttribute("data-taskid")); return; }
