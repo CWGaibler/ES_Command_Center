@@ -1530,7 +1530,7 @@ function renderSsList() {
       ? '<span class="ss-badge ss-badge-confirmed">✓ Confirmed</span>'
       : '<span class="ss-badge ss-badge-unstaffed">Needs Plan</span>';
     var dashRegion = CALC_REGION_MAP[s.region] || s.region;
-    return '<div class="ss-show-item' + (ssSelId === s.id ? ' sel' : '') + '" onclick="selectSsShow('' + s.id + '')">' +
+    return '<div class="ss-show-item' + (ssSelId === s.id ? ' sel' : '') + '" onclick="selectSsShow(\'' + s.id + '\')">'+
       '<div class="ss-show-name">' + s.name + '</div>' +
       '<div class="ss-show-meta">' + s.city + ' &middot; ' + ssFmtDate(s.showOpen) + ' &middot; ' + (rec.booths) + ' booths</div>' +
       '<div class="ss-show-tags">' + badge + '<span class="chip chip-ghost" style="font-size:10px">' + dashRegion + '</span></div>' +
@@ -1583,7 +1583,7 @@ function renderSsDetail() {
   html += '<div class="det-scroll" style="max-height:calc(100vh - 300px);overflow-y:auto">';
 
   // Phase 1 section header
-  html += '<div class="phase-sec"><div class="phase-hdr" onclick="toggleSsPhase('p1',this)">' +
+  html += '<div class="phase-sec"><div class="phase-hdr" onclick="toggleSsPhase(\'p1\',this)">' +
     '<div class="ph-icon ph-active">1</div>' +
     '<div class="ph-label">Leadership Steps</div>' +
     '<div class="ph-count">' + plan.checked.filter(function(x){return x[0]==='s'&&parseInt(x.slice(1))<=7;}).length + '/7 complete</div>' +
@@ -1594,7 +1594,7 @@ function renderSsDetail() {
   SS_TASKS.filter(function(t){ return !t.phase2; }).forEach(function(t) {
     var checked = plan.checked.indexOf(t.id) >= 0;
     html += '<div class="task-row">' +
-      '<div class="task-chk' + (checked ? ' checked' : '') + '" onclick="toggleSsCheck('' + ssSelId + '','' + t.id + '')">' +
+      '<div class="task-chk' + (checked ? ' checked' : '') + '" onclick="toggleSsCheck(\x27' + ssSelId + '\x27,\x27' + t.id + '\x27)">' +
         '<span class="chk-mark">✓</span>' +
       '</div>' +
       '<div class="task-body">' +
@@ -1613,7 +1613,7 @@ function renderSsDetail() {
 
   // Phase 2 section
   var p2icon = phase2Unlocked ? 'ph-active' : 'ph-locked';
-  html += '<div class="phase-sec"><div class="phase-hdr" onclick="toggleSsPhase('p2',this)">' +
+  html += '<div class="phase-sec"><div class="phase-hdr" onclick="toggleSsPhase(\'p2\',this)">' +
     '<div class="ph-icon ' + p2icon + '">2</div>' +
     '<div class="ph-label">Supervisor / Lead Steps</div>' +
     '<div class="ph-count">' + (phase2Unlocked ? plan.checked.filter(function(x){return x==='s8'||x==='s9';}).length + '/2' : 'Locked until names entered') + '</div>' +
@@ -1627,7 +1627,7 @@ function renderSsDetail() {
     SS_TASKS.filter(function(t){ return t.phase2; }).forEach(function(t) {
       var checked = plan.checked.indexOf(t.id) >= 0;
       html += '<div class="task-row">' +
-        '<div class="task-chk' + (checked ? ' checked' : '') + '" onclick="toggleSsCheck('' + ssSelId + '','' + t.id + '')">' +
+        '<div class="task-chk' + (checked ? ' checked' : '') + '" onclick="toggleSsCheck(\x27' + ssSelId + '\x27,\x27' + t.id + '\x27)">' +
           '<span class="chk-mark">✓</span>' +
         '</div>' +
         '<div class="task-body">' +
@@ -1645,12 +1645,12 @@ function renderSsDetail() {
   if (confirmed) {
     html += '<div class="ss-confirm-bar">' +
       '<div class="ss-confirm-msg">✓ Staffing plan confirmed<div class="sub">Plan locked. Uncheck steps above to modify.</div></div>' +
-      '<button class="m-cancel" onclick="unconfirmSs('' + ssSelId + '')">Edit Plan</button>' +
+      '<button class="m-cancel" onclick="unconfirmSs(\x27' + ssSelId + '\x27)">Edit Plan</button>' +
     '</div>';
   } else {
     html += '<div class="ss-confirm-bar pending">' +
       '<div class="ss-confirm-msg">' + (allP1Done ? 'All leadership steps complete — ready to confirm' : 'Complete steps above to confirm this plan') + '<div class="sub">Confirming locks the plan and removes this show from the Unstaffed queue.</div></div>' +
-      '<button class="btn-confirm" onclick="confirmSs('' + ssSelId + '')" ' + (!allP1Done ? '' : '') + '>Confirm Plan</button>' +
+      '<button class="btn-confirm" onclick="confirmSs(\x27' + ssSelId + '\x27)" ' + (!allP1Done ? '' : '') + '>Confirm Plan</button>' +
     '</div>';
   }
 
@@ -1699,7 +1699,7 @@ function renderSsOverrideRow(showId, key, label, val, rec) {
   return '<div class="ss-override-row">' +
     '<div class="ss-override-lbl">' + label + '</div>' +
     '<input class="ss-override-input" type="number" min="0" max="20" value="' + val + '" ' +
-      'oninput="updateSsOverride('' + showId + '','' + key + '',this.value)" ' +
+      'oninput="updateSsOverride(\x27' + showId + '\x27,\x27' + key + '\x27,this.value)" ' +
       'id="ss-ovr-' + showId + '-' + key + '">' +
     '<div class="ss-override-note">rec: ' + rec + '</div>' +
   '</div>';
@@ -1708,15 +1708,15 @@ function renderSsOverrideRow(showId, key, label, val, rec) {
 function renderSsNameEntry(showId, plan) {
   return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding:10px 0">' +
     '<div><div style="font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px">Supervisor Name</div>' +
-    '<input style="font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:600;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;background:var(--surface)" ' +
+    '<input style="font-family:Nunito Sans,sans-serif;font-size:12px;font-weight:600;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;background:var(--surface)" ' +
       'placeholder="Enter name..." value="' + (plan.supervisorName || '') + '" ' +
-      'oninput="updateSsName('' + showId + '','supervisorName',this.value)" ' +
-      'onfocus="this.style.borderColor='var(--mb)'" onblur="this.style.borderColor='var(--border)'"></div>' +
+      'oninput="updateSsName(\x27' + showId + '\x27,\'supervisorName\',this.value)" ' +
+      'onfocus="this.style.borderColor=\x27var(--mb)\x27" onblur="this.style.borderColor=\x27var(--border)\x27"></div>' +
     '<div><div style="font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px">Lead Name</div>' +
-    '<input style="font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:600;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;background:var(--surface)" ' +
+    '<input style="font-family:Nunito Sans,sans-serif;font-size:12px;font-weight:600;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;background:var(--surface)" ' +
       'placeholder="Enter name..." value="' + (plan.leadName || '') + '" ' +
-      'oninput="updateSsName('' + showId + '','leadName',this.value)" ' +
-      'onfocus="this.style.borderColor='var(--mb)'" onblur="this.style.borderColor='var(--border)'"></div>' +
+      'oninput="updateSsName(\x27' + showId + '\x27,\'leadName\',this.value)" ' +
+      'onfocus="this.style.borderColor=\x27var(--mb)\x27" onblur="this.style.borderColor=\x27var(--border)\x27"></div>' +
   '</div>';
 }
 
