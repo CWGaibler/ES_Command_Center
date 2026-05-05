@@ -1494,6 +1494,7 @@ var SS_TASKS = [
   {id:"s1", phase:"Leadership Steps", title:"Review show details and prior year history", desc:"Check NSS for prior year staffing, job number, and any notes from previous runs.", links:[{label:"NSS",url:"https://nss.freeman.com"}]},
   {id:"s2", phase:"Leadership Steps", title:"Determine staffing — review ES Staffing Service Model", desc:"Use the calculator below to get the recommended headcount. If 50 or fewer booths, refer to Remote SOP.", links:[{label:"Remote SOP",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}], calc:true, step:"2"},
   {id:"s5", phase:"Leadership Steps", title:"Add event to ES Regional Schedules and assign staff", desc:"Update the Regional Schedule spreadsheet with this event and assign available staff members.", links:[{label:"Regional Schedules",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]},
+  {id:"s6", phase:"Leadership Steps", title:"Enter supervisor/lead names in NSS", desc:"Once names are entered in NSS, an auto-alert is sent to assigned persons at the 10-week mark. This unlocks Phase 2 below.", links:[{label:"NSS",url:"https://nss.freeman.com"}], nameEntry:true},
   {id:"s7", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]},
   {id:"s8", phase:"Supervisor/Lead Steps", title:"Review recommended staffing in NSS; discuss changes with ES leadership", desc:"Assigned supervisors and leads review the confirmed plan and raise any concerns with the ES Manager or Regional Director.", links:[], phase2:true},
   {id:"s9", phase:"Supervisor/Lead Steps", title:"Communicate staffing plan to primary Growth contact in writing", desc:"Provide the ES contact names to the primary Growth contact. Confirm the staffing plan is documented.", links:[], phase2:true}
@@ -1687,7 +1688,7 @@ function renderSsDetail() {
   var rec = ssCalcRec(s);
   var dashRegion = CALC_REGION_MAP[s.region] || s.region;
   var confirmed = plan.confirmed;
-  var phase2Unlocked = plan.confirmed === true;
+  var phase2Unlocked = plan.checked.indexOf("s6") >= 0;
 
   var html = "<div class=\"det-hdr\">" +
     "<div><div class=\"det-name-row\"><span class=\"det-name\">" + s.name + "</span><span class=\"det-name-sep\">|</span><span class=\"det-job-num\">Job #" + ssSelId + "</span></div>" +
@@ -1704,11 +1705,11 @@ function renderSsDetail() {
   html += "<div class=\"det-scroll\" style=\"max-height:calc(100vh - 300px);overflow-y:auto\">";
 
   // Phase 1
-  var p1done = plan.checked.filter(function(x){ return ["s1","s2","s5","s7"].indexOf(x) >= 0; }).length;
+  var p1done = plan.checked.filter(function(x){ return ["s1","s2","s5","s6","s7"].indexOf(x) >= 0; }).length;
   html += "<div class=\"phase-sec\"><div class=\"phase-hdr\" id=\"ss-phdr-p1\" data-phase=\"p1\">" +
     "<div class=\"ph-icon ph-active\">1</div>" +
     "<div class=\"ph-label\">Leadership Steps</div>" +
-    "<div class=\"ph-count\">" + p1done + "/4 complete</div>" +
+    "<div class=\"ph-count\">" + p1done + "/5 complete</div>" +
     "<div class=\"ph-chev open\" id=\"ss-chev-p1\">\u25BC</div>" +
     "</div>" +
     "<div id=\"ss-body-p1\">";
@@ -1737,13 +1738,13 @@ function renderSsDetail() {
   html += "<div class=\"phase-sec\"><div class=\"phase-hdr\" id=\"ss-phdr-p2\" data-phase=\"p2\">" +
     "<div class=\"ph-icon " + p2icon + "\">2</div>" +
     "<div class=\"ph-label\">Supervisor / Lead Steps</div>" +
-    "<div class=\"ph-count\">" + (phase2Unlocked ? p2done + "/2" : "Locked until plan confirmed") + "</div>" +
+    "<div class=\"ph-count\">" + (phase2Unlocked ? p2done + "/2" : "Locked until names entered") + "</div>" +
     "<div class=\"ph-chev\" id=\"ss-chev-p2\">\u25BC</div>" +
     "</div>" +
     "<div id=\"ss-body-p2\" style=\"display:none\">";
 
   if (!phase2Unlocked) {
-    html += "<div class=\"ss-phase2-banner\"><div class=\"ss-phase2-icon\">\uD83D\uDD12</div><div class=\"ss-phase2-text\"><strong>Waiting on Plan Confirmation</strong><br>Confirm the staffing plan in Step 2 above to unlock these steps.</div></div>";
+    html += "<div class=\"ss-phase2-banner\"><div class=\"ss-phase2-icon\">\uD83D\uDD12</div><div class=\"ss-phase2-text\"><strong>Waiting on Step 6</strong><br>Enter supervisor and lead names in NSS (Step 6) to unlock these steps.</div></div>";
   } else {
     SS_TASKS.filter(function(t){ return t.phase2; }).forEach(function(t) {
       var checked = plan.checked.indexOf(t.id) >= 0;
