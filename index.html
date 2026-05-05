@@ -288,6 +288,70 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .ss-phase2-text{font-size:12px;color:var(--fb);line-height:1.4}
 .ss-phase2-text strong{font-weight:800}
 
+/* Full Calculator Upgrade - v6.3 */
+.ss-calc-full{margin-top:8px}
+.ss-calc-show-hdr{padding:10px 14px 8px;border-bottom:1px solid var(--border-lt)}
+.ss-calc-job-line{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:.02em}
+.ss-calc-job-line span{color:var(--fb);font-weight:800}
+.ss-calc-indicator-pills{display:flex;flex-wrap:wrap;gap:4px}
+.ss-pill{font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;display:inline-flex;align-items:center}
+.ss-pill-blue{background:rgba(0,189,246,.12);color:#006ea8;border:1px solid rgba(0,189,246,.3)}
+.ss-pill-pink{background:rgba(255,100,150,.12);color:#b0004e;border:1px solid rgba(255,100,150,.3)}
+.ss-pill-gold{background:rgba(255,181,0,.15);color:#8a5d00;border:1px solid rgba(255,181,0,.35)}
+.ss-pill-green{background:rgba(66,187,55,.12);color:#2a7022;border:1px solid rgba(66,187,55,.3)}
+.ss-pill-orange{background:rgba(251,71,31,.1);color:#c13500;border:1px solid rgba(251,71,31,.25)}
+.ss-calc-data-cards{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 12px}
+.ss-data-card{background:var(--white);border:1px solid var(--border);border-radius:7px;padding:8px 10px}
+.ss-data-card-lbl{font-size:9.6px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:3px}
+.ss-data-card-val{font-size:17px;font-weight:800;color:var(--fb);line-height:1.1}
+.ss-data-card-badge{display:inline-block;font-size:9.5px;font-weight:700;margin-top:3px;padding:1px 6px;border-radius:4px}
+.ss-badge-driving{background:rgba(66,187,55,.12);color:#2a7022;border:1px solid rgba(66,187,55,.28)}
+.ss-badge-ref{background:rgba(173,177,177,.12);color:#777;border:1px solid rgba(173,177,177,.3)}
+.ss-calc-roles{padding:8px 12px;border-top:1px solid var(--border-lt)}
+.ss-roles-lbl{font-size:9.6px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:7px}
+.ss-role-boxes{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:5px}
+.ss-role-box{background:var(--white);border:1.5px solid var(--border);border-radius:7px;padding:6px 5px;text-align:center}
+.ss-role-box.active-role{border-color:rgba(0,189,246,.4);background:rgba(0,189,246,.05)}
+.ss-role-box-num{font-size:20px;font-weight:800;color:var(--fb);line-height:1}
+.ss-role-box.active-role .ss-role-box-num{color:var(--mb)}
+.ss-role-box-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;line-height:1.2}
+.ss-total-bar{background:var(--fb);border-radius:7px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;margin-top:3px}
+.ss-total-lbl{font-size:10.8px;font-weight:800;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.06em}
+.ss-total-num{font-size:20px;font-weight:900;color:#fff}
+.ss-collapsible-btn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:var(--surface);border:none;border-top:1px solid var(--border-lt);cursor:pointer;font-family:'Nunito Sans',sans-serif;font-size:11.5px;font-weight:800;color:var(--fb);text-align:left}
+.ss-collapsible-btn:hover{background:var(--fb-xlt)}
+.ss-collapsible-btn .ss-chev{font-size:10px;transition:transform .2s;color:var(--muted)}
+.ss-collapsible-btn.open .ss-chev{transform:rotate(180deg)}
+.ss-collapsible-body{display:none;padding:10px 14px;background:var(--white);border-top:1px solid var(--border-lt)}
+.ss-collapsible-body.open{display:block}
+.ss-why-item{display:flex;gap:7px;margin-bottom:7px;font-size:11.5px;color:#333;line-height:1.45}
+.ss-why-item:last-child{margin-bottom:0}
+.ss-why-dot{width:5px;height:5px;border-radius:50%;background:var(--mb);margin-top:5px;flex-shrink:0}
+.ss-consider-item{display:flex;gap:8px;margin-bottom:7px;font-size:11.5px;color:#333;line-height:1.45}
+.ss-consider-item:last-child{margin-bottom:0}
+.ss-consider-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.ss-decision-section{padding:10px 12px;border-top:1px solid var(--border-lt);background:var(--fb-xlt)}
+.ss-decision-lbl{font-size:9.6px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:7px}
+.ss-decision-btns{display:flex;gap:6px;flex-wrap:wrap}
+.ss-btn-agree{font-family:'Nunito Sans',sans-serif;font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:7px;border:none;background:var(--green);color:#fff;cursor:pointer;flex:1}
+.ss-btn-agree:hover{opacity:.85}
+.ss-btn-modify{font-family:'Nunito Sans',sans-serif;font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:7px;border:1.5px solid rgba(251,71,31,.35);background:rgba(251,71,31,.06);color:var(--orange);cursor:pointer;flex:1}
+.ss-btn-modify:hover{background:rgba(251,71,31,.12)}
+.ss-modify-panel{margin-top:8px;padding:10px;background:var(--white);border:1px solid var(--border);border-radius:8px;display:none}
+.ss-modify-panel.open{display:block}
+.ss-modify-hdr{font-size:11.5px;font-weight:800;color:var(--fb);margin-bottom:6px}
+.ss-modify-roles{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:8px}
+.ss-modify-role{display:flex;flex-direction:column;gap:3px}
+.ss-modify-role label{font-size:9.6px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.ss-modify-role .ss-model-val{font-size:10px;color:var(--muted);font-style:italic}
+.ss-modify-input{font-family:'Nunito Sans',sans-serif;font-size:13px;font-weight:700;padding:4px 6px;border:1.5px solid var(--border);border-radius:5px;outline:none;width:100%;text-align:center;background:var(--surface);color:var(--fb)}
+.ss-modify-input:focus{border-color:var(--mb);background:#fff}
+.ss-reason-lbl{font-size:9.6px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px}
+.ss-reason-textarea{font-family:'Nunito Sans',sans-serif;font-size:11.5px;padding:7px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;resize:vertical;min-height:60px;background:var(--surface);color:var(--fb)}
+.ss-reason-textarea:focus{border-color:var(--mb);background:#fff}
+.ss-btn-submit-mod{font-family:'Nunito Sans',sans-serif;font-size:11.5px;font-weight:800;padding:6px 14px;border-radius:7px;border:none;background:var(--mb);color:#fff;cursor:pointer;margin-top:8px;width:100%}
+.ss-btn-submit-mod:hover{opacity:.85}
+
 /* v6-fix cache-bust: 1777985951 */
 </style>
 </head>
@@ -1418,7 +1482,6 @@ var SS_TASKS = [
   {id:"s1", phase:"Leadership Steps", title:"Review show details and prior year history", desc:"Check NSS for prior year staffing, job number, and any notes from previous runs.", links:[{label:"NSS",url:"https://nss.freeman.com"}]},
   {id:"s2", phase:"Leadership Steps", title:"Determine staffing — review ES Staffing Service Model", desc:"Use the calculator below to get the recommended headcount. If 50 or fewer booths, refer to Remote SOP.", links:[{label:"Remote SOP",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}], calc:true, step:"2"},
   {id:"s3", phase:"Leadership Steps", title:"Add to NSS: On-Site or Remote, standard vs. custom model, Five9 phone number", desc:"Enter the staffing type and model decision in NSS.", links:[{label:"NSS",url:"https://nss.freeman.com"}]},
-  {id:"s4", phase:"Leadership Steps", title:"Enter staffing quantities in NSS", desc:"Enter Actual On-Site Reps/Desks, Actual Remote/Backroom Reps. Use recommended quantities below.", links:[{label:"NSS",url:"https://nss.freeman.com"}], calc:true, step:"4"},
   {id:"s5", phase:"Leadership Steps", title:"Add event to ES Regional Schedules and assign staff", desc:"Update the Regional Schedule spreadsheet with this event and assign available staff members.", links:[{label:"Regional Schedules",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]},
   {id:"s6", phase:"Leadership Steps", title:"Enter supervisor/lead names in NSS", desc:"Once names are entered in NSS, an auto-alert is sent to assigned persons at the 10-week mark. This unlocks Phase 2 below.", links:[{label:"NSS",url:"https://nss.freeman.com"}], nameEntry:true},
   {id:"s7", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]},
@@ -1616,11 +1679,11 @@ function renderSsDetail() {
   html += "<div class=\"det-scroll\" style=\"max-height:calc(100vh - 300px);overflow-y:auto\">";
 
   // Phase 1
-  var p1done = plan.checked.filter(function(x){ return ["s1","s2","s3","s4","s5","s6","s7"].indexOf(x) >= 0; }).length;
+  var p1done = plan.checked.filter(function(x){ return ["s1","s2","s3","s5","s6","s7"].indexOf(x) >= 0; }).length;
   html += "<div class=\"phase-sec\"><div class=\"phase-hdr\" id=\"ss-phdr-p1\" data-phase=\"p1\">" +
     "<div class=\"ph-icon ph-active\">1</div>" +
     "<div class=\"ph-label\">Leadership Steps</div>" +
-    "<div class=\"ph-count\">" + p1done + "/7 complete</div>" +
+    "<div class=\"ph-count\">" + p1done + "/6 complete</div>" +
     "<div class=\"ph-chev open\" id=\"ss-chev-p1\">\u25BC</div>" +
     "</div>" +
     "<div id=\"ss-body-p1\">";
@@ -1699,7 +1762,7 @@ function renderSsDetail() {
     var chk = e.target.closest(".task-chk[data-taskid]");
     if (chk) { toggleSsCheck(chk.getAttribute("data-showid"), chk.getAttribute("data-taskid")); return; }
 
-    // Confirm/unconfirm buttons
+    // Confirm/unconfirm buttons (legacy confirm bar)
     var btn = e.target.closest("[data-action-ss]");
     if (btn) {
       var action = btn.getAttribute("data-action-ss");
@@ -1708,9 +1771,58 @@ function renderSsDetail() {
       else if (action === "unconfirm") unconfirmSs(showId);
       return;
     }
+
+    // Full calculator: collapsible toggles (Why / Consider)
+    var collBtn = e.target.closest("[data-collapsible]");
+    if (collBtn) {
+      var key = collBtn.getAttribute("data-collapsible");
+      var bodyEl = document.getElementById("ss-" + key);
+      if (bodyEl) {
+        bodyEl.classList.toggle("open");
+        collBtn.classList.toggle("open");
+      }
+      return;
+    }
+
+    // Full calculator: I Agree With This Plan
+    var agreeBtn = e.target.closest("[data-calc-agree]");
+    if (agreeBtn) {
+      var agreeId = agreeBtn.getAttribute("data-calc-agree");
+      confirmSs(agreeId);
+      return;
+    }
+
+    // Full calculator: I Need to Modify → toggle modify panel
+    var modBtn = e.target.closest("[data-calc-modify]");
+    if (modBtn) {
+      var modId = modBtn.getAttribute("data-calc-modify");
+      var panel = document.getElementById("ss-modify-" + modId);
+      if (panel) panel.classList.toggle("open");
+      return;
+    }
+
+    // Full calculator: Submit Modified Plan
+    var subBtn = e.target.closest("[data-calc-submit]");
+    if (subBtn) {
+      var subId = subBtn.getAttribute("data-calc-submit");
+      var panel2 = document.getElementById("ss-modify-" + subId);
+      var overrides = {};
+      if (panel2) {
+        panel2.querySelectorAll("[data-mod-key]").forEach(function(inp) {
+          overrides[inp.getAttribute("data-mod-key")] = parseInt(inp.value, 10) || 0;
+        });
+      }
+      var reasonEl = document.getElementById("ss-reason-" + subId);
+      var reason = reasonEl ? reasonEl.value.trim() : "";
+      if (!ssPlans[subId]) ssPlans[subId] = {checked:[], confirmed:false};
+      ssPlans[subId].overrides = overrides;
+      ssPlans[subId].modifyReason = reason;
+      confirmSs(subId);
+      return;
+    }
   };
 
-  // Attach input handlers for override fields
+  // Attach input handlers for override fields and mod inputs
   det.oninput = function(e) {
     var inp = e.target;
     if (inp.dataset.overrideKey) updateSsOverride(inp.dataset.overrideShowid, inp.dataset.overrideKey, inp.value);
@@ -1719,39 +1831,157 @@ function renderSsDetail() {
 }
 
 function renderSsCalcInline(s, rec, plan, stepNum) {
-  var cf = (plan.overrides && plan.overrides.cf != null) ? plan.overrides.cf : rec.cf;
-  var br = (plan.overrides && plan.overrides.br != null) ? plan.overrides.br : rec.br;
-  var as_ = (plan.overrides && plan.overrides.as != null) ? plan.overrides.as : rec.as;
-  var sv = (plan.overrides && plan.overrides.sv != null) ? plan.overrides.sv : rec.sv;
-  var total = cf + br + as_ + sv;
+  // Build indicator pills
+  var pills = "";
+  var plat = s.freemanPlatform || "Freeman Now";
+  pills += "<span class=\"ss-pill ss-pill-blue\">" + plat + "</span>";
+  if (s.freemanAV === "Yes") pills += "<span class=\"ss-pill ss-pill-pink\">AV</span>";
+  if (s.freemanElectricalOnly) pills += "<span class=\"ss-pill ss-pill-gold\">Electrical Only</span>";
+  else if (s.freemanElectrical === "TRUE" || s.freemanElectrical === "True" || s.freemanElectrical === "true") pills += "<span class=\"ss-pill ss-pill-gold\">Electrical</span>";
+  if (s.fte === "Y") pills += "<span class=\"ss-pill ss-pill-green\">FTE</span>";
+  if (!s.freemanElectricalOnly && s.perLbMH === "N") pills += "<span class=\"ss-pill ss-pill-orange\">Non-Standard M/H</span>";
 
-  if (stepNum === "2") {
-    return "<div class=\"ss-calc-inline\" style=\"margin-top:8px;border-radius:8px\">" +
-      "<div style=\"font-size:10.8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px\">Staffing Calculator &mdash; " + s.name + "</div>" +
-      "<div class=\"ss-calc-grid\">" +
-        "<div class=\"ss-calc-cell\"><div class=\"ss-calc-cell-lbl\">Active Booths</div><div class=\"ss-calc-cell-val\">" + rec.booths + "</div><div class=\"ss-calc-cell-sub\">" + rec.boothsSrc + "</div></div>" +
-        "<div class=\"ss-calc-cell\"><div class=\"ss-calc-cell-lbl\">Revenue</div><div class=\"ss-calc-cell-val\">" + ssFmt(rec.revenue) + "</div><div class=\"ss-calc-cell-sub\">" + rec.revSrc + "</div></div>" +
-        "<div class=\"ss-calc-cell highlight\"><div class=\"ss-calc-cell-lbl\">Customer-Facing Reps</div><div class=\"ss-calc-cell-val\">" + rec.cf + "</div><div class=\"ss-calc-cell-sub\">recommended</div></div>" +
-        "<div class=\"ss-calc-cell\"><div class=\"ss-calc-cell-lbl\">Back Room Reps</div><div class=\"ss-calc-cell-val\">" + rec.br + "</div><div class=\"ss-calc-cell-sub\">recommended</div></div>" +
-        "<div class=\"ss-calc-cell\"><div class=\"ss-calc-cell-lbl\">Assist. Supervisors</div><div class=\"ss-calc-cell-val\">" + rec.as + "</div><div class=\"ss-calc-cell-sub\">recommended</div></div>" +
-        "<div class=\"ss-calc-cell\"><div class=\"ss-calc-cell-lbl\">Supervisors</div><div class=\"ss-calc-cell-val\">" + rec.sv + "</div><div class=\"ss-calc-cell-sub\">recommended</div></div>" +
-        "<div class=\"ss-calc-cell highlight\" style=\"grid-column:3/5\"><div class=\"ss-calc-cell-lbl\">Total ES Headcount</div><div class=\"ss-calc-cell-val\">" + rec.total + "</div><div class=\"ss-calc-cell-sub\">all roles combined</div></div>" +
+  // Data cards — booth driving logic
+  var ab = ssActiveBooths(s), ar = ssActiveRevenue(s);
+  var boothsDriving = ab.source === "actual";
+  var revDriving = ar.source === "actual";
+
+  var dataCards =
+    "<div class=\"ss-calc-data-cards\">" +
+    "<div class=\"ss-data-card\">" +
+      "<div class=\"ss-data-card-lbl\">Current Booths (TSS)</div>" +
+      "<div class=\"ss-data-card-val\">" + (s.currentBooths || 0).toLocaleString() + "</div>" +
+      "<span class=\"ss-data-card-badge " + (boothsDriving ? "ss-badge-driving" : "ss-badge-ref") + "\">" + (boothsDriving ? "✓ Driving Recommendation" : "Reference Only") + "</span>" +
+    "</div>" +
+    "<div class=\"ss-data-card\">" +
+      "<div class=\"ss-data-card-lbl\">Projected Booths</div>" +
+      "<div class=\"ss-data-card-val\">" + (s.projectedBooths || 0).toLocaleString() + "</div>" +
+      "<span class=\"ss-data-card-badge " + (!boothsDriving ? "ss-badge-driving" : "ss-badge-ref") + "\">" + (!boothsDriving ? "✓ Driving Recommendation" : "Reference Only") + "</span>" +
+    "</div>" +
+    "<div class=\"ss-data-card\">" +
+      "<div class=\"ss-data-card-lbl\">Revenue Actuals (TSS)</div>" +
+      "<div class=\"ss-data-card-val\">" + ssFmt(s.revenueActuals) + "</div>" +
+      "<span class=\"ss-data-card-badge " + (revDriving ? "ss-badge-driving" : "ss-badge-ref") + "\">" + (revDriving ? "✓ Driving Recommendation" : "Reference Only") + "</span>" +
+    "</div>" +
+    "<div class=\"ss-data-card\">" +
+      "<div class=\"ss-data-card-lbl\">Salesforce Projection</div>" +
+      "<div class=\"ss-data-card-val\">" + ssFmt(s.sfRevenue) + "</div>" +
+      "<span class=\"ss-data-card-badge " + (!revDriving ? "ss-badge-driving" : "ss-badge-ref") + "\">" + (!revDriving ? "✓ Driving Recommendation" : "Reference Only") + "</span>" +
+    "</div>" +
+    "</div>";
+
+  // Role boxes
+  var roles = [
+    {key:"cf", label:"Customer-Facing Roles", val:rec.cf},
+    {key:"br", label:"Back Room Roles", val:rec.br},
+    {key:"as", label:"Additional Support", val:rec.as},
+    {key:"sv", label:"Supervisory Roles", val:rec.sv},
+    {key:"fr", label:"Freight / Storage", val:0}
+  ];
+  var roleBoxes = roles.map(function(r) {
+    return "<div class=\"ss-role-box" + (r.val > 0 ? " active-role" : "") + "\">" +
+      "<div class=\"ss-role-box-num\">" + r.val + "</div>" +
+      "<div class=\"ss-role-box-lbl\">" + r.label + "</div>" +
+    "</div>";
+  }).join("");
+
+  var totalStaff = rec.cf + rec.br + rec.as + rec.sv;
+
+  // Why These Numbers
+  var row = ssGetRow(rec.booths);
+  var why = [];
+  if (row) {
+    why.push("<strong>Customer-Facing Roles:</strong> " + rec.booths + " active booths falls in the " + row.min + "–" + row.max + " booth range, which has a baseline of " + row.cf + " customer-facing role" + (row.cf !== 1 ? "s" : "") + ".");
+    var brBase = row.br, brExtra = rec.br - brBase;
+    if (brBase === 0) {
+      why.push("<strong>Back Room Roles:</strong> Back room roles begin at 301 booths. This show has " + rec.booths + " booths, which is below that threshold.");
+    } else if (brExtra > 0) {
+      why.push("<strong>Back Room Roles:</strong> Baseline is " + brBase + " back room role" + (brBase !== 1 ? "s" : "") + " for this range. Revenue of " + ssFmt(rec.revenue) + " exceeds both the $2M threshold and the range average of " + ssFmt(row.avgRev) + ", adding " + brExtra + " additional back room role" + (brExtra !== 1 ? "s" : "") + ".");
+    } else {
+      why.push("<strong>Back Room Roles:</strong> The " + row.min + "–" + row.max + " booth range has a baseline of " + brBase + " back room role" + (brBase !== 1 ? "s" : "") + ". Revenue of " + ssFmt(rec.revenue) + " does not exceed both the $2M threshold and range average.");
+    }
+    if (row.as > 0) {
+      why.push("<strong>Additional Support Roles:</strong> The " + row.min + "–" + row.max + " booth range includes " + row.as + " additional support role" + (row.as !== 1 ? "s" : "") + " in the baseline.");
+    } else {
+      why.push("<strong>Additional Support Roles:</strong> Additional support roles start at 601 booths. This show has " + rec.booths + " booths.");
+    }
+    if (rec.sv === 0) {
+      why.push("<strong>Supervisory Roles:</strong> Supervisory roles begin at 451 booths. This show has " + rec.booths + " booths and revenue of " + ssFmt(rec.revenue) + ", which does not exceed the $2M revenue trigger.");
+    } else if (row.sv > 0) {
+      why.push("<strong>Supervisory Roles:</strong> The " + row.min + "–" + row.max + " booth range includes " + row.sv + " supervisory role" + (row.sv !== 1 ? "s" : "") + " in the baseline.");
+    } else {
+      why.push("<strong>Supervisory Roles:</strong> Revenue of " + ssFmt(rec.revenue) + " exceeds the $2M absolute threshold, triggering a supervisory role.");
+    }
+    why.push("<strong>Freight / Storage Roles:</strong> These fall outside the staffing model. They default to 0 and can be documented in a modification if needed.");
+  }
+  var whyHtml = why.map(function(r) { return "<div class=\"ss-why-item\"><div class=\"ss-why-dot\"></div><div class=\"ss-why-text\">" + r + "</div></div>"; }).join("");
+
+  // Consider These
+  var bdiff = (s.currentBooths || 0) - (s.projectedBooths || 1);
+  var bpct = Math.round(Math.abs(bdiff) / Math.max(s.projectedBooths || 1, 1) * 100);
+  var considers = [
+    {i:"🏙️", t:"Is this show taking place in a grey city? Grey city events may have additional staffing complexity that warrants adjusting from the model recommendation."},
+    {i:"📊", t:"Current booths (" + (s.currentBooths || 0).toLocaleString() + ") are " + bpct + "% " + (bdiff >= 0 ? "above" : "below") + " projection (" + (s.projectedBooths || 0).toLocaleString() + "). Prior year was " + (s.pyBooths || 0).toLocaleString() + " booths. Does the trend feel consistent with expectations?"},
+    {i:"⏱", t:"Does this show have a compressed move-in or teardown timeline that would concentrate demand on specific days or hours?"},
+    {i:"💳", t:"Are there heightened collection needs or specialized billing complexity that would increase back room workload beyond the model suggestion?"},
+    {i:"🚚", t:"Does this show require freight-specific service stations — cold storage, access/controlled storage, or rigging desks — not captured in the model?"}
+  ];
+  var considerHtml = considers.map(function(q) { return "<div class=\"ss-consider-item\"><div class=\"ss-consider-icon\">" + q.i + "</div><div>" + q.t + "</div></div>"; }).join("");
+
+  // Unique IDs for this show's interactive elements
+  var uid = s.id || ssSelId;
+  var planConfirmed = plan && plan.confirmed;
+
+  // Decision section — if already confirmed via "I Agree", show confirmed state
+  var decisionHtml;
+  if (planConfirmed) {
+    decisionHtml = "<div class=\"ss-decision-section\">" +
+      "<div class=\"ss-decision-lbl\">Your Staffing Decision</div>" +
+      "<div style=\"font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px\">✓ Plan Confirmed — you agreed with this model recommendation.</div>" +
+    "</div>";
+  } else {
+    decisionHtml = "<div class=\"ss-decision-section\">" +
+      "<div class=\"ss-decision-lbl\">Your Staffing Decision</div>" +
+      "<div class=\"ss-decision-btns\">" +
+        "<button class=\"ss-btn-agree\" data-calc-agree=\"" + uid + "\">✓ I Agree With This Plan</button>" +
+        "<button class=\"ss-btn-modify\" data-calc-modify=\"" + uid + "\">⊘ I Need to Modify This Plan</button>" +
       "</div>" +
-      (rec.reasons.length ? "<div style=\"margin-top:6px;font-size:10.8px;color:var(--muted)\">" + rec.reasons.map(function(r){ return "&#x2022; " + r; }).join(" &nbsp;") + "</div>" : "") +
-      "</div>";
+      "<div class=\"ss-modify-panel\" id=\"ss-modify-" + uid + "\">" +
+        "<div class=\"ss-modify-hdr\">Document Your Modification</div>" +
+        "<div class=\"ss-modify-roles\">" +
+          "<div class=\"ss-modify-role\"><label>Customer-Facing</label><div class=\"ss-model-val\">Model: " + rec.cf + "</div><input class=\"ss-modify-input\" type=\"number\" min=\"0\" max=\"20\" value=\"" + rec.cf + "\" data-mod-key=\"cf\" data-mod-show=\"" + uid + "\"></div>" +
+          "<div class=\"ss-modify-role\"><label>Back Room</label><div class=\"ss-model-val\">Model: " + rec.br + "</div><input class=\"ss-modify-input\" type=\"number\" min=\"0\" max=\"20\" value=\"" + rec.br + "\" data-mod-key=\"br\" data-mod-show=\"" + uid + "\"></div>" +
+          "<div class=\"ss-modify-role\"><label>Addl Support</label><div class=\"ss-model-val\">Model: " + rec.as + "</div><input class=\"ss-modify-input\" type=\"number\" min=\"0\" max=\"20\" value=\"" + rec.as + "\" data-mod-key=\"as\" data-mod-show=\"" + uid + "\"></div>" +
+          "<div class=\"ss-modify-role\"><label>Supervisory</label><div class=\"ss-model-val\">Model: " + rec.sv + "</div><input class=\"ss-modify-input\" type=\"number\" min=\"0\" max=\"20\" value=\"" + rec.sv + "\" data-mod-key=\"sv\" data-mod-show=\"" + uid + "\"></div>" +
+          "<div class=\"ss-modify-role\"><label>Freight/Storage</label><div class=\"ss-model-val\">Model: 0 (not model-driven)</div><input class=\"ss-modify-input\" type=\"number\" min=\"0\" max=\"20\" value=\"0\" data-mod-key=\"fr\" data-mod-show=\"" + uid + "\"></div>" +
+        "</div>" +
+        "<div class=\"ss-reason-lbl\">Reason for Modification</div>" +
+        "<textarea class=\"ss-reason-textarea\" id=\"ss-reason-" + uid + "\" placeholder=\"Explain why you are modifying the model recommendation...\"></textarea>" +
+        "<button class=\"ss-btn-submit-mod\" data-calc-submit=\"" + uid + "\">Submit Modified Plan →</button>" +
+      "</div>" +
+    "</div>";
   }
 
-  if (stepNum === "4") {
-    return "<div class=\"ss-calc-inline\" style=\"margin-top:8px;border-radius:8px\">" +
-      "<div style=\"font-size:10.8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px\">Enter Quantities to Lock Into Plan</div>" +
-      renderSsOverrideRow(ssSelId, "cf", "Customer-Facing Reps", cf, rec.cf) +
-      renderSsOverrideRow(ssSelId, "br", "Back Room Reps", br, rec.br) +
-      renderSsOverrideRow(ssSelId, "as", "Assist. Supervisors", as_, rec.as) +
-      renderSsOverrideRow(ssSelId, "sv", "Supervisors", sv, rec.sv) +
-      "<div style=\"padding:6px 0;font-size:12px;font-weight:700;color:var(--fb)\">Total: <span id=\"ss-total-" + ssSelId + "\">" + total + "</span> ES staff</div>" +
-      "</div>";
-  }
-  return "";
+  // Prior year job reference
+  var pyLine = s.pyJobNumber ? "Prior Year Job #: " + s.pyJobNumber + "  &nbsp;|&nbsp;" : "";
+
+  return "<div class=\"ss-calc-full\">" +
+    "<div class=\"ss-calc-show-hdr\">" +
+      "<div class=\"ss-calc-job-line\">Job <span>#" + (s.id || uid) + "</span>" + (s.pyJobNumber ? "  &nbsp;·&nbsp; Prior Year <span>#" + s.pyJobNumber + "</span>" : "") + "</div>" +
+      "<div class=\"ss-calc-indicator-pills\">" + pills + "</div>" +
+    "</div>" +
+    dataCards +
+    "<div class=\"ss-calc-roles\">" +
+      "<div class=\"ss-roles-lbl\">Staffing Recommendation</div>" +
+      "<div class=\"ss-role-boxes\">" + roleBoxes + "</div>" +
+      "<div class=\"ss-total-bar\"><span class=\"ss-total-lbl\">Total Recommended Staff</span><span class=\"ss-total-num\">" + totalStaff + "</span></div>" +
+    "</div>" +
+    "<button class=\"ss-collapsible-btn\" data-collapsible=\"why-" + uid + "\">❓ Why These Numbers <span class=\"ss-chev\">▼</span></button>" +
+    "<div class=\"ss-collapsible-body\" id=\"ss-why-" + uid + "\">" + whyHtml + "</div>" +
+    "<button class=\"ss-collapsible-btn\" data-collapsible=\"consider-" + uid + "\">⚡ Consider These Before Deciding <span class=\"ss-chev\">▼</span></button>" +
+    "<div class=\"ss-collapsible-body\" id=\"ss-consider-" + uid + "\">" + considerHtml + "</div>" +
+    decisionHtml +
+  "</div>";
 }
 
 function renderSsOverrideRow(showId, key, label, val, rec) {
