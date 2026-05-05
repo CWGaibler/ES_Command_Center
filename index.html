@@ -794,13 +794,17 @@ function setScope(scope, el) {
   if (scope === 'enterprise') {
     rSel.classList.add('hidden');
     bSel.classList.add('hidden');
+    rSel.value = '';
+    bSel.value = '';
   } else if (scope === 'region') {
     rSel.classList.remove('hidden');
     bSel.classList.add('hidden');
+    bSel.value = '';
   } else if (scope === 'branch') {
     rSel.classList.add('hidden');
     bSel.classList.remove('hidden');
   }
+  onScopeChanged();
 }
 
 function onRegionChange() {
@@ -814,14 +818,21 @@ function onRegionChange() {
       bSel.appendChild(opt);
     });
   }
-  var staffingPage = document.getElementById('page-staffing');
-  if (staffingPage && staffingPage.classList.contains('active')) { ssSelId = null; initStaffing(); }
+  onScopeChanged();
 }
 
 function onScopeDropdownChange() {
+  onScopeChanged();
+}
+
+function onScopeChanged() {
   var staffingPage = document.getElementById('page-staffing');
   if (staffingPage && staffingPage.classList.contains('active')) {
-    ssSelId = null; initStaffing();
+    ssSelId = null; initStaffing(); return;
+  }
+  var recruitingPage = document.getElementById('page-recruiting');
+  if (recruitingPage && recruitingPage.classList.contains('active')) {
+    selId = null; renderList(); renderDetail(); renderNeedsAttention(); return;
   }
 }
 
@@ -937,10 +948,39 @@ function posLabel(h) {
   return name.trim() || h.role + '  &mdash;  ' + h.branch;
 }
 
+function getRecruitingScope() {
+  var activePill = document.querySelector('.scope-pill.active');
+  var scope = activePill ? (activePill.getAttribute('data-scope') || 'enterprise') : 'enterprise';
+  var regionEl = document.getElementById('region-select');
+  var branchEl = document.getElementById('branch-select');
+  var region = regionEl ? regionEl.value : '';
+  var branch = branchEl ? branchEl.value : '';
+  return { scope: scope, region: region, branch: branch };
+}
+
 function canView(h) {
-  if(currentViewAs === 'hm') return true;
-  if(currentViewAs === 'rd') return ['pending-rd','pending-es','approved','posted','interviewing','offer','complete','rejected'].indexOf(h.stage) >= 0;
-  if(currentViewAs === 'es') return ['pending-es','approved','posted','interviewing','offer','complete','rejected'].indexOf(h.stage) >= 0;
+  // Stage-based view filter
+  var stageOk = true;
+  if(currentViewAs === 'rd') stageOk = ['pending-rd','pending-es','approved','posted','interviewing','offer','complete','rejected'].indexOf(h.stage) >= 0;
+  if(currentViewAs === 'es') stageOk = ['pending-es','approved','posted','interviewing','offer','complete','rejected'].indexOf(h.stage) >= 0;
+  if (!stageOk) return false;
+
+  // Scope filter — each hire has h.branch (e.g. "Dallas", "Chicago")
+  var sc = getRecruitingScope();
+  if (sc.scope === 'enterprise') return true;
+
+  if (sc.scope === 'region') {
+    if (!sc.region) return true; // no region selected yet — show all
+    // Map hire's branch city to a dashboard region via BRANCH_MAP
+    var regionBranches = BRANCH_MAP[sc.region] || [];
+    return regionBranches.indexOf(h.branch) >= 0;
+  }
+
+  if (sc.scope === 'branch') {
+    if (!sc.branch) return true; // no branch selected yet — show all
+    return h.branch === sc.branch;
+  }
+
   return true;
 }
 
@@ -1280,7 +1320,7 @@ function updateStats(){
 }
 
 function initRecruiting(){
-  if(rhReady)return; rhReady=true;
+  if(!rhReady) rhReady=true; // first-load guard kept for future use but no longer blocks re-render
   renderList(); renderDetail(); renderNeedsAttention();
 }
 
