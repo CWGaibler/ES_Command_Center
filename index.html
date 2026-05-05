@@ -1516,32 +1516,63 @@ function renderSsList() {
   var shows = getFilteredShows();
   if (countEl) countEl.textContent = shows.length + " Show" + (shows.length !== 1 ? "s" : "");
 
+  // Clear the list
+  list.innerHTML = "";
+
   if (shows.length === 0) {
-    list.innerHTML = "<div style=\"padding:20px;text-align:center;color:var(--muted);font-size:12px\">No shows match this filter.</div>";
+    var empty = document.createElement("div");
+    empty.style.cssText = "padding:20px;text-align:center;color:var(--muted);font-size:12px";
+    empty.textContent = "No shows match this filter.";
+    list.appendChild(empty);
     return;
   }
 
-  list.innerHTML = shows.map(function(s) {
+  // Build each show item using DOM methods — no innerHTML escaping issues
+  shows.forEach(function(s) {
     var plan = ssPlans[s.id];
     var confirmed = plan && plan.confirmed;
     var rec = ssCalcRec(s);
-    var badge = confirmed
-      ? "<span class=\"ss-badge ss-badge-confirmed\">\u2713 Confirmed</span>"
-      : "<span class=\"ss-badge ss-badge-unstaffed\">Needs Plan</span>";
     var dashRegion = CALC_REGION_MAP[s.region] || s.region;
-    var selClass = ssSelId === s.id ? " sel" : "";
-    return "<div class=\"ss-show-item" + selClass + "\" data-showid=\"" + s.id + "\" onclick=\"selectSsShow(this.dataset.showid)\">" +
-      "<div class=\"ss-show-name\">" + s.name + "</div>" +
-      "<div class=\"ss-show-meta\">" + s.city + " &middot; " + ssFmtDate(s.showOpen) + " &middot; " + rec.booths + " booths</div>" +
-      "<div class=\"ss-show-tags\">" + badge + "<span class=\"chip chip-ghost\" style=\"font-size:10px\">" + dashRegion + "</span></div>" +
-      "</div>";
-  }).join("");
 
-  // Attach click handlers via event delegation on the list
-  list.onclick = function(e) {
-    var item = e.target.closest("[data-showid]");
-    if (item) selectSsShow(item.getAttribute("data-showid"));
-  };
+    // Outer item div
+    var item = document.createElement("div");
+    item.className = "ss-show-item" + (ssSelId === s.id ? " sel" : "");
+    // Click handler — directly assigned as a function, no string escaping at all
+    (function(showId) {
+      item.addEventListener("click", function() { selectSsShow(showId); });
+    })(s.id);
+
+    // Show name
+    var nameDiv = document.createElement("div");
+    nameDiv.className = "ss-show-name";
+    nameDiv.textContent = s.name;
+
+    // Show meta
+    var metaDiv = document.createElement("div");
+    metaDiv.className = "ss-show-meta";
+    metaDiv.textContent = s.city + " · " + ssFmtDate(s.showOpen) + " · " + rec.booths + " booths";
+
+    // Tags row
+    var tagsDiv = document.createElement("div");
+    tagsDiv.className = "ss-show-tags";
+
+    var badge = document.createElement("span");
+    badge.className = confirmed ? "ss-badge ss-badge-confirmed" : "ss-badge ss-badge-unstaffed";
+    badge.textContent = confirmed ? "✓ Confirmed" : "Needs Plan";
+
+    var regionChip = document.createElement("span");
+    regionChip.className = "chip chip-ghost";
+    regionChip.style.fontSize = "10px";
+    regionChip.textContent = dashRegion;
+
+    tagsDiv.appendChild(badge);
+    tagsDiv.appendChild(regionChip);
+
+    item.appendChild(nameDiv);
+    item.appendChild(metaDiv);
+    item.appendChild(tagsDiv);
+    list.appendChild(item);
+  });
 }
 
 function selectSsShow(id) {
