@@ -296,6 +296,29 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .ss-phase2-icon{font-size:16px;flex-shrink:0;margin-top:1px}
 .ss-phase2-text{font-size:13.5px;color:var(--fb);line-height:1.4}
 .ss-phase2-text strong{font-weight:800}
+/* Completion popup modal */
+.ss-complete-overlay{position:fixed;inset:0;background:rgba(0,31,95,.45);z-index:9000;display:flex;align-items:center;justify-content:center;animation:fadeInOv .18s ease}
+@keyframes fadeInOv{from{opacity:0}to{opacity:1}}
+.ss-complete-modal{background:#fff;border-radius:14px;box-shadow:0 12px 48px rgba(0,31,95,.22);max-width:520px;width:calc(100% - 40px);padding:0;overflow:hidden;animation:slideUpMd .2s ease}
+@keyframes slideUpMd{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.ss-cmp-head{background:var(--fb);padding:22px 24px 18px;text-align:center}
+.ss-cmp-icon{font-size:36px;margin-bottom:6px}
+.ss-cmp-title{font-size:18px;font-weight:900;color:#fff;letter-spacing:-.01em}
+.ss-cmp-sub{font-size:13px;color:rgba(255,255,255,.75);margin-top:3px}
+.ss-cmp-body{padding:20px 24px}
+.ss-cmp-section{font-size:12px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.ss-cmp-step{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.ss-cmp-step-num{width:22px;height:22px;border-radius:50%;background:var(--mb);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ss-cmp-step-text{font-size:13.5px;color:var(--fb);line-height:1.45}
+.ss-cmp-step-text strong{font-weight:800}
+.ss-cmp-note{background:var(--fb-xlt);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:4px}
+.ss-cmp-footer{padding:0 24px 22px;display:flex;gap:10px;justify-content:flex-end}
+.ss-cmp-btn{font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:800;padding:8px 20px;border-radius:8px;border:none;cursor:pointer}
+.ss-cmp-btn-primary{background:var(--green);color:#fff}
+.ss-cmp-btn-primary:hover{background:#38a830}
+/* Step locked state */
+.task-chk.locked{opacity:.38;cursor:not-allowed}
+.task-row.step-locked .task-title{color:var(--muted)}
 
 /* Full Calculator Upgrade - v6.3 */
 .ss-calc-full{margin-top:12px;border:2px solid var(--mb);border-radius:10px;overflow:hidden;background:var(--white)}
@@ -586,9 +609,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
           <span class="rh-sidebar-title" id="ss-sidebar-count">Shows Needing Action</span>
         </div>
         <div class="ss-sidebar-filter">
-          <button class="ss-filter-btn active" onclick="setSsFilter('all',this)">All</button>
-          <button class="ss-filter-btn" onclick="setSsFilter('unstaffed',this)">Unstaffed</button>
+          <button class="ss-filter-btn active" onclick="setSsFilter('unstaffed',this)">Unstaffed</button>
           <button class="ss-filter-btn" onclick="setSsFilter('confirmed',this)">Confirmed</button>
+          <button class="ss-filter-btn" onclick="setSsFilter('all',this)">All</button>
         </div>
         <div id="ss-show-list" style="overflow-y:auto;max-height:calc(100vh - 340px)"></div>
       </div>
@@ -1488,16 +1511,14 @@ function ssFmtDate(str) {
 
 var ssPlans = {};
 var ssSelId = null;
-var ssFilter = "all";
+var ssFilter = "unstaffed";
 
 var SS_TASKS = [
   {id:"s1", phase:"Leadership Steps", title:"Review show details and prior year history", desc:"Check NSS for prior year staffing, job number, and any notes from previous runs.", links:[{label:"NSS",url:"https://nss.freeman.com"}]},
   {id:"s2", phase:"Leadership Steps", title:"Determine staffing — review ES Staffing Service Model", desc:"Use the calculator below to get the recommended headcount. If 50 or fewer booths, refer to Remote SOP.", links:[{label:"Remote SOP",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}], calc:true, step:"2"},
   {id:"s5", phase:"Leadership Steps", title:"Add event to ES Regional Schedules and assign staff", desc:"Update the Regional Schedule spreadsheet with this event and assign available staff members.", links:[{label:"Regional Schedules",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]},
-  {id:"s6", phase:"Leadership Steps", title:"Enter supervisor/lead names in NSS", desc:"Once names are entered in NSS, an auto-alert is sent to assigned persons at the 10-week mark. This unlocks Phase 2 below.", links:[{label:"NSS",url:"https://nss.freeman.com"}], nameEntry:true},
-  {id:"s7", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]},
-  {id:"s8", phase:"Supervisor/Lead Steps", title:"Review recommended staffing in NSS; discuss changes with ES leadership", desc:"Assigned supervisors and leads review the confirmed plan and raise any concerns with the ES Manager or Regional Director.", links:[], phase2:true},
-  {id:"s9", phase:"Supervisor/Lead Steps", title:"Communicate staffing plan to primary Growth contact in writing", desc:"Provide the ES contact names to the primary Growth contact. Confirm the staffing plan is documented.", links:[], phase2:true}
+  {id:"s6", phase:"Leadership Steps", title:"Enter supervisor/lead names in NSS", desc:"Once names are entered in NSS, an auto-alert is sent to assigned persons at the 10-week mark.", links:[{label:"NSS",url:"https://nss.freeman.com"}], nameEntry:true},
+  {id:"s7", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]}
 ];
 
 function getScopeShows() {
@@ -1688,7 +1709,6 @@ function renderSsDetail() {
   var rec = ssCalcRec(s);
   var dashRegion = CALC_REGION_MAP[s.region] || s.region;
   var confirmed = plan.confirmed;
-  var phase2Unlocked = plan.checked.indexOf("s6") >= 0;
 
   var html = "<div class=\"det-hdr\">" +
     "<div><div class=\"det-name-row\"><span class=\"det-name\">" + s.name + "</span><span class=\"det-name-sep\">|</span><span class=\"det-job-num\">Job #" + ssSelId + "</span></div>" +
@@ -1704,7 +1724,7 @@ function renderSsDetail() {
 
   html += "<div class=\"det-scroll\" style=\"max-height:calc(100vh - 300px);overflow-y:auto\">";
 
-  // Phase 1
+  // Leadership Steps — sequential locking
   var p1done = plan.checked.filter(function(x){ return ["s1","s2","s5","s6","s7"].indexOf(x) >= 0; }).length;
   html += "<div class=\"phase-sec\"><div class=\"phase-hdr\" id=\"ss-phdr-p1\" data-phase=\"p1\">" +
     "<div class=\"ph-icon ph-active\">1</div>" +
@@ -1714,65 +1734,45 @@ function renderSsDetail() {
     "</div>" +
     "<div id=\"ss-body-p1\">";
 
-  SS_TASKS.filter(function(t){ return !t.phase2; }).forEach(function(t) {
+  SS_TASKS.forEach(function(t, idx) {
     var checked = plan.checked.indexOf(t.id) >= 0;
-    html += "<div class=\"task-row\">" +
-      "<div class=\"task-chk" + (checked ? " checked" : "") + "\" data-taskid=\"" + t.id + "\" data-showid=\"" + ssSelId + "\">" +
+    // A step is locked if any prior step is not yet checked
+    var locked = false;
+    if (idx > 0) {
+      for (var i = 0; i < idx; i++) {
+        if (plan.checked.indexOf(SS_TASKS[i].id) < 0) { locked = true; break; }
+      }
+    }
+    var rowCls = locked ? " step-locked" : "";
+    var chkCls = "task-chk" + (checked ? " checked" : "") + (locked ? " locked" : "");
+    html += "<div class=\"task-row" + rowCls + "\">" +
+      "<div class=\"" + chkCls + "\"" + (locked ? "" : " data-taskid=\"" + t.id + "\" data-showid=\"" + ssSelId + "\"") + ">" +
         "<span class=\"chk-mark\">\u2713</span>" +
       "</div>" +
       "<div class=\"task-body\">" +
-        "<div class=\"task-title" + (checked ? " done" : "") + "\">" + t.title + "</div>" +
-        "<div class=\"task-desc\">" + t.desc + "</div>" +
-        (t.links && t.links.length ? "<div class=\"task-links\">" + t.links.map(function(l){ return "<a class=\"tlink\" href=\"" + l.url + "\" target=\"_blank\">" + l.label + "</a>"; }).join("") + "</div>" : "") +
-        (t.calc ? renderSsCalcInline(s, rec, plan, t.step) : "") +
-        (t.nameEntry ? renderSsNameEntry(ssSelId, plan) : "") +
+        "<div class=\"task-title" + (checked ? " done" : "") + (locked ? " done" : "") + "\">" + (idx + 1) + ". " + t.title + (locked ? " <span style=\"font-size:11px;font-weight:700;color:var(--muted);opacity:.7\">(complete step " + idx + " first)</span>" : "") + "</div>" +
+        "<div class=\"task-desc\"" + (locked ? " style=\"opacity:.5\"" : "") + ">" + t.desc + "</div>" +
+        (!locked && t.links && t.links.length ? "<div class=\"task-links\">" + t.links.map(function(l){ return "<a class=\"tlink\" href=\"" + l.url + "\" target=\"_blank\">" + l.label + "</a>"; }).join("") + "</div>" : "") +
+        (!locked && t.calc ? renderSsCalcInline(s, rec, plan, t.step) : "") +
+        (!locked && t.nameEntry ? renderSsNameEntry(ssSelId, plan) : "") +
       "</div>" +
       "</div>";
   });
 
   html += "</div></div>";
-
-  // Phase 2
-  var p2icon = phase2Unlocked ? "ph-active" : "ph-locked";
-  var p2done = plan.checked.filter(function(x){ return x === "s8" || x === "s9"; }).length;
-  html += "<div class=\"phase-sec\"><div class=\"phase-hdr\" id=\"ss-phdr-p2\" data-phase=\"p2\">" +
-    "<div class=\"ph-icon " + p2icon + "\">2</div>" +
-    "<div class=\"ph-label\">Supervisor / Lead Steps</div>" +
-    "<div class=\"ph-count\">" + (phase2Unlocked ? p2done + "/2" : "Locked until names entered") + "</div>" +
-    "<div class=\"ph-chev\" id=\"ss-chev-p2\">\u25BC</div>" +
-    "</div>" +
-    "<div id=\"ss-body-p2\" style=\"display:none\">";
-
-  if (!phase2Unlocked) {
-    html += "<div class=\"ss-phase2-banner\"><div class=\"ss-phase2-icon\">\uD83D\uDD12</div><div class=\"ss-phase2-text\"><strong>Waiting on Step 6</strong><br>Enter supervisor and lead names in NSS (Step 6) to unlock these steps.</div></div>";
-  } else {
-    SS_TASKS.filter(function(t){ return t.phase2; }).forEach(function(t) {
-      var checked = plan.checked.indexOf(t.id) >= 0;
-      html += "<div class=\"task-row\">" +
-        "<div class=\"task-chk" + (checked ? " checked" : "") + "\" data-taskid=\"" + t.id + "\" data-showid=\"" + ssSelId + "\">" +
-          "<span class=\"chk-mark\">\u2713</span>" +
-        "</div>" +
-        "<div class=\"task-body\">" +
-          "<div class=\"task-title" + (checked ? " done" : "") + "\">" + t.title + "</div>" +
-          "<div class=\"task-desc\">" + t.desc + "</div>" +
-        "</div>" +
-        "</div>";
-    });
-  }
-  html += "</div></div>";
   html += "</div>"; // close det-scroll
 
   // Confirm bar
-  var allP1Done = SS_TASKS.filter(function(t){ return !t.phase2; }).every(function(t){ return plan.checked.indexOf(t.id) >= 0; });
+  var allDone = SS_TASKS.every(function(t){ return plan.checked.indexOf(t.id) >= 0; });
   if (confirmed) {
     html += "<div class=\"ss-confirm-bar\">" +
-      "<div class=\"ss-confirm-msg\">\u2713 Staffing plan confirmed<div class=\"sub\">Plan locked. Uncheck steps above to modify.</div></div>" +
+      "<div class=\"ss-confirm-msg\">\u2713 Staffing plan confirmed<div class=\"sub\">Plan locked. Click Edit Plan to reopen.</div></div>" +
       "<button class=\"m-cancel\" data-action-ss=\"unconfirm\" data-showid=\"" + ssSelId + "\">Edit Plan</button>" +
       "</div>";
   } else {
     html += "<div class=\"ss-confirm-bar pending\">" +
-      "<div class=\"ss-confirm-msg\">" + (allP1Done ? "All leadership steps complete \u2014 ready to confirm" : "Complete steps above to confirm this plan") + "<div class=\"sub\">Confirming locks the plan and removes this show from the Unstaffed queue.</div></div>" +
-      "<button class=\"btn-confirm\" data-action-ss=\"confirm\" data-showid=\"" + ssSelId + "\">Confirm Plan</button>" +
+      "<div class=\"ss-confirm-msg\">" + (allDone ? "All steps complete \u2014 ready to confirm" : "Complete all steps above to confirm this plan") + "<div class=\"sub\">Confirming locks the plan and moves this show to Confirmed.</div></div>" +
+      "<button class=\"btn-confirm\" data-action-ss=\"confirm\" data-showid=\"" + ssSelId + "\"" + (allDone ? "" : " disabled style=\"opacity:.45;cursor:not-allowed\"") + ">Confirm Plan</button>" +
       "</div>";
   }
 
@@ -1793,7 +1793,7 @@ function renderSsDetail() {
     if (btn) {
       var action = btn.getAttribute("data-action-ss");
       var showId = btn.getAttribute("data-showid");
-      if (action === "confirm") confirmSs(showId);
+      if (action === "confirm") confirmSsWithPopup(showId);
       else if (action === "unconfirm") unconfirmSs(showId);
       return;
     }
@@ -2049,12 +2049,89 @@ function toggleSsPhase(id) {
 function toggleSsCheck(showId, taskId) {
   if (!ssPlans[showId]) ssPlans[showId] = {checked:[], overrides:{}, supervisorName:"", leadName:"", confirmed:false};
   var plan = ssPlans[showId];
+
+  // Find this task's index in SS_TASKS
+  var taskIdx = -1;
+  for (var i = 0; i < SS_TASKS.length; i++) { if (SS_TASKS[i].id === taskId) { taskIdx = i; break; } }
+
+  // Block if trying to check and a prior step is unchecked
+  var alreadyChecked = plan.checked.indexOf(taskId) >= 0;
+  if (!alreadyChecked && taskIdx > 0) {
+    for (var j = 0; j < taskIdx; j++) {
+      if (plan.checked.indexOf(SS_TASKS[j].id) < 0) return; // prior step not done
+    }
+  }
+  // Block unchecking if a later step is already checked
+  if (alreadyChecked) {
+    for (var k = taskIdx + 1; k < SS_TASKS.length; k++) {
+      if (plan.checked.indexOf(SS_TASKS[k].id) >= 0) return; // later step already checked
+    }
+  }
+
   var idx = plan.checked.indexOf(taskId);
   if (idx >= 0) plan.checked.splice(idx, 1);
   else plan.checked.push(taskId);
+
+  // If all steps now checked, auto-confirm and show popup
+  var allDone = SS_TASKS.every(function(t){ return plan.checked.indexOf(t.id) >= 0; });
+  if (allDone && !plan.confirmed) {
+    plan.confirmed = true;
+    renderSsDetail();
+    renderSsList();
+    renderSsStats();
+    showSsCompletePopup(showId);
+    return;
+  }
+
   renderSsDetail();
   renderSsList();
   renderSsStats();
+}
+
+function showSsCompletePopup(showId) {
+  var s = SHOWS[showId] || {};
+  var overlay = document.createElement("div");
+  overlay.className = "ss-complete-overlay";
+  overlay.id = "ss-complete-overlay";
+  overlay.innerHTML =
+    "<div class=\"ss-complete-modal\">" +
+      "<div class=\"ss-cmp-head\">" +
+        "<div class=\"ss-cmp-icon\">\u2705</div>" +
+        "<div class=\"ss-cmp-title\">Staffing Steps Complete!</div>" +
+        "<div class=\"ss-cmp-sub\">" + (s.name || showId) + "</div>" +
+      "</div>" +
+      "<div class=\"ss-cmp-body\">" +
+        "<div class=\"ss-cmp-section\">Your responsibilities are done. Here\u2019s what happens next:</div>" +
+        "<div class=\"ss-cmp-step\">" +
+          "<div class=\"ss-cmp-step-num\">1</div>" +
+          "<div class=\"ss-cmp-step-text\"><strong>Supervisor / Lead notification sent</strong><br>Your assigned supervisor and/or lead received an automatic alert from NSS at the 10-week mark. They know what to do.</div>" +
+        "</div>" +
+        "<div class=\"ss-cmp-step\">" +
+          "<div class=\"ss-cmp-step-num\">2</div>" +
+          "<div class=\"ss-cmp-step-text\"><strong>They will review the staffing plan</strong><br>Your supervisor or lead will review the recommended headcount in NSS and discuss any changes with you as needed.</div>" +
+        "</div>" +
+        "<div class=\"ss-cmp-step\">" +
+          "<div class=\"ss-cmp-step-num\">3</div>" +
+          "<div class=\"ss-cmp-step-text\"><strong>They will communicate the plan to Growth</strong><br>Your supervisor or lead will reach out in writing to the primary Growth contact for this event to confirm the staffing plan and share ES contact names.</div>" +
+        "</div>" +
+        "<div class=\"ss-cmp-note\">You don\u2019t need to follow up on these steps \u2014 your team has been notified and knows their responsibilities. This show has moved to your <strong>Confirmed</strong> list.</div>" +
+      "</div>" +
+      "<div class=\"ss-cmp-footer\">" +
+        "<button class=\"ss-cmp-btn ss-cmp-btn-primary\" id=\"ss-cmp-close-btn\">Got it \u2014 back to Confirmed</button>" +
+      "</div>" +
+    "</div>";
+  document.body.appendChild(overlay);
+  document.getElementById("ss-cmp-close-btn").onclick = function() {
+    overlay.remove();
+    // Switch filter to confirmed and deselect show
+    ssFilter = "confirmed";
+    document.querySelectorAll(".ss-filter-btn").forEach(function(b) { b.classList.remove("active"); });
+    document.querySelectorAll(".ss-filter-btn").forEach(function(b) { if (b.textContent.trim() === "Confirmed") b.classList.add("active"); });
+    ssSelId = null;
+    renderSsList();
+    renderSsEmptyDetail();
+  };
+  overlay.onclick = function(e) { if (e.target === overlay) { overlay.remove(); } };
 }
 
 function updateSsOverride(showId, key, val) {
@@ -2083,6 +2160,11 @@ function confirmSs(showId) {
   renderSsDetail();
   renderSsList();
   renderSsStats();
+}
+
+function confirmSsWithPopup(showId) {
+  confirmSs(showId);
+  showSsCompletePopup(showId);
 }
 
 function unconfirmSs(showId) {
