@@ -79,8 +79,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 /* EVENT CARDS */
 .event-card{border:1px solid var(--border-lt);border-radius:8px;padding:10px;margin-bottom:8px}
 .event-card:last-child{margin-bottom:0}
-.event-name{font-size:14.4px;font-weight:800}
-.event-job-num{font-size:11.5px;font-weight:800;color:var(--mb);margin-top:2px;letter-spacing:.01em}
+.event-name-row{display:flex;align-items:baseline;gap:0;flex-wrap:nowrap;min-width:0}
+.event-name{font-size:14.4px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0}
+.event-name-sep{font-size:14.4px;font-weight:300;color:var(--border);margin:0 7px;flex-shrink:0}
+.event-job-num{font-size:14.4px;font-weight:700;color:var(--mb);white-space:nowrap;flex-shrink:0}
 .event-meta{font-size:12px;color:var(--muted);margin-top:2px}
 .event-tags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
 
@@ -114,8 +116,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .hire-prog-pct{font-size:14px;font-weight:800;color:var(--muted)}
 .rh-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .det-hdr{padding:13px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.det-name{font-size:19.2px;font-weight:800}
-.det-job-num{font-size:12px;font-weight:800;color:var(--mb);margin-top:2px;letter-spacing:.02em}
+.det-name-row{display:flex;align-items:baseline;gap:0;flex-wrap:nowrap;min-width:0}
+.det-name{font-size:19.2px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0}
+.det-name-sep{font-size:19.2px;font-weight:300;color:var(--border);margin:0 8px;flex-shrink:0}
+.det-job-num{font-size:19.2px;font-weight:700;color:var(--mb);white-space:nowrap;flex-shrink:0}
 .det-sub{font-size:13.5px;color:var(--muted);margin-top:2px}
 .det-prog-wrap{height:5px;background:var(--border-lt);border-radius:3px;overflow:hidden;margin-top:7px;max-width:300px}
 .det-prog-fill{height:100%;background:var(--mb);transition:width .3s}
@@ -252,8 +256,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .ss-show-item:hover{background:var(--fb-xlt)}
 .ss-show-item.sel{background:var(--fb-xlt);border-left-color:var(--mb)}
 .ss-show-item:last-child{border-bottom:none}
-.ss-show-name{font-size:14px;font-weight:700;line-height:1.3;pointer-events:none}
-.ss-show-job{font-size:11.5px;font-weight:800;color:var(--mb);margin-top:2px;pointer-events:none;letter-spacing:.01em}
+.ss-show-name-row{display:flex;align-items:baseline;gap:0;pointer-events:none;flex-wrap:nowrap;min-width:0}
+.ss-show-name{font-size:14px;font-weight:700;line-height:1.3;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0}
+.ss-show-job-sep{font-size:14px;font-weight:400;color:var(--border);margin:0 6px;pointer-events:none;flex-shrink:0}
+.ss-show-job{font-size:14px;font-weight:700;color:var(--mb);pointer-events:none;white-space:nowrap;flex-shrink:0}
 .ss-show-meta{font-size:12px;color:var(--muted);margin-top:2px;pointer-events:none}
 .ss-show-tags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;pointer-events:none}
 .ss-detail-body{padding:0}
@@ -501,20 +507,17 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         <div class="panel-hdr"><div class="panel-title">Active Events</div></div>
         <div class="panel-body">
           <div class="event-card">
-            <div class="event-name">SEMA Show 2026</div>
-            <div class="event-job-num">Job #261490</div>
+            <div class="event-name-row"><span class="event-name">SEMA Show 2026</span><span class="event-name-sep">|</span><span class="event-job-num">Job #261490</span></div>
             <div class="event-meta">Las Vegas Convention Center · Move-in May 6</div>
             <div class="event-tags"><span class="chip chip-green">On Track</span><span class="chip chip-mb">On-Site Lead: Torres</span></div>
           </div>
           <div class="event-card">
-            <div class="event-name">Healthcare Summit</div>
-            <div class="event-job-num">Job #261831</div>
+            <div class="event-name-row"><span class="event-name">Healthcare Summit</span><span class="event-name-sep">|</span><span class="event-job-num">Job #261831</span></div>
             <div class="event-meta">Chicago McCormick · Move-in May 9</div>
             <div class="event-tags"><span class="chip chip-amber">SERF Due</span><span class="chip chip-mb">On-Site Lead: Kim</span></div>
           </div>
           <div class="event-card">
-            <div class="event-name">AHR Expo</div>
-            <div class="event-job-num">Job #262104</div>
+            <div class="event-name-row"><span class="event-name">AHR Expo</span><span class="event-name-sep">|</span><span class="event-job-num">Job #262104</span></div>
             <div class="event-meta">Orlando Convention · Move-in May 12</div>
             <div class="event-tags"><span class="chip chip-green">On Track</span><span class="chip chip-mb">Remote</span></div>
           </div>
@@ -1616,15 +1619,25 @@ function renderSsList() {
       item.addEventListener("click", function() { selectSsShow(showId); });
     })(s.id);
 
-    // Show name + job number
-    var nameDiv = document.createElement("div");
+    // Show name + job number inline
+    var nameRow = document.createElement("div");
+    nameRow.className = "ss-show-name-row";
+
+    var nameDiv = document.createElement("span");
     nameDiv.className = "ss-show-name";
     nameDiv.textContent = s.name;
 
-    // Job number tag
-    var jobDiv = document.createElement("div");
+    var sepDiv = document.createElement("span");
+    sepDiv.className = "ss-show-job-sep";
+    sepDiv.textContent = "|";
+
+    var jobDiv = document.createElement("span");
     jobDiv.className = "ss-show-job";
     jobDiv.textContent = "Job #" + s.id;
+
+    nameRow.appendChild(nameDiv);
+    nameRow.appendChild(sepDiv);
+    nameRow.appendChild(jobDiv);
 
     // Show meta
     var metaDiv = document.createElement("div");
@@ -1647,8 +1660,7 @@ function renderSsList() {
     tagsDiv.appendChild(badge);
     tagsDiv.appendChild(regionChip);
 
-    item.appendChild(nameDiv);
-    item.appendChild(jobDiv);
+    item.appendChild(nameRow);
     item.appendChild(metaDiv);
     item.appendChild(tagsDiv);
     list.appendChild(item);
@@ -1680,8 +1692,7 @@ function renderSsDetail() {
   var phase2Unlocked = plan.checked.indexOf("s6") >= 0;
 
   var html = "<div class=\"det-hdr\">" +
-    "<div><div class=\"det-name\">" + s.name + "</div>" +
-    "<div class=\"det-job-num\">Job #" + ssSelId + "</div>" +
+    "<div><div class=\"det-name-row\"><span class=\"det-name\">" + s.name + "</span><span class=\"det-name-sep\">|</span><span class=\"det-job-num\">Job #" + ssSelId + "</span></div>" +
     "<div class=\"det-sub\">" + s.city + " &middot; " + (s.facility || "") + " &middot; " + ssFmtDate(s.showOpen) + (s.showClose && s.showClose !== s.showOpen ? " &ndash; " + ssFmtDate(s.showClose) : "") + "</div>" +
     "<div style=\"display:flex;gap:5px;margin-top:5px;flex-wrap:wrap\">" +
       "<span class=\"chip chip-ghost\">" + dashRegion + "</span>" +
