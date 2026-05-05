@@ -1311,19 +1311,17 @@ document.getElementById('modal-bg').addEventListener('click', function(e){
 // STAFFING & SCHEDULING WORKSPACE
 // ═══════════════════════════════════════════════════════════
 
-// Region mapping: calculator region names -> dashboard region names
 var CALC_REGION_MAP = {
-  'SoCal': 'NW/SoCal',
-  'Northwest': 'NW/SoCal',
-  'Las Vegas': 'Las Vegas',
-  'Northeast': 'Northeast',
-  'North Central': 'North Central',
-  'South Central': 'South Central',
-  'Southeast': 'Southeast',
-  'Canada': 'Canada'
+  "SoCal": "NW/SoCal",
+  "Northwest": "NW/SoCal",
+  "Las Vegas": "Las Vegas",
+  "Northeast": "Northeast",
+  "North Central": "North Central",
+  "South Central": "South Central",
+  "Southeast": "Southeast",
+  "Canada": "Canada"
 };
 
-// Staffing model (from calculator)
 var SS_MODEL = [
   {min:1,  max:50,  cf:1,br:0,as:0,sv:0,avgRev:100000},
   {min:51, max:100, cf:1,br:0,as:0,sv:0,avgRev:150000},
@@ -1350,26 +1348,26 @@ function ssGetRow(b) {
 }
 
 function ssActiveBooths(s) {
-  if (!s.projectedBooths || s.projectedBooths === 0) return {count: s.currentBooths || 0, source: 'actual'};
+  if (!s.projectedBooths || s.projectedBooths === 0) return {count: s.currentBooths || 0, source: "actual"};
   return (s.currentBooths / s.projectedBooths) >= 0.80
-    ? {count: s.currentBooths, source: 'actual'}
-    : {count: s.projectedBooths, source: 'projected'};
+    ? {count: s.currentBooths, source: "actual"}
+    : {count: s.projectedBooths, source: "projected"};
 }
 
 function ssActiveRevenue(s) {
-  if (!s.sfRevenue || s.sfRevenue === 0) return {amount: s.revenueActuals || 0, source: 'actual'};
+  if (!s.sfRevenue || s.sfRevenue === 0) return {amount: s.revenueActuals || 0, source: "actual"};
   return (s.revenueActuals / s.sfRevenue) >= 0.80
-    ? {amount: s.revenueActuals, source: 'actual'}
-    : {amount: s.sfRevenue, source: 'projected'};
+    ? {amount: s.revenueActuals, source: "actual"}
+    : {amount: s.sfRevenue, source: "projected"};
 }
 
 function ssApplyOverlay(row, rev) {
   var cf = row.cf, br = row.br, as_ = row.as, sv = row.sv, reasons = [];
   if (rev > 2000000 && rev > row.avgRev) {
     var ex = rev - row.avgRev, extra = Math.floor(ex / 1250000);
-    if (extra > 0) { br += extra; reasons.push('Back Room +' + extra + ' (revenue overlay)'); }
+    if (extra > 0) { br += extra; reasons.push("Back Room +" + extra + " (revenue overlay)"); }
   }
-  if (rev > 2000000 && sv === 0) { sv = 1; reasons.push('Supervisor triggered (revenue > $2M)'); }
+  if (rev > 2000000 && sv === 0) { sv = 1; reasons.push("Supervisor triggered (revenue > $2M)"); }
   return {cf: cf, br: br, as: as_, sv: sv, reasons: reasons};
 }
 
@@ -1388,64 +1386,53 @@ function ssCalcRec(s) {
 }
 
 function ssFmt(n) {
-  if (!n || n === 0) return '$0';
-  if (n >= 1000000) return '$' + (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-  if (n >= 1000) return '$' + Math.round(n / 1000) + 'K';
-  return '$' + n;
+  if (!n || n === 0) return "$0";
+  if (n >= 1000000) return "$" + (n / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1000) return "$" + Math.round(n / 1000) + "K";
+  return "$" + n;
 }
 
 function ssFmtDate(str) {
-  if (!str) return '';
+  if (!str) return "";
   var d = new Date(str);
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  if (isNaN(d.getTime())) return str;
+  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
 }
 
-// Staffing plans stored in session state {showId: {checked:[], overrides:{cf,br,as,sv}, supervisorName, leadName, notes, confirmed, step2Done, step4Done}}
 var ssPlans = {};
-
-// Currently selected show ID
 var ssSelId = null;
+var ssFilter = "all";
 
-// Current filter
-var ssFilter = 'all';
-
-// 7-step checklist tasks for staffing
 var SS_TASKS = [
-  {id:'s1', phase:'Leadership Steps', title:'Review show details and prior year history', desc:'Check NSS for prior year staffing, job number, and any notes from previous runs.', links:[{label:'NSS',url:'https://nss.freeman.com'}]},
-  {id:'s2', phase:'Leadership Steps', title:'Determine staffing — review ES Staffing Service Model', desc:'Use the calculator below to get the recommended headcount. If ≤50 booths, refer to Remote SOP.', links:[{label:'Remote SOP',url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296'}], calc:true, step:'2'},
-  {id:'s3', phase:'Leadership Steps', title:'Add to NSS: On-Site or Remote, standard vs. custom model, Five9 phone number', desc:'Enter the staffing type and model decision in NSS.', links:[{label:'NSS',url:'https://nss.freeman.com'}]},
-  {id:'s4', phase:'Leadership Steps', title:'Enter staffing quantities in NSS', desc:'Enter Actual On-Site Reps/Desks, Actual Remote/Backroom Reps. Use recommended quantities below.', links:[{label:'NSS',url:'https://nss.freeman.com'}], calc:true, step:'4'},
-  {id:'s5', phase:'Leadership Steps', title:'Add event to ES Regional Schedules and assign staff', desc:'Update the Regional Schedule spreadsheet with this event and assign available staff members.', links:[{label:'Regional Schedules',url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296'}]},
-  {id:'s6', phase:'Leadership Steps', title:'Enter supervisor/lead names in NSS', desc:'Once names are entered in NSS, an auto-alert is sent to assigned persons at the 10-week mark. This unlocks Phase 2 below.', links:[{label:'NSS',url:'https://nss.freeman.com'}], nameEntry:true},
-  {id:'s7', phase:'Leadership Steps', title:'If travel needed, review with RD and complete Travel Needs file', desc:'Coordinate with your Regional Director and complete the Travel Needs by Region file.', links:[{label:'Travel Needs File',url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296'}]},
-  {id:'s8', phase:'Supervisor/Lead Steps', title:'Review recommended staffing in NSS; discuss changes with ES leadership', desc:'Assigned supervisors and leads review the confirmed plan and raise any concerns with the ES Manager or Regional Director.', links:[], phase2:true},
-  {id:'s9', phase:'Supervisor/Lead Steps', title:'Communicate staffing plan to primary Growth contact in writing', desc:'Provide the ES contact names to the primary Growth contact. Confirm the staffing plan is documented.', links:[], phase2:true}
+  {id:"s1", phase:"Leadership Steps", title:"Review show details and prior year history", desc:"Check NSS for prior year staffing, job number, and any notes from previous runs.", links:[{label:"NSS",url:"https://nss.freeman.com"}]},
+  {id:"s2", phase:"Leadership Steps", title:"Determine staffing — review ES Staffing Service Model", desc:"Use the calculator below to get the recommended headcount. If 50 or fewer booths, refer to Remote SOP.", links:[{label:"Remote SOP",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}], calc:true, step:"2"},
+  {id:"s3", phase:"Leadership Steps", title:"Add to NSS: On-Site or Remote, standard vs. custom model, Five9 phone number", desc:"Enter the staffing type and model decision in NSS.", links:[{label:"NSS",url:"https://nss.freeman.com"}]},
+  {id:"s4", phase:"Leadership Steps", title:"Enter staffing quantities in NSS", desc:"Enter Actual On-Site Reps/Desks, Actual Remote/Backroom Reps. Use recommended quantities below.", links:[{label:"NSS",url:"https://nss.freeman.com"}], calc:true, step:"4"},
+  {id:"s5", phase:"Leadership Steps", title:"Add event to ES Regional Schedules and assign staff", desc:"Update the Regional Schedule spreadsheet with this event and assign available staff members.", links:[{label:"Regional Schedules",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]},
+  {id:"s6", phase:"Leadership Steps", title:"Enter supervisor/lead names in NSS", desc:"Once names are entered in NSS, an auto-alert is sent to assigned persons at the 10-week mark. This unlocks Phase 2 below.", links:[{label:"NSS",url:"https://nss.freeman.com"}], nameEntry:true},
+  {id:"s7", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]},
+  {id:"s8", phase:"Supervisor/Lead Steps", title:"Review recommended staffing in NSS; discuss changes with ES leadership", desc:"Assigned supervisors and leads review the confirmed plan and raise any concerns with the ES Manager or Regional Director.", links:[], phase2:true},
+  {id:"s9", phase:"Supervisor/Lead Steps", title:"Communicate staffing plan to primary Growth contact in writing", desc:"Provide the ES contact names to the primary Growth contact. Confirm the staffing plan is documented.", links:[], phase2:true}
 ];
 
 function getScopeShows() {
-  // Get current scope from header
-  var activePill = document.querySelector('.scope-pill.active');
-  var scope = activePill ? activePill.textContent.trim() : 'Enterprise';
-  var region = document.getElementById('region-select') ? document.getElementById('region-select').value : '';
-  var branch = document.getElementById('branch-select') ? document.getElementById('branch-select').value : '';
+  var activePill = document.querySelector(".scope-pill.active");
+  var scope = activePill ? activePill.textContent.trim() : "Enterprise";
+  var regionEl = document.getElementById("region-select");
+  var branchEl = document.getElementById("branch-select");
+  var region = regionEl ? regionEl.value : "";
+  var branch = branchEl ? branchEl.value : "";
 
-  // Filter SHOWS by scope, excluding Canada and FTE=N (not ES-staffed)
   var allShows = Object.values(SHOWS);
   return allShows.filter(function(s) {
-    // Exclude Canada (not in ES staffing model)
-    if (s.region === 'Canada') return false;
-    // Exclude electrical-only
+    if (s.region === "Canada") return false;
     if (s.freemanElectricalOnly) return false;
-    // Exclude if FTE is N (not Freeman-staffed ES)
-    if (s.fte === 'N') return false;
-
+    if (s.fte === "N") return false;
     var dashRegion = CALC_REGION_MAP[s.region] || s.region;
-
-    if (scope === 'Enterprise') return true;
-    if (scope === 'Region' && region) return dashRegion === region;
-    if (scope === 'Branch / Team' && branch) {
-      // Map branch to region, then check if show region matches
+    if (scope === "Enterprise") return true;
+    if (scope === "Region" && region) return dashRegion === region;
+    if (scope === "Branch / Team" && branch) {
       var branchRegion = null;
       Object.keys(BRANCH_MAP).forEach(function(r) {
         if (BRANCH_MAP[r].indexOf(branch) >= 0) branchRegion = r;
@@ -1458,37 +1445,28 @@ function getScopeShows() {
 
 function getFilteredShows() {
   var shows = getScopeShows();
-  // Sort by show open date
   shows.sort(function(a, b) { return new Date(a.showOpen) - new Date(b.showOpen); });
-
-  if (ssFilter === 'unstaffed') {
-    return shows.filter(function(s) { return !ssPlans[s.id] || !ssPlans[s.id].confirmed; });
-  }
-  if (ssFilter === 'confirmed') {
-    return shows.filter(function(s) { return ssPlans[s.id] && ssPlans[s.id].confirmed; });
-  }
+  if (ssFilter === "unstaffed") return shows.filter(function(s) { return !ssPlans[s.id] || !ssPlans[s.id].confirmed; });
+  if (ssFilter === "confirmed") return shows.filter(function(s) { return ssPlans[s.id] && ssPlans[s.id].confirmed; });
   return shows;
 }
 
 function initStaffing() {
   renderSsStats();
   renderSsList();
-  if (!ssSelId) {
-    renderSsEmptyDetail();
-  } else {
-    renderSsDetail();
-  }
+  if (!ssSelId) renderSsEmptyDetail();
+  else renderSsDetail();
 }
 
 function setSsFilter(f, el) {
   ssFilter = f;
-  document.querySelectorAll('.ss-filter-btn').forEach(function(b) { b.classList.remove('active'); });
-  el.classList.add('active');
+  document.querySelectorAll(".ss-filter-btn").forEach(function(b) { b.classList.remove("active"); });
+  el.classList.add("active");
   renderSsList();
 }
 
 function renderSsStats() {
-  var strip = document.getElementById('ss-stats-strip');
+  var strip = document.getElementById("ss-stats-strip");
   if (!strip) return;
   var shows = getScopeShows();
   var total = shows.length;
@@ -1496,29 +1474,28 @@ function renderSsStats() {
   var unstaffed = total - confirmed;
   var totalReps = 0;
   shows.forEach(function(s) {
-    var plan = ssPlans[s.id];
-    if (plan && plan.confirmed) {
-      var cf = plan.overrides ? (plan.overrides.cf || 0) : ssCalcRec(s).cf;
-      totalReps += cf;
+    if (ssPlans[s.id] && ssPlans[s.id].confirmed) {
+      var ov = ssPlans[s.id].overrides;
+      var rec = ssCalcRec(s);
+      totalReps += (ov && ov.cf != null) ? ov.cf : rec.cf;
     }
   });
-
   strip.innerHTML =
-    '<div class="rh-stat"><div class="rh-stat-lbl">Total Shows</div><div class="rh-stat-val">' + total + '</div><div class="rh-stat-sub">in scope</div></div>' +
-    '<div class="rh-stat"><div class="rh-stat-lbl">Unstaffed</div><div class="rh-stat-val" style="color:var(--orange)">' + unstaffed + '</div><div class="rh-stat-sub">need a plan</div></div>' +
-    '<div class="rh-stat"><div class="rh-stat-lbl">Confirmed</div><div class="rh-stat-val" style="color:var(--green)">' + confirmed + '</div><div class="rh-stat-sub">plans locked</div></div>' +
-    '<div class="rh-stat"><div class="rh-stat-lbl">Confirmed Reps</div><div class="rh-stat-val">' + totalReps + '</div><div class="rh-stat-sub">ES reps planned</div></div>';
+    "<div class=\"rh-stat\"><div class=\"rh-stat-lbl\">Total Shows</div><div class=\"rh-stat-val\">" + total + "</div><div class=\"rh-stat-sub\">in scope</div></div>" +
+    "<div class=\"rh-stat\"><div class=\"rh-stat-lbl\">Unstaffed</div><div class=\"rh-stat-val\" style=\"color:var(--orange)\">" + unstaffed + "</div><div class=\"rh-stat-sub\">need a plan</div></div>" +
+    "<div class=\"rh-stat\"><div class=\"rh-stat-lbl\">Confirmed</div><div class=\"rh-stat-val\" style=\"color:var(--green)\">" + confirmed + "</div><div class=\"rh-stat-sub\">plans locked</div></div>" +
+    "<div class=\"rh-stat\"><div class=\"rh-stat-lbl\">Confirmed Reps</div><div class=\"rh-stat-val\">" + totalReps + "</div><div class=\"rh-stat-sub\">ES reps planned</div></div>";
 }
 
 function renderSsList() {
-  var list = document.getElementById('ss-show-list');
-  var countEl = document.getElementById('ss-sidebar-count');
+  var list = document.getElementById("ss-show-list");
+  var countEl = document.getElementById("ss-sidebar-count");
   if (!list) return;
   var shows = getFilteredShows();
-  if (countEl) countEl.textContent = shows.length + ' Show' + (shows.length !== 1 ? 's' : '');
+  if (countEl) countEl.textContent = shows.length + " Show" + (shows.length !== 1 ? "s" : "");
 
   if (shows.length === 0) {
-    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No shows match this filter.</div>';
+    list.innerHTML = "<div style=\"padding:20px;text-align:center;color:var(--muted);font-size:12px\">No shows match this filter.</div>";
     return;
   }
 
@@ -1527,15 +1504,22 @@ function renderSsList() {
     var confirmed = plan && plan.confirmed;
     var rec = ssCalcRec(s);
     var badge = confirmed
-      ? '<span class="ss-badge ss-badge-confirmed">✓ Confirmed</span>'
-      : '<span class="ss-badge ss-badge-unstaffed">Needs Plan</span>';
+      ? "<span class=\"ss-badge ss-badge-confirmed\">\u2713 Confirmed</span>"
+      : "<span class=\"ss-badge ss-badge-unstaffed\">Needs Plan</span>";
     var dashRegion = CALC_REGION_MAP[s.region] || s.region;
-    return '<div class="ss-show-item' + (ssSelId === s.id ? ' sel' : '') + '" onclick="selectSsShow(\'' + s.id + '\')">'+
-      '<div class="ss-show-name">' + s.name + '</div>' +
-      '<div class="ss-show-meta">' + s.city + ' &middot; ' + ssFmtDate(s.showOpen) + ' &middot; ' + (rec.booths) + ' booths</div>' +
-      '<div class="ss-show-tags">' + badge + '<span class="chip chip-ghost" style="font-size:10px">' + dashRegion + '</span></div>' +
-    '</div>';
-  }).join('');
+    var selClass = ssSelId === s.id ? " sel" : "";
+    return "<div class=\"ss-show-item" + selClass + "\" data-showid=\"" + s.id + "\">" +
+      "<div class=\"ss-show-name\">" + s.name + "</div>" +
+      "<div class=\"ss-show-meta\">" + s.city + " &middot; " + ssFmtDate(s.showOpen) + " &middot; " + rec.booths + " booths</div>" +
+      "<div class=\"ss-show-tags\">" + badge + "<span class=\"chip chip-ghost\" style=\"font-size:10px\">" + dashRegion + "</span></div>" +
+      "</div>";
+  }).join("");
+
+  // Attach click handlers via event delegation on the list
+  list.onclick = function(e) {
+    var item = e.target.closest("[data-showid]");
+    if (item) selectSsShow(item.getAttribute("data-showid"));
+  };
 }
 
 function selectSsShow(id) {
@@ -1545,116 +1529,138 @@ function selectSsShow(id) {
 }
 
 function renderSsEmptyDetail() {
-  var det = document.getElementById('ss-detail');
+  var det = document.getElementById("ss-detail");
   if (!det) return;
-  det.innerHTML = '<div class="ss-empty"><div class="ss-empty-icon">📅</div><div class="ss-empty-msg">Select a show</div><div class="ss-empty-sub">Choose a show from the left panel to review its staffing plan</div></div>';
+  det.innerHTML = "<div class=\"ss-empty\"><div class=\"ss-empty-icon\">\uD83D\uDCC5</div><div class=\"ss-empty-msg\">Select a show</div><div class=\"ss-empty-sub\">Choose a show from the left panel to review its staffing plan</div></div>";
 }
 
 function renderSsDetail() {
-  var det = document.getElementById('ss-detail');
+  var det = document.getElementById("ss-detail");
   if (!det || !ssSelId || !SHOWS[ssSelId]) { renderSsEmptyDetail(); return; }
 
   var s = SHOWS[ssSelId];
-  if (!ssPlans[ssSelId]) {
-    ssPlans[ssSelId] = {checked: [], overrides: {}, supervisorName: '', leadName: '', notes: '', confirmed: false};
-  }
+  if (!ssPlans[ssSelId]) ssPlans[ssSelId] = {checked:[], overrides:{}, supervisorName:"", leadName:"", confirmed:false};
   var plan = ssPlans[ssSelId];
   var rec = ssCalcRec(s);
   var dashRegion = CALC_REGION_MAP[s.region] || s.region;
   var confirmed = plan.confirmed;
+  var phase2Unlocked = plan.checked.indexOf("s6") >= 0;
 
-  // Determine if phase 2 is unlocked (step 6 checked)
-  var phase2Unlocked = plan.checked.indexOf('s6') >= 0;
+  var html = "<div class=\"det-hdr\">" +
+    "<div><div class=\"det-name\">" + s.name + "</div>" +
+    "<div class=\"det-sub\">" + s.city + " &middot; " + (s.facility || "") + " &middot; " + ssFmtDate(s.showOpen) + (s.showClose && s.showClose !== s.showOpen ? " &ndash; " + ssFmtDate(s.showClose) : "") + "</div>" +
+    "<div style=\"display:flex;gap:5px;margin-top:5px;flex-wrap:wrap\">" +
+      "<span class=\"chip chip-ghost\">" + dashRegion + "</span>" +
+      "<span class=\"chip chip-ghost\">" + rec.booths + " booths</span>" +
+      "<span class=\"chip chip-ghost\">" + ssFmt(rec.revenue) + " revenue</span>" +
+      (s.freemanAV === "Yes" ? "<span class=\"chip chip-mb\">AV</span>" : "") +
+    "</div></div>" +
+    "<div>" + (confirmed ? "<span class=\"chip chip-green\">\u2713 Plan Confirmed</span>" : "<span class=\"chip chip-amber\">Needs Plan</span>") + "</div>" +
+    "</div>";
 
-  // Build header
-  var html = '<div class="det-hdr">' +
-    '<div><div class="det-name">' + s.name + '</div>' +
-    '<div class="det-sub">' + s.city + ' &middot; ' + s.facility + ' &middot; ' + ssFmtDate(s.showOpen) + (s.showClose && s.showClose !== s.showOpen ? ' – ' + ssFmtDate(s.showClose) : '') + '</div>' +
-    '<div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">' +
-      '<span class="chip chip-ghost">' + dashRegion + '</span>' +
-      '<span class="chip chip-ghost">' + rec.booths + ' booths</span>' +
-      '<span class="chip chip-ghost">' + ssFmt(rec.revenue) + ' revenue</span>' +
-      (s.freemanAV === 'Yes' ? '<span class="chip chip-mb">AV</span>' : '') +
-    '</div></div>' +
-    '<div>' + (confirmed ? '<span class="chip chip-green">✓ Plan Confirmed</span>' : '<span class="chip chip-amber">Needs Plan</span>') + '</div>' +
-  '</div>';
+  html += "<div class=\"det-scroll\" style=\"max-height:calc(100vh - 300px);overflow-y:auto\">";
 
-  // Build steps
-  html += '<div class="det-scroll" style="max-height:calc(100vh - 300px);overflow-y:auto">';
-
-  // Phase 1 section header
-  html += '<div class="phase-sec"><div class="phase-hdr" onclick="toggleSsPhase(\'p1\',this)">' +
-    '<div class="ph-icon ph-active">1</div>' +
-    '<div class="ph-label">Leadership Steps</div>' +
-    '<div class="ph-count">' + plan.checked.filter(function(x){return x[0]==='s'&&parseInt(x.slice(1))<=7;}).length + '/7 complete</div>' +
-    '<div class="ph-chev open" id="ss-chev-p1">▼</div>' +
-  '</div>' +
-  '<div id="ss-body-p1">';
+  // Phase 1
+  var p1done = plan.checked.filter(function(x){ return ["s1","s2","s3","s4","s5","s6","s7"].indexOf(x) >= 0; }).length;
+  html += "<div class=\"phase-sec\"><div class=\"phase-hdr\" id=\"ss-phdr-p1\" data-phase=\"p1\">" +
+    "<div class=\"ph-icon ph-active\">1</div>" +
+    "<div class=\"ph-label\">Leadership Steps</div>" +
+    "<div class=\"ph-count\">" + p1done + "/7 complete</div>" +
+    "<div class=\"ph-chev open\" id=\"ss-chev-p1\">\u25BC</div>" +
+    "</div>" +
+    "<div id=\"ss-body-p1\">";
 
   SS_TASKS.filter(function(t){ return !t.phase2; }).forEach(function(t) {
     var checked = plan.checked.indexOf(t.id) >= 0;
-    html += '<div class="task-row">' +
-      '<div class="task-chk' + (checked ? ' checked' : '') + '" onclick="toggleSsCheck(\x27' + ssSelId + '\x27,\x27' + t.id + '\x27)">' +
-        '<span class="chk-mark">✓</span>' +
-      '</div>' +
-      '<div class="task-body">' +
-        '<div class="task-title' + (checked ? ' done' : '') + '">' + t.title + '</div>' +
-        '<div class="task-desc">' + t.desc + '</div>' +
-        (t.links && t.links.length ? '<div class="task-links">' + t.links.map(function(l){ return '<a class="tlink" href="' + l.url + '" target="_blank">' + l.label + '</a>'; }).join('') + '</div>' : '') +
-        // Inline calculator for steps 2 and 4
-        (t.calc ? renderSsCalcInline(s, rec, plan, t.step) : '') +
-        // Name entry for step 6
-        (t.nameEntry ? renderSsNameEntry(ssSelId, plan) : '') +
-      '</div>' +
-    '</div>';
+    html += "<div class=\"task-row\">" +
+      "<div class=\"task-chk" + (checked ? " checked" : "") + "\" data-taskid=\"" + t.id + "\" data-showid=\"" + ssSelId + "\">" +
+        "<span class=\"chk-mark\">\u2713</span>" +
+      "</div>" +
+      "<div class=\"task-body\">" +
+        "<div class=\"task-title" + (checked ? " done" : "") + "\">" + t.title + "</div>" +
+        "<div class=\"task-desc\">" + t.desc + "</div>" +
+        (t.links && t.links.length ? "<div class=\"task-links\">" + t.links.map(function(l){ return "<a class=\"tlink\" href=\"" + l.url + "\" target=\"_blank\">" + l.label + "</a>"; }).join("") + "</div>" : "") +
+        (t.calc ? renderSsCalcInline(s, rec, plan, t.step) : "") +
+        (t.nameEntry ? renderSsNameEntry(ssSelId, plan) : "") +
+      "</div>" +
+      "</div>";
   });
 
-  html += '</div></div>'; // close phase 1
+  html += "</div></div>";
 
-  // Phase 2 section
-  var p2icon = phase2Unlocked ? 'ph-active' : 'ph-locked';
-  html += '<div class="phase-sec"><div class="phase-hdr" onclick="toggleSsPhase(\'p2\',this)">' +
-    '<div class="ph-icon ' + p2icon + '">2</div>' +
-    '<div class="ph-label">Supervisor / Lead Steps</div>' +
-    '<div class="ph-count">' + (phase2Unlocked ? plan.checked.filter(function(x){return x==='s8'||x==='s9';}).length + '/2' : 'Locked until names entered') + '</div>' +
-    '<div class="ph-chev" id="ss-chev-p2">▼</div>' +
-  '</div>' +
-  '<div id="ss-body-p2" style="display:none">';
+  // Phase 2
+  var p2icon = phase2Unlocked ? "ph-active" : "ph-locked";
+  var p2done = plan.checked.filter(function(x){ return x === "s8" || x === "s9"; }).length;
+  html += "<div class=\"phase-sec\"><div class=\"phase-hdr\" id=\"ss-phdr-p2\" data-phase=\"p2\">" +
+    "<div class=\"ph-icon " + p2icon + "\">2</div>" +
+    "<div class=\"ph-label\">Supervisor / Lead Steps</div>" +
+    "<div class=\"ph-count\">" + (phase2Unlocked ? p2done + "/2" : "Locked until names entered") + "</div>" +
+    "<div class=\"ph-chev\" id=\"ss-chev-p2\">\u25BC</div>" +
+    "</div>" +
+    "<div id=\"ss-body-p2\" style=\"display:none\">";
 
   if (!phase2Unlocked) {
-    html += '<div class="ss-phase2-banner"><div class="ss-phase2-icon">🔒</div><div class="ss-phase2-text"><strong>Waiting on Step 6</strong><br>Enter supervisor and lead names in NSS (Step 6) to unlock these steps. An auto-alert will be sent to assigned persons at the 10-week mark.</div></div>';
+    html += "<div class=\"ss-phase2-banner\"><div class=\"ss-phase2-icon\">\uD83D\uDD12</div><div class=\"ss-phase2-text\"><strong>Waiting on Step 6</strong><br>Enter supervisor and lead names in NSS (Step 6) to unlock these steps.</div></div>";
   } else {
     SS_TASKS.filter(function(t){ return t.phase2; }).forEach(function(t) {
       var checked = plan.checked.indexOf(t.id) >= 0;
-      html += '<div class="task-row">' +
-        '<div class="task-chk' + (checked ? ' checked' : '') + '" onclick="toggleSsCheck(\x27' + ssSelId + '\x27,\x27' + t.id + '\x27)">' +
-          '<span class="chk-mark">✓</span>' +
-        '</div>' +
-        '<div class="task-body">' +
-          '<div class="task-title' + (checked ? ' done' : '') + '">' + t.title + '</div>' +
-          '<div class="task-desc">' + t.desc + '</div>' +
-        '</div>' +
-      '</div>';
+      html += "<div class=\"task-row\">" +
+        "<div class=\"task-chk" + (checked ? " checked" : "") + "\" data-taskid=\"" + t.id + "\" data-showid=\"" + ssSelId + "\">" +
+          "<span class=\"chk-mark\">\u2713</span>" +
+        "</div>" +
+        "<div class=\"task-body\">" +
+          "<div class=\"task-title" + (checked ? " done" : "") + "\">" + t.title + "</div>" +
+          "<div class=\"task-desc\">" + t.desc + "</div>" +
+        "</div>" +
+        "</div>";
     });
   }
-  html += '</div></div>'; // close phase 2
-  html += '</div>'; // close det-scroll
+  html += "</div></div>";
+  html += "</div>"; // close det-scroll
 
-  // Confirmation bar
-  var allP1Done = SS_TASKS.filter(function(t){return !t.phase2;}).every(function(t){ return plan.checked.indexOf(t.id) >= 0; });
+  // Confirm bar
+  var allP1Done = SS_TASKS.filter(function(t){ return !t.phase2; }).every(function(t){ return plan.checked.indexOf(t.id) >= 0; });
   if (confirmed) {
-    html += '<div class="ss-confirm-bar">' +
-      '<div class="ss-confirm-msg">✓ Staffing plan confirmed<div class="sub">Plan locked. Uncheck steps above to modify.</div></div>' +
-      '<button class="m-cancel" onclick="unconfirmSs(\x27' + ssSelId + '\x27)">Edit Plan</button>' +
-    '</div>';
+    html += "<div class=\"ss-confirm-bar\">" +
+      "<div class=\"ss-confirm-msg\">\u2713 Staffing plan confirmed<div class=\"sub\">Plan locked. Uncheck steps above to modify.</div></div>" +
+      "<button class=\"m-cancel\" data-action-ss=\"unconfirm\" data-showid=\"" + ssSelId + "\">Edit Plan</button>" +
+      "</div>";
   } else {
-    html += '<div class="ss-confirm-bar pending">' +
-      '<div class="ss-confirm-msg">' + (allP1Done ? 'All leadership steps complete — ready to confirm' : 'Complete steps above to confirm this plan') + '<div class="sub">Confirming locks the plan and removes this show from the Unstaffed queue.</div></div>' +
-      '<button class="btn-confirm" onclick="confirmSs(\x27' + ssSelId + '\x27)" ' + (!allP1Done ? '' : '') + '>Confirm Plan</button>' +
-    '</div>';
+    html += "<div class=\"ss-confirm-bar pending\">" +
+      "<div class=\"ss-confirm-msg\">" + (allP1Done ? "All leadership steps complete \u2014 ready to confirm" : "Complete steps above to confirm this plan") + "<div class=\"sub\">Confirming locks the plan and removes this show from the Unstaffed queue.</div></div>" +
+      "<button class=\"btn-confirm\" data-action-ss=\"confirm\" data-showid=\"" + ssSelId + "\">Confirm Plan</button>" +
+      "</div>";
   }
 
   det.innerHTML = html;
+
+  // Attach event handlers via delegation on det
+  det.onclick = function(e) {
+    // Phase header toggle
+    var phdr = e.target.closest(".phase-hdr[data-phase]");
+    if (phdr) { toggleSsPhase(phdr.getAttribute("data-phase")); return; }
+
+    // Task checkbox
+    var chk = e.target.closest(".task-chk[data-taskid]");
+    if (chk) { toggleSsCheck(chk.getAttribute("data-showid"), chk.getAttribute("data-taskid")); return; }
+
+    // Confirm/unconfirm buttons
+    var btn = e.target.closest("[data-action-ss]");
+    if (btn) {
+      var action = btn.getAttribute("data-action-ss");
+      var showId = btn.getAttribute("data-showid");
+      if (action === "confirm") confirmSs(showId);
+      else if (action === "unconfirm") unconfirmSs(showId);
+      return;
+    }
+  };
+
+  // Attach input handlers for override fields
+  det.oninput = function(e) {
+    var inp = e.target;
+    if (inp.dataset.overrideKey) updateSsOverride(inp.dataset.overrideShowid, inp.dataset.overrideKey, inp.value);
+    if (inp.dataset.nameField) updateSsName(inp.dataset.nameShowid, inp.dataset.nameField, inp.value);
+  };
 }
 
 function renderSsCalcInline(s, rec, plan, stepNum) {
@@ -1664,73 +1670,68 @@ function renderSsCalcInline(s, rec, plan, stepNum) {
   var sv = (plan.overrides && plan.overrides.sv != null) ? plan.overrides.sv : rec.sv;
   var total = cf + br + as_ + sv;
 
-  if (stepNum === '2') {
-    return '<div class="ss-calc-inline" style="margin-top:8px;border-radius:8px">' +
-      '<div style="font-size:10.8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Staffing Calculator — ' + s.name + '</div>' +
-      '<div class="ss-calc-grid">' +
-        '<div class="ss-calc-cell"><div class="ss-calc-cell-lbl">Active Booths</div><div class="ss-calc-cell-val">' + rec.booths + '</div><div class="ss-calc-cell-sub">' + rec.boothsSrc + '</div></div>' +
-        '<div class="ss-calc-cell"><div class="ss-calc-cell-lbl">Revenue</div><div class="ss-calc-cell-val">' + ssFmt(rec.revenue) + '</div><div class="ss-calc-cell-sub">' + rec.revSrc + '</div></div>' +
-        '<div class="ss-calc-cell highlight"><div class="ss-calc-cell-lbl">Customer-Facing Reps</div><div class="ss-calc-cell-val">' + rec.cf + '</div><div class="ss-calc-cell-sub">recommended</div></div>' +
-        '<div class="ss-calc-cell"><div class="ss-calc-cell-lbl">Back Room Reps</div><div class="ss-calc-cell-val">' + rec.br + '</div><div class="ss-calc-cell-sub">recommended</div></div>' +
-        '<div class="ss-calc-cell"><div class="ss-calc-cell-lbl">Assist. Supervisors</div><div class="ss-calc-cell-val">' + rec.as + '</div><div class="ss-calc-cell-sub">recommended</div></div>' +
-        '<div class="ss-calc-cell"><div class="ss-calc-cell-lbl">Supervisors</div><div class="ss-calc-cell-val">' + rec.sv + '</div><div class="ss-calc-cell-sub">recommended</div></div>' +
-        '<div class="ss-calc-cell highlight" style="grid-column:3/5"><div class="ss-calc-cell-lbl">Total ES Headcount</div><div class="ss-calc-cell-val">' + rec.total + '</div><div class="ss-calc-cell-sub">all roles combined</div></div>' +
-      '</div>' +
-      (rec.reasons.length ? '<div style="margin-top:6px;font-size:10.8px;color:var(--muted)">' + rec.reasons.map(function(r){return '• ' + r;}).join(' &nbsp;') + '</div>' : '') +
-    '</div>';
+  if (stepNum === "2") {
+    return "<div class=\"ss-calc-inline\" style=\"margin-top:8px;border-radius:8px\">" +
+      "<div style=\"font-size:10.8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px\">Staffing Calculator &mdash; " + s.name + "</div>" +
+      "<div class=\"ss-calc-grid\">" +
+        "<div class=\"ss-calc-cell\"><div class=\"ss-calc-cell-lbl\">Active Booths</div><div class=\"ss-calc-cell-val\">" + rec.booths + "</div><div class=\"ss-calc-cell-sub\">" + rec.boothsSrc + "</div></div>" +
+        "<div class=\"ss-calc-cell\"><div class=\"ss-calc-cell-lbl\">Revenue</div><div class=\"ss-calc-cell-val\">" + ssFmt(rec.revenue) + "</div><div class=\"ss-calc-cell-sub\">" + rec.revSrc + "</div></div>" +
+        "<div class=\"ss-calc-cell highlight\"><div class=\"ss-calc-cell-lbl\">Customer-Facing Reps</div><div class=\"ss-calc-cell-val\">" + rec.cf + "</div><div class=\"ss-calc-cell-sub\">recommended</div></div>" +
+        "<div class=\"ss-calc-cell\"><div class=\"ss-calc-cell-lbl\">Back Room Reps</div><div class=\"ss-calc-cell-val\">" + rec.br + "</div><div class=\"ss-calc-cell-sub\">recommended</div></div>" +
+        "<div class=\"ss-calc-cell\"><div class=\"ss-calc-cell-lbl\">Assist. Supervisors</div><div class=\"ss-calc-cell-val\">" + rec.as + "</div><div class=\"ss-calc-cell-sub\">recommended</div></div>" +
+        "<div class=\"ss-calc-cell\"><div class=\"ss-calc-cell-lbl\">Supervisors</div><div class=\"ss-calc-cell-val\">" + rec.sv + "</div><div class=\"ss-calc-cell-sub\">recommended</div></div>" +
+        "<div class=\"ss-calc-cell highlight\" style=\"grid-column:3/5\"><div class=\"ss-calc-cell-lbl\">Total ES Headcount</div><div class=\"ss-calc-cell-val\">" + rec.total + "</div><div class=\"ss-calc-cell-sub\">all roles combined</div></div>" +
+      "</div>" +
+      (rec.reasons.length ? "<div style=\"margin-top:6px;font-size:10.8px;color:var(--muted)\">" + rec.reasons.map(function(r){ return "&#x2022; " + r; }).join(" &nbsp;") + "</div>" : "") +
+      "</div>";
   }
 
-  if (stepNum === '4') {
-    return '<div class="ss-calc-inline" style="margin-top:8px;border-radius:8px">' +
-      '<div style="font-size:10.8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Enter Quantities to Lock Into Plan</div>' +
-      '<div id="ss-override-rows-' + ssSelId + '">' +
-        renderSsOverrideRow(ssSelId, 'cf', 'Customer-Facing Reps', cf, rec.cf) +
-        renderSsOverrideRow(ssSelId, 'br', 'Back Room Reps', br, rec.br) +
-        renderSsOverrideRow(ssSelId, 'as', 'Assist. Supervisors', as_, rec.as) +
-        renderSsOverrideRow(ssSelId, 'sv', 'Supervisors', sv, rec.sv) +
-      '</div>' +
-      '<div style="padding:6px 0;font-size:12px;font-weight:700;color:var(--fb)">Total: <span id="ss-total-' + ssSelId + '">' + total + '</span> ES staff</div>' +
-    '</div>';
+  if (stepNum === "4") {
+    return "<div class=\"ss-calc-inline\" style=\"margin-top:8px;border-radius:8px\">" +
+      "<div style=\"font-size:10.8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px\">Enter Quantities to Lock Into Plan</div>" +
+      renderSsOverrideRow(ssSelId, "cf", "Customer-Facing Reps", cf, rec.cf) +
+      renderSsOverrideRow(ssSelId, "br", "Back Room Reps", br, rec.br) +
+      renderSsOverrideRow(ssSelId, "as", "Assist. Supervisors", as_, rec.as) +
+      renderSsOverrideRow(ssSelId, "sv", "Supervisors", sv, rec.sv) +
+      "<div style=\"padding:6px 0;font-size:12px;font-weight:700;color:var(--fb)\">Total: <span id=\"ss-total-" + ssSelId + "\">" + total + "</span> ES staff</div>" +
+      "</div>";
   }
-  return '';
+  return "";
 }
 
 function renderSsOverrideRow(showId, key, label, val, rec) {
-  return '<div class="ss-override-row">' +
-    '<div class="ss-override-lbl">' + label + '</div>' +
-    '<input class="ss-override-input" type="number" min="0" max="20" value="' + val + '" ' +
-      'oninput="updateSsOverride(\x27' + showId + '\x27,\x27' + key + '\x27,this.value)" ' +
-      'id="ss-ovr-' + showId + '-' + key + '">' +
-    '<div class="ss-override-note">rec: ' + rec + '</div>' +
-  '</div>';
+  return "<div class=\"ss-override-row\">" +
+    "<div class=\"ss-override-lbl\">" + label + "</div>" +
+    "<input class=\"ss-override-input\" type=\"number\" min=\"0\" max=\"20\" value=\"" + val + "\" " +
+      "data-override-showid=\"" + showId + "\" data-override-key=\"" + key + "\">" +
+    "<div class=\"ss-override-note\">rec: " + rec + "</div>" +
+    "</div>";
 }
 
 function renderSsNameEntry(showId, plan) {
-  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding:10px 0">' +
-    '<div><div style="font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px">Supervisor Name</div>' +
-    '<input style="font-family:Nunito Sans,sans-serif;font-size:12px;font-weight:600;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;background:var(--surface)" ' +
-      'placeholder="Enter name..." value="' + (plan.supervisorName || '') + '" ' +
-      'oninput="updateSsName(\x27' + showId + '\x27,\'supervisorName\',this.value)" ' +
-      'onfocus="this.style.borderColor=\x27var(--mb)\x27" onblur="this.style.borderColor=\x27var(--border)\x27"></div>' +
-    '<div><div style="font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px">Lead Name</div>' +
-    '<input style="font-family:Nunito Sans,sans-serif;font-size:12px;font-weight:600;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;background:var(--surface)" ' +
-      'placeholder="Enter name..." value="' + (plan.leadName || '') + '" ' +
-      'oninput="updateSsName(\x27' + showId + '\x27,\'leadName\',this.value)" ' +
-      'onfocus="this.style.borderColor=\x27var(--mb)\x27" onblur="this.style.borderColor=\x27var(--border)\x27"></div>' +
-  '</div>';
+  return "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding:10px 0\">" +
+    "<div><div style=\"font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px\">Supervisor Name</div>" +
+    "<input style=\"font-family:Arial,sans-serif;font-size:12px;font-weight:600;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;background:var(--surface)\" " +
+      "placeholder=\"Enter name...\" value=\"" + (plan.supervisorName || "") + "\" " +
+      "data-name-showid=\"" + showId + "\" data-name-field=\"supervisorName\"></div>" +
+    "<div><div style=\"font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px\">Lead Name</div>" +
+    "<input style=\"font-family:Arial,sans-serif;font-size:12px;font-weight:600;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;background:var(--surface)\" " +
+      "placeholder=\"Enter name...\" value=\"" + (plan.leadName || "") + "\" " +
+      "data-name-showid=\"" + showId + "\" data-name-field=\"leadName\"></div>" +
+    "</div>";
 }
 
-function toggleSsPhase(id, hdr) {
-  var body = document.getElementById('ss-body-' + id);
-  var chev = document.getElementById('ss-chev-' + id);
+function toggleSsPhase(id) {
+  var body = document.getElementById("ss-body-" + id);
+  var chev = document.getElementById("ss-chev-" + id);
   if (!body) return;
-  var open = body.style.display !== 'none';
-  body.style.display = open ? 'none' : 'block';
-  if (chev) chev.classList.toggle('open', !open);
+  var open = body.style.display !== "none";
+  body.style.display = open ? "none" : "block";
+  if (chev) { chev.classList.toggle("open", !open); }
 }
 
 function toggleSsCheck(showId, taskId) {
-  if (!ssPlans[showId]) ssPlans[showId] = {checked: [], overrides: {}, supervisorName: '', leadName: '', confirmed: false};
+  if (!ssPlans[showId]) ssPlans[showId] = {checked:[], overrides:{}, supervisorName:"", leadName:"", confirmed:false};
   var plan = ssPlans[showId];
   var idx = plan.checked.indexOf(taskId);
   if (idx >= 0) plan.checked.splice(idx, 1);
@@ -1741,21 +1742,21 @@ function toggleSsCheck(showId, taskId) {
 }
 
 function updateSsOverride(showId, key, val) {
-  if (!ssPlans[showId]) ssPlans[showId] = {checked: [], overrides: {}, supervisorName: '', leadName: '', confirmed: false};
+  if (!ssPlans[showId]) ssPlans[showId] = {checked:[], overrides:{}, supervisorName:"", leadName:"", confirmed:false};
   ssPlans[showId].overrides[key] = parseInt(val) || 0;
-  // Update total display
   var plan = ssPlans[showId];
   var rec = ssCalcRec(SHOWS[showId]);
-  var cf = (plan.overrides.cf != null) ? plan.overrides.cf : rec.cf;
-  var br = (plan.overrides.br != null) ? plan.overrides.br : rec.br;
-  var as_ = (plan.overrides.as != null) ? plan.overrides.as : rec.as;
-  var sv = (plan.overrides.sv != null) ? plan.overrides.sv : rec.sv;
-  var totalEl = document.getElementById('ss-total-' + showId);
+  var ov = plan.overrides;
+  var cf = (ov.cf != null) ? ov.cf : rec.cf;
+  var br = (ov.br != null) ? ov.br : rec.br;
+  var as_ = (ov.as != null) ? ov.as : rec.as;
+  var sv = (ov.sv != null) ? ov.sv : rec.sv;
+  var totalEl = document.getElementById("ss-total-" + showId);
   if (totalEl) totalEl.textContent = cf + br + as_ + sv;
 }
 
 function updateSsName(showId, field, val) {
-  if (!ssPlans[showId]) ssPlans[showId] = {checked: [], overrides: {}, supervisorName: '', leadName: '', confirmed: false};
+  if (!ssPlans[showId]) ssPlans[showId] = {checked:[], overrides:{}, supervisorName:"", leadName:"", confirmed:false};
   ssPlans[showId][field] = val;
 }
 
@@ -1775,6 +1776,7 @@ function unconfirmSs(showId) {
   renderSsList();
   renderSsStats();
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
   var firstNav = document.querySelector('.nav-item');
