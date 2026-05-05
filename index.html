@@ -1437,7 +1437,9 @@ function getScopeShows() {
   var region = regionEl ? regionEl.value : "";
   var branch = branchEl ? branchEl.value : "";
 
-  var allShows = Object.values(SHOWS);
+  var allShows = Object.keys(SHOWS).map(function(k) {
+    var s = SHOWS[k]; s.id = k; return s;
+  });
   return allShows.filter(function(s) {
     // Exclude Canada, electrical-only, and non-ES-staffed shows
     if (s.region === "Canada") return false;
