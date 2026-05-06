@@ -757,10 +757,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <span class="page-sub" id="recruiting-sub"></span>
     </div>
     <div class="rh-stats">
-      <div class="rh-stat"><div class="rh-stat-lbl">Open Requisitions</div><div class="rh-stat-val" id="stat-open">1</div><div class="rh-stat-sub">Pending or posted</div></div>
-      <div class="rh-stat"><div class="rh-stat-lbl">In-Process</div><div class="rh-stat-val" id="stat-proc">1</div><div class="rh-stat-sub">Interviewing</div></div>
-      <div class="rh-stat"><div class="rh-stat-lbl">Offer Stage</div><div class="rh-stat-val" id="stat-offer">1</div><div class="rh-stat-sub">Awaiting signature</div></div>
-      <div class="rh-stat"><div class="rh-stat-lbl">Tasks Overdue</div><div class="rh-stat-val" id="stat-over" style="color:var(--orange)">0</div><div class="rh-stat-sub">Across all hires</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">Open Requisitions</div><div class="rh-stat-val" id="stat-open">—</div><div class="rh-stat-sub">Pending or posted</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">In-Process</div><div class="rh-stat-val" id="stat-proc">—</div><div class="rh-stat-sub">Interviewing</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">Offer Stage</div><div class="rh-stat-val" id="stat-offer">—</div><div class="rh-stat-sub">Awaiting signature</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">Tasks Overdue</div><div class="rh-stat-val" id="stat-over" style="color:var(--orange)">—</div><div class="rh-stat-sub">Across all hires</div></div>
     </div>
     <div class="rh-layout">
       <div class="rh-sidebar">
@@ -2595,18 +2595,20 @@ function resubmit(hireId) {
 
 function updateStats(){
   var visible = hires.filter(canView);
-  var open=0, pending=0, active=0, ov=0;
+  var open=0, pending=0, inproc=0, offer=0, ov=0;
   visible.forEach(function(h){
     if(['approved-not-posted','draft','pending-rd','pending-es','approved'].indexOf(h.stage)>=0) open++;
     if(needsMyAction(h)) pending++;
-    if(['posted','interviewing','offer'].indexOf(h.stage)>=0) active++;
+    if(['posted','interviewing'].indexOf(h.stage)>=0) inproc++;
+    if(h.stage==='offer') offer++;
     ov+=countOverdue(h);
   });
   var e;
-  e=document.getElementById('stat-open'); if(e)e.textContent=open;
-  e=document.getElementById('stat-pending'); if(e)e.textContent=pending;
-  e=document.getElementById('stat-proc'); if(e)e.textContent=active;
-  e=document.getElementById('stat-over'); if(e)e.textContent=ov;
+  e=document.getElementById('stat-open');    if(e) e.textContent=open;
+  e=document.getElementById('stat-pending'); if(e) e.textContent=pending;
+  e=document.getElementById('stat-proc');    if(e) e.textContent=inproc;
+  e=document.getElementById('stat-offer');   if(e) e.textContent=offer;
+  e=document.getElementById('stat-over');    if(e) e.textContent=ov;
 }
 
 function getRecruitingScopeLabel() {
