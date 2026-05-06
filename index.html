@@ -2213,14 +2213,9 @@ function canView(h) {
 // Managers without directReports are always anchored to their own positions
 // regardless of pill — their accountability doesn't change when browsing.
 function canViewInScope(h) {
-  var p = currentIdentity();
-
-  // Managers always see only their own positions — pill has no effect
-  if (p.level === 'branch' && p.taskRole === 'hm' && !p.directReports) {
-    return h.hiringManager === p.name;
-  }
-
-  // For everyone else: respect the active scope pill
+  // Drives what appears in the sidebar LIST — always follows the active scope pill.
+  // Visibility and task ownership are separate: canView() handles ownership,
+  // canViewInScope() handles what the user can SEE regardless of identity type.
   var activePill = document.querySelector('.scope-pill.active');
   var scope = activePill ? activePill.getAttribute('data-scope') : 'enterprise';
   var regionEl = document.getElementById('region-select');
@@ -2229,11 +2224,9 @@ function canViewInScope(h) {
   var pillBranch = branchEl ? branchEl.value : '';
 
   if (scope === 'enterprise') {
-    // All hires across all branches (exclude Off-Site for field ops context)
     return h.branch !== 'Off-site' && h.branch !== 'Off-Site' && h.branch !== 'High-Touch Accounts';
   }
   if (scope === 'region' && pillRegion) {
-    // Hires whose branch falls within the selected region
     var regionBranches = BRANCH_MAP[pillRegion] || [];
     return regionBranches.indexOf(h.branch) >= 0;
   }
@@ -2241,7 +2234,7 @@ function canViewInScope(h) {
     return h.branch === pillBranch;
   }
 
-  // Fallback: default to identity scope
+  // Fallback: identity scope (covers initial load before pill is set)
   return identityCanSeeBranch(h.branch);
 }
 
