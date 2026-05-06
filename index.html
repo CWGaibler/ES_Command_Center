@@ -1718,6 +1718,26 @@ var SHOWS = {
 "542855": {"name": "Am Trucking Assn MCE Oct 2026", "city": "Charlotte", "facility": "Charlotte Convention Center", "region": "Southeast", "showOpen": "2026-10-18", "showClose": "2026-10-20", "moveInStart": null, "clearDate": null, "currentBooths": 3, "projectedBooths": 162, "pyBooths": 166, "revenueActuals": 0, "sfRevenue": 1080000, "pyJobNumber": "", "freemanPlatform": "Freeman Now", "freemanAV": "No", "freemanElectrical": "TRUE", "freemanElectricalOnly": false, "fte": "N", "perLbMH": "N", "producingBranch": "Atlanta"}
 };
 
+// ── PAGE NAVIGATION ──────────────────────────────────────────────────────
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  if (el) el.classList.add('active');
+  // Reset stale selections before rendering the new page
+  resetWorkspaceState();
+  if (id === 'today')       { renderKpiStrip(); renderNeedsAttention(); }
+  if (id === 'recruiting')  { initRecruiting(); }
+  if (id === 'onboarding')  { initOnboarding(); }
+  if (id === 'transitions') { initTransitions(); }
+  if (id === 'offboarding') { initOffboarding(); }
+  if (id === 'staffing')    { initStaffing(); }
+  if (id === 'kpis')        { initKpis(); }
+}
+
+
+
 var ALL_BRANCHES = [
   'Anaheim','Atlanta','Boston','Chicago','Dallas','Denver','Des Moines',
   'High-Touch Accounts','Houston','Las Vegas','Nashville','New Orleans',
@@ -3988,6 +4008,12 @@ var obRecords = [
   {id:'ob-r3', firstName:'DeShawn', lastName:'Williams', role:'ES Sr. Specialist', branch:'Orlando', ftpt:'Full-Time',
    hiringManager:'Lymari Colon', startDate:'2026-04-28', netDate:'2026-04-28',
    phase:'During NET', checked:{ob1:true,ob2:true,ob3:true,ob4:true,ob5:true,ob6:true,ob7:true,ob8:true,ob9:true,ob10:true,ob11:true,ob12:true,ob13:true,ob14:true,ob15:true,ob16:true,ob17:true,ob18:true,ob19:true,ob20:true,ob21:true,ob22:true,ob23:true,ob24:true,ob25:true,ob26:true}, backfillDecision:null, closed:false},
+  {id:'ob-r4', firstName:'Sofia', lastName:'Reyes', role:'ES Specialist', branch:'Atlanta', ftpt:'Part-Time',
+   hiringManager:'Anne Wolkenhauer', startDate:'2026-05-26', netDate:'2026-05-26',
+   phase:'Before Start Date', checked:{}, backfillDecision:null, closed:false},
+  {id:'ob-r5', firstName:'James', lastName:'Park', role:'ES Specialist', branch:'San Francisco', ftpt:'Full-Time',
+   hiringManager:'Niall McCarthy', startDate:'2026-06-02', netDate:'2026-06-02',
+   phase:'Before Start Date', checked:{}, backfillDecision:null, closed:false},
 ];
 selObId = 'ob-r1';
 
@@ -4183,6 +4209,12 @@ var TR_TASKS_PROMOTION = [
 var trRecords = [
   {id:'tr-r1', firstName:'Aaliyah', lastName:'Foster', role:'ES Specialist', branch:'New York', ftpt:'Full-Time',
    hiringManager:'Gina Alberto', transitionType:'promotion', newRole:'ES Sr. Specialist',
+   checked:{}, backfillDecision:null, closed:false},
+  {id:'tr-r2', firstName:'Devon', lastName:'Park', role:'ES Specialist', branch:'Houston', ftpt:'Full-Time',
+   hiringManager:'Joan Davis', transitionType:'transfer', newRole:'',
+   checked:{tr1:true,tr2:true}, backfillDecision:null, closed:false},
+  {id:'tr-r3', firstName:'Maya', lastName:'Chen', role:'ES Sr. Specialist', branch:'Atlanta', ftpt:'Full-Time',
+   hiringManager:'Anne Wolkenhauer', transitionType:'promotion', newRole:'ES Supervisor',
    checked:{}, backfillDecision:null, closed:false},
 ];
 selTrId = 'tr-r1';
