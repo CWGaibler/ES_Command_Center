@@ -507,7 +507,12 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .lc-empty-msg{font-size:14px;font-weight:700;color:var(--fb);margin-bottom:4px}
 .lc-empty-sub{font-size:13.5px;line-height:1.5}
 
-/* v6-fix cache-bust: 1888000001 */
+
+/* Identity selector */
+#identity-select option { background: #001F5F; color: #fff; }
+#identity-select optgroup { background: #001F5F; color: rgba(255,255,255,.5); font-style:normal; font-size:12px; }
+
+/* v6-fix cache-bust: 1999000001 */
 </style>
 </head>
 <body>
@@ -564,7 +569,48 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   </div>
   <div class="hdr-right">
     <span class="hdr-date" id="hdr-date"></span>
-    <span class="hdr-user">Craig Gaibler</span>
+    <select id="identity-select" onchange="setIdentity(this.value)" style="font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:4px 10px;border-radius:999px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22%3E%3Cpath d=%22M1 1l4 4 4-4%22 stroke=%22white%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;max-width:200px">
+      <optgroup label="── ES Leadership ──">
+        <option value="craig" selected>Craig Gaibler</option>
+        <option value="nesana">Nesana Wieger</option>
+        <option value="erica">Erica Cochran</option>
+        <option value="erii">Erii Rodriguez</option>
+        <option value="lauren">Lauren Medina</option>
+        <option value="amber">Amber Segura</option>
+        <option value="kacie">Kacie Kugel</option>
+      </optgroup>
+      <optgroup label="── Regional Directors ──">
+        <option value="leslie">Leslie Davis</option>
+        <option value="ellen">Ellen Crowley</option>
+        <option value="lubi">Lubi Garza</option>
+        <option value="maud">Maud Langlois</option>
+        <option value="lisette">Lisette Bergeron</option>
+      </optgroup>
+      <optgroup label="── Directors ──">
+        <option value="nicole">Nicole Hanna</option>
+        <option value="tlam">T Lam</option>
+        <option value="cory">Cory Marin</option>
+        <option value="mary">Mary Ligammari</option>
+        <option value="joan">Joan Davis</option>
+        <option value="laura">Laura Ewell</option>
+        <option value="jose">Jose Medina</option>
+        <option value="tricia">Tricia Orme</option>
+      </optgroup>
+      <optgroup label="── Managers ──">
+        <option value="niall">Niall McCarthy</option>
+        <option value="joanne">Joanne Peau</option>
+        <option value="chenille">Chenille Book</option>
+        <option value="emily">Emily Dodd</option>
+        <option value="jessica">Jessica Montoro</option>
+        <option value="lisa">Lisa Park</option>
+        <option value="tiffany">Tiffany Jarrett</option>
+        <option value="gina">Gina Alberto</option>
+        <option value="cassandra">Cassandra Karns</option>
+        <option value="lymari">Lymari Colon</option>
+        <option value="regina">Regina Serigne</option>
+        <option value="anne">Anne Wolkenhauer</option>
+      </optgroup>
+    </select>
   </div>
 </header>
 
@@ -714,14 +760,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <span class="page-title">Recruiting & Hiring</span>
       <span class="page-sub" id="recruiting-sub"></span>
     </div>
-    <div class="view-as-bar">
-      <span class="view-as-lbl">View as:</span>
-      <button class="rh-va-btn view-as-btn active" onclick="setViewAs('hm',this)">Hiring Manager</button>
-      <button class="rh-va-btn view-as-btn" onclick="setViewAs('rd',this)">Regional Director</button>
-      <button class="rh-va-btn view-as-btn" onclick="setViewAs('es',this)">ES Leadership</button>
-      <span style="font-size:13.5px;color:var(--muted);margin-left:4px">Viewing as: <span class="view-as-name" id="view-as-name">Hiring Manager</span></span>
-      <button class="new-hire-btn" id="open-pos-btn" onclick="openModal()" style="margin-left:auto">+ New Position</button>
-    </div>
     <div class="rh-stats">
       <div class="rh-stat"><div class="rh-stat-lbl">Open Requisitions</div><div class="rh-stat-val" id="stat-open">1</div><div class="rh-stat-sub">Pending or posted</div></div>
       <div class="rh-stat"><div class="rh-stat-lbl">In-Process</div><div class="rh-stat-val" id="stat-proc">1</div><div class="rh-stat-sub">Interviewing</div></div>
@@ -732,6 +770,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="rh-sidebar">
         <div class="rh-sidebar-hdr">
           <span class="rh-sidebar-title">Active Pipeline</span>
+          <button class="new-hire-btn" onclick="openModal()">+ New</button>
         </div>
         <div id="hire-list"></div>
       </div>
@@ -744,14 +783,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div class="page-hdr">
       <div class="page-title">Onboarding</div>
       <div class="page-sub">New hire readiness — from offer accepted to end of NET</div>
-    </div>
-    <div class="view-as-bar">
-      <span class="view-as-lbl">View as:</span>
-      <button class="view-as-btn active" onclick="lcSetViewAs('ob','hm',this)">Hiring Manager</button>
-      <button class="view-as-btn" onclick="lcSetViewAs('ob','admin',this)">ES Administrator</button>
-      <button class="view-as-btn" onclick="lcSetViewAs('ob','cx',this)">CX Enablement</button>
-      <button class="view-as-btn" onclick="lcSetViewAs('ob','rd',this)">Regional Director</button>
-      <span style="font-size:13.5px;color:var(--muted);margin-left:4px">Viewing as: <span class="view-as-name" id="ob-view-as-name">Hiring Manager</span></span>
     </div>
     <div class="lc-stats">
       <div class="lc-stat"><div class="lc-stat-lbl">In Progress</div><div class="lc-stat-val" id="ob-stat-total">0</div><div class="lc-stat-sub">Active new hires</div></div>
@@ -776,13 +807,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="page-title">Transitions</div>
       <div class="page-sub">Promotions, title changes, and internal transfers</div>
     </div>
-    <div class="view-as-bar">
-      <span class="view-as-lbl">View as:</span>
-      <button class="view-as-btn active" onclick="lcSetViewAs('tr','hm',this)">Hiring Manager</button>
-      <button class="view-as-btn" onclick="lcSetViewAs('tr','rd',this)">Regional Director</button>
-      <button class="view-as-btn" onclick="lcSetViewAs('tr','es',this)">ES Leadership</button>
-      <span style="font-size:13.5px;color:var(--muted);margin-left:4px">Viewing as: <span class="view-as-name" id="tr-view-as-name">Hiring Manager</span></span>
-    </div>
     <div class="lc-stats">
       <div class="lc-stat"><div class="lc-stat-lbl">In Progress</div><div class="lc-stat-val" id="tr-stat-total">0</div><div class="lc-stat-sub">Active transitions</div></div>
       <div class="lc-stat"><div class="lc-stat-lbl">Promotions</div><div class="lc-stat-val" id="tr-stat-promo">0</div><div class="lc-stat-sub">Title / org changes</div></div>
@@ -806,14 +830,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div class="page-hdr">
       <div class="page-title">Offboarding</div>
       <div class="page-sub">Departure workflows — resignations and terminations</div>
-    </div>
-    <div class="view-as-bar">
-      <span class="view-as-lbl">View as:</span>
-      <button class="view-as-btn active" onclick="lcSetViewAs('off','hm',this)">Hiring Manager</button>
-      <button class="view-as-btn" onclick="lcSetViewAs('off','admin',this)">ES Administrator</button>
-      <button class="view-as-btn" onclick="lcSetViewAs('off','rd',this)">Regional Director</button>
-      <button class="view-as-btn" onclick="lcSetViewAs('off','es',this)">ES Leadership</button>
-      <span style="font-size:13.5px;color:var(--muted);margin-left:4px">Viewing as: <span class="view-as-name" id="off-view-as-name">Hiring Manager</span></span>
     </div>
     <div class="lc-stats">
       <div class="lc-stat"><div class="lc-stat-lbl">Active Departures</div><div class="lc-stat-val" id="off-stat-total">0</div><div class="lc-stat-sub">In process</div></div>
@@ -1104,6 +1120,141 @@ function onScopeChanged() {
 }
 
 
+
+// ══════════════════════════════════════════════════════════════════════════
+// GLOBAL IDENTITY SYSTEM
+// Single source of truth for who is "logged in" — drives scope filter,
+// task ownership, and sidebar visibility across all workspaces.
+// ══════════════════════════════════════════════════════════════════════════
+
+var IDENTITY_DIRECTORY = {
+  // ── ES LEADERSHIP (enterprise, read-only on tasks except Erii) ──
+  'craig':    {name:'Craig Gaibler',     title:'Sr. Director, ES',       level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  'nesana':   {name:'Nesana Wieger',     title:'VP, Exhibitor Services',  level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  'erica':    {name:'Erica Cochran',     title:'Director, Biz Ops',       level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  'erii':     {name:'Erii Rodriguez',    title:'ES Administrator',        level:'enterprise', branches:[], regions:[], canCheckOwner:'admin', taskRole:'admin'},
+  'lauren':   {name:'Lauren Medina',     title:'Training',                level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  'amber':    {name:'Amber Segura',      title:'Training',                level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  'kacie':    {name:'Kacie Kugel',       title:'Training',                level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  // ── REGIONAL DIRECTORS (see full region, read-only on tasks) ──
+  'leslie':   {name:'Leslie Davis',      title:'Regional Director, NW/SoCal',          level:'region',    branches:['San Francisco','Anaheim','Denver','Reno'], regions:['NW/SoCal'], canCheckOwner:'none', taskRole:'rd'},
+  'ellen':    {name:'Ellen Crowley',     title:'Regional Director, LV & North Central', level:'region',    branches:['Las Vegas','Chicago','Des Moines'],        regions:['Las Vegas','North Central'], canCheckOwner:'none', taskRole:'rd'},
+  'lubi':     {name:'Lubi Garza',        title:'Regional Director, South Central',      level:'region',    branches:['Dallas','Houston','San Antonio'],           regions:['South Central'], canCheckOwner:'hm', taskRole:'hm', directReports:['tiffany']},
+  'maud':     {name:'Maud Langlois',     title:'Regional Director, NE & Canada',        level:'region',    branches:['Boston','New York','Washington D.C.','Toronto'], regions:['Northeast','Canada'], canCheckOwner:'none', taskRole:'rd'},
+  'lisette':  {name:'Lisette Bergeron',  title:'Regional Director, Southeast',          level:'region',    branches:['Atlanta','Nashville','New Orleans','Orlando'], regions:['Southeast'], canCheckOwner:'none', taskRole:'rd'},
+  // ── DIRECTORS (see their branch(es), read-only on tasks) ──
+  'nicole':   {name:'Nicole Hanna',      title:'Director, Anaheim',       level:'branch',    branches:['Anaheim'],              regions:[], canCheckOwner:'none', taskRole:'rd', directReports:['joanne']},
+  'tlam':     {name:'T Lam',             title:'Director, Denver & Reno',  level:'branch',    branches:['Denver','Reno'],        regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'cory':     {name:'Cory Marin',        title:'Director, Las Vegas',      level:'branch',    branches:['Las Vegas'],            regions:[], canCheckOwner:'none', taskRole:'rd', directReports:['chenille','emily','jessica','lisa']},
+  'mary':     {name:'Mary Ligammari',    title:'Director, Chicago',        level:'branch',    branches:['Chicago'],              regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'joan':     {name:'Joan Davis',        title:'Director, Houston',        level:'branch',    branches:['Houston'],              regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'laura':    {name:'Laura Ewell',       title:'Director, Boston',         level:'branch',    branches:['Boston'],               regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'jose':     {name:'Jose Medina',       title:'Director, New Orleans & Orlando', level:'branch', branches:['New Orleans','Orlando'], regions:[], canCheckOwner:'none', taskRole:'rd', directReports:['lymari','regina']},
+  'tricia':   {name:'Tricia Orme',       title:'Director, Atlanta & Nashville',   level:'branch', branches:['Atlanta','Nashville'],   regions:[], canCheckOwner:'none', taskRole:'rd', directReports:['anne']},
+  // ── MANAGERS (see own branch only, can check off HM tasks for their own records) ──
+  'niall':    {name:'Niall McCarthy',    title:'Manager, San Francisco',   level:'branch',    branches:['San Francisco'],        regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'joanne':   {name:'Joanne Peau',       title:'Manager, Anaheim',         level:'branch',    branches:['Anaheim'],              regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'chenille': {name:'Chenille Book',     title:'Manager, Las Vegas',       level:'branch',    branches:['Las Vegas'],            regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'emily':    {name:'Emily Dodd',        title:'Manager, Las Vegas',       level:'branch',    branches:['Las Vegas'],            regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'jessica':  {name:'Jessica Montoro',   title:'Manager, Las Vegas',       level:'branch',    branches:['Las Vegas'],            regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'lisa':     {name:'Lisa Park',         title:'Manager, Las Vegas',       level:'branch',    branches:['Las Vegas'],            regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'tiffany':  {name:'Tiffany Jarrett',   title:'Manager, Dallas',          level:'branch',    branches:['Dallas'],               regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'gina':     {name:'Gina Alberto',      title:'Manager, New York',        level:'branch',    branches:['New York'],             regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'cassandra':{name:'Cassandra Karns',   title:'Manager, Washington D.C.', level:'branch',    branches:['Washington D.C.'],      regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'lymari':   {name:'Lymari Colon',      title:'Manager, Orlando',         level:'branch',    branches:['Orlando'],              regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'regina':   {name:'Regina Serigne',    title:'Manager, New Orleans',     level:'branch',    branches:['New Orleans'],          regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'anne':     {name:'Anne Wolkenhauer',  title:'Manager, Atlanta',         level:'branch',    branches:['Atlanta'],              regions:[], canCheckOwner:'hm', taskRole:'hm'},
+};
+
+// Current active identity — defaults to Craig
+var CURRENT_IDENTITY_KEY = 'craig';
+function currentIdentity() { return IDENTITY_DIRECTORY[CURRENT_IDENTITY_KEY]; }
+
+// ── IDENTITY SWITCH ──────────────────────────────────────────────────────
+function setIdentity(key) {
+  CURRENT_IDENTITY_KEY = key;
+  var person = IDENTITY_DIRECTORY[key];
+  if (!person) return;
+
+  // Update scope pills to match identity's default scope
+  var scopePills = document.querySelectorAll('.scope-pill');
+  scopePills.forEach(function(p){ p.classList.remove('active'); });
+  var regionEl = document.getElementById('region-select');
+  var branchEl = document.getElementById('branch-select');
+
+  if (person.level === 'enterprise') {
+    var ep = document.querySelector('.scope-pill[data-scope="enterprise"]');
+    if (ep) ep.classList.add('active');
+    if (regionEl) { regionEl.style.display='none'; regionEl.value=''; }
+    if (branchEl) { branchEl.style.display='none'; branchEl.value=''; }
+  } else if (person.level === 'region') {
+    var rp = document.querySelector('.scope-pill[data-scope="region"]');
+    if (rp) rp.classList.add('active');
+    if (regionEl) {
+      regionEl.style.display='';
+      // Set to first region in their list
+      if (person.regions && person.regions.length > 0) regionEl.value = person.regions[0];
+    }
+    if (branchEl) { branchEl.style.display='none'; branchEl.value=''; }
+  } else {
+    var bp = document.querySelector('.scope-pill[data-scope="branch"]');
+    if (bp) bp.classList.add('active');
+    if (regionEl) { regionEl.style.display='none'; regionEl.value=''; }
+    if (branchEl) {
+      branchEl.style.display='';
+      if (person.branches && person.branches.length > 0) branchEl.value = person.branches[0];
+    }
+  }
+
+  // Re-render all active workspaces
+  var activePage = document.querySelector('.page.active');
+  if (activePage) {
+    var pid = activePage.id;
+    if (pid === 'page-recruiting') { initRecruiting(); }
+    if (pid === 'page-onboarding') { initOnboarding(); }
+    if (pid === 'page-transitions') { initTransitions(); }
+    if (pid === 'page-offboarding') { initOffboarding(); }
+    if (pid === 'page-staffing') { initStaffing(); }
+    if (pid === 'page-kpis') { initKpis(); }
+  }
+  renderNeedsAttention();
+}
+
+// ── IDENTITY-AWARE SCOPE CHECK ───────────────────────────────────────────
+// Returns true if the given branch is visible to the current identity
+function identityCanSeeBranch(branch) {
+  var p = currentIdentity();
+  if (p.level === 'enterprise') return true;
+  return p.branches.indexOf(branch) >= 0;
+}
+
+// Returns true if current identity is the hiring manager for a record
+function identityIsHiringManager(hmName) {
+  return currentIdentity().name === hmName;
+}
+
+// Returns true if current identity can check off tasks of a given owner type
+// owner: 'hm' | 'admin' | 'cx' | 'it' | 'hr'
+// For HM tasks: only the assigned hiring manager of that specific record
+// For admin tasks: only Erii Rodriguez
+function identityCanCheckTask(owner, recordHiringManager) {
+  var p = currentIdentity();
+  if (owner === 'hm') {
+    // Only the direct hiring manager of THIS record
+    return p.name === recordHiringManager;
+  }
+  if (owner === 'admin') {
+    return CURRENT_IDENTITY_KEY === 'erii';
+  }
+  if (owner === 'cx') {
+    // CX Enablement tasks — not a dashboard user role; show as read-only for everyone
+    return false;
+  }
+  if (owner === 'it') return false;
+  if (owner === 'hr') return false;
+  return false;
+}
+
 // -- DATE --
 (function(){
   var d = new Date();
@@ -1248,28 +1399,7 @@ function getRecruitingScope() {
 }
 
 function canView(h) {
-  // Stage-based view filter — all roles see approved-not-posted and beyond
-  var stageOk = true;
-  // (simplified pipeline: no pending-rd / pending-es stages)
-  if (!stageOk) return false;
-
-  // Scope filter — each hire has h.branch (e.g. "Dallas", "Chicago")
-  var sc = getRecruitingScope();
-  if (sc.scope === 'enterprise') return true;
-
-  if (sc.scope === 'region') {
-    if (!sc.region) return true; // no region selected yet — show all
-    // Map hire's branch city to a dashboard region via BRANCH_MAP
-    var regionBranches = BRANCH_MAP[sc.region] || [];
-    return regionBranches.indexOf(h.branch) >= 0;
-  }
-
-  if (sc.scope === 'branch') {
-    if (!sc.branch) return true; // no branch selected yet — show all
-    return h.branch === sc.branch;
-  }
-
-  return true;
+  return identityCanSeeBranch(h.branch);
 }
 
 function needsMyAction(h) {
