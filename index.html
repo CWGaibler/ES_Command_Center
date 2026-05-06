@@ -2434,8 +2434,10 @@ function fmtDateStr(s) {
 
 function renderDetail(){
   var panel=document.getElementById('rh-detail'); if(!panel)return;
-  var visH = hires.filter(canView);
-  // If current selId is not visible to this identity, auto-correct to first visible
+  // Use canViewInScope for stale guard — matches what's visible in the sidebar list
+  // canView() is only used for task ownership gating (checkbox interactivity) below
+  var visH = hires.filter(canViewInScope);
+  // If current selId is not visible under current scope, auto-correct to first visible
   if (selId && !visH.find(function(x){ return x.id === selId; })) {
     selId = visH.length ? visH[0].id : null;
   }
