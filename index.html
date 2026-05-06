@@ -1760,18 +1760,43 @@ function setScope(scope, el) {
   el.classList.add('active');
   var rSel = document.getElementById('region-select');
   var bSel = document.getElementById('branch-select');
+  var identity = currentIdentity();
+
   if (scope === 'enterprise') {
     rSel.classList.add('hidden');
     bSel.classList.add('hidden');
     rSel.value = '';
     bSel.value = '';
+
   } else if (scope === 'region') {
     rSel.classList.remove('hidden');
     bSel.classList.add('hidden');
     bSel.value = '';
+    // Pre-populate region dropdown if empty
+    if (!rSel.value) {
+      if (identity.regions && identity.regions.length > 0) {
+        // RD or enterprise: use their first region
+        rSel.value = identity.regions[0];
+      } else if (identity.branches && identity.branches.length > 0) {
+        // Branch-level: find which region contains their first branch
+        var homeBranch = identity.branches[0];
+        var homeRegion = '';
+        Object.keys(BRANCH_MAP).forEach(function(r) {
+          if (BRANCH_MAP[r].indexOf(homeBranch) >= 0) homeRegion = r;
+        });
+        if (homeRegion) rSel.value = homeRegion;
+      }
+    }
+
   } else if (scope === 'branch') {
     rSel.classList.add('hidden');
     bSel.classList.remove('hidden');
+    // Pre-populate branch dropdown if empty
+    if (!bSel.value) {
+      if (identity.branches && identity.branches.length > 0) {
+        bSel.value = identity.branches[0];
+      }
+    }
   }
   onScopeChanged();
 }
