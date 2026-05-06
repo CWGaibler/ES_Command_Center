@@ -147,7 +147,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .task-chk.checked .chk-mark{display:block}
 .task-body{flex:1;min-width:0}
 .task-title{font-size:14px;font-weight:700;line-height:1.4}
-.task-title.done{text-decoration:line-through;color:var(--muted)}
+.task-title.done{color:var(--muted)}
 .task-desc{font-size:13.5px;color:var(--muted);margin-top:2px;line-height:1.4}
 .task-links{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
 .tlink{font-size:14px;font-weight:700;padding:2px 7px;border-radius:999px;border:1px solid rgba(0,189,246,.3);background:rgba(0,189,246,.07);color:#006A8A;text-decoration:none;display:inline-block}
@@ -226,6 +226,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .chip-pending-rd{background:#FFF0EB;color:#7A2A00;border-color:rgba(251,71,31,.25)}
 .chip-pending-es{background:#FFF5D6;color:#7A5C00;border-color:rgba(255,181,0,.3)}
 .chip-approved{background:#EAFAF0;color:#1A6B35;border-color:rgba(66,187,55,.3)}
+.chip-approved-np{background:#EAFAF0;color:#1A6B35;border-color:rgba(66,187,55,.3);font-style:italic}
 .chip-posted{background:rgba(0,189,246,.1);color:#006A8A;border-color:rgba(0,189,246,.3)}
 .chip-rejected{background:#FFEDE7;color:var(--orange);border-color:rgba(251,71,31,.2)}
 .approval-bar{display:flex;align-items:flex-start;gap:8px;padding:12px 16px;border-top:1px solid var(--border-lt);border-radius:0 0 10px 10px;flex-wrap:wrap}
@@ -874,40 +875,63 @@ var TASKS = [
 ];
 
 var hires = [
-  {id:'h1', role:'ES Representative', ftpt:'Full-Time', branch:'Las Vegas',
-   hiringManager:'Cory Marin', hireType:'new', backfillFor:'',
-   proposedStart:'2026-06-16', proposedNet:'2026-06-02',
-   reqNum:'72841', hrRecruiter:'Megan Wierick', firstName:'Jordan', lastName:'Patel',
-   confirmedStart:'', confirmedNet:'', rejectionNote:'',
-   stage:'interviewing', checked:['t1','t2','t3','t4','t5','t6','t7','t8'], open:{}},
-  {id:'h2', role:'ES Supervisor', ftpt:'Full-Time', branch:'Chicago',
-   hiringManager:'Mary Ligammari', hireType:'backfill',
-   backfillFor:'Maria Gonzalez (ES Supervisor, Chicago)',
-   proposedStart:'2026-06-09', proposedNet:'2026-05-26',
-   reqNum:'84291', hrRecruiter:'Megan Wierick', firstName:'Samantha', lastName:'Reyes',
-   confirmedStart:'2026-06-09', confirmedNet:'2026-05-26', rejectionNote:'',
-   stage:'offer', checked:['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'], open:{}},
-  {id:'h3', role:'ES Representative', ftpt:'Part-Time', branch:'Dallas',
-   hiringManager:'Tiffany Jarrett', hireType:'new', backfillFor:'',
-   proposedStart:'2026-07-07', proposedNet:'2026-06-23',
+  {id:'h1', role:'ES Event Experience Supervisor', ftpt:'Full-Time', branch:'Las Vegas',
+   hiringManagerFirst:'Jessica', hiringManagerLast:'Montoro',
+   hiringManager:'Jessica Montoro',
+   hireType:'backfill', backfillFor:'Nick Addesso',
+   backfillForFirst:'Nick', backfillForLast:'Addesso',
+   whyBackfill:'moved to Growth',
+   proposedStart:'', proposedNet:'',
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
-   stage:'draft', checked:[], open:{}},
-  {id:'h4', role:'ES Manager', ftpt:'Full-Time', branch:'Atlanta',
-   hiringManager:'Tricia Orme', hireType:'new', backfillFor:'',
-   proposedStart:'2026-07-14', proposedNet:'2026-06-30',
+   phoneStipend: false,
+   stage:'approved-not-posted', checked:[], open:{}},
+  {id:'h2', role:'ES Specialist', ftpt:'Full-Time', branch:'Las Vegas',
+   hiringManagerFirst:'Chenille', hiringManagerLast:'Book',
+   hiringManager:'Chenille Book',
+   hireType:'backfill', backfillFor:'Taylor Fox',
+   backfillForFirst:'Taylor', backfillForLast:'Fox',
+   whyBackfill:'Terminated',
+   proposedStart:'', proposedNet:'',
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
-   stage:'pending-rd', checked:[], open:{}},
-  {id:'h5', role:'ES Supervisor', ftpt:'Full-Time', branch:'Boston',
-   hiringManager:'Laura Ewell', hireType:'backfill',
-   backfillFor:'Alex Thompson (ES Rep, Las Vegas)',
-   proposedStart:'2026-07-21', proposedNet:'2026-07-07',
+   phoneStipend: false,
+   stage:'approved-not-posted', checked:[], open:{}},
+  {id:'h3', role:'ES Specialist', ftpt:'Part-Time', branch:'San Francisco',
+   hiringManagerFirst:'Niall', hiringManagerLast:'McCarthy',
+   hiringManager:'Niall McCarthy',
+   hireType:'backfill', backfillFor:'Julie Sales',
+   backfillForFirst:'Julie', backfillForLast:'Sales',
+   whyBackfill:'internal ES promotion',
+   proposedStart:'', proposedNet:'',
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
-   stage:'pending-es', checked:[], open:{}}
+   phoneStipend: false,
+   stage:'approved-not-posted', checked:[], open:{}},
+  {id:'h4', role:'ES Specialist', ftpt:'Part-Time', branch:'San Antonio',
+   hiringManagerFirst:'Joan', hiringManagerLast:'Davis',
+   hiringManager:'Joan Davis',
+   hireType:'backfill', backfillFor:'Katya Castellanos',
+   backfillForFirst:'Katya', backfillForLast:'Castellanos',
+   whyBackfill:'Resignation',
+   proposedStart:'', proposedNet:'',
+   reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
+   confirmedStart:'', confirmedNet:'', rejectionNote:'',
+   phoneStipend: false,
+   stage:'approved-not-posted', checked:[], open:{}},
+  {id:'h5', role:'ES Sr. Specialist', ftpt:'Full-Time', branch:'Off-site',
+   hiringManagerFirst:'Jennifer', hiringManagerLast:'Pearson',
+   hiringManager:'Jennifer Pearson',
+   hireType:'backfill', backfillFor:'Lindsey Moritz',
+   backfillForFirst:'Lindsey', backfillForLast:'Moritz',
+   whyBackfill:'Resignation',
+   proposedStart:'', proposedNet:'',
+   reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
+   confirmedStart:'', confirmedNet:'', rejectionNote:'',
+   phoneStipend: false,
+   stage:'approved-not-posted', checked:[], open:{}}
 ];
-var selId = 'h3';
+var selId = 'h1';
 var rhReady = false;
 var currentViewAs = 'hm';
 var pendingRejectId = null;
@@ -915,10 +939,7 @@ var pendingRejectId = null;
 var VIEW_AS_NAMES = {'hm':'Craig Gaibler','rd':'Ellen Crowley','es':'Nesana Wieger'};
 
 var APPROVAL_STAGES = {
-  'draft':       {label:'Draft',            cls:'chip-draft',      nextStage:'pending-rd'},
-  'pending-rd':  {label:'Pending RD Appr',  cls:'chip-pending-rd', nextStage:'pending-es'},
-  'pending-es':  {label:'Pending ES Appr',  cls:'chip-pending-es', nextStage:'approved'},
-  'approved':    {label:'Approved',         cls:'chip-approved',   nextStage:'posted'},
+  'approved-not-posted': {label:'Approved, Not Posted', cls:'chip-approved-np', nextStage:'posted'},
   'posted':      {label:'Posted',           cls:'chip-posted',     nextStage:'interviewing'},
   'interviewing':{label:'Interviewing',     cls:'chip-amber',      nextStage:'offer'},
   'offer':       {label:'Offer Stage',      cls:'chip-green',      nextStage:'complete'},
@@ -959,10 +980,9 @@ function getRecruitingScope() {
 }
 
 function canView(h) {
-  // Stage-based view filter
+  // Stage-based view filter — all roles see approved-not-posted and beyond
   var stageOk = true;
-  if(currentViewAs === 'rd') stageOk = ['pending-rd','pending-es','approved','posted','interviewing','offer','complete','rejected'].indexOf(h.stage) >= 0;
-  if(currentViewAs === 'es') stageOk = ['pending-es','approved','posted','interviewing','offer','complete','rejected'].indexOf(h.stage) >= 0;
+  // (simplified pipeline: no pending-rd / pending-es stages)
   if (!stageOk) return false;
 
   // Scope filter — each hire has h.branch (e.g. "Dallas", "Chicago")
@@ -985,8 +1005,8 @@ function canView(h) {
 }
 
 function needsMyAction(h) {
-  if(currentViewAs === 'rd' && h.stage === 'pending-rd') return true;
-  if(currentViewAs === 'es' && h.stage === 'pending-es') return true;
+  // Flag positions that have been sitting at approved-not-posted for a while, or are in offer stage
+  if(h.stage === 'offer') return true;
   return false;
 }
 
@@ -1045,18 +1065,19 @@ function renderList(){
     var action = needsMyAction(h);
     d.className='hire-item'+(h.id===selId?' sel':'')+(action?' action-needed':'');
     d.setAttribute('data-id',h.id);
-    var stg = APPROVAL_STAGES[h.stage]||APPROVAL_STAGES['draft'];
+    var stg = APPROVAL_STAGES[h.stage]||APPROVAL_STAGES['approved-not-posted'];
+    var hmName = (h.hiringManagerFirst||'') + (h.hiringManagerLast ? ' '+h.hiringManagerLast : '') || h.hiringManager || '';
     var candidateLine = (h.firstName||h.lastName)
       ? '<div class="hire-role" style="margin-top:2px">&#128100; '+(h.firstName||'')+(h.lastName?' '+h.lastName:'')+'</div>'
-      : '<div class="hire-role" style="margin-top:2px;font-style:italic;color:#ccc">Candidate TBD</div>';
+      : '<div class="hire-role" style="margin-top:2px;font-style:italic;color:var(--muted)">Candidate TBD</div>';
     var typeChip = h.hireType==='backfill'
       ? '<span class="chip chip-amber" style="font-size:9.6px;padding:1px 5px">Backfill</span>'
       : '<span class="chip chip-mb" style="font-size:9.6px;padding:1px 5px">Net New</span>';
-    var ftChip = h.ftpt==='Part-Time'?'<span class="chip chip-ghost" style="font-size:9.6px;padding:1px 5px">PT</span>':'';
+    var ftChip = h.ftpt==='Part-Time'?'<span class="chip chip-ghost" style="font-size:9.6px;padding:1px 5px">PT</span>':'<span class="chip chip-ghost" style="font-size:9.6px;padding:1px 5px">FT</span>';
     var dot = action?'<span style="width:7px;height:7px;background:var(--orange);border-radius:50%;display:inline-block;margin-left:4px;vertical-align:middle"></span>':'';
     d.innerHTML=
       '<div class="hire-name">'+h.role+dot+'</div>'+
-      '<div class="hire-role">'+h.branch+' &middot; '+h.hiringManager+'</div>'+
+      '<div class="hire-role">'+h.branch+' &middot; '+hmName+'</div>'+
       candidateLine+
       '<div class="hire-prog-row" style="margin-top:5px">'+
         '<div class="hire-prog-wrap"><div class="hire-prog-fill" style="width:'+pct+'%"></div></div>'+
@@ -1159,16 +1180,16 @@ function renderDetail(){
     '<div class="pos-card-body">'+
       fieldStatic('Role', h.role)+
       fieldStatic('Branch / Team', h.branch)+
-      fieldStatic('Hiring Manager', h.hiringManager)+
-      (h.hireType==='backfill' ? fieldStatic('Backfilling For', h.backfillFor||' &mdash; ') : fieldStatic('Type', 'Net New Position'))+
+      fieldStatic('Hiring Manager', h.hiringManagerFirst + ' ' + h.hiringManagerLast)+
+      (h.hireType==='backfill' ? fieldStatic('Backfilling For', (h.backfillForFirst||'') + ' ' + (h.backfillForLast||'') + (h.whyBackfill ? ' <span style="color:var(--muted);font-size:12px">(' + h.whyBackfill + ')</span>' : '')) : fieldStatic('Type', 'Net New Position'))+
       field('Req # (5 digits)', h.reqNum, 'reqNum', 'text')+
       field('HR Recruiter', h.hrRecruiter, 'hrRecruiter', 'select-recruiter')+
-      fieldStatic('Proposed Start Date', fmtDateStr(h.proposedStart))+
-      field('Proposed NET Class Start', h.proposedNet ? fmtDateStr(h.proposedNet) : '', 'proposedNet', 'date')+
-      field('Candidate First Name', h.firstName, 'firstName', 'text')+
-      field('Candidate Last Name', h.lastName, 'lastName', 'text')+
+      field('Candidate Name', (h.firstName||h.lastName) ? ((h.firstName||'') + ' ' + (h.lastName||'')).trim() : '', 'firstName', 'text')+
       field('Confirmed Start Date', h.confirmedStart ? fmtDateStr(h.confirmedStart) : '', 'confirmedStart', 'date')+
       field('Confirmed NET Class Start', h.confirmedNet ? fmtDateStr(h.confirmedNet) : '', 'confirmedNet', 'date')+
+      fieldStatic('Proposed Start Date', fmtDateStr(h.proposedStart) || 'TBD')+
+      field('Proposed NET Class Start', h.proposedNet ? fmtDateStr(h.proposedNet) : '', 'proposedNet', 'date')+
+      fieldStatic('Phone Stipend', h.phoneStipend ? 'Yes' : 'No')+
     '</div>'+
     '<div style="padding:8px 14px;border-top:1px solid var(--border-lt)">'+
       '<div class="det-prog-wrap" style="max-width:100%"><div class="det-prog-fill" style="width:'+pct+'%"></div></div>'+
@@ -1195,25 +1216,34 @@ function renderDetail(){
         '<span class="ph-chev'+(isOpen?' open':'')+'">&#9660;</span>'+
       '</div>'+
       '<div class="phase-body" style="display:'+(isOpen?'block':'none')+'">';
-    pt.forEach(function(t){
+    pt.forEach(function(t, tidx){
       var ck=h.checked.indexOf(t.id)>=0;
       var due=addDays(h.proposedStart||h.start||'2026-06-16',t.off);
       var st=dueStatus(new Date(due),ck);
+      // Sequential locking: step is locked if any prior step in this phase is unchecked
+      var locked = false;
+      if (!ck && tidx > 0) {
+        for (var pi = 0; pi < tidx; pi++) {
+          if (h.checked.indexOf(pt[pi].id) < 0) { locked = true; break; }
+        }
+      }
       var lnks='';
-      if(t.links&&t.links.length){
+      if(!locked && t.links&&t.links.length){
         lnks='<div class="task-links">';
         t.links.forEach(function(l){lnks+='<a class="tlink" href="'+l.url+'" target="_blank">'+l.label+' &#8599;</a>';});
         lnks+='</div>';
       }
-      clHtml+='<div class="task-row">'+
-        '<div class="task-chk'+(ck?' checked':st==='overdue'?' overdue-chk':'')+'" data-hire="'+h.id+'" data-task="'+t.id+'"><span class="chk-mark">&#10003;</span></div>'+
+      var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'');
+      var chkAttrs = locked ? '' : ' data-hire="'+h.id+'" data-task="'+t.id+'"';
+      clHtml+='<div class="task-row'+(locked?' step-locked':'')+'">'+
+        '<div class="'+chkCls+'"'+chkAttrs+'><span class="chk-mark">&#10003;</span></div>'+
         '<div class="task-body">'+
-          '<div class="task-title'+(ck?' done':'')+'">'+t.title+'</div>'+
-          '<div class="task-desc">'+t.desc+'</div>'+lnks+
+          '<div class="task-title'+(ck?' done':'')+''' +(locked?' style="opacity:.35"':'')+'>'+t.title+'</div>'+
+          '<div class="task-desc"'+(locked?' style="opacity:.35"':'')+'>'+t.desc+'</div>'+lnks+
         '</div>'+
         '<div class="task-right">'+
-          '<span class="task-owner">'+t.owner+'</span>'+
-          '<span class="task-due due-'+st+'">'+(ck?'Complete':fmtDate(due))+'</span>'+
+          '<span class="task-owner"'+(locked?' style="opacity:.35"':'')+'>'+t.owner+'</span>'+
+          '<span class="task-due due-'+(locked?'upcoming':st)+'">'+(ck?'Complete':locked?'&mdash;':fmtDate(due))+'</span>'+
         '</div>'+
       '</div>';
     });
@@ -1223,44 +1253,15 @@ function renderDetail(){
 
   // Build approval action bar
   var approvalBarHtml = '';
-  var stg = APPROVAL_STAGES[h.stage] || APPROVAL_STAGES['draft'];
-  if(h.stage === 'draft') {
+  if(h.stage === 'approved-not-posted') {
     approvalBarHtml = '<div class="approval-bar">'+
-      '<div class="approval-msg">Ready to submit for approval?<div class="sub">This will send the request to the Regional Director for review.</div></div>'+
-      '<button class="btn-submit" data-action="submit" data-id="'+h.id+'">Submit to RD</button>'+
-    '</div>';
-  } else if(h.stage === 'pending-rd' && currentViewAs === 'rd') {
-    approvalBarHtml = '<div class="approval-bar needs-action">'+
-      '<div class="approval-msg">&#9889; This position request needs your approval<div class="sub">Requested by '+h.hiringManager+' &middot; '+h.ftpt+' &middot; '+h.branch+'</div></div>'+
-      '<button class="btn-approve" data-action="approve" data-id="'+h.id+'">Approve</button>'+
-      '<button class="btn-reject" data-action="reject" data-id="'+h.id+'">Reject</button>'+
-    '</div>';
-  } else if(h.stage === 'pending-rd' && currentViewAs !== 'rd') {
-    approvalBarHtml = '<div class="approval-bar">'+
-      '<div class="approval-msg">Awaiting Regional Director approval<div class="sub">Switch to Regional Director view to approve</div></div>'+
-      '<span class="chip chip-pending-rd">Pending RD</span>'+
-    '</div>';
-  } else if(h.stage === 'pending-es' && currentViewAs === 'es') {
-    approvalBarHtml = '<div class="approval-bar needs-action">'+
-      '<div class="approval-msg">&#9889; This position request needs ES Leadership approval<div class="sub">Approved by RD &middot; Requested by '+h.hiringManager+'</div></div>'+
-      '<button class="btn-approve" data-action="approve" data-id="'+h.id+'">Approve</button>'+
-      '<button class="btn-reject" data-action="reject" data-id="'+h.id+'">Reject</button>'+
-    '</div>';
-  } else if(h.stage === 'pending-es' && currentViewAs !== 'es') {
-    approvalBarHtml = '<div class="approval-bar">'+
-      '<div class="approval-msg">Awaiting ES Leadership approval<div class="sub">Switch to ES Leadership view to approve</div></div>'+
-      '<span class="chip chip-pending-es">Pending ES</span>'+
-    '</div>';
-  } else if(h.stage === 'approved') {
-    approvalBarHtml = '<div class="approval-bar">'+
-      '<div class="approval-msg">&#10003; Position approved &mdash; ready to submit to HR<div class="sub">Next step: email Chastity Austin to post the position</div></div>'+
-      '<span class="chip chip-approved">Approved</span>'+
+      '<div class="approval-msg">&#10003; Position approved &mdash; waiting to post<div class="sub">Holding until recruiting opens. HR will assign a req # when posted.</div></div>'+
+      '<span class="chip chip-approved-np">Approved, Not Posted</span>'+
     '</div>';
   } else if(h.stage === 'rejected') {
     approvalBarHtml = '<div class="approval-bar rejected-bar">'+
       '<div class="approval-msg">&#10007; Request rejected<div class="sub">Reason: '+(h.rejectionNote||'See notes')+'</div></div>'+
       '<span class="chip chip-rejected">Rejected</span>'+
-      (currentViewAs==='hm'?'<button class="btn-submit" data-action="resubmit" data-id="'+h.id+'">Revise &amp; Resubmit</button>':'')+
     '</div>';
   }
 
@@ -1782,7 +1783,7 @@ function renderSsDetail() {
         "<span class=\"chk-mark\">\u2713</span>" +
       "</div>" +
       "<div class=\"task-body\">" +
-        "<div class=\"task-title" + (checked ? " done" : "") + (locked ? " done" : "") + "\">" + (idx + 1) + ". " + t.title + (locked ? " <span style=\"font-size:11px;font-weight:700;color:var(--muted);opacity:.7\">(complete step " + idx + " first)</span>" : "") + "</div>" +
+        "<div class=\"task-title" + (checked ? " done" : "") + (locked ? " style=\"opacity:.35\"" : "") + "\">" + (idx + 1) + ". " + t.title + "</div>" +
         "<div class=\"task-desc\"" + (locked ? " style=\"opacity:.5\"" : "") + ">" + t.desc + "</div>" +
         (!locked && t.links && t.links.length ? "<div class=\"task-links\">" + t.links.map(function(l){ return "<a class=\"tlink\" href=\"" + l.url + "\" target=\"_blank\">" + l.label + "</a>"; }).join("") + "</div>" : "") +
         (!locked && t.calc ? renderSsCalcInline(s, rec, plan, t.step) : "") +
