@@ -1019,12 +1019,15 @@ function showPage(id, el) {
   var page = document.getElementById('page-' + id);
   if (page) page.classList.add('active');
   if (el) el.classList.add('active');
-  if (id === 'recruiting') initRecruiting();
-  if (id === 'onboarding') initOnboarding();
-  if (id === 'transitions') initTransitions();
-  if (id === 'offboarding') initOffboarding();
-  if (id === 'staffing') initStaffing();
-  if (id === 'kpis') initKpis();
+  // Reset stale selections before rendering the new page
+  resetWorkspaceState();
+  if (id === 'today')       { renderKpiStrip(); renderNeedsAttention(); }
+  if (id === 'recruiting')  { initRecruiting(); }
+  if (id === 'onboarding')  { initOnboarding(); }
+  if (id === 'transitions') { initTransitions(); }
+  if (id === 'offboarding') { initOffboarding(); }
+  if (id === 'staffing')    { initStaffing(); }
+  if (id === 'kpis')        { initKpis(); }
 }
 
 var BRANCH_MAP = {
@@ -1184,6 +1187,59 @@ var CURRENT_IDENTITY_KEY = 'craig';
 function currentIdentity() { return IDENTITY_DIRECTORY[CURRENT_IDENTITY_KEY]; }
 
 // ── IDENTITY SWITCH ──────────────────────────────────────────────────────
+
+// ── STALE STATE GUARD ─────────────────────────────────────────────────────
+// Called on every identity switch AND every page navigation.
+// Ensures the selected record in each workspace is valid for the current
+// identity/scope. If the current selection is no longer visible, resets
+// to the first visible record (or null if none).
+
+function resetWorkspaceState() {
+  // ── Recruiting ──
+  var visibleHires = hires.filter(canView);
+  if (!visibleHires.length) {
+    selId = null;
+  } else if (!visibleHires.find(function(h){ return h.id === selId; })) {
+    selId = visibleHires[0].id;
+  }
+
+  // ── Onboarding ──
+  var visibleOb = obRecords.filter(function(r) {
+    return identityCanSeeBranch(r.branch);
+  });
+  if (!visibleOb.length) {
+    selObId = null;
+  } else if (!visibleOb.find(function(r){ return r.id === selObId; })) {
+    selObId = visibleOb[0].id;
+  }
+
+  // ── Transitions ──
+  var visibleTr = trRecords.filter(function(r) {
+    return identityCanSeeBranch(r.branch);
+  });
+  if (!visibleTr.length) {
+    selTrId = null;
+  } else if (!visibleTr.find(function(r){ return r.id === selTrId; })) {
+    selTrId = visibleTr[0].id;
+  }
+
+  // ── Offboarding ──
+  var visibleOff = offRecords.filter(function(r) {
+    return identityCanSeeBranch(r.branch);
+  });
+  if (!visibleOff.length) {
+    selOffId = null;
+  } else if (!visibleOff.find(function(r){ return r.id === selOffId; })) {
+    selOffId = visibleOff[0].id;
+  }
+
+  // ── KPIs ── (scope-aware values recalculate on render; just ensure
+  // detail panel refreshes by keeping kpiSelId valid or defaulting)
+  if (!kpiSelId && KPI_DATA && KPI_DATA.length) {
+    kpiSelId = KPI_DATA[0].id;
+  }
+}
+
 function setIdentity(key) {
   CURRENT_IDENTITY_KEY = key;
   var person = IDENTITY_DIRECTORY[key];
@@ -1219,16 +1275,18 @@ function setIdentity(key) {
     }
   }
 
-  // Re-render all active workspaces
+  // Reset stale selection state, THEN re-render
+  resetWorkspaceState();
   var activePage = document.querySelector('.page.active');
   if (activePage) {
     var pid = activePage.id;
-    if (pid === 'page-recruiting') { initRecruiting(); }
-    if (pid === 'page-onboarding') { initOnboarding(); }
+    if (pid === 'page-today')       { renderKpiStrip(); renderNeedsAttention(); }
+    if (pid === 'page-recruiting')  { initRecruiting(); }
+    if (pid === 'page-onboarding')  { initOnboarding(); }
     if (pid === 'page-transitions') { initTransitions(); }
     if (pid === 'page-offboarding') { initOffboarding(); }
-    if (pid === 'page-staffing') { initStaffing(); }
-    if (pid === 'page-kpis') { initKpis(); }
+    if (pid === 'page-staffing')    { initStaffing(); }
+    if (pid === 'page-kpis')        { initKpis(); }
   }
   renderNeedsAttention();
 }
@@ -1563,6 +1621,11 @@ function fmtDateStr(s) {
 
 function renderDetail(){
   var panel=document.getElementById('rh-detail'); if(!panel)return;
+  var visH = hires.filter(canView);
+  // If current selId is not visible to this identity, auto-correct to first visible
+  if (selId && !visH.find(function(x){ return x.id === selId; })) {
+    selId = visH.length ? visH[0].id : null;
+  }
   var h=hires.find(function(x){return x.id===selId;});
   if(!h){panel.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);font-size:14.4px">Select a position to view details</div>';return;}
 
@@ -3263,6 +3326,11 @@ function obSelectPerson(id) {
 function renderObDetail() {
   var el = document.getElementById('ob-detail');
   if (!el) return;
+  // Auto-correct stale selObId
+  var visOb = obRecords.filter(function(r){ return identityCanSeeBranch(r.branch); });
+  if (selObId && !visOb.find(function(r){ return r.id === selObId; })) {
+    selObId = visOb.length ? visOb[0].id : null;
+  }
   var rec = obRecords.find(function(r){ return r.id === selObId; });
   if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">📋</div><div class="lc-empty-msg">Select a new hire</div></div>'; return; }
   var prog = obTotalProgress(rec);
@@ -3448,6 +3516,10 @@ function trSetBackfill(recId, decision) {
 function renderTrDetail() {
   var el = document.getElementById('tr-detail');
   if (!el) return;
+  var visTr = trRecords.filter(function(r){ return identityCanSeeBranch(r.branch); });
+  if (selTrId && !visTr.find(function(r){ return r.id === selTrId; })) {
+    selTrId = visTr.length ? visTr[0].id : null;
+  }
   var rec = trRecords.find(function(r){ return r.id === selTrId; });
   if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">🔄</div><div class="lc-empty-msg">Select a transition</div></div>'; return; }
   var tasks = trTaskSet(rec);
@@ -3654,6 +3726,10 @@ function offSetBackfill(recId, decision) {
 function renderOffDetail() {
   var el = document.getElementById('off-detail');
   if (!el) return;
+  var visOff = offRecords.filter(function(r){ return identityCanSeeBranch(r.branch); });
+  if (selOffId && !visOff.find(function(r){ return r.id === selOffId; })) {
+    selOffId = visOff.length ? visOff[0].id : null;
+  }
   var rec = offRecords.find(function(r){ return r.id === selOffId; });
   if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">👋</div><div class="lc-empty-msg">Select a departure</div></div>'; return; }
   var tasks = offTaskSet(rec);
