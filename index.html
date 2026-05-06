@@ -133,11 +133,11 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 
 /* ── RECRUITING WORKSPACE ── */
 .rh-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-.rh-stat{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 13px}
+.rh-stat{background:var(--white);border:2.5px solid var(--mb);border-radius:10px;padding:10px 13px}
 .rh-stat-lbl{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:3px}
 .rh-stat-val{font-size:26.4px;font-weight:800;color:var(--fb);line-height:1}
 .rh-stat-sub{font-size:14px;color:var(--muted);margin-top:2px}
-.rh-layout{display:grid;grid-template-columns:260px 1fr;gap:12px}
+.rh-layout{display:grid;grid-template-columns:1fr 3fr;gap:12px}
 .rh-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .rh-sidebar-hdr{padding:9px 13px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center;justify-content:space-between}
 .rh-sidebar-title{font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mb)}
@@ -1138,16 +1138,16 @@ function renderList(){
     var typeChip = h.hireType==='backfill'
       ? '<span class="chip chip-amber" style="font-size:9.6px;padding:1px 5px">Backfill</span>'
       : '<span class="chip chip-mb" style="font-size:9.6px;padding:1px 5px">Net New</span>';
-    var ftChip = h.ftpt==='Part-Time'?'<span class="chip chip-ghost" style="font-size:9.6px;padding:1px 5px">PT</span>':'<span class="chip chip-ghost" style="font-size:9.6px;padding:1px 5px">FT</span>';
+    var ftLabel = h.ftpt==='Part-Time' ? 'PT' : 'FT';
     var dot = action?'<span style="width:7px;height:7px;background:var(--orange);border-radius:50%;display:inline-block;margin-left:4px;vertical-align:middle"></span>':'';
     d.innerHTML=
-      '<div class="hire-name">'+h.role+dot+'</div>'+
+      '<div class="hire-name">'+h.role+' <span style="color:var(--muted);font-weight:700">| '+ftLabel+'</span>'+dot+'</div>'+
       '<div class="hire-role">'+h.branch+' &middot; '+hmName+'</div>'+
       candidateLine+
       '<div class="hire-prog-row" style="margin-top:5px">'+
         '<div class="hire-prog-wrap"><div class="hire-prog-fill" style="width:'+pct+'%"></div></div>'+
         '<span class="hire-prog-pct">'+pct+'%</span>'+
-        typeChip+ftChip+
+        typeChip+
         '<span class="chip '+stg.cls+'" style="font-size:9.6px;padding:1px 5px">'+stg.label+'</span>'+
       '</div>';
     d.onclick=(function(hid){return function(){selId=hid;renderList();renderDetail();};})(h.id);
