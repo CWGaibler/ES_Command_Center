@@ -934,13 +934,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div id="backfill-row" style="display:none;margin-bottom:12px">
       <div class="ml" style="margin-bottom:3px">Backfilling For <span style="color:var(--orange)">*</span></div>
       <select class="mi" id="m-backfill" style="width:100%">
-        <option value="">Select departed employee...</option>
-        <option>Alex Thompson (ES Rep, Las Vegas)</option>
-        <option>Maria Gonzalez (ES Supervisor, Chicago)</option>
-        <option>James Wilson (ES Rep, Dallas)</option>
-        <option>Sarah Kim (ES Manager, Atlanta)</option>
-        <option>Derek Johnson (ES Rep, Houston)</option>
-        <option>Priya Patel (ES Supervisor, Boston)</option>
+        <option value="">Select branch first, then choose departed employee...</option>
       </select>
     </div>
 
@@ -963,7 +957,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       </div>
       <div class="mf">
         <div class="ml">Branch / Team <span style="color:var(--orange)">*</span></div>
-        <select class="mi" id="m-branch">
+        <select class="mi" id="m-branch" onchange="onModalBranchChange()">
           <option value="">Select branch / team...</option>
           <option>Anaheim</option><option>Atlanta</option><option>Boston</option>
           <option>Chicago</option><option>Dallas</option><option>Denver</option>
@@ -1068,9 +1062,11 @@ var HIRING_MANAGERS = [
 ];
 
 var DEPARTED_EMPLOYEES = [
-  'Alex Thompson (ES Rep, Las Vegas)','Maria Gonzalez (ES Supervisor, Chicago)',
-  'James Wilson (ES Rep, Dallas)','Sarah Kim (ES Manager, Atlanta)',
-  'Derek Johnson (ES Rep, Houston)','Priya Patel (ES Supervisor, Boston)'
+  {name:'Nick Addesso',    role:'ES Specialist',   branch:'Las Vegas'},
+  {name:'Taylor Fox',      role:'ES Specialist',   branch:'Las Vegas'},
+  {name:'Julie Sales',     role:'ES Specialist',   branch:'Dallas'},
+  {name:'Katya Castellanos',role:'ES Supervisor',  branch:'Atlanta'},
+  {name:'Lindsey Moritz',  role:'ES Specialist',   branch:'Boston'},
 ];
 
 function setScope(scope, el) {
@@ -1827,8 +1823,77 @@ function setHireType(type) {
   document.getElementById('btn-newnew').classList.toggle('active', type === 'new');
   document.getElementById('btn-backfill').classList.toggle('active', type === 'backfill');
   document.getElementById('backfill-row').style.display = type === 'backfill' ? 'block' : 'none';
+  if (type === 'backfill') onModalBranchChange(); // refresh backfill list for current branch
 }
 
+
+var BRANCH_TO_HM = {
+  'Anaheim':          ['Joanne Peau','Nicole Hanna','Leslie Davis'],
+  'Atlanta':          ['Anne Wolkenhauer','Tricia Orme','Lisette Bergeron'],
+  'Boston':           ['Laura Ewell','Maud Langlois'],
+  'Chicago':          ['Mary Ligammari','Ellen Crowley'],
+  'Dallas':           ['Tiffany Jarrett','Lubi Garza'],
+  'Denver':           ['T Lam','Leslie Davis'],
+  'Des Moines':       ['Ellen Crowley'],
+  'Houston':          ['Joan Davis','Lubi Garza'],
+  'Las Vegas':        ['Chenille Book','Emily Dodd','Jessica Montoro','Lisa Park','Cory Marin','Ellen Crowley'],
+  'Nashville':        ['Tricia Orme','Lisette Bergeron'],
+  'New Orleans':      ['Regina Serigne','Jose Medina','Lisette Bergeron'],
+  'New York':         ['Gina Alberto','Maud Langlois'],
+  'Orlando':          ['Lymari Colon','Jose Medina','Lisette Bergeron'],
+  'Reno':             ['T Lam','Leslie Davis'],
+  'San Antonio':      ['Lubi Garza'],
+  'San Francisco':    ['Niall McCarthy','Leslie Davis'],
+  'Toronto':          ['Maud Langlois'],
+  'Washington D.C.':  ['Cassandra Karns','Maud Langlois'],
+  'High-Touch Accounts': ['Craig Gaibler','Nesana Wieger'],
+  'Off-Site':         ['Jennifer Pearson','Jennifer Vaughan','Elaine Yesh','Courtney Gonzalez','Michelle Bogdan'],
+};
+
+function onModalBranchChange() {
+  var branch = document.getElementById('m-branch').value;
+  var hmSel  = document.getElementById('m-hm');
+  var bfSel  = document.getElementById('m-backfill');
+
+  // ── Filter Hiring Manager dropdown ──
+  var allowed = branch && BRANCH_TO_HM[branch] ? BRANCH_TO_HM[branch] : null;
+  var hmOpts = '<option value="">Select hiring manager...</option>';
+  var allHMs = ['Anne Wolkenhauer','Cassandra Karns','Chenille Book','Cory Marin',
+    'Courtney Gonzalez','Craig Gaibler','Ellen Crowley','Emily Dodd',
+    'Erica Cochran','Gina Alberto','Jennifer Pearson','Jennifer Vaughan',
+    'Jessica Montoro','Joan Davis','Joanne Peau','Jose Medina',
+    'Laura Ewell','Leslie Davis','Lisa Park','Lisette Bergeron',
+    'Lubi Garza','Lymari Colon','Mary Ligammari','Maud Langlois',
+    'Michelle Bogdan','Nesana Wieger','Niall McCarthy','Nicole Hanna',
+    'Regina Serigne','T Lam','Tiffany Jarrett','Tricia Orme'];
+  allHMs.forEach(function(name) {
+    if (!allowed || allowed.indexOf(name) >= 0) {
+      hmOpts += '<option>'+name+'</option>';
+    }
+  });
+  hmSel.innerHTML = hmOpts;
+  hmSel.value = '';
+
+  // ── Filter Backfill dropdown (if visible) ──
+  if (bfSel) {
+    var bfOpts = '<option value="">Select departed employee...</option>';
+    // Departed employees from permanent list, filtered by branch
+    DEPARTED_EMPLOYEES.forEach(function(dep) {
+      if (!branch || dep.branch === branch) {
+        bfOpts += '<option value="'+dep.name+'">'+dep.name+' ('+dep.role+', '+dep.branch+')</option>';
+      }
+    });
+    // Also include any closed offboarding records for this branch
+    offRecords.forEach(function(rec) {
+      if (rec.closed && (!branch || rec.branch === branch)) {
+        var label = rec.firstName+' '+rec.lastName+' ('+rec.role+', '+rec.branch+')';
+        bfOpts += '<option>'+label+'</option>';
+      }
+    });
+    bfSel.innerHTML = bfOpts;
+    bfSel.value = '';
+  }
+}
 function openModal(){
   currentHireType = 'new';
   document.getElementById('btn-newnew').classList.add('active');
@@ -1839,6 +1904,7 @@ function openModal(){
   });
   document.getElementById('modal-bg').classList.add('open');
   document.getElementById('m-role').focus();
+  onModalBranchChange();
 }
 function closeModal(){
   document.getElementById('modal-bg').classList.remove('open');
