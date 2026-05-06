@@ -2217,7 +2217,7 @@ function renderActiveEvents() {
     var isNext = s.freemanPlatform === 'Freeman Next';
     var platformChip = isNext
       ? '<span class="chip chip-mb">Freeman Next</span>'
-      : '<span class="chip chip-ghost" style="color:var(--muted)">Freeman Now</span>';
+      : '<span class="chip" style="background:#E2E5EF;color:#555E7A;border-color:#C5CADB;font-weight:700">Freeman Now</span>';
     var moveInLabel = 'Move-in ' + fmtDate(s.moveInStart);
     var clearLabel  = 'Clear ' + fmtDate(s.clearDate);
     return '<div class="event-card" onclick="goToShow(\''+s.id+'\');" style="cursor:pointer">' +
