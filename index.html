@@ -512,7 +512,21 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 #identity-select option { background: #001F5F; color: #fff; }
 #identity-select optgroup { background: #001F5F; color: rgba(255,255,255,.5); font-style:normal; font-size:12px; }
 
-/* v6-fix cache-bust: 1999000001 */
+
+/* ── COMPLETION / HANDOFF BARS ── */
+.lc-complete-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#EAFAF0;border-top:2px solid rgba(66,187,55,.3);flex-wrap:wrap}
+.lc-complete-bar.blocked{background:var(--fb-xlt);border-top-color:var(--border-lt)}
+.lc-complete-msg{font-size:13.5px;font-weight:700;color:var(--fb);flex:1;line-height:1.4}
+.lc-complete-msg .sub{font-size:13px;font-weight:400;color:var(--muted);margin-top:2px}
+.btn-close-record{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:800;padding:6px 16px;border-radius:999px;border:none;background:var(--green);color:#fff;cursor:pointer;white-space:nowrap}
+.btn-close-record:hover{opacity:.85}
+.rh-handoff-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#EAFAF0;border-top:2px solid rgba(66,187,55,.3);flex-wrap:wrap}
+.rh-handoff-msg{font-size:13.5px;font-weight:700;color:var(--fb);flex:1;line-height:1.4}
+.rh-handoff-msg .sub{font-size:13px;font-weight:400;color:var(--muted);margin-top:2px}
+.btn-to-onboarding{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:800;padding:6px 16px;border-radius:999px;border:none;background:var(--mb);color:#fff;cursor:pointer;white-space:nowrap}
+.btn-to-onboarding:hover{opacity:.85}
+
+/* v6-fix cache-bust: 2111000001 */
 </style>
 </head>
 <body>
@@ -1305,7 +1319,7 @@ var hires = [
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
    phoneStipend: false,
-   stage:'approved-not-posted', checked:[], open:{}},
+   stage:'approved-not-posted', checked:[], open:{}, closed:false, closed:false},
   {id:'h2', role:'ES Specialist', ftpt:'Full-Time', branch:'Las Vegas',
    hiringManagerFirst:'Chenille', hiringManagerLast:'Book',
    hiringManager:'Chenille Book',
@@ -1316,7 +1330,7 @@ var hires = [
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
    phoneStipend: false,
-   stage:'approved-not-posted', checked:[], open:{}},
+   stage:'approved-not-posted', checked:[], open:{}, closed:false, closed:false},
   {id:'h3', role:'ES Specialist', ftpt:'Part-Time', branch:'San Francisco',
    hiringManagerFirst:'Niall', hiringManagerLast:'McCarthy',
    hiringManager:'Niall McCarthy',
@@ -1327,7 +1341,7 @@ var hires = [
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
    phoneStipend: false,
-   stage:'approved-not-posted', checked:[], open:{}},
+   stage:'approved-not-posted', checked:[], open:{}, closed:false, closed:false},
   {id:'h4', role:'ES Specialist', ftpt:'Part-Time', branch:'San Antonio',
    hiringManagerFirst:'Joan', hiringManagerLast:'Davis',
    hiringManager:'Joan Davis',
@@ -1338,7 +1352,7 @@ var hires = [
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
    phoneStipend: false,
-   stage:'approved-not-posted', checked:[], open:{}},
+   stage:'approved-not-posted', checked:[], open:{}, closed:false, closed:false},
   {id:'h5', role:'ES Sr. Specialist', ftpt:'Full-Time', branch:'Off-site',
    hiringManagerFirst:'Jennifer', hiringManagerLast:'Pearson',
    hiringManager:'Jennifer Pearson',
@@ -1349,7 +1363,7 @@ var hires = [
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
    phoneStipend: false,
-   stage:'approved-not-posted', checked:[], open:{}}
+   stage:'approved-not-posted', checked:[], open:{}, closed:false}
 ];
 var selId = 'h1';
 var rhReady = false;
@@ -1672,7 +1686,34 @@ function renderDetail(){
     '</div>';
   }
 
-  panel.innerHTML = '<div style="overflow-y:auto;max-height:calc(100vh - 220px);padding-right:2px">'+posHtml+approvalBarHtml+clHtml+'</div>';
+  pan
+  // Build completion / handoff bar
+  var handoffBar = '';
+  if (h.closed) {
+    handoffBar = '<div class="rh-handoff-bar"><div class="rh-handoff-msg">&#10003; Record closed &mdash; candidate moved to Onboarding.</div></div>';
+  } else {
+    var canHandoff = rhIsOfferAccepted(h) && rhAllTasksDone(h);
+    if (canHandoff) {
+      var candidateName = (h.firstName && h.lastName) ? h.firstName + ' ' + h.lastName : 'this candidate';
+      handoffBar = '<div class="rh-handoff-bar">' +
+        '<div class="rh-handoff-msg">Offer accepted &amp; all HM tasks complete.' +
+        '<div class="sub">Move ' + candidateName + ' to Onboarding to generate their onboarding checklist.</div></div>' +
+        '<button class="btn-to-onboarding" onclick="rhMoveToOnboarding(\'' + h.id + '\')">Move to Onboarding &rarr;</button>' +
+        '</div>';
+    } else if (h.stage === 'offer' || h.stage === 'complete' || (h.firstName && h.lastName)) {
+      var missingRH = [];
+      if (!h.firstName || !h.lastName) missingRH.push('enter candidate name');
+      if (!h.confirmedStart) missingRH.push('confirm start date');
+      if (!rhAllTasksDone(h)) missingRH.push('complete all HM tasks');
+      if (missingRH.length) {
+        handoffBar = '<div class="rh-handoff-bar" style="background:var(--fb-xlt);border-top-color:var(--border-lt)">' +
+          '<div class="rh-handoff-msg" style="color:var(--muted)">Almost ready for Onboarding &mdash; still need to: ' + missingRH.join(', ') + '.</div>' +
+          '</div>';
+      }
+    }
+  }
+
+  el.innerHTML = '<div style="overflow-y:auto;max-height:calc(100vh - 220px);padding-right:2px">'+posHtml+approvalBarHtml+clHtml+'</div>';
 
     // Attach phase toggle listeners
   panel.querySelectorAll('.phase-hdr').forEach(function(hdr){
@@ -1702,7 +1743,7 @@ function renderDetail(){
     };
   });
 
-  updateStats();
+  updateStats()+handoffBar;
 }
 
 function resubmit(hireId) {
@@ -1744,6 +1785,35 @@ function updateRecruitingSubtitle() {
   if (el) el.textContent = 'Active candidate pipelines — ' + getRecruitingScopeLabel();
 }
 
+
+function rhAllTasksDone(h) {
+  var hmTasks = TASKS.filter(function(t){ return t.owner === 'Hiring Manager'; });
+  return hmTasks.every(function(t){ return h.checked.indexOf(t.id) >= 0; });
+}
+function rhIsOfferAccepted(h) {
+  return (h.firstName && h.lastName && h.confirmedStart) || h.stage === 'complete';
+}
+function rhMoveToOnboarding(hireId) {
+  var h = hires.find(function(x){ return x.id === hireId; }); if (!h) return;
+  h.closed = true;
+  var newOb = {
+    id: 'ob-r' + Date.now(),
+    firstName: h.firstName || '', lastName: h.lastName || '',
+    role: h.role, branch: h.branch, ftpt: h.ftpt, hiringManager: h.hiringManager,
+    startDate: h.confirmedStart || h.proposedStart || 'TBD',
+    netDate: h.confirmedNet || h.proposedNet || 'TBD',
+    phase: 'Before Start Date', checked: {}, backfillDecision: null, closed: false
+  };
+  obRecords.unshift(newOb);
+  setTimeout(function() {
+    hires = hires.filter(function(x){ return x.id !== hireId; });
+    selId = hires.length ? hires[0].id : null;
+    renderList(); renderDetail(); updateStats();
+    var obPage = document.getElementById('page-onboarding');
+    if (obPage && obPage.classList.contains('active')) initOnboarding();
+  }, 600);
+  renderList(); renderDetail(); updateStats();
+}
 function initRecruiting(){
   if(!rhReady) rhReady=true;
   updateRecruitingSubtitle();
@@ -3045,13 +3115,13 @@ var OB_TASKS = [
 var obRecords = [
   {id:'ob-r1', firstName:'Marcus', lastName:'Thompson', role:'ES Specialist', branch:'Las Vegas', ftpt:'Full-Time',
    hiringManager:'Chenille Book', startDate:'2026-05-19', netDate:'2026-05-19',
-   phase:'Before Start Date', checked:{}, backfillDecision:null},
+   phase:'Before Start Date', checked:{}, backfillDecision:null, closed:false},
   {id:'ob-r2', firstName:'Priya', lastName:'Nair', role:'ES Event Experience Supervisor', branch:'Dallas', ftpt:'Full-Time',
    hiringManager:'Tiffany Jarrett', startDate:'2026-05-12', netDate:'2026-05-12',
-   phase:'First Week', checked:{}, backfillDecision:null},
+   phase:'First Week', checked:{}, backfillDecision:null, closed:false},
   {id:'ob-r3', firstName:'DeShawn', lastName:'Williams', role:'ES Sr. Specialist', branch:'Orlando', ftpt:'Full-Time',
    hiringManager:'Lymari Colon', startDate:'2026-04-28', netDate:'2026-04-28',
-   phase:'During NET', checked:{ob1:true,ob2:true,ob3:true,ob4:true,ob5:true,ob6:true,ob7:true,ob8:true,ob9:true,ob10:true,ob11:true,ob12:true,ob13:true,ob14:true,ob15:true,ob16:true,ob17:true,ob18:true,ob19:true,ob20:true,ob21:true,ob22:true,ob23:true,ob24:true,ob25:true,ob26:true}, backfillDecision:null},
+   phase:'During NET', checked:{ob1:true,ob2:true,ob3:true,ob4:true,ob5:true,ob6:true,ob7:true,ob8:true,ob9:true,ob10:true,ob11:true,ob12:true,ob13:true,ob14:true,ob15:true,ob16:true,ob17:true,ob18:true,ob19:true,ob20:true,ob21:true,ob22:true,ob23:true,ob24:true,ob25:true,ob26:true}, backfillDecision:null, closed:false},
 ];
 selObId = 'ob-r1';
 
@@ -3165,6 +3235,22 @@ function renderObDetail() {
     '</div>';
   }).join('');
   var viewNote = (LC_VIEW.ob === 'rd' || LC_VIEW.ob === 'es') ? '<div style="padding:8px 16px;background:#FFF5D6;border-bottom:1px solid rgba(255,181,0,.2);font-size:13px;color:#7A5C00"><strong>View-only mode:</strong> Tasks can only be checked off by their responsible owner.</div>' : '';
+  
+  var obAllDone = prog.done === prog.total;
+  var obCloseBar;
+  if (rec.closed) {
+    obCloseBar = '<div class="lc-complete-bar"><div class="lc-complete-msg">&#10003; Onboarding complete &mdash; employee is fully onboarded.</div></div>';
+  } else if (obAllDone) {
+    obCloseBar = '<div class="lc-complete-bar"><div class="lc-complete-msg">All ' +
+      'onboarding tasks complete! <div class="sub">Close this record to mark ' +
+      rec.firstName + ' as fully onboarded.</div></div>' +
+      '<button class="btn-close-record" onclick="obCloseRecord(\'' + rec.id + '\')">Mark Complete &#10003;</button></div>';
+  } else {
+    obCloseBar = '<div class="lc-complete-bar blocked"><div class="lc-complete-msg" style="color:var(--muted)">' +
+      (prog.total - prog.done) + ' task' + (prog.total - prog.done !== 1 ? 's' : '') +
+      ' remaining before onboarding can be closed.</div></div>';
+  }
+
   el.innerHTML = '<div class="lc-det-hdr">' +
     '<div><div class="lc-det-name">'+rec.firstName+' '+rec.lastName+'</div>' +
     '<div class="lc-det-sub">'+rec.role+' &middot; '+rec.branch+' &middot; '+rec.ftpt+' &middot; HM: '+rec.hiringManager+'</div>' +
@@ -3173,9 +3259,20 @@ function renderObDetail() {
     '<div class="lc-det-prog-lbl">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div></div>' +
     '<div><span class="chip chip-mb">Onboarding</span></div>' +
   '</div>' + viewNote +
-  '<div class="lc-det-scroll">'+phaseSections+'</div>';
+  '<div class="lc-det-scroll">'+phaseSections+'</div>'+obCloseBar;
 }
 
+
+function obCloseRecord(recId) {
+  var rec = obRecords.find(function(r){ return r.id === recId; }); if (!rec) return;
+  rec.closed = true;
+  setTimeout(function() {
+    obRecords = obRecords.filter(function(r){ return r.id !== recId; });
+    selObId = obRecords.length ? obRecords[0].id : null;
+    updateObStats(); renderObList(); renderObDetail();
+  }, 600);
+  updateObStats(); renderObList(); renderObDetail();
+}
 function initOnboarding() {
   updateObStats();
   renderObList();
@@ -3215,7 +3312,7 @@ var TR_TASKS_PROMOTION = [
 var trRecords = [
   {id:'tr-r1', firstName:'Aaliyah', lastName:'Foster', role:'ES Specialist', branch:'New York', ftpt:'Full-Time',
    hiringManager:'Gina Alberto', transitionType:'promotion', newRole:'ES Sr. Specialist',
-   checked:{}, backfillDecision:null},
+   checked:{}, backfillDecision:null, closed:false},
 ];
 selTrId = 'tr-r1';
 
@@ -3318,6 +3415,27 @@ function renderTrDetail() {
       backfillBar = '<div class="lc-handoff-bar" style="background:#F2F4F8;border-color:var(--border)"><div class="lc-handoff-msg" style="color:var(--muted)">🚫 Marked as RIF / No Backfill — position will not be posted</div></div>';
     }
   }
+  
+  var trAllDone = prog.done === prog.total;
+  var trCanClose = trAllDone && (rec.transitionType === 'promotion' || !!rec.backfillDecision);
+  var trCloseBar;
+  if (rec.closed) {
+    trCloseBar = '<div class="lc-complete-bar"><div class="lc-complete-msg">&#10003; Transition complete &mdash; record closed.</div></div>';
+  } else if (trCanClose) {
+    var trCloseLbl = rec.transitionType === 'transfer' && rec.backfillDecision === 'backfill'
+      ? 'Close record &amp; create Recruiting position' : 'Close Record &#10003;';
+    trCloseBar = '<div class="lc-complete-bar"><div class="lc-complete-msg">All tasks complete' +
+      (rec.backfillDecision ? ' &amp; backfill decision recorded' : '') +
+      '.<div class="sub">Close this record to finalize the transition.</div></div>' +
+      '<button class="btn-close-record" onclick="trCloseRecord(\'' + rec.id + '\')">' + trCloseLbl + '</button></div>';
+  } else {
+    var missingTr = [];
+    if (!trAllDone) missingTr.push('complete all tasks');
+    if (rec.transitionType === 'transfer' && !rec.backfillDecision) missingTr.push('make a backfill decision');
+    trCloseBar = '<div class="lc-complete-bar blocked"><div class="lc-complete-msg" style="color:var(--muted)">To close: ' +
+      missingTr.join(' and ') + '.</div></div>';
+  }
+
   el.innerHTML = '<div class="lc-det-hdr">' +
     '<div><div class="lc-det-name">'+rec.firstName+' '+rec.lastName+'</div>' +
     '<div class="lc-det-sub">'+rec.role+(rec.newRole?' → '+rec.newRole:'')+' &middot; '+rec.branch+' &middot; HM: '+rec.hiringManager+'</div>' +
@@ -3326,9 +3444,34 @@ function renderTrDetail() {
     '<div>'+typeChip+'</div>' +
   '</div>' +
   '<div class="lc-det-scroll"><div class="phase-sec">'+taskHtml+'</div></div>' +
-  backfillBar;
+  backfillBar+trCloseBar;
 }
 
+
+function trCloseRecord(recId) {
+  var rec = trRecords.find(function(r){ return r.id === recId; }); if (!rec) return;
+  if (rec.transitionType === 'transfer' && rec.backfillDecision === 'backfill') {
+    hires.unshift({
+      id: 'h' + Date.now(), role: rec.role, ftpt: rec.ftpt, branch: rec.branch,
+      hiringManager: rec.hiringManager,
+      hiringManagerFirst: rec.hiringManager.split(' ')[0],
+      hiringManagerLast: rec.hiringManager.split(' ').slice(1).join(' '),
+      hireType: 'backfill', backfillFor: rec.firstName + ' ' + rec.lastName,
+      backfillForFirst: rec.firstName, backfillForLast: rec.lastName,
+      whyBackfill: 'Internal Transfer', proposedStart: '', proposedNet: '',
+      reqNum: '', hrRecruiter: '', firstName: '', lastName: '',
+      confirmedStart: '', confirmedNet: '', rejectionNote: '',
+      phoneStipend: false, stage: 'requisition', checked: [], open: {}, closed: false
+    });
+  }
+  rec.closed = true;
+  setTimeout(function() {
+    trRecords = trRecords.filter(function(r){ return r.id !== recId; });
+    selTrId = trRecords.length ? trRecords[0].id : null;
+    updateTrStats(); renderTrList(); renderTrDetail();
+  }, 600);
+  updateTrStats(); renderTrList(); renderTrDetail();
+}
 function initTransitions() { updateTrStats(); renderTrList(); renderTrDetail(); }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -3477,6 +3620,26 @@ function renderOffDetail() {
   } else {
     backfillBar = '<div class="lc-handoff-bar" style="background:#F2F4F8;border-color:var(--border)"><div class="lc-handoff-msg" style="color:var(--muted)">🚫 Marked as RIF / No Backfill — position will not be posted</div></div>';
   }
+  
+  var offAllDone = offAllTasksDone(rec);
+  var offCanClose = offAllDone && !!rec.backfillDecision;
+  var offCloseBar;
+  if (rec.closed) {
+    offCloseBar = '<div class="lc-complete-bar"><div class="lc-complete-msg">&#10003; Offboarding complete &mdash; record closed.</div></div>';
+  } else if (offCanClose) {
+    var offCloseLbl = rec.backfillDecision === 'backfill'
+      ? 'Close record &amp; open Recruiting position' : 'Close Record &#10003;';
+    offCloseBar = '<div class="lc-complete-bar"><div class="lc-complete-msg">All tasks complete &amp; backfill decision recorded.' +
+      '<div class="sub">Click to close this record and finalize the departure.</div></div>' +
+      '<button class="btn-close-record" onclick="offCloseRecord(\'' + rec.id + '\')">' + offCloseLbl + '</button></div>';
+  } else {
+    var missingOff = [];
+    if (!offAllDone) missingOff.push('complete all tasks');
+    if (!rec.backfillDecision) missingOff.push('make a backfill decision');
+    offCloseBar = '<div class="lc-complete-bar blocked"><div class="lc-complete-msg" style="color:var(--muted)">To close this record: ' +
+      missingOff.join(' and ') + '.</div></div>';
+  }
+
   el.innerHTML = '<div class="lc-det-hdr">' +
     '<div><div class="lc-det-name">'+rec.firstName+' '+rec.lastName+'</div>' +
     '<div class="lc-det-sub">'+rec.role+' &middot; '+rec.branch+' &middot; '+rec.ftpt+' &middot; HM: '+rec.hiringManager+'</div>' +
@@ -3485,9 +3648,38 @@ function renderOffDetail() {
     '<div>'+typeChip+'</div>' +
   '</div>' +
   '<div class="lc-det-scroll"><div class="phase-sec">'+taskHtml+'</div></div>' +
-  backfillBar;
+  backfillBar+offCloseBar;
 }
 
+
+function offAllTasksDone(rec) {
+  return offTaskSet(rec).every(function(t){ return rec.checked[t.id]; });
+}
+function offCloseRecord(recId) {
+  var rec = offRecords.find(function(r){ return r.id === recId; }); if (!rec) return;
+  if (rec.backfillDecision === 'backfill') {
+    hires.unshift({
+      id: 'h' + Date.now(), role: rec.role, ftpt: rec.ftpt, branch: rec.branch,
+      hiringManager: rec.hiringManager,
+      hiringManagerFirst: rec.hiringManager.split(' ')[0],
+      hiringManagerLast: rec.hiringManager.split(' ').slice(1).join(' '),
+      hireType: 'backfill', backfillFor: rec.firstName + ' ' + rec.lastName,
+      backfillForFirst: rec.firstName, backfillForLast: rec.lastName,
+      whyBackfill: rec.departureType === 'resignation' ? 'Resignation' : 'Termination',
+      proposedStart: '', proposedNet: '', reqNum: '', hrRecruiter: '',
+      firstName: '', lastName: '', confirmedStart: '', confirmedNet: '',
+      rejectionNote: '', phoneStipend: false,
+      stage: 'requisition', checked: [], open: {}, closed: false
+    });
+  }
+  rec.closed = true;
+  setTimeout(function() {
+    offRecords = offRecords.filter(function(r){ return r.id !== recId; });
+    selOffId = offRecords.length ? offRecords[0].id : null;
+    updateOffStats(); renderOffList(); renderOffDetail();
+  }, 600);
+  updateOffStats(); renderOffList(); renderOffDetail();
+}
 function initOffboarding() { updateOffStats(); renderOffList(); renderOffDetail(); }
 
 function lcNewRecord(ws) {
