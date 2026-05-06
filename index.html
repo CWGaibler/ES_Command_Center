@@ -587,13 +587,13 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         </div>
       </div>
       <div class="panel">
-        <div class="panel-hdr gold"><div class="panel-title">Needs Attention</div></div>
+        <div class="panel-hdr"><div class="panel-title">Needs Attention</div></div>
         <div class="panel-body" id="needs-attention-body">
           <!-- Populated by renderNeedsAttention() -->
         </div>
       </div>
       <div class="panel">
-        <div class="panel-hdr orange"><div class="panel-title">Customer Resolution</div></div>
+        <div class="panel-hdr"><div class="panel-title">Customer Resolution</div></div>
         <div class="panel-body">
           <div class="event-card">
             <div class="event-name">BBB Complaint — Booth 4412</div>
@@ -2404,17 +2404,38 @@ function kpiFmt(kpi, val) {
 }
 
 function kpiStatus(kpi, val) {
-  // Returns 'ok' or 'red'
+  // Returns 'above', 'meets', or 'below'
+  var MEETS_THRESHOLD = 0.005; // within 0.5% = "Meets"
   if (kpi.higherBetter) {
-    return (val >= kpi.goalNum) ? 'ok' : 'red';
+    var diff = (val - kpi.goalNum) / kpi.goalNum;
+    if (diff > MEETS_THRESHOLD) return 'above';
+    if (diff >= -MEETS_THRESHOLD) return 'meets';
+    return 'below';
   } else {
-    return (val <= kpi.goalNum) ? 'ok' : 'red';
+    var diff2 = (kpi.goalNum - val) / kpi.goalNum;
+    if (diff2 > MEETS_THRESHOLD) return 'above';
+    if (diff2 >= -MEETS_THRESHOLD) return 'meets';
+    return 'below';
   }
 }
 
 function kpiColor(status) {
-  if (status === 'red') return 'var(--mb)';
-  return 'var(--fb)';
+  return 'var(--fb)'; // score always navy
+}
+
+function kpiChipHtml(kpi, status) {
+  var label, bg, color, border;
+  if (status === 'above') {
+    label = 'Goal ' + kpi.goal + ' · Above';
+    bg = '#EAF3DE'; color = '#27500A'; border = '#97C459';
+  } else if (status === 'meets') {
+    label = 'Goal ' + kpi.goal + ' · Meets';
+    bg = '#FAEEDA'; color = '#633806'; border = '#FAC775';
+  } else {
+    label = 'Goal ' + kpi.goal + ' · Below';
+    bg = '#FCEBEB'; color = '#A32D2D'; border = '#F09595';
+  }
+  return '<span style="display:inline-block;font-size:10px;font-weight:500;padding:2px 7px;border-radius:999px;background:' + bg + ';color:' + color + ';border:0.5px solid ' + border + '">' + label + '</span>';
 }
 
 function kpiBarPct(kpi, val) {
@@ -2437,7 +2458,7 @@ function renderKpiStrip() {
       '<div class="kpi-lbl">' + kpi.name + '</div>' +
       '<div class="kpi-bottom">' +
         '<div class="kpi-val" style="color:' + color + '">' + kpiFmt(kpi, val) + '</div>' +
-        '<div class="kpi-goal">Goal: ' + kpi.goal + '</div>' +
+        kpiChipHtml(kpi, status) +
       '</div>' +
 
       '</div>';
@@ -2476,10 +2497,10 @@ function renderKpiSidebar() {
     var sel = kpi.id === kpiSelId ? ' kpi-sel' : '';
     html += '<div class="kpi-sidebar-card' + sel + '" onclick="kpiSelId=\'' + kpi.id + '\';renderKpiSidebar();renderKpiDetail();renderKpiStrip()">' +
       '<div class="kscard-name">' + kpi.fullName + '</div>' +
-      '<div class="kscard-row">' +
+      '<div class="kscard-row" style="margin-bottom:5px">' +
         '<div class="kscard-val" style="color:' + color + '">' + kpiFmt(kpi, val) + '</div>' +
-        '<div class="kscard-goal">Goal ' + kpi.goal + '</div>' +
       '</div>' +
+      kpiChipHtml(kpi, status) +
       '</div>';
   });
   el.innerHTML = html;
