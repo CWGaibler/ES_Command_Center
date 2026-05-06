@@ -137,7 +137,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .rh-stat-lbl{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:3px}
 .rh-stat-val{font-size:26.4px;font-weight:800;color:var(--fb);line-height:1}
 .rh-stat-sub{font-size:14px;color:var(--muted);margin-top:2px}
-.rh-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:12px}
+.rh-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px}
 .rh-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .rh-sidebar-hdr{padding:9px 13px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center;justify-content:space-between}
 .rh-sidebar-title{font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mb)}
@@ -614,7 +614,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="page" id="page-recruiting">
     <div class="page-hdr">
       <span class="page-title">Recruiting & Hiring</span>
-      <span class="page-sub">Active candidate pipelines — Southwest Region</span>
+      <span class="page-sub" id="recruiting-sub">Active candidate pipelines — Enterprise</span>
     </div>
     <div class="rh-stats">
       <div class="rh-stat"><div class="rh-stat-lbl">Open Requisitions</div><div class="rh-stat-val" id="stat-open">1</div><div class="rh-stat-sub">Pending or posted</div></div>
@@ -892,7 +892,7 @@ function onScopeChanged() {
   }
   var recruitingPage = document.getElementById('page-recruiting');
   if (recruitingPage && recruitingPage.classList.contains('active')) {
-    selId = null; renderList(); renderDetail(); renderNeedsAttention(); return;
+    selId = null; updateRecruitingSubtitle(); renderList(); renderDetail(); renderNeedsAttention(); return;
   }
   var kpiPage = document.getElementById('page-kpis');
   if (kpiPage && kpiPage.classList.contains('active')) {
@@ -1385,8 +1385,26 @@ function updateStats(){
   e=document.getElementById('stat-over'); if(e)e.textContent=ov;
 }
 
+function getRecruitingScopeLabel() {
+  var activePill = document.querySelector('.scope-pill.active');
+  var scope = activePill ? (activePill.getAttribute('data-scope') || 'enterprise') : 'enterprise';
+  var regionEl = document.getElementById('region-select');
+  var branchEl = document.getElementById('branch-select');
+  var region = regionEl ? regionEl.value : '';
+  var branch = branchEl ? branchEl.value : '';
+  if (scope === 'branch' && branch) return branch;
+  if (scope === 'region' && region) return region;
+  return 'Enterprise';
+}
+
+function updateRecruitingSubtitle() {
+  var el = document.getElementById('recruiting-sub');
+  if (el) el.textContent = 'Active candidate pipelines — ' + getRecruitingScopeLabel();
+}
+
 function initRecruiting(){
-  if(!rhReady) rhReady=true; // first-load guard kept for future use but no longer blocks re-render
+  if(!rhReady) rhReady=true;
+  updateRecruitingSubtitle();
   renderList(); renderDetail(); renderNeedsAttention();
 }
 
