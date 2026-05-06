@@ -1832,11 +1832,24 @@ function onScopeChanged() {
     renderNeedsAttention();
     return;
   }
+  if (pid === 'page-recruiting') {
+    // GAP 6 fix: include updateStats so stat tiles refresh with scope change
+    selId = null; updateRecruitingSubtitle(); renderList(); updateStats(); renderDetail(); renderNeedsAttention(); return;
+  }
+  if (pid === 'page-onboarding') {
+    // GAP 3 fix
+    renderObList(); updateObStats(); renderObDetail(); return;
+  }
+  if (pid === 'page-transitions') {
+    // GAP 3 fix
+    renderTrList(); updateTrStats(); renderTrDetail(); return;
+  }
+  if (pid === 'page-offboarding') {
+    // GAP 3 fix
+    renderOffList(); updateOffStats(); renderOffDetail(); return;
+  }
   if (pid === 'page-staffing') {
     ssSelId = null; initStaffing(); return;
-  }
-  if (pid === 'page-recruiting') {
-    selId = null; updateRecruitingSubtitle(); renderList(); renderDetail(); renderNeedsAttention(); return;
   }
   if (pid === 'page-kpis') {
     renderKpiSidebar(); renderKpiDetail(); return;
@@ -3034,13 +3047,18 @@ function initStaffing() {
   // Update subtitle to show scope + date context
   var sub = document.getElementById('staffing-sub');
   if (sub) {
-    var identity = currentIdentity();
     var today = new Date();
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     var dateStr = months[today.getMonth()] + ' ' + today.getDate() + ', ' + today.getFullYear();
-    var scopeLabel = identity.level === 'enterprise' ? 'All regions' :
-                     identity.level === 'region' ? (identity.regions || []).join(' / ') + ' region' :
-                     (identity.branches || []).join(' / ');
+    // GAP 4 fix: read active pill, not identity.level
+    var activePill = document.querySelector('.scope-pill.active');
+    var scope = activePill ? activePill.getAttribute('data-scope') : 'enterprise';
+    var regionEl = document.getElementById('region-select');
+    var branchEl = document.getElementById('branch-select');
+    var scopeLabel = scope === 'enterprise' ? 'All regions' :
+                     scope === 'region'     ? (regionEl && regionEl.value ? regionEl.value + ' region' : 'All regions') :
+                     scope === 'branch'     ? (branchEl && branchEl.value ? branchEl.value : 'All branches') :
+                     'All regions';
     sub.textContent = 'Active shows as of ' + dateStr + '  —  ' + scopeLabel;
   }
   renderSsStats();
