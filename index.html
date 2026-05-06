@@ -58,7 +58,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-card:hover{box-shadow:0 4px 16px rgba(0,31,95,.10);transform:translateY(-1px)}
 .kpi-card.kpi-active{box-shadow:0 0 0 2px var(--mb);border-top-color:var(--mb)}
 .kpi-lbl{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);line-height:1.35;white-space:normal;word-break:break-word}
-.kpi-bottom{display:flex;flex-direction:column;gap:3px}
+.kpi-bottom{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
 .kpi-val{font-size:46px;font-weight:900;line-height:1;text-align:left}
 .kpi-goal{font-size:13px;color:var(--muted);font-weight:600}
 .kpi-status-bar{display:none}
@@ -2435,7 +2435,7 @@ function kpiChipHtml(kpi, status) {
     label = 'Goal ' + kpi.goal + ' · Below';
     bg = '#FCEBEB'; color = '#A32D2D'; border = '#F09595';
   }
-  return '<span style="display:inline-block;font-size:10px;font-weight:500;padding:2px 7px;border-radius:999px;background:' + bg + ';color:' + color + ';border:0.5px solid ' + border + '">' + label + '</span>';
+  return '<span style="display:inline-block;font-size:12px;font-weight:500;padding:2px 8px;border-radius:999px;background:' + bg + ';color:' + color + ';border:0.5px solid ' + border + '">' + label + '</span>';
 }
 
 function kpiBarPct(kpi, val) {
