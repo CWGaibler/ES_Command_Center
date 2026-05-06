@@ -54,7 +54,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 /* KPI STRIP */
 .kpi-strip{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
 .kpi-strip::-webkit-scrollbar{height:4px}.kpi-strip::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:14px 13px;border-top:3px solid var(--border);cursor:pointer;transition:box-shadow .15s,transform .1s;flex:0 0 calc(11.11% - 7px);min-width:110px;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:space-between;position:relative;box-sizing:border-box}
+.kpi-card{background:var(--white);border:2.5px solid var(--mb);border-radius:14px;padding:14px 13px;cursor:pointer;transition:box-shadow .15s,transform .1s;flex:0 0 calc(11.11% - 7px);min-width:110px;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:space-between;position:relative;box-sizing:border-box}
 .kpi-card:hover{box-shadow:0 4px 16px rgba(0,31,95,.10);transform:translateY(-1px)}
 .kpi-card.kpi-active{box-shadow:0 0 0 2px var(--mb);border-top-color:var(--mb)}
 .kpi-lbl{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);line-height:1.35;white-space:normal;word-break:break-word}
@@ -2289,7 +2289,7 @@ var KPI_DATA = [
   },
   {
     id: 'nps',
-    name: 'Exh. Post-Show NPS',
+    name: 'Exhibitor Post-Show NPS',
     fullName: 'Post-Show Exhibitor Net Promoter Score (NPS)',
     def: "Net Promoter Score derived from: 'Based on your recent experience with Freeman, how likely are you to recommend Freeman's products and services to your colleagues?'",
     goal: '+20', goalNum: 20, unit: '', prefix: '+', higherBetter: true,
@@ -2454,7 +2454,7 @@ function renderKpiStrip() {
     var color = kpiColor(status);
     var barPct = kpiBarPct(kpi, val);
     var isActive = kpi.id === kpiSelId ? ' kpi-active' : '';
-    html += '<div class="kpi-card' + isActive + '" onclick="kpiCardClick(\'' + kpi.id + '\')" style="border-top-color:var(--mb)">' +
+    html += '<div class="kpi-card' + isActive + '" onclick="kpiCardClick(\'' + kpi.id + '\')">' +
       '<div class="kpi-lbl">' + kpi.name + '</div>' +
       '<div class="kpi-bottom">' +
         '<div class="kpi-val" style="color:' + color + '">' + kpiFmt(kpi, val) + '</div>' +
