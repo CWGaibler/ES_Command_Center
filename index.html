@@ -1820,19 +1820,25 @@ function onScopeDropdownChange() {
 }
 
 function onScopeChanged() {
-  // Always re-render KPI strip (it's on Today's Priorities which is always visible)
+  // Always re-render KPI strip (visible on Today's Priorities)
   renderKpiStrip();
 
-  var staffingPage = document.getElementById('page-staffing');
-  if (staffingPage && staffingPage.classList.contains('active')) {
+  var activePage = document.querySelector('.page.active');
+  if (!activePage) return;
+  var pid = activePage.id;
+
+  if (pid === 'page-today') {
+    renderActiveEvents();
+    renderNeedsAttention();
+    return;
+  }
+  if (pid === 'page-staffing') {
     ssSelId = null; initStaffing(); return;
   }
-  var recruitingPage = document.getElementById('page-recruiting');
-  if (recruitingPage && recruitingPage.classList.contains('active')) {
+  if (pid === 'page-recruiting') {
     selId = null; updateRecruitingSubtitle(); renderList(); renderDetail(); renderNeedsAttention(); return;
   }
-  var kpiPage = document.getElementById('page-kpis');
-  if (kpiPage && kpiPage.classList.contains('active')) {
+  if (pid === 'page-kpis') {
     renderKpiSidebar(); renderKpiDetail(); return;
   }
 }
