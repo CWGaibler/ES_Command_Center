@@ -52,11 +52,49 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .page-sub{font-size:14px;color:var(--muted)}
 
 /* KPI STRIP */
-.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
-.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;border-top:3px solid var(--border)}
-.kpi-lbl{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:4px}
-.kpi-val{font-size:31.2px;font-weight:800;line-height:1}
-.kpi-sub{font-size:14px;color:var(--muted);margin-top:3px}
+.kpi-strip{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.kpi-strip::-webkit-scrollbar{height:4px}.kpi-strip::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:11px 13px;border-top:3px solid var(--border);cursor:pointer;transition:box-shadow .15s,transform .1s;flex:0 0 calc(11.11% - 8px);min-width:130px;position:relative}
+.kpi-card:hover{box-shadow:0 4px 16px rgba(0,31,95,.10);transform:translateY(-1px)}
+.kpi-card.kpi-active{box-shadow:0 0 0 2px var(--mb);border-top-color:var(--mb)}
+.kpi-lbl{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi-val{font-size:26px;font-weight:900;line-height:1;margin-bottom:3px}
+.kpi-goal{font-size:11.5px;color:var(--muted);margin-top:2px}
+.kpi-status-bar{height:3px;border-radius:2px;margin-top:7px;background:var(--border)}
+.kpi-status-fill{height:100%;border-radius:2px;transition:width .4s}
+/* KPI Workspace */
+.kpi-workspace{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 140px);gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.kpi-sidebar{border-right:1px solid var(--border);overflow-y:auto;background:var(--surface)}
+.kpi-detail{overflow-y:auto;background:var(--white)}
+.kpi-sidebar-card{padding:14px 16px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .12s}
+.kpi-sidebar-card:hover{background:var(--fb-xlt)}
+.kpi-sidebar-card.kpi-sel{background:var(--fb-lt);border-left:3px solid var(--mb)}
+.kpi-sidebar-card.kpi-sel .kscard-name{color:var(--mb)}
+.kscard-name{font-size:13.5px;font-weight:800;color:var(--fb);margin-bottom:4px}
+.kscard-row{display:flex;align-items:center;justify-content:space-between;margin-top:3px}
+.kscard-val{font-size:20px;font-weight:900;line-height:1}
+.kscard-goal{font-size:12px;color:var(--muted)}
+.kscard-bar{height:3px;background:var(--border);border-radius:2px;margin-top:6px}
+.kscard-fill{height:100%;border-radius:2px}
+/* KPI Detail Panel */
+.kpi-det-hdr{padding:20px 24px 16px;border-bottom:1px solid var(--border-lt)}
+.kpi-det-title{font-size:20px;font-weight:900;color:var(--fb);margin-bottom:3px}
+.kpi-det-def{font-size:13px;color:var(--muted);line-height:1.5;max-width:600px}
+.kpi-det-score-row{display:flex;gap:24px;padding:20px 24px;border-bottom:1px solid var(--border-lt);align-items:flex-start}
+.kpi-det-score-box{text-align:center;padding:16px 24px;border-radius:12px;min-width:120px}
+.kpi-det-score-num{font-size:48px;font-weight:900;line-height:1}
+.kpi-det-score-lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;opacity:.7}
+.kpi-det-meta{flex:1}
+.kpi-det-meta-row{display:flex;gap:6px;margin-bottom:10px;align-items:center}
+.kpi-det-meta-lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);width:110px;flex-shrink:0}
+.kpi-det-meta-val{font-size:13.5px;font-weight:700;color:var(--fb)}
+.kpi-det-section{padding:16px 24px;border-bottom:1px solid var(--border-lt)}
+.kpi-det-section-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:12px}
+.kpi-scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi-scope-tile{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center}
+.kpi-scope-tile-name{font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.kpi-scope-tile-val{font-size:18px;font-weight:900}
+.kpi-coming-soon{padding:20px 24px;background:var(--fb-xlt);border-radius:8px;margin:16px 24px;text-align:center;color:var(--muted);font-size:13px}
 
 /* COCKPIT */
 .cockpit{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
@@ -500,6 +538,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M5 2v2M11 2v2M2 7h12"/></svg></div>
     <span class="nav-label">Events</span>
   </div>
+  <div class="nav-item" onclick="showPage('kpis',this)">
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M2 12l3.5-4 3 3 3-5 2.5 2"/><circle cx="13.5" cy="8" r="0" fill="currentColor"/></svg></div>
+    <span class="nav-label">KPIs</span>
+  </div>
   <div class="nav-item" onclick="showPage('team',this)">
     <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div>
     <span class="nav-label">Team</span>
@@ -519,12 +561,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <span class="page-title">Today's Priorities</span>
       <span class="page-sub" id="today-date"></span>
     </div>
-    <div class="kpi-strip">
-      <div class="kpi-card" style="border-top-color:var(--mb)"><div class="kpi-lbl">Collections MTD</div><div class="kpi-val" style="color:var(--fb)">$2.4M</div><div class="kpi-sub">↑ 8% vs prior month</div></div>
-      <div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-lbl">NPS Post-Show</div><div class="kpi-val" style="color:var(--green)">74</div><div class="kpi-sub">+3 pts vs Q1 avg</div></div>
-      <div class="kpi-card" style="border-top-color:var(--mb)"><div class="kpi-lbl">ES Service Score</div><div class="kpi-val" style="color:var(--fb)">4.6</div><div class="kpi-sub">Out of 5.0</div></div>
-      <div class="kpi-card" style="border-top-color:var(--gold)"><div class="kpi-lbl">SR Health</div><div class="kpi-val" style="color:var(--gold)">91%</div><div class="kpi-sub">Resolved within SLA</div></div>
-      <div class="kpi-card" style="border-top-color:var(--orange)"><div class="kpi-lbl">Closed Loop Cases</div><div class="kpi-val" style="color:var(--orange)">7</div><div class="kpi-sub">3 past due</div></div>
+    <div class="kpi-strip" id="kpi-strip">
+      <!-- Populated by renderKpiStrip() -->
     </div>
     <div class="cockpit">
       <div class="panel">
@@ -631,6 +669,22 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="page" id="page-elevated"><div class="coming-soon"><div class="cs-icon">⭐</div><div class="cs-title">Elevated Service</div><div class="cs-sub">BBB complaint tracking, social media escalations, and response management.</div></div></div>
   <div class="page" id="page-career"><div class="coming-soon"><div class="cs-icon">🚀</div><div class="cs-title">Career Development</div><div class="cs-sub">IDP status, development conversations, and live training completion.</div></div></div>
   <div class="page" id="page-events"><div class="coming-soon"><div class="cs-icon">🗓</div><div class="cs-title">Events Lens</div><div class="cs-sub">ESM task compliance across all active events — SERF, NERF, FOL, show close status.</div></div></div>
+  <div class="page" id="page-kpis">
+    <div class="page-hdr">
+      <span class="page-title">KPI Performance</span>
+      <span class="page-sub">FY26 Year-to-Date Results</span>
+    </div>
+    <div class="kpi-workspace">
+      <div class="kpi-sidebar" id="kpi-sidebar"><!-- rendered by JS --></div>
+      <div class="kpi-detail" id="kpi-detail">
+        <div style="padding:48px;text-align:center;color:var(--muted)">
+          <div style="font-size:32px;margin-bottom:12px">📊</div>
+          <div style="font-size:15px;font-weight:800;color:var(--fb)">Select a KPI to view details</div>
+          <div style="font-size:13px;margin-top:6px">Click any metric on the left to explore year-to-date results, goal tracking, and scope breakdowns.</div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="page" id="page-team"><div class="coming-soon"><div class="cs-icon">👥</div><div class="cs-title">Team Lens</div><div class="cs-sub">Utilization, training status, and performance flags by team member.</div></div></div>
   <div class="page" id="page-compliance"><div class="coming-soon"><div class="cs-icon">✅</div><div class="cs-title">Process Compliance</div><div class="cs-sub">Deadline adherence across all ESM tasks — rolled up by branch, region, and enterprise.</div></div></div>
 
@@ -745,6 +799,7 @@ function showPage(id, el) {
   if (el) el.classList.add('active');
   if (id === 'recruiting') initRecruiting();
   if (id === 'staffing') initStaffing();
+  if (id === 'kpis') initKpis();
 }
 
 var BRANCH_MAP = {
@@ -827,6 +882,9 @@ function onScopeDropdownChange() {
 }
 
 function onScopeChanged() {
+  // Always re-render KPI strip (it's on Today's Priorities which is always visible)
+  renderKpiStrip();
+
   var staffingPage = document.getElementById('page-staffing');
   if (staffingPage && staffingPage.classList.contains('active')) {
     ssSelId = null; initStaffing(); return;
@@ -834,6 +892,10 @@ function onScopeChanged() {
   var recruitingPage = document.getElementById('page-recruiting');
   if (recruitingPage && recruitingPage.classList.contains('active')) {
     selId = null; renderList(); renderDetail(); renderNeedsAttention(); return;
+  }
+  var kpiPage = document.getElementById('page-kpis');
+  if (kpiPage && kpiPage.classList.contains('active')) {
+    renderKpiSidebar(); renderKpiDetail(); return;
   }
 }
 
@@ -2207,10 +2269,326 @@ function unconfirmSs(showId) {
 }
 
 
+
+// ═══════════════════════════════════════════════════════════
+// KPI WORKSPACE
+// ═══════════════════════════════════════════════════════════
+
+var KPI_DATA = [
+  {
+    id: 'css',
+    name: 'ES Customer Service',
+    fullName: 'ES Customer Service Score',
+    def: "The percentage of customers who respond 'excellent' when surveyed: 'How would you rate the customer service provided by Freeman's Exhibitor Service Center / desk staff?'",
+    goal: '60%', goalNum: 60, unit: '%', higherBetter: true,
+    refresh: 'Daily',
+    responsible: 'All ES Teams',
+    enterprise: 58, regions: {'Canada':54,'Las Vegas':61,'North Central':57,'Northeast':59,'NW/SoCal':62,'South Central':56,'Southeast':60},
+    branches: {'Toronto':54,'Las Vegas':61,'Chicago':58,'Des Moines':55,'Boston':60,'New York':57,'Washington D.C.':61,'Anaheim':63,'Denver':60,'Reno':59,'San Francisco':64,'Dallas':55,'Houston':57,'San Antonio':56,'Atlanta':61,'Nashville':59,'New Orleans':58,'Orlando':62}
+  },
+  {
+    id: 'nps',
+    name: 'Post-Show NPS',
+    fullName: 'Post-Show Exhibitor Net Promoter Score (NPS)',
+    def: "Net Promoter Score derived from: 'Based on your recent experience with Freeman, how likely are you to recommend Freeman's products and services to your colleagues?'",
+    goal: '+20', goalNum: 20, unit: '', prefix: '+', higherBetter: true,
+    refresh: 'Daily',
+    responsible: 'All ES Teams',
+    enterprise: 24, regions: {'Canada':18,'Las Vegas':28,'North Central':22,'Northeast':25,'NW/SoCal':27,'South Central':21,'Southeast':23},
+    branches: {'Toronto':18,'Las Vegas':28,'Chicago':22,'Des Moines':20,'Boston':26,'New York':24,'Washington D.C.':25,'Anaheim':28,'Denver':27,'Reno':24,'San Francisco':30,'Dallas':21,'Houston':22,'San Antonio':19,'Atlanta':23,'Nashville':22,'New Orleans':21,'Orlando':25}
+  },
+  {
+    id: 'collections',
+    name: 'Collections',
+    fullName: 'Collections Percentage',
+    def: 'The percentage of exhibitor revenue collected by Exhibitor Services on tradeshow engagements by the 8th business day post-show close.',
+    goal: '96%', goalNum: 96, unit: '%', higherBetter: true,
+    refresh: 'Monthly',
+    responsible: 'All ES Teams',
+    enterprise: 94.2, regions: {'Canada':93,'Las Vegas':95,'North Central':94,'Northeast':96,'NW/SoCal':97,'South Central':93,'Southeast':95},
+    branches: {'Toronto':93,'Las Vegas':95,'Chicago':94,'Des Moines':93,'Boston':97,'New York':96,'Washington D.C.':96,'Anaheim':97,'Denver':96,'Reno':95,'San Francisco':98,'Dallas':93,'Houston':94,'San Antonio':92,'Atlanta':95,'Nashville':94,'New Orleans':93,'Orlando':96}
+  },
+  {
+    id: 'per',
+    name: 'Priority Empty Return',
+    fullName: 'Priority Empty Return Sales',
+    def: 'Revenue associated to the sale of Priority Empty Return labels.',
+    goal: '$6.4M', goalNum: 6400000, unit: '$M', higherBetter: true,
+    refresh: 'Daily',
+    responsible: 'All ES Teams',
+    enterprise: 5800000, regions: {'Canada':180000,'Las Vegas':1200000,'North Central':820000,'Northeast':650000,'NW/SoCal':980000,'South Central':780000,'Southeast':880000},
+    branches: {'Toronto':180000,'Las Vegas':1200000,'Chicago':620000,'Des Moines':200000,'Boston':220000,'New York':250000,'Washington D.C.':180000,'Anaheim':320000,'Denver':260000,'Reno':180000,'San Francisco':220000,'Dallas':310000,'Houston':280000,'San Antonio':190000,'Atlanta':320000,'Nashville':200000,'New Orleans':160000,'Orlando':200000}
+  },
+  {
+    id: 'invoicing',
+    name: 'Invoice Timing',
+    fullName: 'Invoice Timing',
+    def: 'For billing that ES is responsible for, the percentage of events where all billing was invoiced by show close +8 business days.',
+    goal: '95%', goalNum: 95, unit: '%', higherBetter: true,
+    refresh: 'Weekly (Mon 10a)',
+    responsible: 'All ES Teams',
+    enterprise: 96.1, regions: {'Canada':94,'Las Vegas':97,'North Central':96,'Northeast':95,'NW/SoCal':98,'South Central':94,'Southeast':96},
+    branches: {'Toronto':94,'Las Vegas':97,'Chicago':96,'Des Moines':95,'Boston':96,'New York':94,'Washington D.C.':96,'Anaheim':98,'Denver':97,'Reno':96,'San Francisco':99,'Dallas':94,'Houston':95,'San Antonio':93,'Atlanta':96,'Nashville':95,'New Orleans':94,'Orlando':97}
+  },
+  {
+    id: 'feedback',
+    name: 'Post-Show Feedback',
+    fullName: 'ES Post-Show Feedback',
+    def: 'For events supported by Exhibitor Services on-site, the percentage of shows where a post-event feedback survey was completed by Exhibitor Services.',
+    goal: '95%', goalNum: 95, unit: '%', higherBetter: true,
+    refresh: 'Weekly',
+    responsible: 'On-site ES Teams',
+    enterprise: 88, regions: {'Canada':82,'Las Vegas':91,'North Central':88,'Northeast':87,'NW/SoCal':92,'South Central':86,'Southeast':89},
+    branches: {'Toronto':82,'Las Vegas':91,'Chicago':89,'Des Moines':86,'Boston':88,'New York':87,'Washington D.C.':88,'Anaheim':93,'Denver':91,'Reno':90,'San Francisco':94,'Dallas':87,'Houston':86,'San Antonio':85,'Atlanta':90,'Nashville':88,'New Orleans':86,'Orlando':91}
+  },
+  {
+    id: 'emailq',
+    name: 'Email Queue Time',
+    fullName: 'ES Email Queue Time',
+    def: 'For emails sent to ExhibitorServices@freeman.com, the average time it takes a new email to be assigned to a work queue from the time it was received.',
+    goal: '< 24 hrs', goalNum: 24, unit: 'hrs', higherBetter: false,
+    refresh: 'Weekly (Mon morning)',
+    responsible: 'Off-site ES Team',
+    enterprise: 18.4, regions: {'Off-Site':18.4},
+    branches: {'Off-site':18.4}
+  },
+  {
+    id: 'emailh',
+    name: 'Email Handle Time',
+    fullName: 'ES Email Handle Time',
+    def: 'For emails sent to ExhibitorServices@freeman.com, the average time it takes an email to be resolved from the time it was assigned to a work queue.',
+    goal: '< 48 hrs', goalNum: 48, unit: 'hrs', higherBetter: false,
+    refresh: 'Weekly (Mon morning)',
+    responsible: 'Off-site ES Team',
+    enterprise: 31.2, regions: {'Off-Site':31.2},
+    branches: {'Off-site':31.2}
+  },
+  {
+    id: 'training',
+    name: 'Training',
+    fullName: 'Training Completion',
+    def: 'The percentage of required training courses assigned to Exhibitor Services team members that was completed as expected.',
+    goal: '100%', goalNum: 100, unit: '%', higherBetter: true,
+    refresh: 'Weekly (Mon 10a)',
+    responsible: 'All ES Teams',
+    enterprise: 91, regions: {'Canada':88,'Las Vegas':93,'North Central':90,'Northeast':92,'NW/SoCal':94,'South Central':89,'Southeast':91},
+    branches: {'Toronto':88,'Las Vegas':93,'Chicago':91,'Des Moines':89,'Boston':92,'New York':92,'Washington D.C.':93,'Anaheim':95,'Denver':93,'Reno':92,'San Francisco':96,'Dallas':89,'Houston':90,'San Antonio':88,'Atlanta':92,'Nashville':90,'New Orleans':89,'Orlando':92}
+  }
+];
+
+var kpiSelId = null;
+
+function getKpiScopeValue(kpi) {
+  var activePill = document.querySelector('.scope-pill.active');
+  var scope = activePill ? (activePill.getAttribute('data-scope') || 'enterprise') : 'enterprise';
+  var regionEl = document.getElementById('region-select');
+  var branchEl = document.getElementById('branch-select');
+  var region = regionEl ? regionEl.value : '';
+  var branch = branchEl ? branchEl.value : '';
+
+  if (scope === 'region' && region && kpi.regions[region] !== undefined) return kpi.regions[region];
+  if (scope === 'branch' && branch && kpi.branches[branch] !== undefined) return kpi.branches[branch];
+  return kpi.enterprise;
+}
+
+function kpiFmt(kpi, val) {
+  if (val === null || val === undefined) return '—';
+  if (kpi.unit === '$M') {
+    return '$' + (val / 1000000).toFixed(1) + 'M';
+  }
+  if (kpi.unit === 'hrs') return val.toFixed(1) + 'h';
+  if (kpi.unit === '%') return val.toFixed(val % 1 === 0 ? 0 : 1) + '%';
+  if (kpi.prefix) return (val > 0 ? '+' : '') + val;
+  return val;
+}
+
+function kpiStatus(kpi, val) {
+  // Returns 'green', 'amber', 'red'
+  var pct;
+  if (kpi.higherBetter) {
+    pct = val / kpi.goalNum;
+    if (pct >= 0.98) return 'green';
+    if (pct >= 0.92) return 'amber';
+    return 'red';
+  } else {
+    // Lower is better
+    pct = val / kpi.goalNum;
+    if (pct <= 0.85) return 'green';
+    if (pct <= 1.0) return 'amber';
+    return 'red';
+  }
+}
+
+function kpiColor(status) {
+  if (status === 'green') return 'var(--green)';
+  if (status === 'amber') return 'var(--gold)';
+  return 'var(--orange)';
+}
+
+function kpiBarPct(kpi, val) {
+  if (kpi.higherBetter) return Math.min(100, Math.round(val / kpi.goalNum * 100));
+  // lower is better — invert: at goal = 85%, at 0 = 100%
+  return Math.min(100, Math.max(0, Math.round((1 - (val / kpi.goalNum)) * 100 + 40)));
+}
+
+function renderKpiStrip() {
+  var el = document.getElementById('kpi-strip');
+  if (!el) return;
+  var html = '';
+  KPI_DATA.forEach(function(kpi) {
+    var val = getKpiScopeValue(kpi);
+    var status = kpiStatus(kpi, val);
+    var color = kpiColor(status);
+    var barPct = kpiBarPct(kpi, val);
+    var isActive = kpi.id === kpiSelId ? ' kpi-active' : '';
+    html += '<div class="kpi-card' + isActive + '" onclick="kpiCardClick(\'' + kpi.id + '\')" style="border-top-color:' + color + '">' +
+      '<div class="kpi-lbl">' + kpi.name + '</div>' +
+      '<div class="kpi-val" style="color:' + color + '">' + kpiFmt(kpi, val) + '</div>' +
+      '<div class="kpi-goal">Goal: ' + kpi.goal + '</div>' +
+      '<div class="kpi-status-bar"><div class="kpi-status-fill" style="width:' + barPct + '%;background:' + color + '"></div></div>' +
+      '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function kpiCardClick(id) {
+  kpiSelId = id;
+  // If we're on today's page, navigate to KPI workspace
+  var kpiPage = document.getElementById('page-kpis');
+  var todayPage = document.getElementById('page-today');
+  if (todayPage && todayPage.classList.contains('active')) {
+    // Navigate to KPI workspace
+    var kpiNavItem = document.querySelectorAll('.nav-item')[10]; // approximate — find by content
+    document.querySelectorAll('.nav-item').forEach(function(n) {
+      if (n.getAttribute('onclick') && n.getAttribute('onclick').indexOf("'kpis'") >= 0) {
+        showPage('kpis', n);
+      }
+    });
+  }
+  renderKpiStrip();
+  renderKpiSidebar();
+  renderKpiDetail();
+}
+
+function renderKpiSidebar() {
+  var el = document.getElementById('kpi-sidebar');
+  if (!el) return;
+  var html = '<div style="padding:10px 14px 6px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">FY26 KPIs</div>';
+  KPI_DATA.forEach(function(kpi) {
+    var val = getKpiScopeValue(kpi);
+    var status = kpiStatus(kpi, val);
+    var color = kpiColor(status);
+    var barPct = kpiBarPct(kpi, val);
+    var sel = kpi.id === kpiSelId ? ' kpi-sel' : '';
+    html += '<div class="kpi-sidebar-card' + sel + '" onclick="kpiSelId=\'' + kpi.id + '\';renderKpiSidebar();renderKpiDetail();renderKpiStrip()">' +
+      '<div class="kscard-name">' + kpi.fullName + '</div>' +
+      '<div class="kscard-row">' +
+        '<div class="kscard-val" style="color:' + color + '">' + kpiFmt(kpi, val) + '</div>' +
+        '<div class="kscard-goal">Goal ' + kpi.goal + '</div>' +
+      '</div>' +
+      '<div class="kscard-bar"><div class="kscard-fill" style="width:' + barPct + '%;background:' + color + '"></div></div>' +
+      '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function renderKpiDetail() {
+  var el = document.getElementById('kpi-detail');
+  if (!el) return;
+  if (!kpiSelId) {
+    el.innerHTML = '<div style="padding:48px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">📊</div><div style="font-size:15px;font-weight:800;color:var(--fb)">Select a KPI to view details</div><div style="font-size:13px;margin-top:6px">Click any metric on the left to explore year-to-date results, goal tracking, and scope breakdowns.</div></div>';
+    return;
+  }
+  var kpi = KPI_DATA.find(function(k){ return k.id === kpiSelId; });
+  if (!kpi) return;
+
+  var val = getKpiScopeValue(kpi);
+  var status = kpiStatus(kpi, val);
+  var color = kpiColor(status);
+  var statusLabel = status === 'green' ? '✓ On Track' : status === 'amber' ? '⚠ Near Goal' : '↓ Below Goal';
+  var statusBg = status === 'green' ? 'rgba(66,187,55,.1)' : status === 'amber' ? 'rgba(255,181,0,.12)' : 'rgba(251,71,31,.1)';
+
+  // Get scope context label
+  var activePill = document.querySelector('.scope-pill.active');
+  var scope = activePill ? activePill.getAttribute('data-scope') : 'enterprise';
+  var regionEl = document.getElementById('region-select');
+  var branchEl = document.getElementById('branch-select');
+  var region = regionEl ? regionEl.value : '';
+  var branch = branchEl ? branchEl.value : '';
+  var scopeLabel = scope === 'branch' && branch ? branch : scope === 'region' && region ? region : 'Enterprise';
+
+  var html = '<div class="kpi-det-hdr">' +
+    '<div class="kpi-det-title">' + kpi.fullName + '</div>' +
+    '<div class="kpi-det-def">' + kpi.def + '</div>' +
+    '</div>';
+
+  // Score row
+  html += '<div class="kpi-det-score-row">' +
+    '<div class="kpi-det-score-box" style="background:' + statusBg + ';border:2px solid ' + color + '">' +
+      '<div class="kpi-det-score-num" style="color:' + color + '">' + kpiFmt(kpi, val) + '</div>' +
+      '<div class="kpi-det-score-lbl" style="color:' + color + '">YTD — ' + scopeLabel + '</div>' +
+    '</div>' +
+    '<div class="kpi-det-meta">' +
+      '<div class="kpi-det-meta-row"><span class="kpi-det-meta-lbl">FY26 Goal</span><span class="kpi-det-meta-val">' + kpi.goal + '</span></div>' +
+      '<div class="kpi-det-meta-row"><span class="kpi-det-meta-lbl">Status</span><span class="kpi-det-meta-val" style="color:' + color + '">' + statusLabel + '</span></div>' +
+      '<div class="kpi-det-meta-row"><span class="kpi-det-meta-lbl">Responsible</span><span class="kpi-det-meta-val">' + kpi.responsible + '</span></div>' +
+      '<div class="kpi-det-meta-row"><span class="kpi-det-meta-lbl">Data Refresh</span><span class="kpi-det-meta-val">' + kpi.refresh + '</span></div>' +
+    '</div>' +
+    '</div>';
+
+  // Regional breakdown (if enterprise scope)
+  if (scope === 'enterprise' && Object.keys(kpi.regions).length > 1) {
+    html += '<div class="kpi-det-section">' +
+      '<div class="kpi-det-section-title">Regional Breakdown</div>' +
+      '<div class="kpi-scope-grid">';
+    Object.keys(kpi.regions).forEach(function(r) {
+      var rv = kpi.regions[r];
+      var rs = kpiStatus(kpi, rv);
+      var rc = kpiColor(rs);
+      html += '<div class="kpi-scope-tile">' +
+        '<div class="kpi-scope-tile-name">' + r + '</div>' +
+        '<div class="kpi-scope-tile-val" style="color:' + rc + '">' + kpiFmt(kpi, rv) + '</div>' +
+        '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  // Branch breakdown (if region scope selected)
+  if (scope === 'region' && region && BRANCH_MAP[region]) {
+    html += '<div class="kpi-det-section">' +
+      '<div class="kpi-det-section-title">Branch Breakdown — ' + region + '</div>' +
+      '<div class="kpi-scope-grid">';
+    BRANCH_MAP[region].forEach(function(b) {
+      var bv = kpi.branches[b] !== undefined ? kpi.branches[b] : kpi.enterprise;
+      var bs = kpiStatus(kpi, bv);
+      var bc = kpiColor(bs);
+      html += '<div class="kpi-scope-tile">' +
+        '<div class="kpi-scope-tile-name">' + b + '</div>' +
+        '<div class="kpi-scope-tile-val" style="color:' + bc + '">' + kpiFmt(kpi, bv) + '</div>' +
+        '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  // Trend placeholder
+  html += '<div class="kpi-det-section">' +
+    '<div class="kpi-det-section-title">Historical Trend</div>' +
+    '<div class="kpi-coming-soon">📈 Monthly trend data coming soon — will display FY26 progression vs. goal once connected to live data sources.</div>' +
+    '</div>';
+
+  el.innerHTML = html;
+}
+
+function initKpis() {
+  renderKpiSidebar();
+  renderKpiDetail();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   var firstNav = document.querySelector('.nav-item');
   if(firstNav) showPage('today', firstNav);
   renderNeedsAttention();
+  renderKpiStrip();
 });
 
 
