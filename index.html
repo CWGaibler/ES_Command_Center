@@ -2404,26 +2404,17 @@ function kpiFmt(kpi, val) {
 }
 
 function kpiStatus(kpi, val) {
-  // Returns 'green', 'amber', 'red'
-  var pct;
+  // Returns 'ok' or 'red'
   if (kpi.higherBetter) {
-    pct = val / kpi.goalNum;
-    if (pct >= 0.98) return 'green';
-    if (pct >= 0.92) return 'amber';
-    return 'red';
+    return (val >= kpi.goalNum) ? 'ok' : 'red';
   } else {
-    // Lower is better
-    pct = val / kpi.goalNum;
-    if (pct <= 0.85) return 'green';
-    if (pct <= 1.0) return 'amber';
-    return 'red';
+    return (val <= kpi.goalNum) ? 'ok' : 'red';
   }
 }
 
 function kpiColor(status) {
-  if (status === 'green') return 'var(--green)';
-  if (status === 'amber') return 'var(--gold)';
-  return 'var(--orange)';
+  if (status === 'red') return 'var(--orange)';
+  return 'var(--fb)';
 }
 
 function kpiBarPct(kpi, val) {
@@ -2442,7 +2433,8 @@ function renderKpiStrip() {
     var color = kpiColor(status);
     var barPct = kpiBarPct(kpi, val);
     var isActive = kpi.id === kpiSelId ? ' kpi-active' : '';
-    html += '<div class="kpi-card' + isActive + '" onclick="kpiCardClick(\'' + kpi.id + '\')" style="border-top-color:' + color + '">' +
+    var topColor = status === 'red' ? 'var(--orange)' : 'var(--border)';
+    html += '<div class="kpi-card' + isActive + '" onclick="kpiCardClick(\'' + kpi.id + '\')" style="border-top-color:' + topColor + '">' +
       '<div class="kpi-lbl">' + kpi.name + '</div>' +
       '<div class="kpi-bottom">' +
         '<div class="kpi-val" style="color:' + color + '">' + kpiFmt(kpi, val) + '</div>' +
@@ -2489,7 +2481,6 @@ function renderKpiSidebar() {
         '<div class="kscard-val" style="color:' + color + '">' + kpiFmt(kpi, val) + '</div>' +
         '<div class="kscard-goal">Goal ' + kpi.goal + '</div>' +
       '</div>' +
-      '<div class="kscard-bar"><div class="kscard-fill" style="width:' + barPct + '%;background:' + color + '"></div></div>' +
       '</div>';
   });
   el.innerHTML = html;
@@ -2509,7 +2500,7 @@ function renderKpiDetail() {
   var status = kpiStatus(kpi, val);
   var color = kpiColor(status);
   var statusLabel = status === 'green' ? '✓ On Track' : status === 'amber' ? '⚠ Near Goal' : '↓ Below Goal';
-  var statusBg = status === 'green' ? 'rgba(66,187,55,.1)' : status === 'amber' ? 'rgba(255,181,0,.12)' : 'rgba(251,71,31,.1)';
+  // statusBg removed — using neutral background
 
   // Get scope context label
   var activePill = document.querySelector('.scope-pill.active');
@@ -2527,9 +2518,9 @@ function renderKpiDetail() {
 
   // Score row
   html += '<div class="kpi-det-score-row">' +
-    '<div class="kpi-det-score-box" style="background:' + statusBg + ';border:2px solid ' + color + '">' +
+    '<div class="kpi-det-score-box" style="background:var(--fb-xlt);border:2px solid var(--border)">' +
       '<div class="kpi-det-score-num" style="color:' + color + '">' + kpiFmt(kpi, val) + '</div>' +
-      '<div class="kpi-det-score-lbl" style="color:' + color + '">YTD — ' + scopeLabel + '</div>' +
+      '<div class="kpi-det-score-lbl" style="color:var(--muted)">YTD — ' + scopeLabel + '</div>' +
     '</div>' +
     '<div class="kpi-det-meta">' +
       '<div class="kpi-det-meta-row"><span class="kpi-det-meta-lbl">FY26 Goal</span><span class="kpi-det-meta-val">' + kpi.goal + '</span></div>' +
