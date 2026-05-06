@@ -1238,7 +1238,7 @@ function renderDetail(){
       clHtml+='<div class="task-row'+(locked?' step-locked':'')+'">'+
         '<div class="'+chkCls+'"'+chkAttrs+'><span class="chk-mark">&#10003;</span></div>'+
         '<div class="task-body">'+
-          '<div class="task-title'+(ck?' done':'')+''' +(locked?' style="opacity:.35"':'')+'>'+t.title+'</div>'+
+          '<div class="task-title'+(ck?' done':'')+(locked?' style="opacity:.35"':'')+'>'+t.title+'</div>'+
           '<div class="task-desc"'+(locked?' style="opacity:.35"':'')+'>'+t.desc+'</div>'+lnks+
         '</div>'+
         '<div class="task-right">'+
