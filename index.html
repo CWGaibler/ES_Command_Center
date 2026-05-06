@@ -1686,7 +1686,6 @@ function renderDetail(){
     '</div>';
   }
 
-  pan
   // Build completion / handoff bar
   var handoffBar = '';
   if (h.closed) {
@@ -1713,7 +1712,7 @@ function renderDetail(){
     }
   }
 
-  el.innerHTML = '<div style="overflow-y:auto;max-height:calc(100vh - 220px);padding-right:2px">'+posHtml+approvalBarHtml+clHtml+'</div>';
+  panel.innerHTML = '<div style="overflow-y:auto;max-height:calc(100vh - 220px);padding-right:2px">'+posHtml+approvalBarHtml+clHtml+handoffBar+'</div>';
 
     // Attach phase toggle listeners
   panel.querySelectorAll('.phase-hdr').forEach(function(hdr){
@@ -1743,7 +1742,7 @@ function renderDetail(){
     };
   });
 
-  updateStats()+handoffBar;
+  updateStats();
 }
 
 function resubmit(hireId) {
