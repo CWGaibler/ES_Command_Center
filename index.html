@@ -2225,7 +2225,7 @@ function canViewInScope(h) {
   var pillBranch = branchEl ? branchEl.value : '';
 
   if (scope === 'enterprise') {
-    return h.branch !== 'Off-site' && h.branch !== 'Off-Site' && h.branch !== 'High-Touch Accounts';
+    return true;
   }
   if (scope === 'region' && pillRegion) {
     var regionBranches = BRANCH_MAP[pillRegion] || [];
