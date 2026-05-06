@@ -1934,26 +1934,27 @@ function setIdentity(key) {
   var regionEl = document.getElementById('region-select');
   var branchEl = document.getElementById('branch-select');
 
+  // Set default scope for this identity — pills remain freely clickable after load
   if (person.level === 'enterprise') {
     var ep = document.querySelector('.scope-pill[data-scope="enterprise"]');
     if (ep) ep.classList.add('active');
-    if (regionEl) { regionEl.style.display='none'; regionEl.value=''; }
-    if (branchEl) { branchEl.style.display='none'; branchEl.value=''; }
+    if (regionEl) { regionEl.classList.add('hidden'); regionEl.value = ''; }
+    if (branchEl) { branchEl.classList.add('hidden'); branchEl.value = ''; }
   } else if (person.level === 'region') {
     var rp = document.querySelector('.scope-pill[data-scope="region"]');
     if (rp) rp.classList.add('active');
     if (regionEl) {
-      regionEl.style.display='';
-      // Set to first region in their list
+      regionEl.classList.remove('hidden');
       if (person.regions && person.regions.length > 0) regionEl.value = person.regions[0];
     }
-    if (branchEl) { branchEl.style.display='none'; branchEl.value=''; }
+    if (branchEl) { branchEl.classList.add('hidden'); branchEl.value = ''; }
   } else {
+    // Branch-level: default to their branch, but all pills remain usable
     var bp = document.querySelector('.scope-pill[data-scope="branch"]');
     if (bp) bp.classList.add('active');
-    if (regionEl) { regionEl.style.display='none'; regionEl.value=''; }
+    if (regionEl) { regionEl.classList.add('hidden'); regionEl.value = ''; }
     if (branchEl) {
-      branchEl.style.display='';
+      branchEl.classList.remove('hidden');
       if (person.branches && person.branches.length > 0) branchEl.value = person.branches[0];
     }
   }
@@ -2937,20 +2938,17 @@ var BRANCH_MAP = {
 };
 
 function getScopeShows() {
-  // ── TODAY filter: only shows where moveInStart <= today <= clearDate ──
+  // ── TODAY filter ──────────────────────────────────────────────────────
   var today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // ── IDENTITY scope: what branches does current identity cover? ──
-  var identity = currentIdentity();
-
-  // ── Scope pill state (manual overrides still respected) ──
+  // ── Read active pill — this is the user's explicit scope choice ───────
   var activePill = document.querySelector(".scope-pill.active");
-  var scopeRaw = activePill ? (activePill.getAttribute("data-scope") || activePill.textContent.trim()) : "enterprise";
-  var scope = scopeRaw.toLowerCase();
+  var scopeRaw   = activePill ? (activePill.getAttribute("data-scope") || "enterprise") : "enterprise";
+  var scope      = scopeRaw.toLowerCase();
 
-  var regionEl = document.getElementById("region-select");
-  var branchEl = document.getElementById("branch-select");
+  var regionEl  = document.getElementById("region-select");
+  var branchEl  = document.getElementById("branch-select");
   var pillRegion = regionEl ? regionEl.value : "";
   var pillBranch = branchEl ? branchEl.value : "";
 
@@ -2959,66 +2957,33 @@ function getScopeShows() {
   });
 
   return allShows.filter(function(s) {
-    // ── Hard exclusions (unchanged) ──
+    // ── Hard exclusions ──────────────────────────────────────────────────
     if (s.freemanElectricalOnly) return false;
     if (s.fte === "N") return false;
 
-    // ── Date filter: show must be in active exhibitor window today ──
+    // ── Date filter: active exhibitor window only ────────────────────────
     if (!s.moveInStart || !s.clearDate) return false;
     var moveIn = new Date(s.moveInStart + "T00:00:00");
-    var clear  = new Date(s.clearDate  + "T00:00:00");
+    var clear  = new Date(s.clearDate   + "T00:00:00");
     if (today < moveIn || today > clear) return false;
 
-    // ── Identity scope filter ──
-    // Enterprise: all branches, but still exclude Off-Site/High-Touch from staffing
-    if (identity.level === "enterprise") {
-      if (scope === "region") {
-        if (!pillRegion || pillRegion === "Off-Site") return false;
-        var dashRegion = CALC_REGION_MAP[s.region] || s.region;
-        return dashRegion === pillRegion;
-      }
-      if (scope === "branch") {
-        if (!pillBranch || pillBranch === "Off-Site" || pillBranch === "High-Touch Accounts") return false;
-        return s.producingBranch === pillBranch;
-      }
-      // Enterprise pill: exclude Off-Site producing branches
+    // ── Scope filter: driven entirely by the active pill ─────────────────
+    if (scope === "enterprise") {
+      // Enterprise pill: everything except Off-Site
       return s.producingBranch !== "Off-Site" && s.producingBranch !== "High-Touch Accounts";
     }
 
-    // Regional Director: filter to their region(s), then respect pill refinement
-    if (identity.level === "region") {
-      // Build the set of branches this RD owns
-      var rdBranches = [];
-      (identity.regions || []).forEach(function(r) {
-        var blist = BRANCH_MAP[r] || [];
-        rdBranches = rdBranches.concat(blist);
-      });
-      // Also add direct branches if any
-      (identity.branches || []).forEach(function(b) {
-        if (rdBranches.indexOf(b) < 0) rdBranches.push(b);
-      });
-
-      // Pill refinement: if they manually narrowed to a specific branch
-      if (scope === "branch" && pillBranch) {
-        if (rdBranches.indexOf(pillBranch) < 0) return false;
-        return s.producingBranch === pillBranch;
-      }
-      // Default: all shows in their region
-      return rdBranches.indexOf(s.producingBranch) >= 0;
+    if (scope === "region") {
+      // Region pill: filter to selected region dropdown value
+      if (!pillRegion || pillRegion === "Off-Site") return false;
+      var dashRegion = CALC_REGION_MAP[s.region] || s.region;
+      return dashRegion === pillRegion;
     }
 
-    // Branch-level (Director or Manager): filter to their branches only
-    if (identity.level === "branch") {
-      var myBranches = identity.branches || [];
-      // Off-Site / High-Touch: no physical shows
-      if (myBranches.indexOf("Off-Site") >= 0 || myBranches.indexOf("High-Touch Accounts") >= 0) {
-        return false;
-      }
-      // Pill refinement: if they narrowed further to one branch of their multi-branch set
-      if (scope === "branch" && pillBranch && myBranches.indexOf(pillBranch) >= 0) {
-        return s.producingBranch === pillBranch;
-      }
-      return myBranches.indexOf(s.producingBranch) >= 0;
+    if (scope === "branch") {
+      // Branch pill: filter to selected branch dropdown value
+      if (!pillBranch || pillBranch === "Off-Site" || pillBranch === "High-Touch Accounts") return false;
+      return s.producingBranch === pillBranch;
     }
 
     return false;
