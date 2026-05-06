@@ -2037,21 +2037,34 @@ function identityIsHiringManager(hmName) {
 // owner: 'hm' | 'admin' | 'cx' | 'it' | 'hr'
 // For HM tasks: only the assigned hiring manager of that specific record
 // For admin tasks: only Erii Rodriguez
-function identityCanCheckTask(owner, recordHiringManager) {
+function identityCanCheckTask(owner, recordHiringManager, hireBranch) {
   var p = currentIdentity();
+
+  // Hiring Manager tasks — only the named HM on this record
   if (owner === 'hm') {
-    // Only the direct hiring manager of THIS record
     return p.name === recordHiringManager;
   }
+
+  // Regional Director tasks — must be level=region AND cover the hire's branch
+  if (owner === 'rd') {
+    return p.level === 'region' && p.branches.indexOf(hireBranch) >= 0;
+  }
+
+  // ES Leadership tasks — Craig or Nesana only; either can complete
+  if (owner === 'es') {
+    return CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana';
+  }
+
+  // HR tasks (owner='anyone') — anyone can complete; HR won't use the system
+  if (owner === 'anyone') {
+    return true;
+  }
+
+  // Admin tasks (Erii only)
   if (owner === 'admin') {
     return CURRENT_IDENTITY_KEY === 'erii';
   }
-  if (owner === 'cx') {
-    // CX Enablement tasks — not a dashboard user role; show as read-only for everyone
-    return false;
-  }
-  if (owner === 'it') return false;
-  if (owner === 'hr') return false;
+
   return false;
 }
 
@@ -2069,27 +2082,84 @@ function identityCanCheckTask(owner, recordHiringManager) {
 
 // -- RECRUITING DATA --
 var TASKS = [
-  {phase:'Job Requisition',id:'t1',title:'Identify the hiring need',desc:'New role or backfill? Clarify purpose, budget, urgency.',owner:'Hiring Manager',off:-70,links:[]},
-  {phase:'Job Requisition',id:'t2',title:'Select ES role & confirm job details',desc:'Confirm responsibilities, qualifications, and reporting structure.',owner:'Hiring Manager',off:-68,links:[{label:'ES Roles',url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/Handbook/Roles_%26_Responsibilities.aspx'}]},
-  {phase:'Job Requisition',id:'t3',title:'Submit request to Regional Director',desc:'Email with title, salary, start date, any pre-identified candidates.',owner:'Hiring Manager',off:-65,links:[]},
-  {phase:'Job Requisition',id:'t4',title:'RD submits to ES Leadership for approval',desc:'Forward to Nesana Wieger / Craig Gaibler. Role, salary, start date, new vs. backfill.',owner:'Regional Director',off:-62,links:[]},
-  {phase:'Job Requisition',id:'t5',title:'ES Leadership submits to Growth (if needed)',desc:'Submit to Laure Chachere / Anytra Lowe for additional approval.',owner:'ES Leadership',off:-59,links:[]},
-  {phase:'Recruiting & Interviewing',id:'t6',title:'Submit job request to HR Business Partner',desc:'Email Chastity Austin (cc: Megan Wierick, Hiring Mgr, RD, Erica Cochran, Erii Rodriguez).',owner:'ES Leadership',off:-56,links:[{label:'HRBP: Chastity Austin',url:'mailto:Chastity.Austin@freeman.com'}]},
-  {phase:'Recruiting & Interviewing',id:'t7',title:'HR posts the position',desc:'HRBP publishes to company site, LinkedIn, and job boards.',owner:'HR Business Partner',off:-49,links:[]},
-  {phase:'Recruiting & Interviewing',id:'t8',title:'HR screens & shares candidate shortlist',desc:'Recruiter aligns on expectations, screens applicants, shares qualified candidates.',owner:'HR Recruiter',off:-42,links:[]},
-  {phase:'Recruiting & Interviewing',id:'t9',title:'Schedule interviews',desc:'Arrange behavioral/technical interviews. Panel required for leadership roles.',owner:'Hiring Manager',off:-35,links:[{label:'Interview Questions',url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296/Shared%20Documents/General/Recruiting%20and%20Hiring%20%28docs%20accessible%20to%20all%29/Exhibitor%20Services%20Interview%20Questions.pdf'}]},
-  {phase:'Recruiting & Interviewing',id:'t10',title:'Conduct interviews',desc:'Intro, job overview, candidate Q&A, close. Take notes.',owner:'Hiring Manager',off:-28,links:[]},
-  {phase:'Recruiting & Interviewing',id:'t11',title:'Select final candidate',desc:'Review feedback, discuss compensation, get approval from ES Leadership & HRBP.',owner:'Hiring Manager',off:-21,links:[]},
-  {phase:'Job Offer',id:'t12',title:'Make verbal job offer',desc:'Call the candidate. Be prepared to negotiate.',owner:'Hiring Manager',off:-18,links:[]},
-  {phase:'Job Offer',id:'t13',title:'Email HR upon acceptance',desc:'Notify Megan Wierick & Chastity Austin to initiate DocuSign offer letter.',owner:'Hiring Manager',off:-17,links:[{label:'Megan Wierick',url:'mailto:Megan.Wierick@freeman.com'}]},
-  {phase:'Job Offer',id:'t14',title:'Review & sign offer letter (DocuSign)',desc:'HR creates, you sign, candidate signs. Must sign 11+ business days before start.',owner:'Hiring Manager',off:-14,links:[]},
-  {phase:'Job Offer',id:'t15',title:'Background check clears',desc:'HR completes screening. Hire date confirmed once cleared.',owner:'HR Business Partner',off:-11,links:[]},
-  {phase:'Pre-Start Preparation',id:'t16',title:'Complete CX Contact Info Smartsheet',desc:'Complete immediately upon offer acceptance. Critical for system setup.',owner:'Hiring Manager',off:-17,links:[]},
-  {phase:'Pre-Start Preparation',id:'t17',title:'Confirm NET class date & location',desc:'Coordinate with Erica Cochran / Lauren Medina / Kacie Kugel / Amber Segura.',owner:'Hiring Manager',off:-14,links:[{label:'NET Tracker',url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/Leader_Resources/NET_Participant_Performance.aspx'}]},
-  {phase:'Pre-Start Preparation',id:'t18',title:'Arrange branch badge & office access',desc:'Ensure new hire can access the office on Day 1.',owner:'Hiring Manager',off:-5,links:[]},
-  {phase:'Pre-Start Preparation',id:'t19',title:'Prepare team introduction',desc:'Draft intro email or schedule a team meeting for the first week.',owner:'Hiring Manager',off:-2,links:[]},
-  {phase:'Pre-Start Preparation',id:'t20',title:'Execute HM onboarding checklist from HR',desc:'Complete all steps in HR\'s formal Hiring Manager checklist on Day 1.',owner:'Hiring Manager',off:0,links:[{label:'Onboarding Home',url:'https://freemanco.sharepoint.com/teams/EmployeeOnboarding'}]}
+  // ── Phase 1: Job Requisition ──────────────────────────────────────────
+  // Stage gate: active at 'approved-not-posted'
+  // Step 1 auto-checked on position create; clicking checkbox opens +New modal
+  {phase:'Job Requisition', id:'t1',
+   title:'Submit open position request',
+   desc:'Click "+New" in Active Pipeline, enter all required position details, and click "Open Position" to submit the requisition.',
+   owner:'hm', ownerLabel:'Hiring Manager', off:-70, links:[]},
+
+  {phase:'Job Requisition', id:'t2',
+   title:'RD submits to ES Leadership for approval',
+   desc:'Regional Director reviews the request and formally submits to ES Leadership (Craig Gaibler / Nesana Wieger) for approval.',
+   owner:'rd', ownerLabel:'Regional Director', off:-65, links:[],
+   skipIfHMisRD: true},
+
+  {phase:'Job Requisition', id:'t3',
+   title:'ES Leadership submits to Growth for approval (if needed)',
+   desc:'Craig Gaibler or Nesana Wieger submits to Growth leadership (Laure Chachere / Anytra Lowe) for additional approval if required.',
+   owner:'es', ownerLabel:'ES Leadership', off:-60, links:[]},
+
+  // ── Phase 2: Recruiting & Interviewing ───────────────────────────────
+  // Stage gate: unlocks when stage = 'posted'
+  {phase:'Recruiting & Interviewing', id:'t4',
+   title:'Communicate with HR Business Partner',
+   desc:'Craig Gaibler or Nesana Wieger emails Chastity Austin, copying HR Recruiter, Hiring Manager, Regional Director, Erica Cochran, and Erii Rodriguez.',
+   owner:'es', ownerLabel:'ES Leadership', off:-56,
+   links:[{label:'HRBP: Chastity Austin', url:'mailto:Chastity.Austin@freeman.com'}]},
+
+  {phase:'Recruiting & Interviewing', id:'t5',
+   title:'Post position to job boards',
+   desc:'HR Business Partner publishes position to company site, LinkedIn, and job boards.',
+   owner:'anyone', ownerLabel:'HR Business Partner', off:-49, links:[]},
+
+  {phase:'Recruiting & Interviewing', id:'t6',
+   title:'Screen applicants & share candidate shortlist',
+   desc:'HR Recruiter aligns on expectations with Hiring Manager, screens applicants, and shares a qualified candidate shortlist.',
+   owner:'anyone', ownerLabel:'HR Recruiter', off:-42, links:[]},
+
+  {phase:'Recruiting & Interviewing', id:'t7',
+   title:'Schedule interviews',
+   desc:'Arrange behavioral and cultural alignment interviews. Panel interviews are required for all leadership roles.',
+   owner:'hm', ownerLabel:'Hiring Manager', off:-35,
+   links:[{label:'Interview Questions', url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296/Shared%20Documents/General/Recruiting%20and%20Hiring%20%28docs%20accessible%20to%20all%29/Exhibitor%20Services%20Interview%20Questions.pdf'}]},
+
+  {phase:'Recruiting & Interviewing', id:'t8',
+   title:'Conduct interviews',
+   desc:'Conduct candidate interviews using ES leadership interview questions. Document feedback for each candidate.',
+   owner:'hm', ownerLabel:'Hiring Manager', off:-28, links:[]},
+
+  {phase:'Recruiting & Interviewing', id:'t9',
+   title:'Select final candidate',
+   desc:'Review all feedback and select final candidate. Discuss compensation and obtain written approval from ES Leadership and HR Business Partner before proceeding.',
+   owner:'hm', ownerLabel:'Hiring Manager', off:-21, links:[]},
+
+  // ── Phase 3: Job Offer ────────────────────────────────────────────────
+  // Stage gate: unlocks when stage = 'interviewing'
+  {phase:'Job Offer', id:'t10',
+   title:'Make verbal offer to candidate',
+   desc:'Call the candidate with the verbal offer, pending background check clearance. Be prepared to negotiate.',
+   owner:'hm', ownerLabel:'Hiring Manager', off:-18, links:[]},
+
+  {phase:'Job Offer', id:'t11',
+   title:'Email HRBP & HR Recruiter to initiate offer letter',
+   desc:'After receiving verbal acceptance, email HR Business Partner and HR Recruiter requesting they initiate the DocuSign offer letter.',
+   owner:'hm', ownerLabel:'Hiring Manager', off:-17,
+   links:[{label:'Megan Wierick', url:'mailto:Megan.Wierick@freeman.com'}]},
+
+  {phase:'Job Offer', id:'t12',
+   title:'Review & sign offer letter (DocuSign)',
+   desc:'HR creates the offer letter. Hiring Manager reviews and signs. Candidate signs. Must be fully signed 11+ business days before intended start date.',
+   owner:'hm', ownerLabel:'Hiring Manager', off:-14, links:[]},
+
+  {phase:'Job Offer', id:'t13',
+   title:'Background check clears — hire date confirmed',
+   desc:'HR Business Partner completes background screening. Hire date is confirmed with Hiring Manager once cleared.',
+   owner:'anyone', ownerLabel:'HR Business Partner', off:-11, links:[]},
 ];
+
+
 
 var hires = [
   {id:'h1', role:'ES Event Experience Supervisor', ftpt:'Full-Time', branch:'Las Vegas',
@@ -2102,7 +2172,7 @@ var hires = [
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
    phoneStipend: false,
-   stage:'approved-not-posted', checked:[], open:{}, closed:false, closed:false},
+   stage:'approved-not-posted', checked:['t1'], open:{}, closed:false, closed:false},
   {id:'h2', role:'ES Specialist', ftpt:'Full-Time', branch:'Las Vegas',
    hiringManagerFirst:'Chenille', hiringManagerLast:'Book',
    hiringManager:'Chenille Book',
@@ -2113,7 +2183,7 @@ var hires = [
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
    phoneStipend: false,
-   stage:'approved-not-posted', checked:[], open:{}, closed:false, closed:false},
+   stage:'approved-not-posted', checked:['t1'], open:{}, closed:false, closed:false},
   {id:'h3', role:'ES Specialist', ftpt:'Part-Time', branch:'San Francisco',
    hiringManagerFirst:'Niall', hiringManagerLast:'McCarthy',
    hiringManager:'Niall McCarthy',
@@ -2124,7 +2194,7 @@ var hires = [
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
    phoneStipend: false,
-   stage:'approved-not-posted', checked:[], open:{}, closed:false, closed:false},
+   stage:'approved-not-posted', checked:['t1'], open:{}, closed:false, closed:false},
   {id:'h4', role:'ES Specialist', ftpt:'Part-Time', branch:'San Antonio',
    hiringManagerFirst:'Lubi', hiringManagerLast:'Garza',
    hiringManager:'Lubi Garza',
@@ -2135,7 +2205,7 @@ var hires = [
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
    phoneStipend: false,
-   stage:'approved-not-posted', checked:[], open:{}, closed:false, closed:false},
+   stage:'approved-not-posted', checked:['t1'], open:{}, closed:false, closed:false},
   {id:'h5', role:'ES Sr. Specialist', ftpt:'Full-Time', branch:'High-Touch Accounts',
    hiringManagerFirst:'Jennifer', hiringManagerLast:'Pearson',
    hiringManager:'Jennifer Pearson',
@@ -2146,7 +2216,7 @@ var hires = [
    reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
    confirmedStart:'', confirmedNet:'', rejectionNote:'',
    phoneStipend: false,
-   stage:'approved-not-posted', checked:[], open:{}, closed:false}
+   stage:'approved-not-posted', checked:['t1'], open:{}, closed:false}
 ];
 var selId = 'h1';
 var rhReady = false;
@@ -2156,12 +2226,22 @@ var pendingRejectId = null;
 var VIEW_AS_NAMES = {'hm':'Hiring Manager','rd':'Regional Director','es':'ES Leadership'};
 
 var APPROVAL_STAGES = {
-  'approved-not-posted': {label:'Approved, Not Posted', cls:'chip-approved-np', nextStage:'posted'},
-  'posted':      {label:'Posted',           cls:'chip-posted',     nextStage:'interviewing'},
-  'interviewing':{label:'Interviewing',     cls:'chip-amber',      nextStage:'offer'},
-  'offer':       {label:'Offer Stage',      cls:'chip-green',      nextStage:'complete'},
-  'complete':    {label:'Complete',         cls:'chip-ghost',      nextStage:null},
-  'rejected':    {label:'Rejected',         cls:'chip-rejected',   nextStage:null}
+  'approved-not-posted': {label:'Requested',    cls:'chip-approved-np', nextStage:'posted',       stagePhase:1},
+  'posted':              {label:'Posted',        cls:'chip-posted',      nextStage:'interviewing', stagePhase:2},
+  'interviewing':        {label:'Interviewing',  cls:'chip-amber',       nextStage:'offer',        stagePhase:3},
+  'offer':               {label:'Offer Stage',   cls:'chip-green',       nextStage:'complete',     stagePhase:3},
+  'complete':            {label:'Complete',      cls:'chip-ghost',       nextStage:null,           stagePhase:4},
+  'rejected':            {label:'Rejected',      cls:'chip-rejected',    nextStage:null,           stagePhase:0}
+};
+
+// Stage gate: which tasks are active at each pipeline stage?
+// Tasks are grouped by phase; phases unlock as position advances
+var TASK_STAGE_MAP = {
+  'approved-not-posted': ['t1','t2','t3'],
+  'posted':              ['t1','t2','t3','t4','t5','t6','t7','t8','t9'],
+  'interviewing':        ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],
+  'offer':               ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],
+  'complete':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],
 };
 
 function addDays(s,n){if(!s)return new Date('2099-01-01');var d=new Date(s);if(isNaN(d.getTime()))return new Date('2099-01-01');d.setDate(d.getDate()+n);return d;}
@@ -2498,7 +2578,14 @@ function renderDetail(){
   TASKS.forEach(function(t){if(!seen[t.phase]){seen[t.phase]=true;phases.push(t.phase);}});
   var clHtml='<div class="rh-detail" style="margin-top:0">';
   phases.forEach(function(phase){
-    var pt=TASKS.filter(function(t){return t.phase===phase;});
+    // Filter tasks: apply skipIfHMisRD for t2, and filter to current stage's active tasks
+    var hmIsRD = (function(){ var hmId=null; Object.keys(IDENTITY_DIRECTORY).forEach(function(k){ if(IDENTITY_DIRECTORY[k].name===h.hiringManager) hmId=k; }); return hmId && IDENTITY_DIRECTORY[hmId] && IDENTITY_DIRECTORY[hmId].level==='region'; })();
+    var activeTasks = TASK_STAGE_MAP[h.stage] || TASK_STAGE_MAP['approved-not-posted'];
+    var pt=TASKS.filter(function(t){
+      if(t.phase!==phase) return false;
+      if(t.skipIfHMisRD && hmIsRD) return false;
+      return true;
+    });
     var dn=pt.filter(function(t){return h.checked.indexOf(t.id)>=0;}).length;
     var allD=dn===pt.length, anyA=!allD&&dn>0;
     var icCls=allD?'ph-done':anyA?'ph-active':'ph-locked';
@@ -2517,8 +2604,11 @@ function renderDetail(){
       var due=addDays(h.proposedStart||h.start||'2026-06-16',t.off);
       var st=dueStatus(new Date(due),ck);
       // Sequential locking: step is locked if any prior step in this phase is unchecked
-      var locked = false;
-      if (!ck && tidx > 0) {
+      // Stage gate: task not yet available if stage hasn't unlocked this task
+      var stageGated = activeTasks.indexOf(t.id) < 0;
+      // Sequential gate: locked if any prior task in this phase is unchecked
+      var locked = stageGated;
+      if (!stageGated && !ck && tidx > 0) {
         for (var pi = 0; pi < tidx; pi++) {
           if (h.checked.indexOf(pt[pi].id) < 0) { locked = true; break; }
         }
@@ -2529,7 +2619,7 @@ function renderDetail(){
         t.links.forEach(function(l){lnks+='<a class="tlink" href="'+l.url+'" target="_blank">'+l.label+' &#8599;</a>';});
         lnks+='</div>';
       }
-      var canInteract = !locked && canView(h) && identityCanCheckTask(t.owner, h.hiringManager);
+      var canInteract = !locked && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
       var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'') + (!locked&&!canInteract?' not-owner':'');
       var chkAttrs = locked ? '' : ' data-hire="'+h.id+'" data-task="'+t.id+'" data-owner="'+t.owner+'"' + (!canInteract?' data-readonly="1"':'');
       clHtml+='<div class="task-row'+(locked?' step-locked':'')+'">'+
@@ -2539,7 +2629,7 @@ function renderDetail(){
           '<div class="task-desc"'+(locked?' style="opacity:.35"':'')+'>'+t.desc+'</div>'+lnks+
         '</div>'+
         '<div class="task-right">'+
-          '<span class="task-owner"'+(locked?' style="opacity:.35"':'')+'>'+t.owner+'</span>'+
+          '<span class="task-owner"'+(locked?' style="opacity:.35"':'')+'>'+t.ownerLabel+'</span>'+
           '<span class="task-due due-'+(locked?'upcoming':st)+'">'+(ck?'Complete':locked?'&mdash;':fmtDate(due))+'</span>'+
         '</div>'+
       '</div>';
@@ -2615,8 +2705,12 @@ function renderDetail(){
       var tOwner = this.getAttribute('data-owner');
       var hire  = hires.find(function(x){ return x.id === hId; });
       if (!hire) return;
+      // Step 1 special case: clicking opens the +New modal if not yet checked
+      if (tId === 't1' && hire.checked.indexOf('t1') < 0) {
+        openModal(); return;
+      }
       if (!canView(hire)) return;
-      if (!identityCanCheckTask(tOwner, hire.hiringManager)) return;
+      if (!identityCanCheckTask(tOwner, hire.hiringManager, hire.branch)) return;
       var i = hire.checked.indexOf(tId);
       if (i >= 0) hire.checked.splice(i, 1); else hire.checked.push(tId);
       renderList(); renderDetail(); updateStats();
@@ -2817,11 +2911,11 @@ function createHire(){
     proposedStart:start, proposedNet:net,
     reqNum:'', hrRecruiter:'', firstName:'', lastName:'',
     confirmedStart:'', confirmedNet:'',
-    stage:'requisition', checked:[], open:{}
+    stage:'approved-not-posted', checked:['t1'], open:{}
   });
   selId = hires[0].id;
   closeModal();
-  renderList(); renderDetail();
+  renderList(); renderDetail(); updateStats();
 }
 
 // -- Inline field editing --
