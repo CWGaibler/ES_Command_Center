@@ -722,22 +722,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div class="cockpit">
       <div class="panel">
         <div class="panel-hdr"><div class="panel-title">Active Events</div></div>
-        <div class="panel-body">
-          <div class="event-card">
-            <div class="event-name-row"><span class="event-name">SEMA Show 2026</span><span class="event-name-sep">|</span><span class="event-job-num">Job #261490</span></div>
-            <div class="event-meta">Las Vegas Convention Center · Move-in May 6</div>
-            <div class="event-tags"><span class="chip chip-green">On Track</span><span class="chip chip-mb">On-Site Lead: Torres</span></div>
-          </div>
-          <div class="event-card">
-            <div class="event-name-row"><span class="event-name">Healthcare Summit</span><span class="event-name-sep">|</span><span class="event-job-num">Job #261831</span></div>
-            <div class="event-meta">Chicago McCormick · Move-in May 9</div>
-            <div class="event-tags"><span class="chip chip-amber">SERF Due</span><span class="chip chip-mb">On-Site Lead: Kim</span></div>
-          </div>
-          <div class="event-card">
-            <div class="event-name-row"><span class="event-name">AHR Expo</span><span class="event-name-sep">|</span><span class="event-job-num">Job #262104</span></div>
-            <div class="event-meta">Orlando Convention · Move-in May 12</div>
-            <div class="event-tags"><span class="chip chip-green">On Track</span><span class="chip chip-mb">Remote</span></div>
-          </div>
+        <div class="panel-body" id="active-events-body">
+          <!-- Populated by renderActiveEvents() -->
         </div>
       </div>
       <div class="panel">
@@ -1727,7 +1713,7 @@ function showPage(id, el) {
   if (el) el.classList.add('active');
   // Reset stale selections before rendering the new page
   resetWorkspaceState();
-  if (id === 'today')       { renderKpiStrip(); renderNeedsAttention(); }
+  if (id === 'today')       { renderKpiStrip(); renderActiveEvents(); renderNeedsAttention(); }
   if (id === 'recruiting')  { initRecruiting(); }
   if (id === 'onboarding')  { initOnboarding(); }
   if (id === 'transitions') { initTransitions(); }
@@ -1977,7 +1963,7 @@ function setIdentity(key) {
   var activePage = document.querySelector('.page.active');
   if (activePage) {
     var pid = activePage.id;
-    if (pid === 'page-today')       { renderKpiStrip(); renderNeedsAttention(); }
+    if (pid === 'page-today')       { renderKpiStrip(); renderActiveEvents(); renderNeedsAttention(); }
     if (pid === 'page-recruiting')  { initRecruiting(); }
     if (pid === 'page-onboarding')  { initOnboarding(); }
     if (pid === 'page-transitions') { initTransitions(); }
@@ -2201,6 +2187,63 @@ function goToHire(el) {
   var navItem = document.querySelectorAll('.nav-item')[1];
   showPage('recruiting', navItem);
   setTimeout(function(){ selId = hireId; renderList(); renderDetail(); }, 50);
+}
+
+
+function renderActiveEvents() {
+  var el = document.getElementById('active-events-body');
+  if (!el) return;
+
+  var shows = getScopeShows();
+
+  if (!shows.length) {
+    el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13.5px">No active shows today for this scope.</div>';
+    return;
+  }
+
+  // Sort by moveInStart ascending so soonest move-in is first
+  shows.sort(function(a, b) {
+    return (a.moveInStart || '').localeCompare(b.moveInStart || '');
+  });
+
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtDate(d) {
+    if (!d) return 'TBD';
+    var parts = d.split('-');
+    return months[parseInt(parts[1])-1] + ' ' + parseInt(parts[2]);
+  }
+
+  el.innerHTML = shows.map(function(s) {
+    var plan = ssPlans && ssPlans[s.id];
+    var statusChip = plan && plan.confirmed
+      ? '<span class="chip chip-green">Staffing Confirmed</span>'
+      : '<span class="chip chip-amber">Staffing Pending</span>';
+    var platformChip = s.freemanPlatform === 'Freeman Next'
+      ? '<span class="chip chip-mb">Freeman Next</span>' : '';
+    var moveInLabel = 'Move-in ' + fmtDate(s.moveInStart);
+    var clearLabel  = 'Clear ' + fmtDate(s.clearDate);
+    return '<div class="event-card" onclick="goToShow(\''+s.id+'\');" style="cursor:pointer">' +
+      '<div class="event-name-row">' +
+        '<span class="event-name">' + s.name + '</span>' +
+        '<span class="event-name-sep">|</span>' +
+        '<span class="event-job-num" style="color:var(--mb);font-weight:700">Job #' + s.id + '</span>' +
+      '</div>' +
+      '<div class="event-meta">' + (s.facility || s.city) + ' · ' + moveInLabel + ' – ' + clearLabel + '</div>' +
+      '<div class="event-meta" style="margin-top:2px">' + s.producingBranch + ' · ' + (s.currentBooths || s.projectedBooths || 0) + ' booths</div>' +
+      '<div class="event-tags">' + statusChip + platformChip + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function goToShow(showId) {
+  // Navigate to Staffing & Scheduling and select this show
+  var navItem = document.querySelector('.nav-item[onclick*="staffing"]');
+  showPage('staffing', navItem);
+  setTimeout(function() {
+    ssSelId = showId;
+    renderSsList();
+    renderSsDetail();
+  }, 50);
 }
 
 function renderNeedsAttention() {
@@ -2881,6 +2924,19 @@ var SS_TASKS = [
   {id:"s6", phase:"Leadership Steps", title:"Enter supervisor/lead names in NSS", desc:"Once names are entered in NSS, an auto-alert is sent to assigned persons at the 10-week mark.", links:[{label:"NSS",url:"https://nss.freeman.com"}], nameEntry:true},
   {id:"s7", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]}
 ];
+
+
+// ── BRANCH MAP: region → [branches] ──────────────────────────────────────
+var BRANCH_MAP = {
+  'Canada':        ['Toronto'],
+  'Las Vegas':     ['Las Vegas'],
+  'North Central': ['Chicago', 'Des Moines'],
+  'Northeast':     ['Boston', 'New York', 'Washington D.C.'],
+  'NW/SoCal':      ['Anaheim', 'Denver', 'Reno', 'San Francisco'],
+  'Off-Site':      ['High-Touch Accounts', 'Off-Site'],
+  'South Central': ['Dallas', 'Houston', 'San Antonio'],
+  'Southeast':     ['Atlanta', 'Nashville', 'New Orleans', 'Orlando']
+};
 
 function getScopeShows() {
   // ── TODAY filter: only shows where moveInStart <= today <= clearDate ──
