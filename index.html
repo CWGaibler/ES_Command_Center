@@ -98,13 +98,13 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-coming-soon{padding:20px 24px;background:var(--fb-xlt);border-radius:8px;margin:16px 24px;text-align:center;color:var(--muted);font-size:13px}
 
 /* COCKPIT */
-.cockpit{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
-.panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.cockpit{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;height:calc(100vh - 280px);min-height:320px}
+.panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
 .panel-hdr{padding:10px 14px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb)}
 .panel-hdr.gold{border-top-color:var(--gold)}
 .panel-hdr.orange{border-top-color:var(--orange)}
 .panel-title{font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.panel-body{padding:10px 14px}
+.panel-body{padding:10px 14px;overflow-y:auto;flex:1;min-height:0}
 
 /* CHIPS */
 .chip{display:inline-flex;align-items:center;font-size:14px;font-weight:700;padding:3px 9px;border-radius:999px;border:1.5px solid transparent;white-space:nowrap}
@@ -2214,10 +2214,6 @@ function renderActiveEvents() {
   }
 
   el.innerHTML = shows.map(function(s) {
-    var plan = ssPlans && ssPlans[s.id];
-    var statusChip = plan && plan.confirmed
-      ? '<span class="chip chip-green">Staffing Confirmed</span>'
-      : '<span class="chip chip-amber">Staffing Pending</span>';
     var platformChip = s.freemanPlatform === 'Freeman Next'
       ? '<span class="chip chip-mb">Freeman Next</span>' : '';
     var moveInLabel = 'Move-in ' + fmtDate(s.moveInStart);
@@ -2230,7 +2226,7 @@ function renderActiveEvents() {
       '</div>' +
       '<div class="event-meta">' + (s.facility || s.city) + ' · ' + moveInLabel + ' – ' + clearLabel + '</div>' +
       '<div class="event-meta" style="margin-top:2px">' + s.producingBranch + ' · ' + (s.currentBooths || s.projectedBooths || 0) + ' booths</div>' +
-      '<div class="event-tags">' + statusChip + platformChip + '</div>' +
+      (platformChip ? '<div class="event-tags">' + platformChip + '</div>' : '') +
     '</div>';
   }).join('');
 }
