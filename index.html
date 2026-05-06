@@ -2216,7 +2216,7 @@ function renderActiveEvents() {
   el.innerHTML = shows.map(function(s) {
     var isNext = s.freemanPlatform === 'Freeman Next';
     var platformChip = isNext
-      ? '<span class="chip chip-mb">Freeman Next</span>'
+      ? '<span class="chip" style="background:#00BDF6;color:#fff;border-color:#00BDF6;font-weight:700">Freeman Next</span>'
       : '<span class="chip" style="background:#E2E5EF;color:#555E7A;border-color:#C5CADB;font-weight:700">Freeman Now</span>';
     var moveInLabel = 'Move-in ' + fmtDate(s.moveInStart);
     var clearLabel  = 'Clear ' + fmtDate(s.clearDate);
