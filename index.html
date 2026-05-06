@@ -2433,8 +2433,7 @@ function renderKpiStrip() {
     var color = kpiColor(status);
     var barPct = kpiBarPct(kpi, val);
     var isActive = kpi.id === kpiSelId ? ' kpi-active' : '';
-    var topColor = status === 'red' ? 'var(--orange)' : 'var(--border)';
-    html += '<div class="kpi-card' + isActive + '" onclick="kpiCardClick(\'' + kpi.id + '\')" style="border-top-color:' + topColor + '">' +
+    html += '<div class="kpi-card' + isActive + '" onclick="kpiCardClick(\'' + kpi.id + '\')" style="border-top-color:var(--mb)">' +
       '<div class="kpi-lbl">' + kpi.name + '</div>' +
       '<div class="kpi-bottom">' +
         '<div class="kpi-val" style="color:' + color + '">' + kpiFmt(kpi, val) + '</div>' +
