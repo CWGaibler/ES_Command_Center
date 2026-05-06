@@ -179,6 +179,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .task-row:last-child{border-bottom:none}
 .task-row:hover{background:var(--fb-xlt)}
 .task-chk{width:17px;height:17px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--white);transition:all .15s}
+.task-chk.not-owner{opacity:0.4;cursor:not-allowed}
 .task-chk:hover{border-color:var(--mb)}
 .task-chk.checked{background:var(--green);border-color:var(--green)}
 .task-chk.overdue-chk{border-color:var(--orange)}
@@ -2528,8 +2529,9 @@ function renderDetail(){
         t.links.forEach(function(l){lnks+='<a class="tlink" href="'+l.url+'" target="_blank">'+l.label+' &#8599;</a>';});
         lnks+='</div>';
       }
-      var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'');
-      var chkAttrs = locked ? '' : ' data-hire="'+h.id+'" data-task="'+t.id+'"';
+      var canInteract = !locked && canView(h) && identityCanCheckTask(t.owner, h.hiringManager);
+      var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'') + (!locked&&!canInteract?' not-owner':'');
+      var chkAttrs = locked ? '' : ' data-hire="'+h.id+'" data-task="'+t.id+'" data-owner="'+t.owner+'"' + (!canInteract?' data-readonly="1"':'');
       clHtml+='<div class="task-row'+(locked?' step-locked':'')+'">'+
         '<div class="'+chkCls+'"'+chkAttrs+'><span class="chk-mark">&#10003;</span></div>'+
         '<div class="task-body">'+
@@ -2603,15 +2605,20 @@ function renderDetail(){
     };
   });
 
-  // Attach checkbox listeners
+  // Attach checkbox listeners — enforce ownership before toggling
   panel.querySelectorAll('.task-chk').forEach(function(chk){
     chk.onclick = function(){
-      var hId=this.getAttribute('data-hire');
-      var tId=this.getAttribute('data-task');
-      var hire=hires.find(function(x){return x.id===hId;});
-      if(!hire)return;
-      var i=hire.checked.indexOf(tId);
-      if(i>=0) hire.checked.splice(i,1); else hire.checked.push(tId);
+      if (this.getAttribute('data-readonly') === '1') return;
+      if (this.classList.contains('locked')) return;
+      var hId   = this.getAttribute('data-hire');
+      var tId   = this.getAttribute('data-task');
+      var tOwner = this.getAttribute('data-owner');
+      var hire  = hires.find(function(x){ return x.id === hId; });
+      if (!hire) return;
+      if (!canView(hire)) return;
+      if (!identityCanCheckTask(tOwner, hire.hiringManager)) return;
+      var i = hire.checked.indexOf(tId);
+      if (i >= 0) hire.checked.splice(i, 1); else hire.checked.push(tId);
       renderList(); renderDetail(); updateStats();
     };
   });
