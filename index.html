@@ -3158,7 +3158,7 @@ function renderObDetail() {
         '<span class="ph-count">'+pp.done+'/'+pp.total+'</span>' +
         '<span class="ph-chev '+(phase===rec.phase?'open':'')+'">▾</span>' +
       '</div>' +
-      '<div class="'+(phase===rec.phase?'open':''")+'">' + taskHtml + '</div>' +
+      '<div class="'+(phase===rec.phase?'open':'')+'">' + taskHtml + '</div>' +
     '</div>';
   }).join('');
   var viewNote = (LC_VIEW.ob === 'rd' || LC_VIEW.ob === 'es') ? '<div style="padding:8px 16px;background:#FFF5D6;border-bottom:1px solid rgba(255,181,0,.2);font-size:13px;color:#7A5C00"><strong>View-only mode:</strong> Tasks can only be checked off by their responsible owner.</div>' : '';
