@@ -1399,6 +1399,13 @@ function getRecruitingScope() {
 }
 
 function canView(h) {
+  var p = currentIdentity();
+  // Managers (canCheckOwner === 'hm' and level === 'branch' with no directReports)
+  // see ONLY their own positions in Recruiting — not all positions in their branch.
+  // Directors, RDs, and ES Leadership see all positions within their scope.
+  if (p.level === 'branch' && p.taskRole === 'hm' && !p.directReports) {
+    return h.hiringManager === p.name;
+  }
   return identityCanSeeBranch(h.branch);
 }
 
