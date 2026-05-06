@@ -2214,8 +2214,10 @@ function renderActiveEvents() {
   }
 
   el.innerHTML = shows.map(function(s) {
-    var platformChip = s.freemanPlatform === 'Freeman Next'
-      ? '<span class="chip chip-mb">Freeman Next</span>' : '';
+    var isNext = s.freemanPlatform === 'Freeman Next';
+    var platformChip = isNext
+      ? '<span class="chip chip-mb">Freeman Next</span>'
+      : '<span class="chip chip-ghost" style="color:var(--muted)">Freeman Now</span>';
     var moveInLabel = 'Move-in ' + fmtDate(s.moveInStart);
     var clearLabel  = 'Clear ' + fmtDate(s.clearDate);
     return '<div class="event-card" onclick="goToShow(\''+s.id+'\');" style="cursor:pointer">' +
@@ -2226,7 +2228,7 @@ function renderActiveEvents() {
       '</div>' +
       '<div class="event-meta">' + (s.facility || s.city) + ' · ' + moveInLabel + ' – ' + clearLabel + '</div>' +
       '<div class="event-meta" style="margin-top:2px">' + s.producingBranch + ' · ' + (s.currentBooths || s.projectedBooths || 0) + ' booths</div>' +
-      (platformChip ? '<div class="event-tags">' + platformChip + '</div>' : '') +
+      '<div class="event-tags">' + platformChip + '</div>' +
     '</div>';
   }).join('');
 }
