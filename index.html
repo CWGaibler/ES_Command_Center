@@ -947,7 +947,7 @@ var APPROVAL_STAGES = {
   'rejected':    {label:'Rejected',         cls:'chip-rejected',   nextStage:null}
 };
 
-function addDays(s,n){var d=new Date(s);d.setDate(d.getDate()+n);return d;}
+function addDays(s,n){if(!s)return new Date('2099-01-01');var d=new Date(s);if(isNaN(d.getTime()))return new Date('2099-01-01');d.setDate(d.getDate()+n);return d;}
 function fmtDate(d){var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getDate();}
 function dueStatus(d,ck){
   if(ck)return'done';
@@ -958,8 +958,10 @@ function dueStatus(d,ck){
 }
 function countOverdue(h){
   var n=0;
+  var baseDate = h.start || h.proposedStart || '';
+  if (!baseDate) return 0; // no start date yet — nothing can be overdue
   TASKS.forEach(function(t){
-    if(h.checked.indexOf(t.id)<0 && dueStatus(addDays(h.start,t.off),false)==='overdue') n++;
+    if(h.checked.indexOf(t.id)<0 && dueStatus(addDays(baseDate,t.off),false)==='overdue') n++;
   });
   return n;
 }
@@ -1308,7 +1310,7 @@ function updateStats(){
   var visible = hires.filter(canView);
   var open=0, pending=0, active=0, ov=0;
   visible.forEach(function(h){
-    if(['draft','pending-rd','pending-es','approved'].indexOf(h.stage)>=0) open++;
+    if(['approved-not-posted','draft','pending-rd','pending-es','approved'].indexOf(h.stage)>=0) open++;
     if(needsMyAction(h)) pending++;
     if(['posted','interviewing','offer'].indexOf(h.stage)>=0) active++;
     ov+=countOverdue(h);
