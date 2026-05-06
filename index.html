@@ -2208,6 +2208,43 @@ function canView(h) {
   return identityCanSeeBranch(h.branch);
 }
 
+// canViewInScope(): drives what appears in the sidebar LIST.
+// Respects the active scope pill so the list follows the pill selection.
+// Managers without directReports are always anchored to their own positions
+// regardless of pill — their accountability doesn't change when browsing.
+function canViewInScope(h) {
+  var p = currentIdentity();
+
+  // Managers always see only their own positions — pill has no effect
+  if (p.level === 'branch' && p.taskRole === 'hm' && !p.directReports) {
+    return h.hiringManager === p.name;
+  }
+
+  // For everyone else: respect the active scope pill
+  var activePill = document.querySelector('.scope-pill.active');
+  var scope = activePill ? activePill.getAttribute('data-scope') : 'enterprise';
+  var regionEl = document.getElementById('region-select');
+  var branchEl = document.getElementById('branch-select');
+  var pillRegion = regionEl ? regionEl.value : '';
+  var pillBranch = branchEl ? branchEl.value : '';
+
+  if (scope === 'enterprise') {
+    // All hires across all branches (exclude Off-Site for field ops context)
+    return h.branch !== 'Off-site' && h.branch !== 'Off-Site' && h.branch !== 'High-Touch Accounts';
+  }
+  if (scope === 'region' && pillRegion) {
+    // Hires whose branch falls within the selected region
+    var regionBranches = BRANCH_MAP[pillRegion] || [];
+    return regionBranches.indexOf(h.branch) >= 0;
+  }
+  if (scope === 'branch' && pillBranch) {
+    return h.branch === pillBranch;
+  }
+
+  // Fallback: default to identity scope
+  return identityCanSeeBranch(h.branch);
+}
+
 function needsMyAction(h) {
   // Flag positions that have been sitting at approved-not-posted for a while, or are in offer stage
   if(h.stage === 'offer') return true;
@@ -2315,7 +2352,7 @@ function renderNeedsAttention() {
 function renderList(){
   var el=document.getElementById('hire-list'); if(!el)return;
   el.innerHTML='';
-  var visible = hires.filter(canView);
+  var visible = hires.filter(canViewInScope);
   if(!visible.length){ el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No positions in this view.</div>'; updateStats(); return; }
   visible.forEach(function(h){
     var pct=Math.round(h.checked.length/TASKS.length*100);
