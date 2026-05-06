@@ -427,7 +427,87 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .ss-btn-submit-mod{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:800;padding:6px 14px;border-radius:7px;border:none;background:var(--mb);color:#fff;cursor:pointer;margin-top:8px;width:100%}
 .ss-btn-submit-mod:hover{opacity:.85}
 
-/* v6-fix cache-bust: 1777999999 */
+
+/* ── LIFECYCLE WORKSPACES (Onboarding / Transitions / Offboarding) ── */
+.lc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.lc-stat{background:var(--white);border:2.5px solid var(--mb);border-radius:10px;padding:10px 13px}
+.lc-stat-lbl{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:3px}
+.lc-stat-val{font-size:26.4px;font-weight:800;color:var(--fb);line-height:1}
+.lc-stat-sub{font-size:14px;color:var(--muted);margin-top:2px}
+.lc-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px}
+.lc-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.lc-sidebar-hdr{padding:9px 13px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center;justify-content:space-between}
+.lc-sidebar-title{font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mb)}
+.lc-new-btn{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:3px 11px;border-radius:999px;border:1.5px solid var(--mb);background:transparent;color:var(--mb);cursor:pointer}
+.lc-new-btn:hover{background:var(--mb);color:#fff}
+.lc-person-item{padding:9px 13px;border-bottom:1px solid var(--border-lt);cursor:pointer;border-left:3px solid transparent;transition:background .1s}
+.lc-person-item:hover{background:var(--fb-xlt)}
+.lc-person-item.sel{background:var(--fb-xlt);border-left-color:var(--mb)}
+.lc-person-item.needs-attn{border-left-color:var(--orange)}
+.lc-person-item:last-child{border-bottom:none}
+.lc-person-name{font-size:14.4px;font-weight:700}
+.lc-person-role{font-size:13.5px;color:var(--muted);margin-top:1px}
+.lc-person-prog-row{display:flex;align-items:center;gap:6px;margin-top:5px}
+.lc-person-prog-wrap{flex:1;height:4px;background:var(--border-lt);border-radius:2px;overflow:hidden}
+.lc-person-prog-fill{height:100%;border-radius:2px;transition:width .3s}
+.lc-person-prog-fill.ob{background:var(--mb)}
+.lc-person-prog-fill.tr{background:var(--gold)}
+.lc-person-prog-fill.off{background:var(--orange)}
+.lc-person-prog-pct{font-size:14px;font-weight:800;color:var(--muted)}
+.lc-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+/* detail header */
+.lc-det-hdr{padding:13px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.lc-det-name{font-size:19.2px;font-weight:800}
+.lc-det-sub{font-size:13.5px;color:var(--muted);margin-top:2px}
+.lc-det-prog-wrap{height:5px;background:var(--border-lt);border-radius:3px;overflow:hidden;margin-top:7px;max-width:300px}
+.lc-det-prog-fill{height:100%;border-radius:3px;transition:width .3s}
+.lc-det-prog-fill.ob{background:var(--mb)}
+.lc-det-prog-fill.tr{background:var(--gold)}
+.lc-det-prog-fill.off{background:var(--orange)}
+.lc-det-prog-lbl{font-size:14px;color:var(--muted);margin-top:3px}
+.lc-det-scroll{max-height:calc(100vh - 340px);overflow-y:auto}
+/* owner badge on tasks */
+.task-owner-badge{display:inline-flex;align-items:center;font-size:13px;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap}
+.owner-hm{background:#EBF0FA;color:var(--fb);border:1px solid #C5CDE8}
+.owner-admin{background:rgba(255,181,0,.1);color:#7A5C00;border:1px solid rgba(255,181,0,.25)}
+.owner-cx{background:rgba(66,187,55,.1);color:#1A6B35;border:1px solid rgba(66,187,55,.2)}
+.owner-it{background:rgba(251,71,31,.1);color:#7A2A00;border:1px solid rgba(251,71,31,.2)}
+.owner-hr{background:rgba(0,189,246,.1);color:#006A8A;border:1px solid rgba(0,189,246,.25)}
+.task-chk.readonly{opacity:.55;cursor:not-allowed;background:var(--fb-xlt)}
+/* phase filter tabs */
+.lc-phase-tabs{display:flex;gap:6px;padding:8px 13px;border-bottom:1px solid var(--border-lt)}
+.lc-phase-tab{font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:700;padding:3px 9px;border-radius:999px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s}
+.lc-phase-tab.active{background:var(--fb);border-color:var(--fb);color:#fff}
+.lc-phase-tab:hover:not(.active){border-color:var(--fb);color:var(--fb)}
+/* backfill decision bar */
+.lc-backfill-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#FFF8E6;border-top:1px solid rgba(255,181,0,.25);flex-wrap:wrap}
+.lc-backfill-msg{font-size:13.5px;font-weight:700;color:var(--fb);flex:1}
+.lc-backfill-msg .sub{font-size:14px;color:var(--muted);margin-top:2px;font-weight:400}
+.btn-backfill-yes{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:5px 14px;border-radius:999px;border:none;background:var(--green);color:#fff;cursor:pointer}
+.btn-backfill-yes:hover{opacity:.85}
+.btn-backfill-rif{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:5px 14px;border-radius:999px;border:1.5px solid var(--border);background:#fff;color:var(--muted);cursor:pointer}
+.btn-backfill-rif:hover{border-color:var(--orange);color:var(--orange)}
+/* move to onboarding bar */
+.lc-handoff-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#EAFAF0;border-top:1px solid rgba(66,187,55,.2);flex-wrap:wrap}
+.lc-handoff-msg{font-size:13.5px;font-weight:700;color:var(--fb);flex:1}
+.btn-to-onboarding{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:5px 14px;border-radius:999px;border:none;background:var(--mb);color:#fff;cursor:pointer}
+.btn-to-onboarding:hover{opacity:.85}
+/* departure type chips */
+.chip-resignation{background:#FFF5D6;color:#7A5C00;border-color:rgba(255,181,0,.3)}
+.chip-termination{background:#FFEDE7;color:var(--orange);border-color:rgba(251,71,31,.2)}
+.chip-promotion{background:#EAFAF0;color:#1A6B35;border-color:rgba(66,187,55,.25)}
+.chip-transfer{background:rgba(0,189,246,.1);color:#006A8A;border-color:rgba(0,189,246,.3)}
+.chip-title-change{background:#F2F4F8;color:var(--fb);border-color:var(--border)}
+/* phase section header colour variants */
+.phase-hdr.tr-phase{background:rgba(255,181,0,.07)}
+.phase-hdr.off-phase{background:rgba(251,71,31,.05)}
+/* empty state */
+.lc-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 24px;text-align:center;color:var(--muted)}
+.lc-empty-icon{font-size:32px;opacity:.25;margin-bottom:10px}
+.lc-empty-msg{font-size:14px;font-weight:700;color:var(--fb);margin-bottom:4px}
+.lc-empty-sub{font-size:13.5px;line-height:1.5}
+
+/* v6-fix cache-bust: 1888000001 */
 </style>
 </head>
 <body>
@@ -653,9 +733,100 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   </div>
 
   <!-- COMING SOON PAGES -->
-  <div class="page" id="page-onboarding"><div class="coming-soon"><div class="cs-icon">📋</div><div class="cs-title">Onboarding</div><div class="cs-sub">New hire readiness checklist, equipment setup, system access, and NET tracking — from offer accepted to Day 1 ready.</div></div></div>
-  <div class="page" id="page-transitions"><div class="coming-soon"><div class="cs-icon">🔄</div><div class="cs-title">Transitions</div><div class="cs-sub">Internal transfers, promotions, title changes, and org chart updates — managing role changes within the team.</div></div></div>
-  <div class="page" id="page-offboarding"><div class="coming-soon"><div class="cs-icon">👋</div><div class="cs-title">Offboarding</div><div class="cs-sub">Departure workflows for resignations and terminations — equipment return, access removal, and backfill pipeline.</div></div></div>
+  <div class="page" id="page-onboarding">
+    <div class="page-hdr">
+      <div class="page-title">Onboarding</div>
+      <div class="page-sub">New hire readiness — from offer accepted to end of NET</div>
+    </div>
+    <div class="view-as-bar">
+      <span class="view-as-lbl">View as:</span>
+      <button class="view-as-btn active" onclick="lcSetViewAs('ob','hm',this)">Hiring Manager</button>
+      <button class="view-as-btn" onclick="lcSetViewAs('ob','admin',this)">ES Administrator</button>
+      <button class="view-as-btn" onclick="lcSetViewAs('ob','cx',this)">CX Enablement</button>
+      <button class="view-as-btn" onclick="lcSetViewAs('ob','rd',this)">Regional Director</button>
+      <span style="font-size:13.5px;color:var(--muted);margin-left:4px">Viewing as: <span class="view-as-name" id="ob-view-as-name">Hiring Manager</span></span>
+    </div>
+    <div class="lc-stats">
+      <div class="lc-stat"><div class="lc-stat-lbl">In Progress</div><div class="lc-stat-val" id="ob-stat-total">0</div><div class="lc-stat-sub">Active new hires</div></div>
+      <div class="lc-stat"><div class="lc-stat-lbl">Pre-Start</div><div class="lc-stat-val" id="ob-stat-prestart">0</div><div class="lc-stat-sub">Before Day 1</div></div>
+      <div class="lc-stat"><div class="lc-stat-lbl">First Week</div><div class="lc-stat-val" id="ob-stat-week1">0</div><div class="lc-stat-sub">Currently in week 1</div></div>
+      <div class="lc-stat"><div class="lc-stat-lbl">In NET</div><div class="lc-stat-val" id="ob-stat-net">0</div><div class="lc-stat-sub">In training</div></div>
+    </div>
+    <div class="lc-layout">
+      <div class="lc-sidebar">
+        <div class="lc-sidebar-hdr">
+          <span class="lc-sidebar-title">New Hires</span>
+        </div>
+        <div id="ob-person-list"></div>
+      </div>
+      <div class="lc-detail" id="ob-detail">
+        <div class="lc-empty"><div class="lc-empty-icon">📋</div><div class="lc-empty-msg">Select a new hire</div><div class="lc-empty-sub">Choose a person from the left to review their onboarding checklist</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="page" id="page-transitions">
+    <div class="page-hdr">
+      <div class="page-title">Transitions</div>
+      <div class="page-sub">Promotions, title changes, and internal transfers</div>
+    </div>
+    <div class="view-as-bar">
+      <span class="view-as-lbl">View as:</span>
+      <button class="view-as-btn active" onclick="lcSetViewAs('tr','hm',this)">Hiring Manager</button>
+      <button class="view-as-btn" onclick="lcSetViewAs('tr','rd',this)">Regional Director</button>
+      <button class="view-as-btn" onclick="lcSetViewAs('tr','es',this)">ES Leadership</button>
+      <span style="font-size:13.5px;color:var(--muted);margin-left:4px">Viewing as: <span class="view-as-name" id="tr-view-as-name">Hiring Manager</span></span>
+    </div>
+    <div class="lc-stats">
+      <div class="lc-stat"><div class="lc-stat-lbl">In Progress</div><div class="lc-stat-val" id="tr-stat-total">0</div><div class="lc-stat-sub">Active transitions</div></div>
+      <div class="lc-stat"><div class="lc-stat-lbl">Promotions</div><div class="lc-stat-val" id="tr-stat-promo">0</div><div class="lc-stat-sub">Title / org changes</div></div>
+      <div class="lc-stat"><div class="lc-stat-lbl">Transfers Out</div><div class="lc-stat-val" id="tr-stat-transfer">0</div><div class="lc-stat-sub">Leaving ES</div></div>
+      <div class="lc-stat"><div class="lc-stat-lbl">Backfills Pending</div><div class="lc-stat-val" id="tr-stat-backfill" style="color:var(--gold)">0</div><div class="lc-stat-sub">Awaiting decision</div></div>
+    </div>
+    <div class="lc-layout">
+      <div class="lc-sidebar">
+        <div class="lc-sidebar-hdr">
+          <span class="lc-sidebar-title">Active Transitions</span>
+          <button class="lc-new-btn" onclick="lcNewRecord('tr')">+ New</button>
+        </div>
+        <div id="tr-person-list"></div>
+      </div>
+      <div class="lc-detail" id="tr-detail">
+        <div class="lc-empty"><div class="lc-empty-icon">🔄</div><div class="lc-empty-msg">Select a transition</div><div class="lc-empty-sub">Choose a person from the left to review their transition checklist</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="page" id="page-offboarding">
+    <div class="page-hdr">
+      <div class="page-title">Offboarding</div>
+      <div class="page-sub">Departure workflows — resignations and terminations</div>
+    </div>
+    <div class="view-as-bar">
+      <span class="view-as-lbl">View as:</span>
+      <button class="view-as-btn active" onclick="lcSetViewAs('off','hm',this)">Hiring Manager</button>
+      <button class="view-as-btn" onclick="lcSetViewAs('off','admin',this)">ES Administrator</button>
+      <button class="view-as-btn" onclick="lcSetViewAs('off','rd',this)">Regional Director</button>
+      <button class="view-as-btn" onclick="lcSetViewAs('off','es',this)">ES Leadership</button>
+      <span style="font-size:13.5px;color:var(--muted);margin-left:4px">Viewing as: <span class="view-as-name" id="off-view-as-name">Hiring Manager</span></span>
+    </div>
+    <div class="lc-stats">
+      <div class="lc-stat"><div class="lc-stat-lbl">Active Departures</div><div class="lc-stat-val" id="off-stat-total">0</div><div class="lc-stat-sub">In process</div></div>
+      <div class="lc-stat"><div class="lc-stat-lbl">Resignations</div><div class="lc-stat-val" id="off-stat-resign">0</div><div class="lc-stat-sub">Voluntary</div></div>
+      <div class="lc-stat"><div class="lc-stat-lbl">Terminations</div><div class="lc-stat-val" id="off-stat-term">0</div><div class="lc-stat-sub">Involuntary</div></div>
+      <div class="lc-stat"><div class="lc-stat-lbl">Backfills Pending</div><div class="lc-stat-val" id="off-stat-backfill" style="color:var(--gold)">0</div><div class="lc-stat-sub">Decision needed</div></div>
+    </div>
+    <div class="lc-layout">
+      <div class="lc-sidebar">
+        <div class="lc-sidebar-hdr">
+          <span class="lc-sidebar-title">Departures</span>
+          <button class="lc-new-btn" onclick="lcNewRecord('off')">+ New</button>
+        </div>
+        <div id="off-person-list"></div>
+      </div>
+      <div class="lc-detail" id="off-detail">
+        <div class="lc-empty"><div class="lc-empty-icon">👋</div><div class="lc-empty-msg">Select a departure</div><div class="lc-empty-sub">Choose a person from the left to review their offboarding checklist</div></div>
+      </div>
+    </div>
+  </div>
   <div class="page" id="page-training"><div class="coming-soon"><div class="cs-icon">🎓</div><div class="cs-title">Training & Development</div><div class="cs-sub">NET participant performance, FNext readiness, and training completion tracking.</div></div></div>
   <div class="page" id="page-staffing">
     <div class="page-hdr">
@@ -821,6 +992,9 @@ function showPage(id, el) {
   if (page) page.classList.add('active');
   if (el) el.classList.add('active');
   if (id === 'recruiting') initRecruiting();
+  if (id === 'onboarding') initOnboarding();
+  if (id === 'transitions') initTransitions();
+  if (id === 'offboarding') initOffboarding();
   if (id === 'staffing') initStaffing();
   if (id === 'kpis') initKpis();
 }
