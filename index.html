@@ -443,7 +443,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .lc-person-item{padding:9px 13px;border-bottom:1px solid var(--border-lt);cursor:pointer;border-left:3px solid transparent;transition:background .1s}
 .lc-person-item:hover{background:var(--fb-xlt)}
 .lc-person-item.sel{background:var(--fb-xlt);border-left-color:var(--mb)}
-.lc-person-item.needs-attn{border-left-color:var(--orange)}
+/* .lc-person-item.needs-attn — removed; backfill indicator is chip-only */
 .lc-person-item:last-child{border-bottom:none}
 .lc-person-name{font-size:14.4px;font-weight:700}
 .lc-person-role{font-size:13.5px;color:var(--muted);margin-top:1px}
@@ -570,46 +570,42 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="hdr-right">
     <span class="hdr-date" id="hdr-date"></span>
     <select id="identity-select" onchange="setIdentity(this.value)" style="font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:4px 10px;border-radius:999px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22%3E%3Cpath d=%22M1 1l4 4 4-4%22 stroke=%22white%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;max-width:200px">
-      <optgroup label="── ES Leadership ──">
-        <option value="craig" selected>Craig Gaibler</option>
-        <option value="nesana">Nesana Wieger</option>
-        <option value="erica">Erica Cochran</option>
-        <option value="erii">Erii Rodriguez</option>
-        <option value="lauren">Lauren Medina</option>
-        <option value="amber">Amber Segura</option>
-        <option value="kacie">Kacie Kugel</option>
-      </optgroup>
-      <optgroup label="── Regional Directors ──">
-        <option value="leslie">Leslie Davis</option>
-        <option value="ellen">Ellen Crowley</option>
-        <option value="lubi">Lubi Garza</option>
-        <option value="maud">Maud Langlois</option>
-        <option value="lisette">Lisette Bergeron</option>
-      </optgroup>
-      <optgroup label="── Directors ──">
-        <option value="nicole">Nicole Hanna</option>
-        <option value="tlam">T Lam</option>
-        <option value="cory">Cory Marin</option>
-        <option value="mary">Mary Ligammari</option>
-        <option value="joan">Joan Davis</option>
-        <option value="laura">Laura Ewell</option>
-        <option value="jose">Jose Medina</option>
-        <option value="tricia">Tricia Orme</option>
-      </optgroup>
-      <optgroup label="── Managers ──">
-        <option value="niall">Niall McCarthy</option>
-        <option value="joanne">Joanne Peau</option>
-        <option value="chenille">Chenille Book</option>
-        <option value="emily">Emily Dodd</option>
-        <option value="jessica">Jessica Montoro</option>
-        <option value="lisa">Lisa Park</option>
-        <option value="tiffany">Tiffany Jarrett</option>
-        <option value="gina">Gina Alberto</option>
-        <option value="cassandra">Cassandra Karns</option>
-        <option value="lymari">Lymari Colon</option>
-        <option value="regina">Regina Serigne</option>
-        <option value="anne">Anne Wolkenhauer</option>
-      </optgroup>
+      <option value="amber">Amber Segura</option>
+      <option value="anne">Anne Wolkenhauer</option>
+      <option value="cassandra">Cassandra Karns</option>
+      <option value="chenille">Chenille Book</option>
+      <option value="cory">Cory Marin</option>
+      <option value="courtney">Courtney Gonzalez</option>
+      <option value="craig" selected>Craig Gaibler</option>
+      <option value="elaine">Elaine Yesh</option>
+      <option value="emily">Emily Dodd</option>
+      <option value="erica">Erica Cochran</option>
+      <option value="erii">Erii Rodriguez</option>
+      <option value="gina">Gina Alberto</option>
+      <option value="jennifer_p">Jennifer Pearson</option>
+      <option value="jennifer_v">Jennifer Vaughan</option>
+      <option value="jessica">Jessica Montoro</option>
+      <option value="joan">Joan Davis</option>
+      <option value="joanne">Joanne Peau</option>
+      <option value="jose">Jose Medina</option>
+      <option value="kacie">Kacie Kugel</option>
+      <option value="laura">Laura Ewell</option>
+      <option value="lauren">Lauren Medina</option>
+      <option value="leslie">Leslie Davis</option>
+      <option value="lisette">Lisette Bergeron</option>
+      <option value="lisa">Lisa Park</option>
+      <option value="lubi">Lubi Garza</option>
+      <option value="lymari">Lymari Colon</option>
+      <option value="mary">Mary Ligammari</option>
+      <option value="maud">Maud Langlois</option>
+      <option value="michelle">Michelle Bogdan</option>
+      <option value="nesana">Nesana Wieger</option>
+      <option value="niall">Niall McCarthy</option>
+      <option value="nicole">Nicole Hanna</option>
+      <option value="regina">Regina Serigne</option>
+      <option value="tiffany">Tiffany Jarrett</option>
+      <option value="tlam">T Lam</option>
+      <option value="tricia">Tricia Orme</option>
     </select>
   </div>
 </header>
@@ -794,6 +790,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="lc-sidebar">
         <div class="lc-sidebar-hdr">
           <span class="lc-sidebar-title">New Hires</span>
+          <span style="display:inline-block;height:28px"></span>
         </div>
         <div id="ob-person-list"></div>
       </div>
@@ -1164,6 +1161,12 @@ var IDENTITY_DIRECTORY = {
   'lymari':   {name:'Lymari Colon',      title:'Manager, Orlando',         level:'branch',    branches:['Orlando'],              regions:[], canCheckOwner:'hm', taskRole:'hm'},
   'regina':   {name:'Regina Serigne',    title:'Manager, New Orleans',     level:'branch',    branches:['New Orleans'],          regions:[], canCheckOwner:'hm', taskRole:'hm'},
   'anne':     {name:'Anne Wolkenhauer',  title:'Manager, Atlanta',         level:'branch',    branches:['Atlanta'],              regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  // ── OFF-SITE TEAM (out of scope for ES field dashboard — enterprise view, read-only) ──
+  'jennifer_v':  {name:'Jennifer Vaughan', title:'Regional Director, Off-site', level:'enterprise', branches:[], regions:[], canCheckOwner:'none', taskRole:'es'},
+  'jennifer_p':  {name:'Jennifer Pearson', title:'Director, Off-site',          level:'enterprise', branches:[], regions:[], canCheckOwner:'none', taskRole:'es'},
+  'elaine':      {name:'Elaine Yesh',       title:'Director, Off-site',          level:'enterprise', branches:[], regions:[], canCheckOwner:'none', taskRole:'es'},
+  'courtney':    {name:'Courtney Gonzalez', title:'Manager, Off-site',           level:'enterprise', branches:[], regions:[], canCheckOwner:'none', taskRole:'es'},
+  'michelle':    {name:'Michelle Bogdan',   title:'Manager, Off-site',           level:'enterprise', branches:[], regions:[], canCheckOwner:'none', taskRole:'es'},
 };
 
 // Current active identity — defaults to Craig
