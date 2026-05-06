@@ -1903,11 +1903,11 @@ var IDENTITY_DIRECTORY = {
   'regina':   {name:'Regina Serigne',    title:'Manager, New Orleans',     level:'branch',    branches:['New Orleans'],          regions:[], canCheckOwner:'hm', taskRole:'hm'},
   'anne':     {name:'Anne Wolkenhauer',  title:'Manager, Atlanta',         level:'branch',    branches:['Atlanta'],              regions:[], canCheckOwner:'hm', taskRole:'hm'},
   // ── OFF-SITE TEAM (out of scope for ES field dashboard — enterprise view, read-only) ──
-  'jennifer_v':  {name:'Jennifer Vaughan', title:'Regional Director, Off-site', level:'enterprise', branches:[], regions:[], canCheckOwner:'none', taskRole:'es'},
-  'jennifer_p':  {name:'Jennifer Pearson', title:'Director, Off-site',          level:'enterprise', branches:[], regions:[], canCheckOwner:'none', taskRole:'es'},
-  'elaine':      {name:'Elaine Yesh',       title:'Director, Off-site',          level:'enterprise', branches:[], regions:[], canCheckOwner:'none', taskRole:'es'},
-  'courtney':    {name:'Courtney Gonzalez', title:'Manager, Off-site',           level:'enterprise', branches:[], regions:[], canCheckOwner:'none', taskRole:'es'},
-  'michelle':    {name:'Michelle Bogdan',   title:'Manager, Off-site',           level:'enterprise', branches:[], regions:[], canCheckOwner:'none', taskRole:'es'},
+  'jennifer_v':  {name:'Jennifer Vaughan', title:'Regional Director, Off-site', level:'region',    branches:['High-Touch Accounts','Off-Site'], regions:['Off-Site'], canCheckOwner:'none', taskRole:'rd'},
+  'jennifer_p':  {name:'Jennifer Pearson', title:'Director, High-Touch Accounts', level:'branch',  branches:['High-Touch Accounts'], regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'elaine':      {name:'Elaine Yesh',       title:'Director, Off-Site',          level:'branch',     branches:['Off-Site'], regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'courtney':    {name:'Courtney Gonzalez', title:'Manager, Off-Site',           level:'branch',     branches:['Off-Site'], regions:[], canCheckOwner:'hm',   taskRole:'hm'},
+  'michelle':    {name:'Michelle Bogdan',   title:'Manager, Off-Site',           level:'branch',     branches:['Off-Site'], regions:[], canCheckOwner:'hm',   taskRole:'hm'},
 };
 
 // Current active identity — defaults to Craig
