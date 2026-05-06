@@ -2967,6 +2967,523 @@ document.addEventListener('click', function(e) {
   else if(action === 'reject') openRejectModal(id);
   else if(action === 'resubmit') resubmit(id);
 });
+
+// ══════════════════════════════════════════════════════════════════════════
+// LIFECYCLE — Shared data model, task definitions, and render engine
+// Covers: Onboarding (ob), Transitions (tr), Offboarding (off)
+// ══════════════════════════════════════════════════════════════════════════
+
+// ── VIEW-AS STATE ──────────────────────────────────────────────────────────
+var LC_VIEW = { ob:'hm', tr:'hm', off:'hm' };
+var LC_VIEW_NAMES = { hm:'Hiring Manager', admin:'ES Administrator', cx:'CX Enablement', rd:'Regional Director', es:'ES Leadership' };
+
+function lcSetViewAs(ws, role, el) {
+  LC_VIEW[ws] = role;
+  document.querySelectorAll('#page-' + (ws==='ob'?'onboarding':ws==='tr'?'transitions':'offboarding') + ' .view-as-btn').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  var nameEl = document.getElementById(ws + '-view-as-name');
+  if (nameEl) nameEl.textContent = LC_VIEW_NAMES[role];
+  if (ws === 'ob') { renderObList(); renderObDetail(); updateObStats(); }
+  if (ws === 'tr') { renderTrList(); renderTrDetail(); updateTrStats(); }
+  if (ws === 'off') { renderOffList(); renderOffDetail(); updateOffStats(); }
+}
+
+// ── SELECTED IDs ───────────────────────────────────────────────────────────
+var selObId = null, selTrId = null, selOffId = null;
+
+// ══════════════════════════════════════════════════════════════════════════
+// ONBOARDING DATA & TASKS
+// ══════════════════════════════════════════════════════════════════════════
+var OB_TASKS = [
+  // Phase 1: Before Start Date
+  {id:'ob1', phase:'Before Start Date', title:'Confirm all Recruiting & Hiring procedures are complete', owner:'hm', links:[]},
+  {id:'ob2', phase:'Before Start Date', title:'Complete CX Team Member Contact Info Smartsheet (include full mailing address with apt/suite)', owner:'hm', links:[]},
+  {id:'ob3', phase:'Before Start Date', title:'Add employee to bulk CARF spreadsheet and Laptop Request Form (at least 2 weeks prior)', owner:'admin', links:[]},
+  {id:'ob4', phase:'Before Start Date', title:'Send Laptop Request spreadsheet to ITEquipmentRequest@freeman.com', owner:'admin', links:[]},
+  {id:'ob5', phase:'Before Start Date', title:'Order headset via Coupa for employees receiving one (at least 2 weeks prior)', owner:'admin', links:[]},
+  {id:'ob6', phase:'Before Start Date', title:'Fulfill equipment requests — must ship 8 business days before start date', owner:'it', links:[]},
+  {id:'ob7', phase:'Before Start Date', title:'Send Bulk CARF spreadsheet to bulkCARFprocess@freeman.com (at least 2 weeks prior)', owner:'admin', links:[]},
+  {id:'ob8', phase:'Before Start Date', title:'Fulfill CARF request and provide logins/passwords to employee prior to start date', owner:'it', links:[]},
+  {id:'ob9', phase:'Before Start Date', title:'Upon CARF completion, forward credentials to Hiring Manager, Office Manager, and CX Enablement Manager', owner:'admin', links:[]},
+  {id:'ob10', phase:'Before Start Date', title:'Request uniform vouchers for new employee once Freeman email is active', owner:'admin', links:[]},
+  {id:'ob11', phase:'Before Start Date', title:'Set employee up in Five9, CSM, Workfront, and Smartsheet with correct user profile and agent group', owner:'cx', links:[]},
+  {id:'ob12', phase:'Before Start Date', title:'Email CX Insights Analyst to add employee to ES Regional Schedule', owner:'hm', links:[]},
+  {id:'ob13', phase:'Before Start Date', title:'Add employee to CX and ES Microsoft Teams with correct location/user tags', owner:'admin', links:[]},
+  // Phase 2: First Week
+  {id:'ob14', phase:'First Week', title:'Ensure employee receives local badge for branch office access', owner:'hm', links:[]},
+  {id:'ob15', phase:'First Week', title:'Introduce new hire to team via email or team meeting', owner:'hm', links:[]},
+  {id:'ob16', phase:'First Week', title:'Execute Hiring Manager checklist from HR', owner:'hm', links:[{label:'HR Onboarding Home', url:'https://freemanco.sharepoint.com/teams/EmployeeOnboarding'}]},
+  {id:'ob17', phase:'First Week', title:'Guide employee through New Hire Checklist from HR (Days 1–5 emails)', owner:'hm', links:[]},
+  {id:'ob18', phase:'First Week', title:'Review ES Handbook with new employee — discuss role responsibilities and expectations', owner:'hm', links:[]},
+  {id:'ob19', phase:'First Week', title:'Confirm IT equipment received and working; connect employee with local IT if needed', owner:'hm', links:[]},
+  {id:'ob20', phase:'First Week', title:'Verify access to all required applications (TSS, SAP, OnBase, Kronos, Five9, CSM, Adobe, Teams, Zoom, Smartsheet)', owner:'hm', links:[]},
+  {id:'ob21', phase:'First Week', title:'Introduce employee to Freeway — allow free exploration time', owner:'hm', links:[]},
+  {id:'ob22', phase:'First Week', title:'Introduce employee to local/regional schedules and Kronos time logging', owner:'hm', links:[]},
+  {id:'ob23', phase:'First Week', title:'Schedule a show site visit for/with the employee', owner:'hm', links:[]},
+  {id:'ob24', phase:'First Week', title:'Schedule office visit (when applicable)', owner:'hm', links:[]},
+  {id:'ob25', phase:'First Week', title:'Order ESCA badge from ESCA website (only for required facilities/markets)', owner:'hm', links:[]},
+  {id:'ob26', phase:'First Week', title:'Attend NET expectations meeting with new employee and NET facilitator', owner:'hm', links:[]},
+  // Phase 3: During NET
+  {id:'ob27', phase:'During NET', title:'Order cell phone from Wireless Watchdogs and case via Coupa (final Monday of NET)', owner:'admin', links:[]},
+  {id:'ob28', phase:'During NET', title:'Order employee business cards after mobile number is known (on-site employees)', owner:'admin', links:[]},
+  {id:'ob29', phase:'During NET', title:'Gain ES Leadership approval and order MiFi from Wireless Watchdogs', owner:'admin', links:[]},
+  {id:'ob30', phase:'During NET', title:'Coordinate corporate credit card approval with ES Leadership and forward to FreemanCards', owner:'admin', links:[]},
+  {id:'ob31', phase:'During NET', title:'Conduct weekly 1:1 meetings with employee — review NET scores, performance, and open topics', owner:'hm', links:[]},
+  {id:'ob32', phase:'During NET', title:'Spend at least 1 hour per week in NET classes where direct reports are attending', owner:'hm', links:[]},
+];
+
+var obRecords = [
+  {id:'ob-r1', firstName:'Marcus', lastName:'Thompson', role:'ES Specialist', branch:'Las Vegas', ftpt:'Full-Time',
+   hiringManager:'Chenille Book', startDate:'2026-05-19', netDate:'2026-05-19',
+   phase:'Before Start Date', checked:{}, backfillDecision:null},
+  {id:'ob-r2', firstName:'Priya', lastName:'Nair', role:'ES Event Experience Supervisor', branch:'Dallas', ftpt:'Full-Time',
+   hiringManager:'Tiffany Jarrett', startDate:'2026-05-12', netDate:'2026-05-12',
+   phase:'First Week', checked:{}, backfillDecision:null},
+  {id:'ob-r3', firstName:'DeShawn', lastName:'Williams', role:'ES Sr. Specialist', branch:'Orlando', ftpt:'Full-Time',
+   hiringManager:'Lymari Colon', startDate:'2026-04-28', netDate:'2026-04-28',
+   phase:'During NET', checked:{ob1:true,ob2:true,ob3:true,ob4:true,ob5:true,ob6:true,ob7:true,ob8:true,ob9:true,ob10:true,ob11:true,ob12:true,ob13:true,ob14:true,ob15:true,ob16:true,ob17:true,ob18:true,ob19:true,ob20:true,ob21:true,ob22:true,ob23:true,ob24:true,ob25:true,ob26:true}, backfillDecision:null},
+];
+selObId = 'ob-r1';
+
+function obCanCheck(taskOwner) {
+  var v = LC_VIEW.ob;
+  if (v === 'rd' || v === 'es') return false; // read-only for RD and ES Leadership
+  if (v === 'hm' && taskOwner === 'hm') return true;
+  if (v === 'admin' && taskOwner === 'admin') return true;
+  if (v === 'cx' && taskOwner === 'cx') return true;
+  return false;
+}
+
+function obToggleTask(recId, taskId) {
+  var rec = obRecords.find(function(r){ return r.id === recId; });
+  if (!rec) return;
+  var t = OB_TASKS.find(function(t){ return t.id === taskId; });
+  if (!t) return;
+  if (!obCanCheck(t.owner)) return;
+  rec.checked[taskId] = !rec.checked[taskId];
+  renderObDetail();
+  updateObStats();
+  renderObList();
+}
+
+function obPhaseProgress(rec, phase) {
+  var tasks = OB_TASKS.filter(function(t){ return t.phase === phase; });
+  var done = tasks.filter(function(t){ return rec.checked[t.id]; }).length;
+  return { done: done, total: tasks.length };
+}
+
+function obTotalProgress(rec) {
+  var done = OB_TASKS.filter(function(t){ return rec.checked[t.id]; }).length;
+  return { done: done, total: OB_TASKS.length };
+}
+
+function obOwnerLabel(owner) {
+  var map = {hm:'Hiring Manager', admin:'ES Administrator', cx:'CX Enablement', it:'IT', hr:'HR'};
+  var cls = {hm:'owner-hm', admin:'owner-admin', cx:'owner-cx', it:'owner-it', hr:'owner-hr'};
+  return '<span class="task-owner-badge ' + (cls[owner]||'owner-hm') + '">' + (map[owner]||owner) + '</span>';
+}
+
+function updateObStats() {
+  var visible = obRecords;
+  document.getElementById('ob-stat-total').textContent = visible.length;
+  document.getElementById('ob-stat-prestart').textContent = visible.filter(function(r){ return r.phase==='Before Start Date'; }).length;
+  document.getElementById('ob-stat-week1').textContent = visible.filter(function(r){ return r.phase==='First Week'; }).length;
+  document.getElementById('ob-stat-net').textContent = visible.filter(function(r){ return r.phase==='During NET'; }).length;
+}
+
+function renderObList() {
+  var el = document.getElementById('ob-person-list');
+  if (!el) return;
+  if (!obRecords.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13.5px">No active new hires in scope</div>'; return; }
+  el.innerHTML = obRecords.map(function(rec) {
+    var prog = obTotalProgress(rec);
+    var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
+    var sel = rec.id === selObId ? ' sel' : '';
+    var phaseChip = rec.phase === 'Before Start Date' ? 'chip-mb' : rec.phase === 'First Week' ? 'chip-amber' : 'chip-green';
+    return '<div class="lc-person-item'+sel+'" onclick="obSelectPerson(\''+rec.id+'\')">' +
+      '<div class="lc-person-name">'+rec.firstName+' '+rec.lastName+'</div>' +
+      '<div class="lc-person-role">'+rec.role+' &mdash; '+rec.branch+'</div>' +
+      '<div style="margin-top:5px"><span class="chip '+phaseChip+'" style="font-size:13px">'+rec.phase+'</span></div>' +
+      '<div class="lc-person-prog-row"><div class="lc-person-prog-wrap"><div class="lc-person-prog-fill ob" style="width:'+pct+'%"></div></div><span class="lc-person-prog-pct">'+pct+'%</span></div>' +
+    '</div>';
+  }).join('');
+}
+
+function obSelectPerson(id) {
+  selObId = id;
+  renderObList();
+  renderObDetail();
+}
+
+function renderObDetail() {
+  var el = document.getElementById('ob-detail');
+  if (!el) return;
+  var rec = obRecords.find(function(r){ return r.id === selObId; });
+  if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">📋</div><div class="lc-empty-msg">Select a new hire</div></div>'; return; }
+  var prog = obTotalProgress(rec);
+  var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
+  var phases = ['Before Start Date', 'First Week', 'During NET'];
+  var phaseSections = phases.map(function(phase) {
+    var pp = obPhaseProgress(rec, phase);
+    var isDone = pp.done === pp.total;
+    var phIcon = isDone ? '✓' : (phase === rec.phase ? '→' : '○');
+    var phCls = isDone ? 'ph-done' : (phase === rec.phase ? 'ph-active' : 'ph-locked');
+    var tasks = OB_TASKS.filter(function(t){ return t.phase === phase; });
+    var taskHtml = tasks.map(function(t) {
+      var isChecked = !!rec.checked[t.id];
+      var canCheck = obCanCheck(t.owner);
+      var chkCls = isChecked ? 'checked' : (!canCheck ? 'readonly' : '');
+      var titleCls = isChecked ? 'done' : '';
+      var clickAttr = canCheck ? 'onclick="obToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
+      return '<div class="task-row">' +
+        '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
+        '<div class="task-body">' +
+          '<div class="task-title '+titleCls+'">'+t.title+'</div>' +
+          (t.links.length ? '<div class="task-links">'+t.links.map(function(l){ return '<a class="tlink" href="'+l.url+'" target="_blank">'+l.label+'</a>'; }).join('')+'</div>' : '') +
+        '</div>' +
+        '<div class="task-right">'+obOwnerLabel(t.owner)+'</div>' +
+      '</div>';
+    }).join('');
+    return '<div class="phase-sec">' +
+      '<div class="phase-hdr" onclick="this.nextElementSibling.classList.toggle(\'open\');this.querySelector(\'.ph-chev\').classList.toggle(\'open\')">' +
+        '<div class="ph-icon '+phCls+'">'+phIcon+'</div>' +
+        '<span class="ph-label">'+phase+'</span>' +
+        '<span class="ph-count">'+pp.done+'/'+pp.total+'</span>' +
+        '<span class="ph-chev '+(phase===rec.phase?'open':'')+'">▾</span>' +
+      '</div>' +
+      '<div class="'+(phase===rec.phase?'open':''")+'">' + taskHtml + '</div>' +
+    '</div>';
+  }).join('');
+  var viewNote = (LC_VIEW.ob === 'rd' || LC_VIEW.ob === 'es') ? '<div style="padding:8px 16px;background:#FFF5D6;border-bottom:1px solid rgba(255,181,0,.2);font-size:13px;color:#7A5C00"><strong>View-only mode:</strong> Tasks can only be checked off by their responsible owner.</div>' : '';
+  el.innerHTML = '<div class="lc-det-hdr">' +
+    '<div><div class="lc-det-name">'+rec.firstName+' '+rec.lastName+'</div>' +
+    '<div class="lc-det-sub">'+rec.role+' &middot; '+rec.branch+' &middot; '+rec.ftpt+' &middot; HM: '+rec.hiringManager+'</div>' +
+    '<div class="lc-det-sub" style="margin-top:2px">Start: '+rec.startDate+' &middot; NET: '+rec.netDate+'</div>' +
+    '<div class="lc-det-prog-wrap"><div class="lc-det-prog-fill ob" style="width:'+pct+'%"></div></div>' +
+    '<div class="lc-det-prog-lbl">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div></div>' +
+    '<div><span class="chip chip-mb">Onboarding</span></div>' +
+  '</div>' + viewNote +
+  '<div class="lc-det-scroll">'+phaseSections+'</div>';
+}
+
+function initOnboarding() {
+  updateObStats();
+  renderObList();
+  renderObDetail();
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// TRANSITIONS DATA & TASKS
+// ══════════════════════════════════════════════════════════════════════════
+var TR_TASKS_TRANSFER = [
+  {id:'tr1', title:'Confirm employee eligibility per Career Opportunities and Promotions & Transfers guidelines', owner:'hm'},
+  {id:'tr2', title:'Review change with ES Leadership — agree on effective date', owner:'hm'},
+  {id:'tr3', title:'Submit transition service tickets — reassign projects, remove team-specific access', owner:'hm'},
+  {id:'tr4', title:'Begin equipment return process — collect phone, iPad, uniforms, badge', owner:'hm'},
+  {id:'tr5', title:'Announce the transition to the team (if appropriate)', owner:'hm'},
+  {id:'tr6', title:'Plan knowledge transfer — document institutional knowledge, assign teammates to shadow', owner:'hm'},
+  {id:'tr7', title:'Notify internal partners — CX Enablement, HR, IT, Payroll', owner:'hm'},
+  {id:'tr8', title:'Review payroll and timekeeping — confirm final hours submitted; notify ES Admin of any PTO needs', owner:'hm'},
+  {id:'tr9', title:'Exit employee from ES systems — org charts, group chats, team emails, meeting invites', owner:'hm'},
+  {id:'tr10', title:'Communicate backfill intent to ES Leadership', owner:'hm'},
+  {id:'tr11', title:'Coordinate with ES Leadership on plan for filling position', owner:'hm'},
+  {id:'tr12', title:'Stay connected — encourage them to remain part of the Freeman network', owner:'hm'},
+];
+var TR_TASKS_PROMOTION = [
+  {id:'trp1', title:'Confirm employee eligibility per Career Opportunities and Promotions & Transfers guidelines', owner:'hm'},
+  {id:'trp2', title:'Request approval from ES Leadership — include current title/tenure, proposed title, reasoning, effective date, current and desired pay', owner:'hm'},
+  {id:'trp3', title:'ES Leadership reviews and responds to title or org change request', owner:'es'},
+  {id:'trp4', title:'Acknowledge and document the role change — confirm effective date, update team roster', owner:'hm'},
+  {id:'trp5', title:'Announce the change to the team — celebrate employee growth and clarify new responsibilities', owner:'hm'},
+  {id:'trp6', title:'Update internal tools and access as needed — system permissions, email signatures, org charts', owner:'hm'},
+  {id:'trp7', title:'Begin equipment return process if applicable (e.g. employee becoming a people leader)', owner:'hm'},
+  {id:'trp8', title:'Review training needs — discuss expectations of new role, assign relevant training', owner:'hm'},
+  {id:'trp9', title:'Transition workload — offload or redistribute tasks from previous role', owner:'hm'},
+  {id:'trp10', title:'Provide ongoing support — schedule regular check-ins during transition period', owner:'hm'},
+];
+
+var trRecords = [
+  {id:'tr-r1', firstName:'Aaliyah', lastName:'Foster', role:'ES Specialist', branch:'New York', ftpt:'Full-Time',
+   hiringManager:'Gina Alberto', transitionType:'promotion', newRole:'ES Sr. Specialist',
+   checked:{}, backfillDecision:null},
+];
+selTrId = 'tr-r1';
+
+function trTaskSet(rec) { return rec.transitionType === 'promotion' ? TR_TASKS_PROMOTION : TR_TASKS_TRANSFER; }
+
+function trCanCheck(taskOwner) {
+  var v = LC_VIEW.tr;
+  if (v === 'rd') return false;
+  if (v === 'hm' && taskOwner === 'hm') return true;
+  if (v === 'es' && taskOwner === 'es') return true;
+  return false;
+}
+
+function trToggleTask(recId, taskId) {
+  var rec = trRecords.find(function(r){ return r.id === recId; });
+  if (!rec) return;
+  var allTasks = TR_TASKS_TRANSFER.concat(TR_TASKS_PROMOTION);
+  var t = allTasks.find(function(t){ return t.id === taskId; });
+  if (!t || !trCanCheck(t.owner)) return;
+  rec.checked[taskId] = !rec.checked[taskId];
+  renderTrDetail(); updateTrStats(); renderTrList();
+}
+
+function trTotalProgress(rec) {
+  var tasks = trTaskSet(rec);
+  var done = tasks.filter(function(t){ return rec.checked[t.id]; }).length;
+  return { done:done, total:tasks.length };
+}
+
+function updateTrStats() {
+  document.getElementById('tr-stat-total').textContent = trRecords.length;
+  document.getElementById('tr-stat-promo').textContent = trRecords.filter(function(r){ return r.transitionType==='promotion'; }).length;
+  document.getElementById('tr-stat-transfer').textContent = trRecords.filter(function(r){ return r.transitionType==='transfer'; }).length;
+  document.getElementById('tr-stat-backfill').textContent = trRecords.filter(function(r){ return !r.backfillDecision && r.transitionType==='transfer'; }).length;
+}
+
+function renderTrList() {
+  var el = document.getElementById('tr-person-list');
+  if (!el) return;
+  if (!trRecords.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13.5px">No active transitions in scope</div>'; return; }
+  el.innerHTML = trRecords.map(function(rec) {
+    var prog = trTotalProgress(rec);
+    var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
+    var sel = rec.id === selTrId ? ' sel' : '';
+    var typeChip = rec.transitionType === 'promotion' ? 'chip-promotion' : 'chip-transfer';
+    var typeLabel = rec.transitionType === 'promotion' ? 'Promotion' : 'Transfer Out';
+    return '<div class="lc-person-item'+sel+'" onclick="trSelectPerson(\''+rec.id+'\')">' +
+      '<div class="lc-person-name">'+rec.firstName+' '+rec.lastName+'</div>' +
+      '<div class="lc-person-role">'+rec.role+' &mdash; '+rec.branch+'</div>' +
+      '<div style="margin-top:5px"><span class="chip '+typeChip+'" style="font-size:13px">'+typeLabel+'</span></div>' +
+      '<div class="lc-person-prog-row"><div class="lc-person-prog-wrap"><div class="lc-person-prog-fill tr" style="width:'+pct+'%"></div></div><span class="lc-person-prog-pct">'+pct+'%</span></div>' +
+    '</div>';
+  }).join('');
+}
+
+function trSelectPerson(id) { selTrId = id; renderTrList(); renderTrDetail(); }
+
+function trSetBackfill(recId, decision) {
+  var rec = trRecords.find(function(r){ return r.id === recId; });
+  if (!rec) return;
+  rec.backfillDecision = decision;
+  if (decision === 'backfill') {
+    alert('Backfill request created! A new Recruiting & Hiring record for ' + rec.role + ' (' + rec.branch + ') has been added to the Active Pipeline.');
+  }
+  renderTrDetail(); updateTrStats(); renderTrList();
+}
+
+function renderTrDetail() {
+  var el = document.getElementById('tr-detail');
+  if (!el) return;
+  var rec = trRecords.find(function(r){ return r.id === selTrId; });
+  if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">🔄</div><div class="lc-empty-msg">Select a transition</div></div>'; return; }
+  var tasks = trTaskSet(rec);
+  var prog = trTotalProgress(rec);
+  var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
+  var allDone = prog.done === prog.total;
+  var typeChip = rec.transitionType === 'promotion' ? '<span class="chip chip-promotion">Promotion / Title Change</span>' : '<span class="chip chip-transfer">Transfer Out of ES</span>';
+  var taskHtml = tasks.map(function(t) {
+    var isChecked = !!rec.checked[t.id];
+    var canCheck = trCanCheck(t.owner);
+    var chkCls = isChecked ? 'checked' : (!canCheck ? 'readonly' : '');
+    var clickAttr = canCheck ? 'onclick="trToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
+    return '<div class="task-row">' +
+      '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
+      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+'">'+t.title+'</div></div>' +
+      '<div class="task-right">'+obOwnerLabel(t.owner)+'</div>' +
+    '</div>';
+  }).join('');
+  var backfillBar = '';
+  if (rec.transitionType === 'transfer') {
+    if (!rec.backfillDecision) {
+      backfillBar = '<div class="lc-backfill-bar">' +
+        '<div class="lc-backfill-msg">Backfill Decision Required<div class="sub">Before closing this transition, indicate whether this position should be posted for backfill.</div></div>' +
+        '<button class="btn-backfill-yes" onclick="trSetBackfill(\''+rec.id+'\',\'backfill\')">✅ Backfill Needed</button>' +
+        '<button class="btn-backfill-rif" onclick="trSetBackfill(\''+rec.id+'\',\'rif\')">🚫 RIF / No Backfill</button>' +
+      '</div>';
+    } else if (rec.backfillDecision === 'backfill') {
+      backfillBar = '<div class="lc-handoff-bar"><div class="lc-handoff-msg">✅ Backfill Needed — Recruiting record created in Active Pipeline</div></div>';
+    } else {
+      backfillBar = '<div class="lc-handoff-bar" style="background:#F2F4F8;border-color:var(--border)"><div class="lc-handoff-msg" style="color:var(--muted)">🚫 Marked as RIF / No Backfill — position will not be posted</div></div>';
+    }
+  }
+  el.innerHTML = '<div class="lc-det-hdr">' +
+    '<div><div class="lc-det-name">'+rec.firstName+' '+rec.lastName+'</div>' +
+    '<div class="lc-det-sub">'+rec.role+(rec.newRole?' → '+rec.newRole:'')+' &middot; '+rec.branch+' &middot; HM: '+rec.hiringManager+'</div>' +
+    '<div class="lc-det-prog-wrap"><div class="lc-det-prog-fill tr" style="width:'+pct+'%"></div></div>' +
+    '<div class="lc-det-prog-lbl">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div></div>' +
+    '<div>'+typeChip+'</div>' +
+  '</div>' +
+  '<div class="lc-det-scroll"><div class="phase-sec">'+taskHtml+'</div></div>' +
+  backfillBar;
+}
+
+function initTransitions() { updateTrStats(); renderTrList(); renderTrDetail(); }
+
+// ══════════════════════════════════════════════════════════════════════════
+// OFFBOARDING DATA & TASKS
+// ══════════════════════════════════════════════════════════════════════════
+var OFF_TASKS_RESIGNATION = [
+  {id:'off1', title:'Acknowledge and document resignation — get written notice, confirm final day, notify ES Leadership and HRBP', owner:'hm'},
+  {id:'off2', title:'Submit Offboarding/Termination Service Request through myIT', owner:'admin'},
+  {id:'off3', title:'Begin equipment return process — collect badge, laptop, phone, iPad, uniforms', owner:'hm'},
+  {id:'off4', title:'Plan knowledge transfer — document institutional knowledge, assign teammates to shadow', owner:'hm'},
+  {id:'off5', title:'Notify internal partners — CX Enablement, HR, IT, Payroll', owner:'hm'},
+  {id:'off6', title:'Review payroll and timekeeping — confirm final hours; notify ES Admin of PTO needs', owner:'hm'},
+  {id:'off7', title:'Coordinate with HR — confirm exit interview details', owner:'hm'},
+  {id:'off8', title:'Schedule final 1:1 (if appropriate)', owner:'hm'},
+  {id:'off9', title:'Encourage exit interview participation', owner:'hm'},
+  {id:'off10', title:'Restrict system and facility access — confirm with IT all access is disabled', owner:'hm'},
+  {id:'off11', title:'Communicate internally (if appropriate) — recognize tenure and contributions', owner:'hm'},
+  {id:'off12', title:'Celebrate departure if appropriate (retiring team members with lengthy tenure)', owner:'hm'},
+  {id:'off13', title:'Communicate backfill intent to ES Leadership', owner:'hm'},
+];
+var OFF_TASKS_TERMINATION = [
+  {id:'offt1', title:'Obtain approval from ES Leadership and HR Business Partner — prepare and share performance documentation', owner:'hm'},
+  {id:'offt2', title:'Plan and schedule the separation meeting — coordinate with HR/Legal, choose appropriate setting', owner:'hm'},
+  {id:'offt3', title:'Prepare for meeting — confirm separation reason, talking points, timeline; pre-coordinate with ES Admin and IT', owner:'hm'},
+  {id:'offt4', title:'Conduct separation meeting — communicate decision clearly and respectfully; notify ES Admin to proceed', owner:'hm'},
+  {id:'offt5', title:'Submit Offboarding/Termination Service Request through myIT (immediately during or after meeting)', owner:'admin'},
+  {id:'offt6', title:'Begin equipment return process — collect badge, laptop, phone, iPad, uniforms', owner:'hm'},
+  {id:'offt7', title:'Plan knowledge transfer — document institutional knowledge, assign teammates to shadow', owner:'hm'},
+  {id:'offt8', title:'Notify internal partners — CX Enablement, HR, IT, Payroll; remove from assignments and access lists', owner:'hm'},
+  {id:'offt9', title:'Review payroll and timekeeping — confirm final hours; notify ES Admin of any PTO needs', owner:'hm'},
+  {id:'offt10', title:'Restrict system and facility access — confirm with IT all access is disabled', owner:'hm'},
+  {id:'offt11', title:'Communicate internally using neutral, confidential language (do not share separation specifics)', owner:'hm'},
+  {id:'offt12', title:'Debrief with HR Business Partner and ES Leadership — document follow-ups and learnings', owner:'hm'},
+  {id:'offt13', title:'Communicate backfill intent to ES Leadership', owner:'hm'},
+];
+
+var offRecords = [
+  {id:'off-r1', firstName:'Jordan', lastName:'Martinez', role:'ES Specialist', branch:'Atlanta', ftpt:'Part-Time',
+   hiringManager:'Anne Wolkenhauer', departureType:'resignation',
+   checked:{}, backfillDecision:null},
+  {id:'off-r2', firstName:'Sam', lastName:'Okafor', role:'ES Specialist', branch:'Las Vegas', ftpt:'Full-Time',
+   hiringManager:'Emily Dodd', departureType:'termination',
+   checked:{}, backfillDecision:null},
+];
+selOffId = 'off-r1';
+
+function offTaskSet(rec) { return rec.departureType === 'resignation' ? OFF_TASKS_RESIGNATION : OFF_TASKS_TERMINATION; }
+
+function offCanCheck(taskOwner) {
+  var v = LC_VIEW.off;
+  if (v === 'rd' || v === 'es') return false;
+  if (v === 'hm' && taskOwner === 'hm') return true;
+  if (v === 'admin' && taskOwner === 'admin') return true;
+  return false;
+}
+
+function offToggleTask(recId, taskId) {
+  var rec = offRecords.find(function(r){ return r.id === recId; });
+  if (!rec) return;
+  var allTasks = OFF_TASKS_RESIGNATION.concat(OFF_TASKS_TERMINATION);
+  var t = allTasks.find(function(t){ return t.id === taskId; });
+  if (!t || !offCanCheck(t.owner)) return;
+  rec.checked[taskId] = !rec.checked[taskId];
+  renderOffDetail(); updateOffStats(); renderOffList();
+}
+
+function offTotalProgress(rec) {
+  var tasks = offTaskSet(rec);
+  var done = tasks.filter(function(t){ return rec.checked[t.id]; }).length;
+  return { done:done, total:tasks.length };
+}
+
+function updateOffStats() {
+  document.getElementById('off-stat-total').textContent = offRecords.length;
+  document.getElementById('off-stat-resign').textContent = offRecords.filter(function(r){ return r.departureType==='resignation'; }).length;
+  document.getElementById('off-stat-term').textContent = offRecords.filter(function(r){ return r.departureType==='termination'; }).length;
+  document.getElementById('off-stat-backfill').textContent = offRecords.filter(function(r){ return !r.backfillDecision; }).length;
+}
+
+function renderOffList() {
+  var el = document.getElementById('off-person-list');
+  if (!el) return;
+  if (!offRecords.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13.5px">No active departures in scope</div>'; return; }
+  el.innerHTML = offRecords.map(function(rec) {
+    var prog = offTotalProgress(rec);
+    var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
+    var sel = rec.id === selOffId ? ' sel' : '';
+    var typeChip = rec.departureType === 'resignation' ? 'chip-resignation' : 'chip-termination';
+    var typeLabel = rec.departureType === 'resignation' ? 'Resignation' : 'Termination';
+    var needsDecision = !rec.backfillDecision ? ' needs-attn' : '';
+    return '<div class="lc-person-item'+sel+needsDecision+'" onclick="offSelectPerson(\''+rec.id+'\')">' +
+      '<div class="lc-person-name">'+rec.firstName+' '+rec.lastName+'</div>' +
+      '<div class="lc-person-role">'+rec.role+' &mdash; '+rec.branch+'</div>' +
+      '<div style="margin-top:5px;display:flex;gap:5px">' +
+        '<span class="chip '+typeChip+'" style="font-size:13px">'+typeLabel+'</span>' +
+        (!rec.backfillDecision ? '<span class="chip chip-amber" style="font-size:13px">Backfill?</span>' : '') +
+      '</div>' +
+      '<div class="lc-person-prog-row"><div class="lc-person-prog-wrap"><div class="lc-person-prog-fill off" style="width:'+pct+'%"></div></div><span class="lc-person-prog-pct">'+pct+'%</span></div>' +
+    '</div>';
+  }).join('');
+}
+
+function offSelectPerson(id) { selOffId = id; renderOffList(); renderOffDetail(); }
+
+function offSetBackfill(recId, decision) {
+  var rec = offRecords.find(function(r){ return r.id === recId; });
+  if (!rec) return;
+  rec.backfillDecision = decision;
+  if (decision === 'backfill') {
+    alert('Backfill request created! A new Recruiting & Hiring record for ' + rec.role + ' (' + rec.branch + ') has been added to the Active Pipeline.');
+  }
+  renderOffDetail(); updateOffStats(); renderOffList();
+}
+
+function renderOffDetail() {
+  var el = document.getElementById('off-detail');
+  if (!el) return;
+  var rec = offRecords.find(function(r){ return r.id === selOffId; });
+  if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">👋</div><div class="lc-empty-msg">Select a departure</div></div>'; return; }
+  var tasks = offTaskSet(rec);
+  var prog = offTotalProgress(rec);
+  var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
+  var typeChip = rec.departureType === 'resignation' ?
+    '<span class="chip chip-resignation">Resignation</span>' :
+    '<span class="chip chip-termination">Termination</span>';
+  var taskHtml = tasks.map(function(t) {
+    var isChecked = !!rec.checked[t.id];
+    var canCheck = offCanCheck(t.owner);
+    var chkCls = isChecked ? 'checked' : (!canCheck ? 'readonly' : '');
+    var clickAttr = canCheck ? 'onclick="offToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
+    return '<div class="task-row">' +
+      '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
+      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+'">'+t.title+'</div></div>' +
+      '<div class="task-right">'+obOwnerLabel(t.owner)+'</div>' +
+    '</div>';
+  }).join('');
+  var backfillBar = '';
+  if (!rec.backfillDecision) {
+    backfillBar = '<div class="lc-backfill-bar">' +
+      '<div class="lc-backfill-msg">Backfill Decision Required<div class="sub">Indicate whether this position should be posted to the Recruiting pipeline before closing.</div></div>' +
+      '<button class="btn-backfill-yes" onclick="offSetBackfill(\''+rec.id+'\',\'backfill\')">✅ Backfill Needed</button>' +
+      '<button class="btn-backfill-rif" onclick="offSetBackfill(\''+rec.id+'\',\'rif\')">🚫 RIF / No Backfill</button>' +
+    '</div>';
+  } else if (rec.backfillDecision === 'backfill') {
+    backfillBar = '<div class="lc-handoff-bar"><div class="lc-handoff-msg">✅ Backfill Needed — Recruiting record created in Active Pipeline</div></div>';
+  } else {
+    backfillBar = '<div class="lc-handoff-bar" style="background:#F2F4F8;border-color:var(--border)"><div class="lc-handoff-msg" style="color:var(--muted)">🚫 Marked as RIF / No Backfill — position will not be posted</div></div>';
+  }
+  el.innerHTML = '<div class="lc-det-hdr">' +
+    '<div><div class="lc-det-name">'+rec.firstName+' '+rec.lastName+'</div>' +
+    '<div class="lc-det-sub">'+rec.role+' &middot; '+rec.branch+' &middot; '+rec.ftpt+' &middot; HM: '+rec.hiringManager+'</div>' +
+    '<div class="lc-det-prog-wrap"><div class="lc-det-prog-fill off" style="width:'+pct+'%"></div></div>' +
+    '<div class="lc-det-prog-lbl">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div></div>' +
+    '<div>'+typeChip+'</div>' +
+  '</div>' +
+  '<div class="lc-det-scroll"><div class="phase-sec">'+taskHtml+'</div></div>' +
+  backfillBar;
+}
+
+function initOffboarding() { updateOffStats(); renderOffList(); renderOffDetail(); }
+
+function lcNewRecord(ws) {
+  alert('In production, this button launches a form to create a new ' + (ws==='tr'?'transition':'offboarding') + ' record. The form captures the employee name, role, branch, hiring manager, and departure/transition type, then generates the appropriate task checklist automatically.');
+}
+
 </script>
 
 <div style="display:none;position:fixed;inset:0;background:rgba(0,31,95,.5);z-index:1000;align-items:center;justify-content:center" id="reject-modal">
