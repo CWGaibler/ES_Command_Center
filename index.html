@@ -714,6 +714,14 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <span class="page-title">Recruiting & Hiring</span>
       <span class="page-sub" id="recruiting-sub"></span>
     </div>
+    <div class="view-as-bar">
+      <span class="view-as-lbl">View as:</span>
+      <button class="rh-va-btn view-as-btn active" onclick="setViewAs('hm',this)">Hiring Manager</button>
+      <button class="rh-va-btn view-as-btn" onclick="setViewAs('rd',this)">Regional Director</button>
+      <button class="rh-va-btn view-as-btn" onclick="setViewAs('es',this)">ES Leadership</button>
+      <span style="font-size:13.5px;color:var(--muted);margin-left:4px">Viewing as: <span class="view-as-name" id="view-as-name">Hiring Manager</span></span>
+      <button class="new-hire-btn" id="open-pos-btn" onclick="openModal()" style="margin-left:auto">+ New Position</button>
+    </div>
     <div class="rh-stats">
       <div class="rh-stat"><div class="rh-stat-lbl">Open Requisitions</div><div class="rh-stat-val" id="stat-open">1</div><div class="rh-stat-sub">Pending or posted</div></div>
       <div class="rh-stat"><div class="rh-stat-lbl">In-Process</div><div class="rh-stat-val" id="stat-proc">1</div><div class="rh-stat-sub">Interviewing</div></div>
@@ -724,7 +732,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="rh-sidebar">
         <div class="rh-sidebar-hdr">
           <span class="rh-sidebar-title">Active Pipeline</span>
-          <button class="new-hire-btn" onclick="openModal()">+ New Hire</button>
         </div>
         <div id="hire-list"></div>
       </div>
@@ -1195,7 +1202,7 @@ var rhReady = false;
 var currentViewAs = 'hm';
 var pendingRejectId = null;
 
-var VIEW_AS_NAMES = {'hm':'Craig Gaibler','rd':'Ellen Crowley','es':'Nesana Wieger'};
+var VIEW_AS_NAMES = {'hm':'Hiring Manager','rd':'Regional Director','es':'ES Leadership'};
 
 var APPROVAL_STAGES = {
   'approved-not-posted': {label:'Approved, Not Posted', cls:'chip-approved-np', nextStage:'posted'},
@@ -1273,12 +1280,11 @@ function needsMyAction(h) {
 
 function setViewAs(role, el) {
   currentViewAs = role;
-  document.querySelectorAll('.view-as-btn').forEach(function(b){ b.classList.remove('active'); });
+  // Scope to only recruiting view-as buttons, not lifecycle workspace buttons
+  document.querySelectorAll('.rh-va-btn').forEach(function(b){ b.classList.remove('active'); });
   el.classList.add('active');
   var nameEl = document.getElementById('view-as-name');
   if(nameEl) nameEl.textContent = VIEW_AS_NAMES[role];
-  var openBtn = document.getElementById('open-pos-btn');
-  if(openBtn) openBtn.style.display = (role === 'hm') ? '' : 'none';
   // auto-select first visible position
   var visible = hires.filter(canView);
   if(visible.length > 0) selId = visible[0].id;
