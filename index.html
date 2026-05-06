@@ -57,7 +57,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:14px 13px;border-top:3px solid var(--border);cursor:pointer;transition:box-shadow .15s,transform .1s;flex:0 0 calc(11.11% - 7px);min-width:110px;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:space-between;position:relative;box-sizing:border-box}
 .kpi-card:hover{box-shadow:0 4px 16px rgba(0,31,95,.10);transform:translateY(-1px)}
 .kpi-card.kpi-active{box-shadow:0 0 0 2px var(--mb);border-top-color:var(--mb)}
-.kpi-lbl{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);line-height:1.35;white-space:normal;word-break:break-word}
+.kpi-lbl{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);line-height:1.35;white-space:normal;word-break:break-word}
 .kpi-bottom{display:flex;flex-direction:column;gap:3px}
 .kpi-val{font-size:46px;font-weight:900;line-height:1;text-align:left}
 .kpi-goal{font-size:13px;color:var(--muted);font-weight:600}
@@ -2289,7 +2289,7 @@ var KPI_DATA = [
   },
   {
     id: 'nps',
-    name: 'Post-Show NPS',
+    name: 'Exhibitor Post-Show NPS',
     fullName: 'Post-Show Exhibitor Net Promoter Score (NPS)',
     def: "Net Promoter Score derived from: 'Based on your recent experience with Freeman, how likely are you to recommend Freeman's products and services to your colleagues?'",
     goal: '+20', goalNum: 20, unit: '', prefix: '+', higherBetter: true,
@@ -2333,7 +2333,7 @@ var KPI_DATA = [
   },
   {
     id: 'feedback',
-    name: 'Post-Show Feedback',
+    name: 'ES Post-Show Feedback',
     fullName: 'ES Post-Show Feedback',
     def: 'For events supported by Exhibitor Services on-site, the percentage of shows where a post-event feedback survey was completed by Exhibitor Services.',
     goal: '95%', goalNum: 95, unit: '%', higherBetter: true,
