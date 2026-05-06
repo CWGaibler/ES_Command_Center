@@ -4106,7 +4106,7 @@ function obOwnerLabel(owner) {
 }
 
 function updateObStats() {
-  var visible = obRecords;
+  var visible = lcScopeFilter(obRecords);
   document.getElementById('ob-stat-total').textContent = visible.length;
   document.getElementById('ob-stat-prestart').textContent = visible.filter(function(r){ return r.phase==='Before Start Date'; }).length;
   document.getElementById('ob-stat-week1').textContent = visible.filter(function(r){ return r.phase==='First Week'; }).length;
@@ -4116,8 +4116,9 @@ function updateObStats() {
 function renderObList() {
   var el = document.getElementById('ob-person-list');
   if (!el) return;
-  if (!obRecords.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13.5px">No active new hires in scope</div>'; return; }
-  el.innerHTML = obRecords.map(function(rec) {
+  var visOb = lcScopeFilter(obRecords);
+  if (!visOb.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13.5px">No active new hires in scope</div>'; return; }
+  el.innerHTML = visOb.map(function(rec) {
     var prog = obTotalProgress(rec);
     var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
     var sel = rec.id === selObId ? ' sel' : '';
@@ -4296,17 +4297,19 @@ function trTotalProgress(rec) {
 }
 
 function updateTrStats() {
-  document.getElementById('tr-stat-total').textContent = trRecords.length;
-  document.getElementById('tr-stat-promo').textContent = trRecords.filter(function(r){ return r.transitionType==='promotion'; }).length;
-  document.getElementById('tr-stat-transfer').textContent = trRecords.filter(function(r){ return r.transitionType==='transfer'; }).length;
+  var vis = lcScopeFilter(trRecords);
+  document.getElementById('tr-stat-total').textContent = vis.length;
+  document.getElementById('tr-stat-promo').textContent = vis.filter(function(r){ return r.transitionType==='promotion'; }).length;
+  document.getElementById('tr-stat-transfer').textContent = vis.filter(function(r){ return r.transitionType==='transfer'; }).length;
   document.getElementById('tr-stat-backfill').textContent = trRecords.filter(function(r){ return !r.backfillDecision && r.transitionType==='transfer'; }).length;
 }
 
 function renderTrList() {
   var el = document.getElementById('tr-person-list');
   if (!el) return;
-  if (!trRecords.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13.5px">No active transitions in scope</div>'; return; }
-  el.innerHTML = trRecords.map(function(rec) {
+  var visTr = lcScopeFilter(trRecords);
+  if (!visTr.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13.5px">No active transitions in scope</div>'; return; }
+  el.innerHTML = visTr.map(function(rec) {
     var prog = trTotalProgress(rec);
     var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
     var sel = rec.id === selTrId ? ' sel' : '';
@@ -4502,17 +4505,29 @@ function offTotalProgress(rec) {
 }
 
 function updateOffStats() {
-  document.getElementById('off-stat-total').textContent = offRecords.length;
-  document.getElementById('off-stat-resign').textContent = offRecords.filter(function(r){ return r.departureType==='resignation'; }).length;
-  document.getElementById('off-stat-term').textContent = offRecords.filter(function(r){ return r.departureType==='termination'; }).length;
+  var vis = lcScopeFilter(offRecords);
+  document.getElementById('off-stat-total').textContent = vis.length;
+  document.getElementById('off-stat-resign').textContent = vis.filter(function(r){ return r.departureType==='resignation'; }).length;
+  document.getElementById('off-stat-term').textContent = vis.filter(function(r){ return r.departureType==='termination'; }).length;
   document.getElementById('off-stat-backfill').textContent = offRecords.filter(function(r){ return !r.backfillDecision; }).length;
+}
+
+
+// ── LC SCOPE FILTER ───────────────────────────────────────────────────────
+// Returns records from the given array whose branch is visible to the
+// current identity. Used by all lifecycle list renderers and stat tiles.
+function lcScopeFilter(records) {
+  return records.filter(function(r) {
+    return identityCanSeeBranch(r.branch);
+  });
 }
 
 function renderOffList() {
   var el = document.getElementById('off-person-list');
   if (!el) return;
-  if (!offRecords.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13.5px">No active departures in scope</div>'; return; }
-  el.innerHTML = offRecords.map(function(rec) {
+  var visOff = lcScopeFilter(offRecords);
+  if (!visOff.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13.5px">No active departures in scope</div>'; return; }
+  el.innerHTML = visOff.map(function(rec) {
     var prog = offTotalProgress(rec);
     var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
     var sel = rec.id === selOffId ? ' sel' : '';
