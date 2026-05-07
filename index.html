@@ -2579,7 +2579,8 @@ function renderDetail(){
       (h.hireType==='backfill' ? fieldStatic('Backfilling For', (h.backfillForFirst||'') + ' ' + (h.backfillForLast||'') + (h.whyBackfill ? ' <span style="color:var(--muted);font-size:12px">(' + h.whyBackfill + ')</span>' : '')) : fieldStatic('Type', 'Net New Position'))+
       field('Req # (5 digits)', h.reqNum, 'reqNum', 'text')+
       field('HR Recruiter', h.hrRecruiter, 'hrRecruiter', 'select-recruiter')+
-      field('Candidate Name', (h.firstName||h.lastName) ? ((h.firstName||'') + ' ' + (h.lastName||'')).trim() : '', 'firstName', 'text')+
+      field('Candidate First Name', h.firstName||'', 'firstName', 'text')+
+      field('Candidate Last Name', h.lastName||'', 'lastName', 'text')+
       field('Confirmed Start Date', h.confirmedStart ? fmtDateStr(h.confirmedStart) : '', 'confirmedStart', 'date')+
       field('Confirmed NET Class Start', h.confirmedNet ? fmtDateStr(h.confirmedNet) : '', 'confirmedNet', 'date')+
       field('Proposed Start Date', h.proposedStart ? fmtDateStr(h.proposedStart) : '', 'proposedStart', 'date')+
@@ -2642,9 +2643,8 @@ function renderDetail(){
       // t13 (background check) requires all key position fields to be filled first
       var t13FieldsComplete = true;
       if (t.id === 't13') {
-        // firstName holds full name if entered as one field; lastName may be empty
-      t13FieldsComplete = !!(h.proposedStart && h.confirmedStart && h.confirmedNet &&
-          h.proposedNet && h.firstName && h.reqNum);
+        t13FieldsComplete = !!(h.proposedStart && h.confirmedStart && h.confirmedNet &&
+          h.proposedNet && h.firstName && h.lastName && h.reqNum);
       }
       var canInteract = !locked && t13FieldsComplete && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
       var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'') + (!locked&&!canInteract?' not-owner':'');
@@ -2748,7 +2748,7 @@ function renderDetail(){
     if(!t13RequiredFilled) {
       var missingFields = [];
       if(!h.reqNum) missingFields.push('Req #');
-      if(!h.firstName) missingFields.push('Candidate Name');
+      if(!h.firstName || !h.lastName) missingFields.push('Candidate Name (first + last)');
       if(!h.proposedStart) missingFields.push('Proposed Start Date');
       if(!h.confirmedStart) missingFields.push('Confirmed Start Date');
       if(!h.proposedNet) missingFields.push('Proposed NET Class Start');
@@ -2787,7 +2787,7 @@ function renderDetail(){
         '</div>';
     } else if (h.stage === 'offer' || h.stage === 'complete' || (h.firstName && h.lastName)) {
       var missingRH = [];
-      if (!h.firstName) missingRH.push('enter candidate name');
+      if (!h.firstName || !h.lastName) missingRH.push('enter candidate first and last name');
       if (!h.confirmedStart) missingRH.push('confirm start date');
       if (!rhAllTasksDone(h)) missingRH.push('complete all HM tasks');
       if (missingRH.length) {
