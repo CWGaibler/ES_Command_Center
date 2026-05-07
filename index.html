@@ -987,7 +987,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         <input class="mi" id="m-start" type="date"/>
       </div>
       <div class="mf">
-        <div class="ml">Proposed NET Class Start</div>
+        <div class="ml">Proposed NET Class</div>
         <input class="mi" id="m-net" type="date"/>
       </div>
       <div class="modal-actions" style="grid-column:1/-1;margin-top:8px">
@@ -2584,7 +2584,7 @@ function renderDetail(){
       field('Confirmed Start Date', h.confirmedStart ? fmtDateStr(h.confirmedStart) : '', 'confirmedStart', 'date')+
       field('Confirmed NET Class Start', h.confirmedNet ? fmtDateStr(h.confirmedNet) : '', 'confirmedNet', 'date')+
       field('Proposed Start Date', h.proposedStart ? fmtDateStr(h.proposedStart) : '', 'proposedStart', 'date')+
-      field('Proposed NET Class Start', h.proposedNet ? fmtDateStr(h.proposedNet) : '', 'proposedNet', 'date')+
+      field('Proposed NET Class', h.proposedNet ? fmtDateStr(h.proposedNet) : '', 'proposedNet', 'date')+
       fieldStatic('Phone Stipend', h.phoneStipend ? 'Yes' : 'No')+
     '</div>'+
     '<div style="padding:8px 14px;border-top:1px solid var(--border-lt)">'+
@@ -2751,7 +2751,7 @@ function renderDetail(){
       if(!h.firstName || !h.lastName) missingFields.push('Candidate Name (first + last)');
       if(!h.proposedStart) missingFields.push('Proposed Start Date');
       if(!h.confirmedStart) missingFields.push('Confirmed Start Date');
-      if(!h.proposedNet) missingFields.push('Proposed NET Class Start');
+      if(!h.proposedNet) missingFields.push('Proposed NET Class');
       if(!h.confirmedNet) missingFields.push('Confirmed NET Class Start');
       approvalBarHtml = '<div class="approval-bar" style="background:#FFF8E6;border-top-color:rgba(255,181,0,.25)">'+
         '<div class="approval-msg" style="color:var(--orange)">&#9888; Complete all Position Details before the final step can be checked'+
