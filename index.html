@@ -2277,15 +2277,17 @@ function isOfferDeadlinePassed(startDateStr, role) {
   var offer = getOfferDeadline(startDateStr, role);
   if(!offer) return false;
   var today = new Date(); today.setHours(0,0,0,0);
-  return new Date(offer) < today;
+  // Parse without timezone shift: split YYYY-MM-DD and use local date constructor
+  var op = offer.split('-');
+  var offerDate = new Date(parseInt(op[0]), parseInt(op[1])-1, parseInt(op[2]));
+  return offerDate < today;
 }
 
 function isTooTightTimeline(startDateStr) {
-  // Warn if fewer than 56 days (8 weeks) remain from today to start date
-  // Ideal is 70 days (10 weeks) but warn at 56
   if(!startDateStr) return false;
   var today = new Date(); today.setHours(0,0,0,0);
-  var start = new Date(startDateStr);
+  var sp = startDateStr.split('-');
+  var start = new Date(parseInt(sp[0]), parseInt(sp[1])-1, parseInt(sp[2]));
   var daysUntil = Math.round((start - today) / 86400000);
   return daysUntil < 56;
 }
@@ -3327,14 +3329,17 @@ function populateStartDateDropdown() {
   var currentVal = sel.value;
   sel.innerHTML = '<option value="">Select start date...</option>';
   dates.forEach(function(d) {
-    var start = new Date(d.start);
+    var sp2 = d.start.split('-');
+    var start = new Date(parseInt(sp2[0]), parseInt(sp2[1])-1, parseInt(sp2[2]));
     if(start <= today) return; // skip past dates
-    var offerPassed = new Date(d.offer) < today;
+    var op2 = d.offer.split('-');
+    var offerDate2 = new Date(parseInt(op2[0]), parseInt(op2[1])-1, parseInt(op2[2]));
+    var offerPassed = offerDate2 < today;
     var opt = document.createElement('option');
     opt.value = d.start;
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    var sd = new Date(d.start);
-    opt.textContent = months[sd.getMonth()] + ' ' + sd.getDate() + ', ' + sd.getFullYear() +
+    var sp = d.start.split('-');
+    opt.textContent = months[parseInt(sp[1],10)-1] + ' ' + parseInt(sp[2],10) + ', ' + sp[0] +
       (offerPassed ? ' (offer deadline passed)' : '');
     opt.disabled = offerPassed;
     opt.style.color = offerPassed ? '#b0bec5' : '';
@@ -3456,8 +3461,8 @@ function startInlineEdit(el) {
       var opt = document.createElement('option');
       opt.value = d.start;
       var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      var sd = new Date(d.start);
-      opt.textContent = months[sd.getMonth()] + ' ' + sd.getDate() + ', ' + sd.getFullYear() +
+      var sp = d.start.split('-');
+      opt.textContent = months[parseInt(sp[1],10)-1] + ' ' + parseInt(sp[2],10) + ', ' + sp[0] +
         (offerPassed ? ' (offer deadline passed)' : '');
       opt.disabled = offerPassed;
       if(d.start === currentVal) opt.selected = true;
