@@ -2680,8 +2680,14 @@ function renderDetail(){
         '<span class="chip chip-approved-np">Requested</span>'+
       '</div>';
     } else {
+      // Show which specific tasks remain and who needs to complete them
+      var pendingSteps = [];
+      if(h.checked.indexOf('t2') < 0 && !hmIsRD) pendingSteps.push('Regional Director: approve &amp; submit to ES Leadership');
+      if(h.checked.indexOf('t3') < 0) pendingSteps.push('ES Leadership (Craig / Nesana): submit to Growth');
+      var pendingMsg = pendingSteps.length ? 'Waiting on: ' + pendingSteps.join('; ') : 'Complete steps above to proceed';
       approvalBarHtml = '<div class="approval-bar">'+
-        '<div class="approval-msg">&#10003; Position approved &mdash; complete all requisition steps above to post<div class="sub">Holding until Job Requisition phase is complete.</div></div>'+
+        '<div class="approval-msg">&#9203; Requisition in progress &mdash; awaiting approvals'+
+        '<div class="sub">'+pendingMsg+'</div></div>'+
         '<span class="chip chip-approved-np">Requested</span>'+
       '</div>';
     }
@@ -3032,12 +3038,19 @@ function startInlineEdit(el) {
       input.appendChild(o);
     });
   } else if(type === 'date') {
+    // Use text input to avoid native date picker being blocked by edit-overlay
+    // Format: MM/DD/YYYY for entry, stored as YYYY-MM-DD internally
     input = document.createElement('input');
-    input.type = 'date';
+    input.type = 'text';
     input.className = 'pos-field-input';
-    input.value = currentVal;
-    // Date pickers need onchange (selecting a date may not trigger blur reliably)
-    input.onchange = function() { saveInlineEdit(this.value); };
+    input.placeholder = 'MM/DD/YYYY';
+    // Display stored YYYY-MM-DD as MM/DD/YYYY for editing
+    if(currentVal && currentVal.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      var parts = currentVal.split('-');
+      input.value = parts[1] + '/' + parts[2] + '/' + parts[0];
+    } else {
+      input.value = currentVal || '';
+    }
   } else {
     input = document.createElement('input');
     input.type = 'text';
@@ -3063,8 +3076,16 @@ function saveInlineEdit(val) {
   if(!currentEditEl || !currentEditHireId || !currentEditKey) return;
   var h = hires.find(function(x){return x.id===currentEditHireId;});
   if(h) {
-    h[currentEditKey] = val.trim();
-    // If first/last name set, update stage hint
+    var saveVal = val.trim();
+    // Convert MM/DD/YYYY → YYYY-MM-DD for date fields
+    var dateType = currentEditEl.getAttribute('data-type');
+    if(dateType === 'date' && saveVal) {
+      var dmatch = saveVal.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if(dmatch) {
+        saveVal = dmatch[3] + '-' + ('0'+dmatch[1]).slice(-2) + '-' + ('0'+dmatch[2]).slice(-2);
+      }
+    }
+    h[currentEditKey] = saveVal;
   }
   currentEditEl = null; currentEditHireId = null; currentEditKey = null;
   document.getElementById('edit-overlay').classList.remove('open');
