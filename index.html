@@ -6,7 +6,6 @@
 <title>ES Command Center</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-/* v6.29-cache-bust: 1746627000 */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --fb:#001F5F;--mb:#00BDF6;--green:#42BB37;--gold:#FFB500;--orange:#FB471F;
@@ -191,13 +190,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .chk-mark{font-size:13.5px;color:#fff;font-weight:800;display:none}
 .task-chk.checked .chk-mark{display:block}
 .task-body{flex:1;min-width:0}
-.task-title{font-size:14px;font-weight:800;line-height:1.4;color:var(--fb)}
-.na-pill{display:inline-block;font-size:11px;font-weight:800;padding:1px 7px;border-radius:999px;margin-left:5px;vertical-align:middle;text-transform:uppercase;letter-spacing:.04em}
-.pill-on-track{background:#EAFAF0;color:#1A6B35}
-.pill-due-soon{background:#FFF8E1;color:#B8860B}
-.pill-overdue{background:#FFF0E0;color:#C0392B}
-.task-title.done{color:var(--fb);font-weight:800;opacity:0.35}
-.task-desc{font-size:12px;font-weight:400;color:#9fadbf;margin-top:3px;line-height:1.4}
+.task-title{font-size:14px;font-weight:700;line-height:1.4}
+.task-title.done{color:var(--muted)}
+.task-desc{font-size:13.5px;color:var(--muted);margin-top:2px;line-height:1.4}
 .task-links{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
 .tlink{font-size:14px;font-weight:700;padding:2px 7px;border-radius:999px;border:1px solid rgba(0,189,246,.3);background:rgba(0,189,246,.07);color:#006A8A;text-decoration:none;display:inline-block}
 .tlink:hover{background:rgba(0,189,246,.2)}
@@ -258,11 +253,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .pos-field-val.editable:hover{border-bottom-color:var(--mb);color:var(--mb)}
 .pos-field-val.editable.empty:hover{color:var(--mb)}
 .pos-field-input{font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:700;color:var(--fb);border:none;border-bottom:1.5px solid var(--mb);outline:none;background:transparent;width:100%;padding:0}
-.pos-field-date{color-scheme:light;cursor:pointer}
-.pos-field-date::-webkit-calendar-picker-indicator{opacity:0.5;cursor:pointer}
 .pos-tag{display:inline-flex;gap:5px;flex-wrap:wrap;margin-top:2px}
 /* inline edit overlay */
-.edit-overlay{display:none;position:fixed;inset:0;z-index:10}
+.edit-overlay{display:none;position:fixed;inset:0;z-index:998}
 .edit-overlay.open{display:block}
 
 
@@ -540,21 +533,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 
 /* v6-fix cache-bust: 2111000001 */
 </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
-  <style>
-    /* Flatpickr theme overrides to match Freeman brand */
-    .flatpickr-calendar { font-family: 'Nunito Sans', sans-serif; border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,0.13); border: 1px solid var(--border); }
-    .flatpickr-day.selected, .flatpickr-day.selected:hover { background: var(--fb); border-color: var(--fb); }
-    .flatpickr-day:hover { background: var(--fb-xlt); }
-    .flatpickr-months .flatpickr-month { background: var(--fb); border-radius: 10px 10px 0 0; }
-    .flatpickr-current-month, .flatpickr-monthDropdown-months, .flatpickr-current-month input.cur-year { color: #fff; font-family: 'Nunito Sans', sans-serif; font-weight: 700; }
-    .flatpickr-weekday { color: var(--muted); font-family: 'Nunito Sans', sans-serif; font-weight: 700; }
-    .flatpickr-prev-month svg, .flatpickr-next-month svg { fill: #fff; }
-    .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: var(--mb); }
-    .flatpickr-day.today { border-color: var(--mb); }
-    .flatpickr-day.today:hover { background: var(--mb); border-color: var(--mb); color: #fff; }
-  </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
 </head>
 <body>
 
@@ -955,11 +933,11 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="mf">
         <div class="ml">Role <span style="color:var(--orange)">*</span></div>
-        <select class="mi" id="m-role" onchange="onModalRoleChange()">
+        <select class="mi" id="m-role">
           <option value="">Select role...</option>
-          <option>Coordinator</option><option>Specialist</option>
+          <option>ES Representative</option><option>ES Supervisor</option>
+          <option>ES Manager</option><option>ES Director</option>
           <option>Event Experience Supervisor</option>
-          <option>Manager</option><option>Director</option>
         </select>
       </div>
       <div class="mf">
@@ -1006,18 +984,11 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       </div>
       <div class="mf">
         <div class="ml">Proposed Start Date <span style="color:var(--orange)">*</span></div>
-        <select class="mi" id="m-start" onchange="onModalStartDateChange()">
-          <option value="">Select start date...</option>
-        </select>
-        <div id="m-start-warning" style="display:none;margin-top:4px;font-size:12px;color:var(--orange);font-weight:700"></div>
+        <input class="mi" id="m-start" type="date"/>
       </div>
       <div class="mf">
         <div class="ml">Proposed NET Class</div>
-        <input class="mi" id="m-net" type="text" placeholder="Select date (optional)" readonly/>
-      </div>
-      <div id="m-override-row" class="mf" style="display:none;grid-column:1/-1">
-        <div class="ml">Reason for selecting this date <span style="color:var(--orange)">*</span></div>
-        <input class="mi" id="m-start-override" type="text" placeholder="Explain why this date was selected despite the passed deadline..."/>
+        <input class="mi" id="m-net" type="date"/>
       </div>
       <div class="modal-actions" style="grid-column:1/-1;margin-top:8px">
         <button class="m-cancel" onclick="closeModal()">Cancel</button>
@@ -1901,28 +1872,28 @@ function onScopeChanged() {
 
 var IDENTITY_DIRECTORY = {
   // ── ES LEADERSHIP (enterprise, read-only on tasks except Erii) ──
-  'craig':    {name:'Craig Gaibler',     title:'Sr. Director, ES',       level:'enterprise', branches:[], regions:[], canCheckOwner:'hm',    taskRole:'es'},
-  'nesana':   {name:'Nesana Wieger',     title:'VP, Exhibitor Services',  level:'enterprise', branches:[], regions:[], canCheckOwner:'hm',    taskRole:'es'},
-  'erica':    {name:'Erica Cochran',     title:'Director, Biz Ops',       level:'enterprise', branches:[], regions:[], canCheckOwner:'hm',    taskRole:'es'},
+  'craig':    {name:'Craig Gaibler',     title:'Sr. Director, ES',       level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  'nesana':   {name:'Nesana Wieger',     title:'VP, Exhibitor Services',  level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  'erica':    {name:'Erica Cochran',     title:'Director, Biz Ops',       level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
   'erii':     {name:'Erii Rodriguez',    title:'ES Administrator',        level:'enterprise', branches:[], regions:[], canCheckOwner:'admin', taskRole:'admin'},
   'lauren':   {name:'Lauren Medina',     title:'Training',                level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
   'amber':    {name:'Amber Segura',      title:'Training',                level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
   'kacie':    {name:'Kacie Kugel',       title:'Training',                level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
   // ── REGIONAL DIRECTORS (see full region, read-only on tasks) ──
-  'leslie':   {name:'Leslie Davis',      title:'Regional Director, NW/SoCal',          level:'region',    branches:['San Francisco','Anaheim','Denver','Reno'], regions:['NW/SoCal'], canCheckOwner:'hm',  taskRole:'rd'},
-  'ellen':    {name:'Ellen Crowley',     title:'Regional Director, LV & North Central', level:'region',    branches:['Las Vegas','Chicago','Des Moines'],        regions:['Las Vegas','North Central'], canCheckOwner:'hm',  taskRole:'rd'},
+  'leslie':   {name:'Leslie Davis',      title:'Regional Director, NW/SoCal',          level:'region',    branches:['San Francisco','Anaheim','Denver','Reno'], regions:['NW/SoCal'], canCheckOwner:'none', taskRole:'rd'},
+  'ellen':    {name:'Ellen Crowley',     title:'Regional Director, LV & North Central', level:'region',    branches:['Las Vegas','Chicago','Des Moines'],        regions:['Las Vegas','North Central'], canCheckOwner:'none', taskRole:'rd'},
   'lubi':     {name:'Lubi Garza',        title:'Regional Director, South Central',      level:'region',    branches:['Dallas','Houston','San Antonio'],           regions:['South Central'], canCheckOwner:'hm', taskRole:'hm', directReports:['tiffany']},
-  'maud':     {name:'Maud Langlois',     title:'Regional Director, NE & Canada',        level:'region',    branches:['Boston','New York','Washington D.C.','Toronto'], regions:['Northeast','Canada'], canCheckOwner:'hm',  taskRole:'rd'},
-  'lisette':  {name:'Lisette Bergeron',  title:'Regional Director, Southeast',          level:'region',    branches:['Atlanta','Nashville','New Orleans','Orlando'], regions:['Southeast'], canCheckOwner:'hm',  taskRole:'rd'},
+  'maud':     {name:'Maud Langlois',     title:'Regional Director, NE & Canada',        level:'region',    branches:['Boston','New York','Washington D.C.','Toronto'], regions:['Northeast','Canada'], canCheckOwner:'none', taskRole:'rd'},
+  'lisette':  {name:'Lisette Bergeron',  title:'Regional Director, Southeast',          level:'region',    branches:['Atlanta','Nashville','New Orleans','Orlando'], regions:['Southeast'], canCheckOwner:'none', taskRole:'rd'},
   // ── DIRECTORS (see their branch(es), read-only on tasks) ──
-  'nicole':   {name:'Nicole Hanna',      title:'Director, Anaheim',       level:'branch',    branches:['Anaheim'],              regions:[], canCheckOwner:'hm',  taskRole:'rd', directReports:['joanne']},
-  'tlam':     {name:'T Lam',             title:'Director, Denver & Reno',  level:'branch',    branches:['Denver','Reno'],        regions:[], canCheckOwner:'hm',  taskRole:'rd'},
-  'cory':     {name:'Cory Marin',        title:'Director, Las Vegas',      level:'branch',    branches:['Las Vegas'],            regions:[], canCheckOwner:'hm', taskRole:'hm', directReports:['chenille','emily','jessica','lisa']},
-  'mary':     {name:'Mary Ligammari',    title:'Director, Chicago',        level:'branch',    branches:['Chicago'],              regions:[], canCheckOwner:'hm',  taskRole:'rd'},
-  'joan':     {name:'Joan Davis',        title:'Director, Houston',        level:'branch',    branches:['Houston'],              regions:[], canCheckOwner:'hm',  taskRole:'rd'},
-  'laura':    {name:'Laura Ewell',       title:'Director, Boston',         level:'branch',    branches:['Boston'],               regions:[], canCheckOwner:'hm',  taskRole:'rd'},
-  'jose':     {name:'Jose Medina',       title:'Director, New Orleans & Orlando', level:'branch', branches:['New Orleans','Orlando'], regions:[], canCheckOwner:'hm',  taskRole:'rd', directReports:['lymari','regina']},
-  'tricia':   {name:'Tricia Orme',       title:'Director, Atlanta & Nashville',   level:'branch', branches:['Atlanta','Nashville'],   regions:[], canCheckOwner:'hm',  taskRole:'rd', directReports:['anne']},
+  'nicole':   {name:'Nicole Hanna',      title:'Director, Anaheim',       level:'branch',    branches:['Anaheim'],              regions:[], canCheckOwner:'none', taskRole:'rd', directReports:['joanne']},
+  'tlam':     {name:'T Lam',             title:'Director, Denver & Reno',  level:'branch',    branches:['Denver','Reno'],        regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'cory':     {name:'Cory Marin',        title:'Director, Las Vegas',      level:'branch',    branches:['Las Vegas'],            regions:[], canCheckOwner:'none', taskRole:'rd', directReports:['chenille','emily','jessica','lisa']},
+  'mary':     {name:'Mary Ligammari',    title:'Director, Chicago',        level:'branch',    branches:['Chicago'],              regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'joan':     {name:'Joan Davis',        title:'Director, Houston',        level:'branch',    branches:['Houston'],              regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'laura':    {name:'Laura Ewell',       title:'Director, Boston',         level:'branch',    branches:['Boston'],               regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'jose':     {name:'Jose Medina',       title:'Director, New Orleans & Orlando', level:'branch', branches:['New Orleans','Orlando'], regions:[], canCheckOwner:'none', taskRole:'rd', directReports:['lymari','regina']},
+  'tricia':   {name:'Tricia Orme',       title:'Director, Atlanta & Nashville',   level:'branch', branches:['Atlanta','Nashville'],   regions:[], canCheckOwner:'none', taskRole:'rd', directReports:['anne']},
   // ── MANAGERS (see own branch only, can check off HM tasks for their own records) ──
   'niall':    {name:'Niall McCarthy',    title:'Manager, San Francisco',   level:'branch',    branches:['San Francisco'],        regions:[], canCheckOwner:'hm', taskRole:'hm'},
   'joanne':   {name:'Joanne Peau',       title:'Manager, Anaheim',         level:'branch',    branches:['Anaheim'],              regions:[], canCheckOwner:'hm', taskRole:'hm'},
@@ -1937,9 +1908,9 @@ var IDENTITY_DIRECTORY = {
   'regina':   {name:'Regina Serigne',    title:'Manager, New Orleans',     level:'branch',    branches:['New Orleans'],          regions:[], canCheckOwner:'hm', taskRole:'hm'},
   'anne':     {name:'Anne Wolkenhauer',  title:'Manager, Atlanta',         level:'branch',    branches:['Atlanta'],              regions:[], canCheckOwner:'hm', taskRole:'hm'},
   // ── OFF-SITE TEAM (out of scope for ES field dashboard — enterprise view, read-only) ──
-  'jennifer_v':  {name:'Jennifer Vaughan', title:'Regional Director, Off-site', level:'region',    branches:['High-Touch Accounts','Off-Site'], regions:['Off-Site'], canCheckOwner:'hm',  taskRole:'rd'},
-  'jennifer_p':  {name:'Jennifer Pearson', title:'Director, High-Touch Accounts', level:'branch',  branches:['High-Touch Accounts'], regions:[], canCheckOwner:'hm',  taskRole:'rd'},
-  'elaine':      {name:'Elaine Yesh',       title:'Director, Off-Site',          level:'branch',     branches:['Off-Site'], regions:[], canCheckOwner:'hm',  taskRole:'rd'},
+  'jennifer_v':  {name:'Jennifer Vaughan', title:'Regional Director, Off-site', level:'region',    branches:['High-Touch Accounts','Off-Site'], regions:['Off-Site'], canCheckOwner:'none', taskRole:'rd'},
+  'jennifer_p':  {name:'Jennifer Pearson', title:'Director, High-Touch Accounts', level:'branch',  branches:['High-Touch Accounts'], regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'elaine':      {name:'Elaine Yesh',       title:'Director, Off-Site',          level:'branch',     branches:['Off-Site'], regions:[], canCheckOwner:'none', taskRole:'rd'},
   'courtney':    {name:'Courtney Gonzalez', title:'Manager, Off-Site',           level:'branch',     branches:['Off-Site'], regions:[], canCheckOwner:'hm',   taskRole:'hm'},
   'michelle':    {name:'Michelle Bogdan',   title:'Manager, Off-Site',           level:'branch',     branches:['Off-Site'], regions:[], canCheckOwner:'hm',   taskRole:'hm'},
 };
@@ -2120,196 +2091,325 @@ var TASKS = [
   // Stage gate: active at 'approved-not-posted'
   // Step 1 auto-checked on position create; clicking checkbox opens +New modal
   {phase:'Job Requisition', id:'t1',
-   title:'Open position request submitted',
-   desc:'Opens the position in the system. All required details must be entered before the requisition can be submitted.',
+   title:'Submit open position request',
+   desc:'Click "+New" in Active Pipeline, enter all required position details, and click "Open Position" to submit the requisition.',
    owner:'hm', ownerLabel:'Hiring Manager', off:-70, links:[]},
 
   {phase:'Job Requisition', id:'t2',
-   title:'Requisition submitted to ES Leadership for approval',
-   desc:'Confirms the request is complete and accurate before formal submission to ES Leadership for sign-off.',
-   owner:'rd', ownerLabel:'Regional Director', off:-67, links:[],
+   title:'RD submits to ES Leadership for approval',
+   desc:'Regional Director reviews the request and formally submits to ES Leadership (Craig Gaibler / Nesana Wieger) for approval.',
+   owner:'rd', ownerLabel:'Regional Director', off:-65, links:[],
    skipIfHMisRD: true},
 
   {phase:'Job Requisition', id:'t3',
-   title:'Open position submitted to Growth for approval',
-   desc:'Submits the approved requisition to Growth leadership for final authorization. May not be required for all position types.',
-   owner:'es', ownerLabel:'ES Leadership', off:-64, links:[]},
+   title:'ES Leadership submits to Growth for approval (if needed)',
+   desc:'Craig Gaibler or Nesana Wieger submits to Growth leadership (Laure Chachere / Anytra Lowe) for additional approval if required.',
+   owner:'es', ownerLabel:'ES Leadership', off:-60, links:[]},
 
   // ── Phase 2: Recruiting & Interviewing ───────────────────────────────
   // Stage gate: unlocks when stage = 'posted'
   {phase:'Recruiting & Interviewing', id:'t4',
-   title:'HR Business Partner notified to begin recruiting',
-   desc:'Formally initiates the recruiting process via email. HR Recruiter, Hiring Manager, Regional Director, Erica Cochran, and Erii Rodriguez are copied.',
-   owner:'es', ownerLabel:'ES Leadership', off:-60,
+   title:'Communicate with HR Business Partner',
+   desc:'Craig Gaibler or Nesana Wieger emails Chastity Austin, copying HR Recruiter, Hiring Manager, Regional Director, Erica Cochran, and Erii Rodriguez.',
+   owner:'es', ownerLabel:'ES Leadership', off:-56,
    links:[{label:'HRBP: Chastity Austin', url:'mailto:Chastity.Austin@freeman.com'}]},
 
   {phase:'Recruiting & Interviewing', id:'t5',
-   title:'Position posted to job boards',
-   desc:'Publishes the open position to the company careers site, LinkedIn, and applicable job boards.',
-   owner:'anyone', ownerLabel:'HR Business Partner', off:-53, links:[]},
-
-  {phase:'Recruiting & Interviewing', id:'t5b',
-   title:'HR Requisition Number entered in Position Details',
-   desc:'HR provides a requisition number via email or the shared tracking spreadsheet. Enter it in the Req # field in Position Details before marking this step complete.',
-   owner:'es', ownerLabel:'ES Leadership', off:-51, links:[],
-   reqNumGate: true},
+   title:'Post position to job boards',
+   desc:'HR Business Partner publishes position to company site, LinkedIn, and job boards.',
+   owner:'anyone', ownerLabel:'HR Business Partner', off:-49, links:[]},
 
   {phase:'Recruiting & Interviewing', id:'t6',
-   title:'Applicants screened and candidate shortlist shared',
-   desc:'Applicants are screened against position requirements and a qualified shortlist is shared with the Hiring Manager.',
-   owner:'anyone', ownerLabel:'HR Recruiter', off:-38, links:[]},
+   title:'Screen applicants & share candidate shortlist',
+   desc:'HR Recruiter aligns on expectations with Hiring Manager, screens applicants, and shares a qualified candidate shortlist.',
+   owner:'anyone', ownerLabel:'HR Recruiter', off:-42, links:[]},
 
   {phase:'Recruiting & Interviewing', id:'t7',
-   title:'Candidate interviews scheduled',
-   desc:'Interviews are scheduled with shortlisted candidates. Panel interviews are required for all leadership-level positions.',
+   title:'Schedule interviews',
+   desc:'Arrange behavioral and cultural alignment interviews. Panel interviews are required for all leadership roles.',
    owner:'hm', ownerLabel:'Hiring Manager', off:-35,
    links:[{label:'Interview Questions', url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296/Shared%20Documents/General/Recruiting%20and%20Hiring%20%28docs%20accessible%20to%20all%29/Exhibitor%20Services%20Interview%20Questions.pdf'}]},
 
   {phase:'Recruiting & Interviewing', id:'t8',
-   title:'Candidate interviews conducted',
-   desc:'Interviews are conducted using the ES leadership interview question guide. Feedback must be documented for each candidate.',
+   title:'Conduct interviews',
+   desc:'Conduct candidate interviews using ES leadership interview questions. Document feedback for each candidate.',
    owner:'hm', ownerLabel:'Hiring Manager', off:-28, links:[]},
 
   {phase:'Recruiting & Interviewing', id:'t9',
-   title:'Final candidate selected',
-   desc:'Final candidate is identified from interview feedback. Proposed compensation must be approved before advancing to the offer stage.',
-   owner:'hm', ownerLabel:'Hiring Manager', off:-25, links:[]},
+   title:'Select final candidate',
+   desc:'Review all feedback and select final candidate. Discuss compensation and obtain written approval from ES Leadership and HR Business Partner before proceeding.',
+   owner:'hm', ownerLabel:'Hiring Manager', off:-21, links:[]},
 
   // ── Phase 3: Job Offer ────────────────────────────────────────────────
   // Stage gate: unlocks when stage = 'interviewing'
   {phase:'Job Offer', id:'t10',
-   title:'Verbal offer extended to candidate',
-   desc:'Candidate is contacted with a verbal offer, contingent on background check clearance.',
-   owner:'hm', ownerLabel:'Hiring Manager', off:-22, links:[]},
+   title:'Make verbal offer to candidate',
+   desc:'Call the candidate with the verbal offer, pending background check clearance. Be prepared to negotiate.',
+   owner:'hm', ownerLabel:'Hiring Manager', off:-18, links:[]},
 
   {phase:'Job Offer', id:'t11',
-   title:'Offer letter initiated via HR',
-   desc:'Upon verbal acceptance, HR Business Partner and HR Recruiter are notified to initiate the formal offer letter via DocuSign.',
-   owner:'hm', ownerLabel:'Hiring Manager', off:-19,
+   title:'Email HRBP & HR Recruiter to initiate offer letter',
+   desc:'After receiving verbal acceptance, email HR Business Partner and HR Recruiter requesting they initiate the DocuSign offer letter.',
+   owner:'hm', ownerLabel:'Hiring Manager', off:-17,
    links:[{label:'Megan Wierick', url:'mailto:Megan.Wierick@freeman.com'}]},
 
   {phase:'Job Offer', id:'t12',
-   title:'Offer letter reviewed and signed',
-   desc:'Hiring Manager and candidate both sign via DocuSign. Must be fully executed at least 11 business days before the intended start date.',
-   owner:'hm', ownerLabel:'Hiring Manager', off:-17, links:[]},
+   title:'Review & sign offer letter (DocuSign)',
+   desc:'HR creates the offer letter. Hiring Manager reviews and signs. Candidate signs. Must be fully signed 11+ business days before intended start date.',
+   owner:'hm', ownerLabel:'Hiring Manager', off:-14, links:[]},
 
   {phase:'Job Offer', id:'t13',
-   title:'Background check cleared and start date confirmed',
-   desc:'Background screening is completed and the confirmed start date is communicated to the Hiring Manager and recorded in Position Details.',
-   owner:'anyone', ownerLabel:'HR Business Partner', off:-10, links:[]},
+   title:'Background check clears — hire date confirmed',
+   desc:'HR Business Partner completes background screening. Hire date is confirmed with Hiring Manager once cleared.',
+   owner:'anyone', ownerLabel:'HR Business Partner', off:-11, links:[]},
 ];
 
 
 
-
-// ── START DATE CADENCE (HR-approved dates) ────────────────────────────────
-// Salaried: EE Supervisor, Manager, Director, RD, Training Supervisor, Sr. Director, VP
-// Hourly: Specialist, Coordinator, Senior Specialist, Consultant
-var SALARIED_ROLES = ['Event Experience Supervisor','Manager','Director','Regional Director','Training Supervisor','Sr. Director','Senior Director','Vice President','VP'];
-
-var START_DATES = {
-  salaried: [
-    {start:'2026-05-11', offer:'2026-04-24'},
-    {start:'2026-05-26', offer:'2026-05-08'},
-    {start:'2026-06-08', offer:'2026-05-22'},
-    {start:'2026-06-22', offer:'2026-06-05'},
-    {start:'2026-07-06', offer:'2026-06-18'},
-    {start:'2026-07-20', offer:'2026-07-02'},
-    {start:'2026-08-03', offer:'2026-07-17'},
-    {start:'2026-08-17', offer:'2026-07-31'},
-    {start:'2026-08-31', offer:'2026-08-14'},
-    {start:'2026-09-14', offer:'2026-08-28'},
-    {start:'2026-09-28', offer:'2026-09-11'},
-    {start:'2026-10-12', offer:'2026-09-25'},
-    {start:'2026-10-26', offer:'2026-10-09'},
-    {start:'2026-11-09', offer:'2026-10-23'},
-    {start:'2026-11-16', offer:'2026-11-06'},
-    {start:'2026-12-07', offer:'2026-11-20'},
-  ],
-  hourly: [
-    {start:'2026-05-11', offer:'2026-04-24'},
-    {start:'2026-05-18', offer:'2026-05-01'},
-    {start:'2026-06-01', offer:'2026-05-15'},
-    {start:'2026-06-08', offer:'2026-05-22'},
-    {start:'2026-06-15', offer:'2026-05-29'},
-    {start:'2026-06-22', offer:'2026-06-05'},
-    {start:'2026-06-29', offer:'2026-06-12'},
-    {start:'2026-07-06', offer:'2026-06-18'},
-    {start:'2026-07-13', offer:'2026-06-26'},
-    {start:'2026-07-20', offer:'2026-07-03'},
-    {start:'2026-07-27', offer:'2026-07-10'},
-    {start:'2026-08-03', offer:'2026-07-17'},
-    {start:'2026-08-10', offer:'2026-07-24'},
-    {start:'2026-08-17', offer:'2026-07-31'},
-    {start:'2026-08-24', offer:'2026-08-07'},
-    {start:'2026-08-31', offer:'2026-08-14'},
-    {start:'2026-09-14', offer:'2026-08-28'},
-    {start:'2026-09-21', offer:'2026-09-04'},
-    {start:'2026-09-28', offer:'2026-09-11'},
-    {start:'2026-10-05', offer:'2026-09-18'},
-    {start:'2026-10-12', offer:'2026-09-25'},
-    {start:'2026-10-19', offer:'2026-10-02'},
-    {start:'2026-10-26', offer:'2026-10-09'},
-    {start:'2026-11-02', offer:'2026-10-16'},
-    {start:'2026-11-09', offer:'2026-10-23'},
-    {start:'2026-11-16', offer:'2026-10-30'},
-    {start:'2026-11-30', offer:'2026-11-13'},
-    {start:'2026-12-07', offer:'2026-11-20'},
-  ]
-};
-
-function isSalariedRole(role) {
-  if(!role) return false;
-  return SALARIED_ROLES.some(function(r){ return role.toLowerCase().indexOf(r.toLowerCase()) >= 0; });
-}
-
-function getStartDatesForRole(role) {
-  return isSalariedRole(role) ? START_DATES.salaried : START_DATES.hourly;
-}
-
-function getOfferDeadline(startDateStr, role) {
-  var dates = getStartDatesForRole(role);
-  var match = dates.find(function(d){ return d.start === startDateStr; });
-  return match ? match.offer : null;
-}
-
-function isOfferDeadlinePassed(startDateStr, role) {
-  var offer = getOfferDeadline(startDateStr, role);
-  if(!offer) return false;
-  var today = new Date(); today.setHours(0,0,0,0);
-  // Parse without timezone shift: split YYYY-MM-DD and use local date constructor
-  var op = offer.split('-');
-  var offerDate = new Date(parseInt(op[0]), parseInt(op[1])-1, parseInt(op[2]));
-  return offerDate < today;
-}
-
-function isTooTightTimeline(startDateStr) {
-  if(!startDateStr) return false;
-  var today = new Date(); today.setHours(0,0,0,0);
-  var sp = startDateStr.split('-');
-  var start = new Date(parseInt(sp[0]), parseInt(sp[1])-1, parseInt(sp[2]));
-  var daysUntil = Math.round((start - today) / 86400000);
-  return daysUntil < 56;
-}
-
-function fmtStartDateLabel(isoStr) {
-  if(!isoStr) return '';
-  var d = new Date(isoStr);
-  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
-}
-
-// Task deadline status: 'done', 'overdue', 'due-soon' (<=3 days), 'on-track'
-function taskDeadlineStatus(dueDate, isChecked) {
-  if(isChecked) return 'done';
-  if(!dueDate) return 'on-track';
-  var today = new Date(); today.setHours(0,0,0,0);
-  var due = new Date(dueDate); due.setHours(0,0,0,0);
-  var diff = Math.round((due - today) / 86400000);
-  if(diff < 0) return 'overdue';
-  if(diff <= 3) return 'due-soon';
-  return 'on-track';
-}
+var TEAM_MEMBERS = [
+  {name:'Deborah Ritter',preferred:'',hireDate:'2007-11-19',ftpt:'P',title:'Regional Director Exhibitor Services',region:'Northeast',branch:'New York',mgr:'Nesana Wieger',mgr2:'Laure Chachere',mgr3:'Anytra Lowe',birthday:'Jul 28',email:'Deborah.Ritter@freeman.com' },
+  {name:'Chenille Book',preferred:'',hireDate:'2013-10-14',ftpt:'F',title:'Manager Exhibitor Services',region:'Las Vegas',branch:'Las Vegas',mgr:'Cory Marin',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'May 06',email:'Chenille.Book@freeman.com' },
+  {name:'Emily Dodd',preferred:'',hireDate:'2012-12-03',ftpt:'F',title:'Manager Exhibitor Services',region:'Las Vegas',branch:'Las Vegas',mgr:'Cory Marin',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Mar 08',email:'Emily.Dodd@freeman.com' },
+  {name:'Jessica Montoro',preferred:'',hireDate:'2012-01-03',ftpt:'F',title:'Manager Exhibitor Services',region:'Las Vegas',branch:'Las Vegas',mgr:'Cory Marin',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Oct 05',email:'Jessica.Montoro@freeman.com' },
+  {name:'Lisa Park',preferred:'',hireDate:'2006-07-10',ftpt:'F',title:'Manager Exhibitor Services',region:'Las Vegas',branch:'Las Vegas',mgr:'Cory Marin',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Sep 24',email:'Lisa.Park@freeman.com' },
+  {name:'Alissa DiZeo',preferred:'',hireDate:'2021-12-20',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'North Central',branch:'Chicago',mgr:'Mary Ligammari',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Jun 01',email:'Alissa.DiZeo@freeman.com' },
+  {name:'Jessica Guzman',preferred:'',hireDate:'2025-09-08',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Mary Ligammari',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Nov 12',email:'Jessica.Guzman@freeman.com' },
+  {name:'Kayli Caudill',preferred:'',hireDate:'2026-01-12',ftpt:'P',title:'Exhibitor Services Coordinator',region:'North Central',branch:'Chicago',mgr:'Mary Ligammari',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Dec 14',email:'Kayli.Caudill@freeman.com' },
+  {name:'Kimberly Mendez',preferred:'Kimmy',hireDate:'2025-09-08',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Mary Ligammari',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Mar 03',email:'Kimberly.Mendez@freeman.com' },
+  {name:'Lily Skrapka',preferred:'',hireDate:'2025-10-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Mary Ligammari',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Jun 26',email:'Lily.Skrapka@freeman.com' },
+  {name:'Mary Ryan',preferred:'',hireDate:'2006-01-03',ftpt:'F',title:'Exhibitor Services Consultant',region:'North Central',branch:'Chicago',mgr:'Mary Ligammari',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Nov 21',email:'Mary.Ryan@freeman.com' },
+  {name:'Oscar Castaneda',preferred:'',hireDate:'2024-10-28',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Mary Ligammari',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Nov 04',email:'Oscar.Castaneda@freeman.com' },
+  {name:'Ralph Taverne',preferred:'',hireDate:'2024-06-03',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Mary Ligammari',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'May 17',email:'Ralph.Taverne@freeman.com' },
+  {name:'Robert Kuesel',preferred:'',hireDate:'2024-06-03',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Mary Ligammari',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Apr 08',email:'Robert.Kuesel@freeman.com' },
+  {name:'Shantell Brown',preferred:'',hireDate:'2026-03-16',ftpt:'P',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Mary Ligammari',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'2026-01-07 00:00:00',email:'Shantell.Brown@freeman.com' },
+  {name:'Sylvia Trejo',preferred:'',hireDate:'2017-08-01',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'North Central',branch:'Chicago',mgr:'Mary Ligammari',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Jan 17',email:'Sylvia.Trejo@freeman.com' },
+  {name:'Timothy Smith',preferred:'',hireDate:'2025-10-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Mary Ligammari',mgr2:'Ellen Crowley',mgr3:'Craig Gaibler',birthday:'Apr 25',email:'Tim.Smith@freeman.com' },
+  {name:'Aliahna Watts',preferred:'',hireDate:'2021-11-29',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Elaine Yesh',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Jul 10',email:'Aliahna.Watts@freeman.com' },
+  {name:'Amber Thomas',preferred:'',hireDate:'2021-12-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Elaine Yesh',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Aug 06',email:'Amber.Thomas@freeman.com' },
+  {name:'Brittany Price',preferred:'',hireDate:'2001-04-02',ftpt:'P',title:'Exhibitor Services Sr Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Elaine Yesh',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Dec 14',email:'Brittany.Price@freeman.com' },
+  {name:'Courtney Gonzalez',preferred:'',hireDate:'1998-08-31',ftpt:'F',title:'Manager Exhibitor Services',region:'Off-Site',branch:'Chicago',mgr:'Elaine Yesh',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Sep 14',email:'Courtney.Gonzalez@freeman.com' },
+  {name:'Jill DesRosiers',preferred:'',hireDate:'2013-10-07',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Elaine Yesh',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Sep 09',email:'Jill.Desrosiers@freeman.com' },
+  {name:'Karen Watts',preferred:'',hireDate:'2013-10-28',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Elaine Yesh',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Jun 16',email:'Karen.Watts@freeman.com' },
+  {name:'Kristine Burleigh',preferred:'',hireDate:'2015-08-24',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Elaine Yesh',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Jul 27',email:'Kristine.Burleigh@freeman.com' },
+  {name:'Michelle Bogdan',preferred:'',hireDate:'2013-11-04',ftpt:'F',title:'Manager Exhibitor Services',region:'Off-Site',branch:'San Francisco',mgr:'Elaine Yesh',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Nov 26',email:'Michelle.Bogdan@freeman.com' },
+  {name:'Rachelle Brecht',preferred:'',hireDate:'2014-12-08',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Elaine Yesh',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Jun 28',email:'Rachelle.Brecht@freeman.com' },
+  {name:'Taylor Christensen',preferred:'',hireDate:'2024-01-29',ftpt:'P',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Elaine Yesh',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Jan 23',email:'Taylor.Christensen@freeman.com' },
+  {name:'Berenice Ratcliff',preferred:'',hireDate:'',ftpt:'F',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'High-Touch Accounts',mgr:'Jennifer Pearson',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'',email:'' },
+  {name:'Cameron Turner',preferred:'',hireDate:'2022-10-17',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Off-Site',branch:'High-Touch Accounts',mgr:'Jennifer Pearson',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Jul 03',email:'Cameron.Turner@freeman.com' },
+  {name:'Christina Bennett-Marin',preferred:'',hireDate:'2003-08-11',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'High-Touch Accounts',mgr:'Jennifer Pearson',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Mar 08',email:'Christina.Marin@freeman.com' },
+  {name:'Emmalee Marren-Pflaumer',preferred:'',hireDate:'2024-01-08',ftpt:'F',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'High-Touch Accounts',mgr:'Jennifer Pearson',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Dec 20',email:'Emmalee.Marren-Pflaumer@freeman.com' },
+  {name:'Megan Parry',preferred:'',hireDate:'2025-08-18',ftpt:'P',title:'Exhibitor Services Sr Specialist',region:'Off-Site',branch:'High-Touch Accounts',mgr:'Jennifer Pearson',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Aug 31',email:'Megan.Parry@freeman.com' },
+  {name:'Preston Carter',preferred:'',hireDate:'2017-07-11',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'High-Touch Accounts',mgr:'Jennifer Pearson',mgr2:'Jennifer Vaughan',mgr3:'Craig Gaibler',birthday:'Sep 03',email:'Preston.Carter@freeman.com' },
+  {name:'Alan Martinez',preferred:'',hireDate:'2023-08-21',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'NW/SoCal',branch:'San Francisco',mgr:'Niall McCarthy',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'2026-12-20 00:00:00',email:'Alan.Martinez@freeman.com' },
+  {name:'Alejandro Rueda de Leon',preferred:'Alex',hireDate:'2023-04-17',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'San Francisco',mgr:'Niall McCarthy',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Nov 21',email:'Alex.RuedaDeLeon@freeman.com' },
+  {name:'Cassandra Paton',preferred:'',hireDate:'2018-11-26',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'NW/SoCal',branch:'San Francisco',mgr:'Niall McCarthy',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Jan 22',email:'Cassandra.Paton@freeman.com' },
+  {name:'Dianna Almada',preferred:'',hireDate:'2024-06-03',ftpt:'P',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'San Francisco',mgr:'Niall McCarthy',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Dec 13',email:'Dianna.Almada@freeman.com' },
+  {name:'Julia Sales',preferred:'',hireDate:'2025-09-08',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'San Francisco',mgr:'Niall McCarthy',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Feb 28',email:'Julia.Sales@freeman.com' },
+  {name:'Cassandra Arevalo',preferred:'',hireDate:'2022-04-18',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Nicole Hanna',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'May 31',email:'Cassandra.Arevalo@freeman.com' },
+  {name:'Jasmine Arce',preferred:'',hireDate:'2022-05-16',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Nicole Hanna',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'May 10',email:'Jasmine.Arce@freeman.com' },
+  {name:'Joanne Peau',preferred:'',hireDate:'2003-10-27',ftpt:'F',title:'Manager Exhibitor Services',region:'NW/SoCal',branch:'Anaheim',mgr:'Nicole Hanna',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Sep 12',email:'Joanne.Peau@freeman.com' },
+  {name:'Karla Paredes',preferred:'',hireDate:'2026-01-12',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Nicole Hanna',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Sep 24',email:'Karla.Paredes@freeman.com' },
+  {name:'Lauren Victorino',preferred:'',hireDate:'2023-08-21',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Nicole Hanna',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Jul 24',email:'Lauren.Victorino@freeman.com' },
+  {name:'Lori Leon',preferred:'',hireDate:'2006-01-04',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'NW/SoCal',branch:'Anaheim',mgr:'Nicole Hanna',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Oct 19',email:'Lori.Leon@freeman.com' },
+  {name:'Matthew Carroll',preferred:'Matt',hireDate:'2003-02-01',ftpt:'F',title:'Exhibitor Services Sr Event Experience Supervisor',region:'NW/SoCal',branch:'Anaheim',mgr:'Nicole Hanna',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Jul 26',email:'Matthew.Carroll@freeman.com' },
+  {name:'Olga Podorozhko',preferred:'',hireDate:'2021-12-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Nicole Hanna',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Mar 06',email:'Olya.Podorozhko@freeman.com' },
+  {name:'Sean McCleskey',preferred:'',hireDate:'2018-05-08',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Nicole Hanna',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Apr 18',email:'Sean.McCleskey@freeman.com' },
+  {name:'Alyssia Haney',preferred:'Miya',hireDate:'2024-08-12',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Denver',mgr:'T Lam',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Oct 22',email:'Miya.Haney@freeman.com' },
+  {name:'Evan Finn',preferred:'',hireDate:'2022-09-19',ftpt:'F',title:'Exhibitor Services Consultant',region:'NW/SoCal',branch:'Denver',mgr:'T Lam',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Dec 27',email:'Evan.Finn@freeman.com' },
+  {name:'Gabriela Lyles',preferred:'',hireDate:'2026-01-12',ftpt:'P',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Denver',mgr:'T Lam',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Feb 09',email:'Gabriela.Lyles@freeman.com' },
+  {name:'Juan Buencamino',preferred:'',hireDate:'2016-09-07',ftpt:'F',title:'Exhibitor Services Consultant',region:'NW/SoCal',branch:'Reno',mgr:'T Lam',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Aug 07',email:'Juan.Buencamino@freeman.com' },
+  {name:'Julia Carroll',preferred:'',hireDate:'2022-09-19',ftpt:'F',title:'Exhibitor Services Consultant',region:'NW/SoCal',branch:'Denver',mgr:'T Lam',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'May 25',email:'Julia.Carroll@freeman.com' },
+  {name:'Shay Clark',preferred:'',hireDate:'2023-01-09',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'NW/SoCal',branch:'Reno',mgr:'T Lam',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Jun 01',email:'Shay.Clark@freeman.com' },
+  {name:'Thomas Fleming',preferred:'Tom',hireDate:'1999-01-04',ftpt:'F',title:'Exhibitor Services Consultant',region:'NW/SoCal',branch:'Reno',mgr:'T Lam',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Nov 17',email:'Tom.Fleming@freeman.com' },
+  {name:'Trinity Lyles',preferred:'',hireDate:'2024-06-03',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Denver',mgr:'T Lam',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Nov 07',email:'Trinity.Lyles@freeman.com' },
+  {name:'Whitney Morris',preferred:'',hireDate:'2024-01-08',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'NW/SoCal',branch:'Denver',mgr:'T Lam',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'Mar 04',email:'Whitney.Morris@freeman.com' },
+  {name:'Caleb Roy',preferred:'',hireDate:'2021-12-20',ftpt:'F',title:'Exhibitor Services Consultant',region:'Southeast',branch:'Orlando',mgr:'Jose Medina',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Oct 24',email:'Caleb.Roy@freeman.com' },
+  {name:'Dialis Sanchez',preferred:'',hireDate:'2019-06-24',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Southeast',branch:'Orlando',mgr:'Jose Medina',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Feb 19',email:'Dialis.Sanchez@freeman.com' },
+  {name:'Jeremy Rada',preferred:'',hireDate:'2023-10-30',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Orlando',mgr:'Jose Medina',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Sep 26',email:'Jeremy.Rada@freeman.com' },
+  {name:'Kathleen Nitsche',preferred:'Kathy',hireDate:'2007-01-03',ftpt:'F',title:'Exhibitor Services Consultant',region:'Southeast',branch:'Orlando',mgr:'Jose Medina',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Feb 17',email:'Kathy.Nitsche@freeman.com' },
+  {name:'Lizbeth Caraballo',preferred:'Lizzie',hireDate:'2018-06-04',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Southeast',branch:'Orlando',mgr:'Jose Medina',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'May 25',email:'Lizzie.Caraballo@freeman.com' },
+  {name:'Lymari Colon',preferred:'',hireDate:'2000-05-08',ftpt:'F',title:'Manager Exhibitor Services',region:'Southeast',branch:'Orlando',mgr:'Jose Medina',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Dec 03',email:'Lymari.Colon@freeman.com' },
+  {name:'Marina Blanco',preferred:'',hireDate:'1998-12-14',ftpt:'F',title:'Exhibitor Services Consultant',region:'Southeast',branch:'Orlando',mgr:'Jose Medina',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Nov 07',email:'Marina.Blanco@freeman.com' },
+  {name:'Regina Serigne',preferred:'',hireDate:'2012-08-27',ftpt:'F',title:'Manager Exhibitor Services',region:'Southeast',branch:'New Orleans',mgr:'Jose Medina',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Nov 01',email:'Regina.Serigne@freeman.com' },
+  {name:'Vanessa Lampon',preferred:'',hireDate:'2006-06-12',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'Southeast',branch:'Orlando',mgr:'Jose Medina',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Jan 28',email:'Vanessa.Lampon@freeman.com' },
+  {name:'Ann Kleber',preferred:'',hireDate:'2015-12-14',ftpt:'F',title:'Exhibitor Services Consultant',region:'Southeast',branch:'Atlanta',mgr:'Tricia Orme',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Jul 21',email:'Ann.Kleber@freeman.com' },
+  {name:'Anne Wolkenhauer',preferred:'',hireDate:'2008-02-25',ftpt:'F',title:'Manager Exhibitor Services',region:'Southeast',branch:'Atlanta',mgr:'Tricia Orme',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Apr 16',email:'Anne.Wolkenhauer@freeman.com' },
+  {name:'Courtney Ray',preferred:'',hireDate:'2025-10-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Nashville',mgr:'Tricia Orme',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Dec 15',email:'Courtney.Ray@freeman.com' },
+  {name:'James Sanderson',preferred:'',hireDate:'2022-05-16',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Southeast',branch:'Nashville',mgr:'Tricia Orme',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Oct 17',email:'James.Sanderson@freeman.com' },
+  {name:'Katharina Davey',preferred:'Gretchen',hireDate:'2012-10-15',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'Southeast',branch:'Nashville',mgr:'Tricia Orme',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Jan 22',email:'Gretchen.Davey@freeman.com' },
+  {name:'Kathryn Krieger',preferred:'',hireDate:'2023-08-21',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Southeast',branch:'Nashville',mgr:'Tricia Orme',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Feb 20',email:'Kathryn.Krieger@freeman.com' },
+  {name:'Lauryn Caruthers',preferred:'',hireDate:'2026-03-16',ftpt:'P',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Nashville',mgr:'Tricia Orme',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'2026-09-26 00:00:00',email:'Lauryn.Caruthers@freeman.com' },
+  {name:'Paiton Wauford',preferred:'',hireDate:'2025-10-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Nashville',mgr:'Tricia Orme',mgr2:'Lisette Bergeron',mgr3:'Craig Gaibler',birthday:'Jan 30',email:'Paiton.Wauford@freeman.com' },
+  {name:'Aaron Watson',preferred:'Aaron',hireDate:'2023-10-30',ftpt:'F',title:'Exhibitor Services Specialist',region:'South Central',branch:'San Antonio',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Dec 24',email:'Aaron.CarterWatson@freeman.com' },
+  {name:'Alicia Michell',preferred:'',hireDate:'2023-10-30',ftpt:'P',title:'Exhibitor Services Specialist',region:'South Central',branch:'Houston',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Oct 05',email:'Alicia.Michell@freeman.com' },
+  {name:'Bonnie Caffey',preferred:'',hireDate:'1995-08-01',ftpt:'P',title:'Exhibitor Services Consultant',region:'South Central',branch:'San Antonio',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Nov 21',email:'Bonnie.Caffey@freeman.com' },
+  {name:'Cameron Martinez',preferred:'',hireDate:'2023-10-30',ftpt:'F',title:'Exhibitor Services Specialist',region:'South Central',branch:'San Antonio',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Nov 12',email:'Cameron.Martinez@freeman.com' },
+  {name:'Carolyn Proscia',preferred:'',hireDate:'2025-01-21',ftpt:'P',title:'Exhibitor Services Specialist',region:'South Central',branch:'Houston',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Nov 20',email:'Carolyn.Proscia@freeman.com' },
+  {name:'Catina Hightower-Nelson',preferred:'',hireDate:'2023-01-09',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'South Central',branch:'Houston',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Jan 08',email:'Catina.Hightower-Nelson@freeman.com' },
+  {name:'Debra Martinez',preferred:'Debbie',hireDate:'2000-08-21',ftpt:'F',title:'Exhibitor Services Consultant',region:'South Central',branch:'San Antonio',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Mar 27',email:'DebbieG.Martinez@freeman.com' },
+  {name:'Lakiaya Rogers',preferred:'',hireDate:'2021-12-20',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'South Central',branch:'Houston',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Apr 03',email:'LaKiaya.Rogers@freeman.com' },
+  {name:'Leticia Stone',preferred:'Lettie',hireDate:'1995-08-09',ftpt:'F',title:'Exhibitor Services Consultant',region:'South Central',branch:'San Antonio',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Apr 27',email:'Lettie.Stone@freeman.com' },
+  {name:'MaryAnn Valdemar',preferred:'',hireDate:'2016-04-11',ftpt:'F',title:'Exhibitor Services Consultant',region:'South Central',branch:'San Antonio',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Mar 23',email:'Maryann.Valdemar@freeman.com' },
+  {name:'Megan Benitez',preferred:'',hireDate:'2023-08-21',ftpt:'F',title:'Exhibitor Services Consultant',region:'South Central',branch:'San Antonio',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Apr 07',email:'Megan.Benitez@freeman.com' },
+  {name:'Morgan Jones',preferred:'',hireDate:'2023-10-30',ftpt:'F',title:'Exhibitor Services Specialist',region:'South Central',branch:'Houston',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Sep 14',email:'Morgan.Jones@freeman.com' },
+  {name:'Paul Lumetta',preferred:'',hireDate:'1998-05-11',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'South Central',branch:'Houston',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'May 18',email:'Paul.Lumetta@freeman.com' },
+  {name:'Rosanne Halte',preferred:'',hireDate:'2001-03-07',ftpt:'P',title:'Exhibitor Services Sr Specialist',region:'South Central',branch:'San Antonio',mgr:'Joan Davis',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Dec 05',email:'Rosanne.Halte@freeman.com' },
+  {name:'Debra Grantham',preferred:'',hireDate:'1989-03-23',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'South Central',branch:'Dallas',mgr:'Tiffany Jarrett',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Feb 06',email:'Debbie.Grantham@freeman.com' },
+  {name:'Emily Robinson',preferred:'',hireDate:'2015-03-09',ftpt:'F',title:'Exhibitor Services Consultant',region:'South Central',branch:'Dallas',mgr:'Tiffany Jarrett',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'May 21',email:'Emily.Robinson@freeman.com' },
+  {name:'Jonathan Bartlett',preferred:'',hireDate:'2024-06-03',ftpt:'F',title:'Exhibitor Services Consultant',region:'South Central',branch:'Dallas',mgr:'Tiffany Jarrett',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Apr 21',email:'Jonathan.Bartlett@freeman.com' },
+  {name:'Lisa Brown',preferred:'',hireDate:'2022-08-22',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'South Central',branch:'Dallas',mgr:'Tiffany Jarrett',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Dec 06',email:'Lisa.Brown@freeman.com' },
+  {name:'Taura Thrash',preferred:'',hireDate:'2023-10-30',ftpt:'F',title:'Exhibitor Services Specialist',region:'South Central',branch:'Houston',mgr:'Tiffany Jarrett',mgr2:'Lubi Garza',mgr3:'Craig Gaibler',birthday:'Jun 30',email:'Taura.Thrash@freeman.com' },
+  {name:'Anahid Dinkjian',preferred:'Ana',hireDate:'2006-08-01',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'Northeast',branch:'New York',mgr:'Gina Alberto',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'Jan 16',email:'Anahid.Dinkjian@freeman.com' },
+  {name:'Gladys Nieves',preferred:'',hireDate:'1994-04-10',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Northeast',branch:'New York',mgr:'Gina Alberto',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'2026-07-01 00:00:00',email:'Gladys.Nieves@freeman.com' },
+  {name:'Helen Quinn',preferred:'',hireDate:'2025-03-03',ftpt:'F',title:'Exhibitor Services Specialist',region:'Northeast',branch:'New York',mgr:'Gina Alberto',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'2026-09-11 00:00:00',email:'Helen.Quinn@freeman.com' },
+  {name:'Juanita Rivas',preferred:'',hireDate:'1998-09-01',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Northeast',branch:'New York',mgr:'Gina Alberto',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'2026-06-04 00:00:00',email:'Juanita.Rivas@freeman.com' },
+  {name:'Kyra Haynes-Corbin',preferred:'',hireDate:'2006-01-03',ftpt:'F',title:'Exhibitor Services Specialist',region:'Northeast',branch:'New York',mgr:'Gina Alberto',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'2026-07-30 00:00:00',email:'Kyra.Haynes-Corbin@freeman.com' },
+  {name:'Lauren Martins',preferred:'',hireDate:'2024-08-12',ftpt:'F',title:'Exhibitor Services Specialist',region:'Northeast',branch:'New York',mgr:'Gina Alberto',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'2026-03-27 00:00:00',email:'Lauren.Martins@freeman.com' },
+  {name:'Michele Montoya',preferred:'',hireDate:'2022-06-13',ftpt:'F',title:'Exhibitor Services Specialist',region:'Northeast',branch:'New York',mgr:'Gina Alberto',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'2026-06-20 00:00:00',email:'Michele.Montoya@freeman.com' },
+  {name:'Rebecca Foldi',preferred:'',hireDate:'2016-02-01',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Northeast',branch:'New York',mgr:'Gina Alberto',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'2026-05-14 00:00:00',email:'Rebecca.Foldi@freeman.com' },
+  {name:'Rosemary Peters',preferred:'',hireDate:'1993-07-26',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Northeast',branch:'New York',mgr:'Gina Alberto',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'2026-01-21 00:00:00',email:'Rosemary.Peters@freeman.com' },
+  {name:'Stephanie Maffia',preferred:'',hireDate:'2018-01-22',ftpt:'F',title:'Exhibitor Services Specialist',region:'Northeast',branch:'New York',mgr:'Gina Alberto',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'2026-09-06 00:00:00',email:'Stephanie.Maffia@freeman.com' },
+  {name:'Aimee Durand',preferred:'',hireDate:'2018-07-16',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Northeast',branch:'Boston',mgr:'Laura Ewell',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'Apr 25',email:'Aimee.Durand@freeman.com' },
+  {name:'Amari-Jade Desuze',preferred:'Amari-Jade or AJ (not just Jade)',hireDate:'2023-10-30',ftpt:'P',title:'Exhibitor Services Specialist',region:'Northeast',branch:'New York',mgr:'Laura Ewell',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'Dec 10',email:'Jade.Desuze@freeman.com' },
+  {name:'Cassandra Karns',preferred:'',hireDate:'2018-04-23',ftpt:'F',title:'Manager Exhibitor Services',region:'Northeast',branch:'Boston',mgr:'Laura Ewell',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'Nov 07',email:'Cassandra.Karns@freeman.com' },
+  {name:'Dimple Desai',preferred:'',hireDate:'2021-12-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'Northeast',branch:'Boston',mgr:'Laura Ewell',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'Jul 14',email:'Dimple.Desai@freeman.com' },
+  {name:'Ellen DiPierno',preferred:'',hireDate:'2017-09-25',ftpt:'P',title:'Exhibitor Services Specialist',region:'Northeast',branch:'Washington D.C.',mgr:'Laura Ewell',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'Apr 14',email:'Ellen.Dipierno@freeman.com' },
+  {name:'Heidi Creedon',preferred:'',hireDate:'2016-05-02',ftpt:'F',title:'Exhibitor Services Consultant',region:'Northeast',branch:'Boston',mgr:'Laura Ewell',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'Jul 17',email:'Heidi.Creedon@freeman.com' },
+  {name:'Jenna Sankus',preferred:'',hireDate:'2019-02-11',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Northeast',branch:'Boston',mgr:'Laura Ewell',mgr2:'Maud Langlois',mgr3:'Craig Gaibler',birthday:'May 06',email:'Jenna.Sankus@freeman.com' },
+  {name:'Breianna Richardson',preferred:'',hireDate:'2023-08-21',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Chenille Book',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Jan 24',email:'Breianna.Richardson@freeman.com' },
+  {name:'Calisse Lutcher',preferred:'',hireDate:'2022-09-19',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Chenille Book',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Jan 29',email:'Calisse.Lutcher@freeman.com' },
+  {name:'Carissa Roberts',preferred:'',hireDate:'2025-09-08',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Chenille Book',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Apr 08',email:'Carissa.Roberts@freeman.com' },
+  {name:'Jessica Brown',preferred:'',hireDate:'2022-05-16',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Chenille Book',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Jul 18',email:'Jessica.Brown@freeman.com' },
+  {name:'Loren Lewald',preferred:'Loren',hireDate:'2007-03-28',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'Las Vegas',branch:'Las Vegas',mgr:'Chenille Book',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Jan 17',email:'Loren.Lewald@freeman.com' },
+  {name:'Luz Ponce',preferred:'',hireDate:'2022-09-19',ftpt:'P',title:'Exhibitor Services Sr Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Chenille Book',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Mar 01',email:'Luz.Ponce@freeman.com' },
+  {name:'Morgan Fitterer',preferred:'',hireDate:'2018-06-11',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'Las Vegas',branch:'Las Vegas',mgr:'Chenille Book',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Jun 04',email:'Morgan.Fitterer@freeman.com' },
+  {name:'Qianyu Bao',preferred:'Angela',hireDate:'2024-10-28',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Chenille Book',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Sep 20',email:'Angela.Bao@freeman.com' },
+  {name:'Sheryl Maloof-Thompson',preferred:'Sheri',hireDate:'2013-09-18',ftpt:'P',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Chenille Book',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'May 29',email:'Sheryl.Maloof-Thompson@freeman.com' },
+  {name:'Sophia Antillon',preferred:'',hireDate:'2025-05-19',ftpt:'P',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Chenille Book',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'2026-06-28 00:00:00',email:'Sophia.Antillon@freeman.com' },
+  {name:'Angela Cox',preferred:'Angie',hireDate:'2025-05-19',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Emily Dodd',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Nov 04',email:'Angela.Cox@freeman.com' },
+  {name:'Breann Aguilar',preferred:'',hireDate:'2015-03-02',ftpt:'F',title:'Exhibitor Services Sr Event Experience Supervisor',region:'Las Vegas',branch:'Las Vegas',mgr:'Emily Dodd',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Jan 07',email:'Breann.Aguilar@freeman.com' },
+  {name:'Cody Mariano',preferred:'',hireDate:'2026-03-16',ftpt:'P',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Emily Dodd',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'2026-12-09 00:00:00',email:'Cody.Mariano@freeman.com' },
+  {name:'Gabriel Leavitt',preferred:'Gabe',hireDate:'2022-04-04',ftpt:'P',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Emily Dodd',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Aug 01',email:'Gabriel.Leavitt@freeman.com' },
+  {name:'Kayce Sherrill',preferred:'',hireDate:'2022-03-07',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Emily Dodd',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Dec 08',email:'Kayce.Sherrill@freeman.com' },
+  {name:'Misty Fleshman',preferred:'',hireDate:'2016-09-06',ftpt:'F',title:'Exhibitor Services Consultant',region:'Las Vegas',branch:'Las Vegas',mgr:'Emily Dodd',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Feb 02',email:'Misty.Fleshman@freeman.com' },
+  {name:'Shrinanir Glenn',preferred:'Shae',hireDate:'2025-10-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Emily Dodd',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'May 16',email:'Shrinanir.Glenn@freeman.com' },
+  {name:'Summer Abdulrazzak',preferred:'',hireDate:'2022-08-22',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Emily Dodd',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'May 30',email:'Summer.Abdulrazzak@freeman.com' },
+  {name:'Tammy Davis',preferred:'',hireDate:'2012-05-07',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'Las Vegas',branch:'Las Vegas',mgr:'Emily Dodd',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Jan 19',email:'Tammy.Davis@freeman.com' },
+  {name:'Theresa Garcia',preferred:'',hireDate:'2023-01-09',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Emily Dodd',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Nov 14',email:'Theresa.Garcia@freeman.com' },
+  {name:'Valentina Ramirez',preferred:'',hireDate:'2023-04-17',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Emily Dodd',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Feb 14',email:'Valentina.Ramirez@freeman.com' },
+  {name:'Yvonne Fitterer',preferred:'',hireDate:'2023-01-09',ftpt:'P',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Emily Dodd',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Feb 06',email:'Yvonne.Fitterer@freeman.com' },
+  {name:'Ariel Roberts',preferred:'',hireDate:'2025-09-08',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Jessica Montoro',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Apr 01',email:'Ariel.Roberts@freeman.com' },
+  {name:'Brynn Hutchison',preferred:'',hireDate:'2022-08-22',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Jessica Montoro',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Oct 11',email:'Brynn.Hutchison@freeman.com' },
+  {name:'Celene Camacho',preferred:'',hireDate:'2024-01-08',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Jessica Montoro',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Jan 14',email:'Celene.Camacho@freeman.com' },
+  {name:'Erin Daly',preferred:'',hireDate:'2011-05-09',ftpt:'F',title:'Exhibitor Services Consultant',region:'Las Vegas',branch:'Las Vegas',mgr:'Jessica Montoro',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Feb 11',email:'Erin.Daly@freeman.com' },
+  {name:'Gail Mayhugh',preferred:'',hireDate:'2011-03-22',ftpt:'P',title:'Exhibitor Services Sr Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Jessica Montoro',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Apr 26',email:'Gail.Mayhugh@freeman.com' },
+  {name:'Jenifer Noland',preferred:'',hireDate:'2022-09-19',ftpt:'P',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Jessica Montoro',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Sep 01',email:'Jenifer.Noland@freeman.com' },
+  {name:'Kali Price',preferred:'',hireDate:'2018-09-17',ftpt:'F',title:'Exhibitor Services Consultant',region:'Las Vegas',branch:'Las Vegas',mgr:'Jessica Montoro',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Jan 11',email:'Kali.Price@freeman.com' },
+  {name:'Miriam Munoz Gonzalez',preferred:'',hireDate:'2024-06-03',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Jessica Montoro',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Jan 03',email:'Miriam.Munoz-Gonzalez@freeman.com' },
+  {name:'Sydni Cerioli',preferred:'Syd',hireDate:'2019-11-11',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'Las Vegas',branch:'Las Vegas',mgr:'Jessica Montoro',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Apr 20',email:'Sydni.Cerioli@freeman.com' },
+  {name:'Vanessa Veloz',preferred:'',hireDate:'2022-01-10',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Jessica Montoro',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Sep 23',email:'Vanessa.Veloz@freeman.com' },
+  {name:'Candace Lutcher',preferred:'',hireDate:'2023-01-09',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Lisa Park',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Dec 30',email:'Candace.Lutcher@freeman.com' },
+  {name:'Jamie Goldstein',preferred:'',hireDate:'2024-06-03',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Lisa Park',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Aug 16',email:'Jamie.Ellingsworth@freeman.com' },
+  {name:'Kaila Strauss',preferred:'',hireDate:'2025-09-08',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Lisa Park',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Apr 24',email:'Kaila.Strauss@freeman.com' },
+  {name:'Lily Boone',preferred:'',hireDate:'2025-09-08',ftpt:'P',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Lisa Park',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'2026-11-22 00:00:00',email:'Lily.Boone@freeman.com' },
+  {name:'Lolita Ewell',preferred:'',hireDate:'2022-04-18',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Lisa Park',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Jul 24',email:'Lolita.Ewell@freeman.com' },
+  {name:'Mayra Huerta',preferred:'',hireDate:'2008-08-04',ftpt:'F',title:'Exhibitor Services Sr Event Experience Supervisor',region:'Las Vegas',branch:'Las Vegas',mgr:'Lisa Park',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Apr 01',email:'Mayra.Huerta@freeman.com' },
+  {name:'Natalie Valdivia',preferred:'',hireDate:'2014-10-20',ftpt:'P',title:'Exhibitor Services Consultant',region:'Las Vegas',branch:'Las Vegas',mgr:'Lisa Park',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Aug 03',email:'Natalie.Valdivia@freeman.com' },
+  {name:'Savannah Bolin',preferred:'',hireDate:'2025-03-03',ftpt:'F',title:'Exhibitor Services Specialist',region:'Las Vegas',branch:'Las Vegas',mgr:'Lisa Park',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Dec 10',email:'Savannah.Bolin@freeman.com' },
+  {name:'Sherida Buchanan',preferred:'',hireDate:'2016-09-06',ftpt:'F',title:'Exhibitor Services Consultant',region:'Las Vegas',branch:'Las Vegas',mgr:'Lisa Park',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Nov 30',email:'Sherida.Buchanan@freeman.com' },
+  {name:'Yimei Huang',preferred:'',hireDate:'2019-12-09',ftpt:'F',title:'Exhibitor Services Consultant',region:'Las Vegas',branch:'Las Vegas',mgr:'Lisa Park',mgr2:'Cory Marin',mgr3:'Ellen Crowley',birthday:'Jul 01',email:'Yimei.Huang@freeman.com' },
+  {name:'Ashley Parkington',preferred:'',hireDate:'2002-07-08',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Courtney Gonzalez',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Feb 09',email:'Ashley.Parkington@freeman.com' },
+  {name:'Celine Casillas',preferred:'',hireDate:'2025-09-08',ftpt:'P',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Courtney Gonzalez',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Dec 31',email:'Celine.Casillas@freeman.com' },
+  {name:'Christi Berger',preferred:'',hireDate:'2013-10-02',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Courtney Gonzalez',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Jan 24',email:'Christi.Berger@freeman.com' },
+  {name:'Erika Sinanian',preferred:'',hireDate:'2014-09-15',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Courtney Gonzalez',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'May 31',email:'Erika.Sinanian@freeman.com' },
+  {name:'Jacqueline Olivo',preferred:'Jackie',hireDate:'2022-05-16',ftpt:'F',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Courtney Gonzalez',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Dec 27',email:'Jacqueline.Olivo@freeman.com' },
+  {name:'Jennifer Johnson',preferred:'',hireDate:'2021-12-20',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Courtney Gonzalez',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Feb 02',email:'Jennifer.Johnson3@freeman.com' },
+  {name:'Jenniffer Franqui',preferred:'',hireDate:'2014-07-07',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Courtney Gonzalez',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Oct 31',email:'Jenniffer.Franqui@freeman.com' },
+  {name:'Katherine Arrowood',preferred:'Kat',hireDate:'2021-12-13',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Courtney Gonzalez',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Aug 09',email:'Kat.Arrowood@freeman.com' },
+  {name:'Kelly Haley',preferred:'',hireDate:'2015-02-03',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Courtney Gonzalez',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Sep 02',email:'Kelly.Haley@freeman.com' },
+  {name:'Leah Sullivan',preferred:'',hireDate:'2021-12-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Courtney Gonzalez',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Mar 23',email:'Leah.Sullivan@freeman.com' },
+  {name:'Marimargie Macfie',preferred:'',hireDate:'2008-05-05',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Courtney Gonzalez',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Sep 25',email:'Marimargie.Macfie@freeman.com' },
+  {name:'Sarah Mizher',preferred:'',hireDate:'2022-05-16',ftpt:'F',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Courtney Gonzalez',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Dec 13',email:'Sarah.Mizher@freeman.com' },
+  {name:'Cassidi Kichler',preferred:'',hireDate:'2021-12-20',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Michelle Bogdan',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Jul 29',email:'Cassidi.Kichler@freeman.com' },
+  {name:'Corina Tovar',preferred:'',hireDate:'1993-09-25',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Michelle Bogdan',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Aug 09',email:'Corina.Tovar@freeman.com' },
+  {name:'Demetria Shaw',preferred:'',hireDate:'1998-04-27',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Michelle Bogdan',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Jul 07',email:'Demetria.Shaw@freeman.com' },
+  {name:'Diana Olivo',preferred:'',hireDate:'2023-01-09',ftpt:'F',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Michelle Bogdan',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Jul 09',email:'Diana.Olivo@freeman.com' },
+  {name:'Donna Joy',preferred:'',hireDate:'2011-01-27',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Michelle Bogdan',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Nov 28',email:'Donna.Joy@freeman.com' },
+  {name:'Erin Fleck',preferred:'',hireDate:'2008-10-01',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Michelle Bogdan',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Aug 12',email:'Erin.Fleck@freeman.com' },
+  {name:'Fatima Cruz',preferred:'',hireDate:'2016-01-11',ftpt:'F',title:'Exhibitor Services Consultant',region:'Off-Site',branch:'Off-Site',mgr:'Michelle Bogdan',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Mar 27',email:'Fatima.Cruz@freeman.com' },
+  {name:'Heather Jenkinson',preferred:'',hireDate:'2022-05-16',ftpt:'F',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Michelle Bogdan',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Sep 07',email:'Heather.Jenkinson@freeman.com' },
+  {name:'Iliana Londiol',preferred:'',hireDate:'2022-03-07',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Michelle Bogdan',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'May 21',email:'Iliana.Londiol@freeman.com' },
+  {name:'Maria Gomez-Olivo',preferred:'',hireDate:'2021-12-13',ftpt:'F',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Michelle Bogdan',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Jun 17',email:'MariaY.Gomez@freeman.com' },
+  {name:'Siomara Berrios',preferred:'',hireDate:'2021-12-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Michelle Bogdan',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Jun 01',email:'Siomara.Berrios@freeman.com' },
+  {name:'Victoria Gilmore',preferred:'Tori',hireDate:'2025-09-08',ftpt:'P',title:'Exhibitor Services Specialist',region:'Off-Site',branch:'Off-Site',mgr:'Michelle Bogdan',mgr2:'Elaine Yesh',mgr3:'Jennifer Vaughan',birthday:'Jun 10',email:'Victoria.Gilmore@freeman.com' },
+  {name:'Ellen Crowley',preferred:'',hireDate:'2004-11-22',ftpt:'F',title:'Regional Director Exhibitor Services',region:'Las Vegas',branch:'Las Vegas',mgr:'Craig Gaibler',mgr2:'Nesana Wieger',mgr3:'Laure Chachere',birthday:'2026-12-18 00:00:00',email:'Ellen.Crowley@freeman.com' },
+  {name:'Jennifer Vaughan',preferred:'',hireDate:'2002-10-07',ftpt:'F',title:'Regional Director Exhibitor Services',region:'Off-Site',branch:'Reno',mgr:'Craig Gaibler',mgr2:'Nesana Wieger',mgr3:'Laure Chachere',birthday:'Jan 11',email:'Jennifer.Vaughan@freeman.com' },
+  {name:'Leslie Davis',preferred:'',hireDate:'2003-03-17',ftpt:'F',title:'Regional Director Exhibitor Services',region:'NW/SoCal',branch:'San Francisco',mgr:'Craig Gaibler',mgr2:'Nesana Wieger',mgr3:'Laure Chachere',birthday:'Sep 08',email:'Leslie.Davis@freeman.com' },
+  {name:'Lisette Bergeron',preferred:'',hireDate:'1992-09-01',ftpt:'F',title:'Regional Director Exhibitor Services',region:'Southeast',branch:'New Orleans',mgr:'Craig Gaibler',mgr2:'Nesana Wieger',mgr3:'Laure Chachere',birthday:'Nov 09',email:'Lisette.Bergeron@freeman.com' },
+  {name:'Lubi Garza',preferred:'',hireDate:'1988-09-06',ftpt:'F',title:'Regional Director Exhibitor Services',region:'South Central',branch:'San Antonio',mgr:'Craig Gaibler',mgr2:'Nesana Wieger',mgr3:'Laure Chachere',birthday:'Sep 27',email:'Lubi.Garza@freeman.com' },
+  {name:'Maud Langlois',preferred:'',hireDate:'2000-04-24',ftpt:'F',title:'Regional Director Exhibitor Services',region:'Canada',branch:'Toronto',mgr:'Craig Gaibler',mgr2:'Nesana Wieger',mgr3:'Laure Chachere',birthday:'2026-03-19 00:00:00',email:'Maud.Langlois@freeman.com' },
+  {name:'Aikia Richardson',preferred:'',hireDate:'2025-10-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Joanne Peau',mgr2:'Nicole Hanna',mgr3:'Leslie Davis',birthday:'Mar 19',email:'Aikia.Richardson@freeman.com' },
+  {name:'Alexis Salim',preferred:'',hireDate:'2022-08-22',ftpt:'P',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Joanne Peau',mgr2:'Nicole Hanna',mgr3:'Leslie Davis',birthday:'Oct 12',email:'Alexis.Salim@freeman.com' },
+  {name:'Cayden Conner',preferred:'',hireDate:'2023-10-30',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Joanne Peau',mgr2:'Nicole Hanna',mgr3:'Leslie Davis',birthday:'Aug 12',email:'Cayden.Conner@freeman.com' },
+  {name:'Colleen Cain',preferred:'',hireDate:'2023-08-21',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Joanne Peau',mgr2:'Nicole Hanna',mgr3:'Leslie Davis',birthday:'Nov 06',email:'Colleen.Cain@freeman.com' },
+  {name:'Jovana Perez Angulo',preferred:'',hireDate:'2023-08-21',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Joanne Peau',mgr2:'Nicole Hanna',mgr3:'Leslie Davis',birthday:'Aug 19',email:'Jovana.Angulo@freeman.com' },
+  {name:'Kimberly Mitchell',preferred:'Kim',hireDate:'2021-12-13',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Joanne Peau',mgr2:'Nicole Hanna',mgr3:'Leslie Davis',birthday:'Oct 26',email:'Kimberly.Mitchell@freeman.com' },
+  {name:'Megan Bubak',preferred:'',hireDate:'2025-10-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Joanne Peau',mgr2:'Nicole Hanna',mgr3:'Leslie Davis',birthday:'Dec 12',email:'Megan.Bubak@freeman.com' },
+  {name:'Siah Ordonez',preferred:'',hireDate:'2023-08-21',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Anaheim',mgr:'Joanne Peau',mgr2:'Nicole Hanna',mgr3:'Leslie Davis',birthday:'Nov 24',email:'Siah.Ordonez@freeman.com' },
+  {name:'Steven Queen',preferred:'',hireDate:'2000-05-22',ftpt:'F',title:'Exhibitor Services Consultant',region:'NW/SoCal',branch:'Anaheim',mgr:'Joanne Peau',mgr2:'Nicole Hanna',mgr3:'Leslie Davis',birthday:'Mar 06',email:'Steve.Queen@freeman.com' },
+  {name:'Emily Jaboro',preferred:'',hireDate:'2026-03-16',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'San Francisco',mgr:'Niall McCarthy',mgr2:'Nicole Hanna',mgr3:'Leslie Davis',birthday:'2026-02-23 00:00:00',email:'Emily.Jaboro@freeman.com' },
+  {name:'Anais Vallejo',preferred:'',hireDate:'2022-03-21',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Southeast',branch:'Orlando',mgr:'Lymari Colon',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Nov 03',email:'Anais.Vallejo@freeman.com' },
+  {name:'Armando Osorio',preferred:'',hireDate:'2026-01-12',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Orlando',mgr:'Lymari Colon',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Apr 30',email:'Armando.Osorio@freeman.com' },
+  {name:'Crystal Denitson',preferred:'',hireDate:'2021-12-20',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Southeast',branch:'Orlando',mgr:'Lymari Colon',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Nov 23',email:'Crystal.Denitson@freeman.com' },
+  {name:'Edgar Santiago',preferred:'',hireDate:'2025-01-27',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Orlando',mgr:'Lymari Colon',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Apr 06',email:'Edgar.Santiago@freeman.com' },
+  {name:'Jamie Gilbert',preferred:'',hireDate:'2022-03-07',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Orlando',mgr:'Lymari Colon',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Dec 13',email:'Jamie.Gilbert@freeman.com' },
+  {name:'Jonathan Rojas',preferred:'',hireDate:'2025-01-18',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Orlando',mgr:'Lymari Colon',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Sep 08',email:'Jonathan.Rojas@freeman.com' },
+  {name:'Juan Alvarado',preferred:'',hireDate:'2025-10-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Orlando',mgr:'Lymari Colon',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Jul 20',email:'Juan.Alvarado@freeman.com' },
+  {name:'Sinlena Maldonado',preferred:'',hireDate:'2022-04-18',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Orlando',mgr:'Lymari Colon',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'May 07',email:'Sinlena.Maldonado@freeman.com' },
+  {name:'Zakacia Bruce',preferred:'',hireDate:'2022-07-05',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Orlando',mgr:'Lymari Colon',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Dec 29',email:'Zakacia.Bruce@freeman.com' },
+  {name:'Alexandra Prouty',preferred:'Alex',hireDate:'2025-05-19',ftpt:'P',title:'Exhibitor Services Specialist',region:'Southeast',branch:'New Orleans',mgr:'Regina Serigne',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'2026-05-31 00:00:00',email:'Alexandra.Prouty@freeman.com' },
+  {name:'Delayna Fuller',preferred:'',hireDate:'2025-05-19',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'New Orleans',mgr:'Regina Serigne',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Sep 13',email:'Delayna.Fuller@freeman.com' },
+  {name:'Emily Gomez',preferred:'',hireDate:'2022-03-21',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Southeast',branch:'New Orleans',mgr:'Regina Serigne',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Nov 11',email:'Emily.Gomez@freeman.com' },
+  {name:'Jane Anderson',preferred:'',hireDate:'2000-03-27',ftpt:'P',title:'Exhibitor Services Specialist',region:'Southeast',branch:'New Orleans',mgr:'Regina Serigne',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Aug 14',email:'Jane.Anderson@freeman.com' },
+  {name:'Janine McGuire',preferred:'',hireDate:'2023-01-09',ftpt:'P',title:'Exhibitor Services Specialist',region:'Southeast',branch:'New Orleans',mgr:'Regina Serigne',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Mar 27',email:'Janine.McGuire@freeman.com' },
+  {name:'Katherine Camet',preferred:'Katie',hireDate:'2017-10-10',ftpt:'F',title:'Exhibitor Services Event Experience Supervisor',region:'Southeast',branch:'New Orleans',mgr:'Regina Serigne',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Jul 10',email:'Katie.Camet@freeman.com' },
+  {name:'Meagan Fabre',preferred:'',hireDate:'2018-10-08',ftpt:'F',title:'Exhibitor Services Consultant',region:'Southeast',branch:'New Orleans',mgr:'Regina Serigne',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Mar 19',email:'Meagan.Fabre@freeman.com' },
+  {name:'Teddy Helouin',preferred:'',hireDate:'2022-03-21',ftpt:'F',title:'Exhibitor Services Consultant',region:'Southeast',branch:'New Orleans',mgr:'Regina Serigne',mgr2:'Jose Medina',mgr3:'Lisette Bergeron',birthday:'Aug 25',email:'Teddy.Helouin@freeman.com' },
+  {name:'Airason Heard',preferred:'Aj',hireDate:'2024-08-12',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Atlanta',mgr:'Anne Wolkenhauer',mgr2:'Tricia Orme',mgr3:'Lisette Bergeron',birthday:'2026-04-01 00:00:00',email:'Airason.Heard@freeman.com' },
+  {name:'Javier Interiano',preferred:'Javi',hireDate:'2024-08-12',ftpt:'F',title:'Exhibitor Services Specialist',region:'Southeast',branch:'Atlanta',mgr:'Anne Wolkenhauer',mgr2:'Tricia Orme',mgr3:'Lisette Bergeron',birthday:'Sep 02',email:'Javier.Interiano@freeman.com' },
+  {name:'Krystal Hunter',preferred:'',hireDate:'2023-01-09',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Southeast',branch:'Atlanta',mgr:'Anne Wolkenhauer',mgr2:'Tricia Orme',mgr3:'Lisette Bergeron',birthday:'May 17',email:'Krystal.Hunter@freeman.com' },
+  {name:'Thomas Allen',preferred:'Daniel',hireDate:'2023-01-09',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Southeast',branch:'Atlanta',mgr:'Anne Wolkenhauer',mgr2:'Tricia Orme',mgr3:'Lisette Bergeron',birthday:'Nov 10',email:'Thomas.Allen@freeman.com' },
+  {name:'Alexis Takahashi',preferred:'',hireDate:'2021-12-20',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Northeast',branch:'Washington D.C.',mgr:'Cassandra Karns',mgr2:'Laura Ewell',mgr3:'Maud Langlois',birthday:'Mar 19',email:'Alexis.Takahashi@freeman.com' },
+  {name:'Jonathon Gorham',preferred:'Ty',hireDate:'2024-08-12',ftpt:'F',title:'Exhibitor Services Specialist',region:'Northeast',branch:'Washington D.C.',mgr:'Cassandra Karns',mgr2:'Laura Ewell',mgr3:'Maud Langlois',birthday:'Jun 17',email:'Jonathon.Gorham@freeman.com' },
+  {name:'Mary Lintner',preferred:'',hireDate:'2013-03-25',ftpt:'F',title:'Exhibitor Services Consultant',region:'Northeast',branch:'Washington D.C.',mgr:'Cassandra Karns',mgr2:'Laura Ewell',mgr3:'Maud Langlois',birthday:'Nov 12',email:'Mary.Lintner@freeman.com' },
+  {name:'Sara Stoma',preferred:'',hireDate:'2023-08-21',ftpt:'F',title:'Exhibitor Services Specialist',region:'Northeast',branch:'Washington D.C.',mgr:'Cassandra Karns',mgr2:'Laura Ewell',mgr3:'Maud Langlois',birthday:'Mar 30',email:'Sara.Stoma@freeman.com' },
+  {name:'Sean Fletcher',preferred:'',hireDate:'2022-06-06',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'Northeast',branch:'Washington D.C.',mgr:'Cassandra Karns',mgr2:'Laura Ewell',mgr3:'Maud Langlois',birthday:'Mar 24',email:'Sean.Fletcher@freeman.com' },
+  {name:'Brendan Spongberg',preferred:'',hireDate:'2022-04-18',ftpt:'F',title:'Exhibitor Services Sr Specialist',region:'North Central',branch:'Chicago',mgr:'Ellen Crowley',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Nov 23',email:'Brendan.Spongberg@freeman.com' },
+  {name:'Carol Buckley',preferred:'Carrie',hireDate:'2023-08-21',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Ellen Crowley',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Nov 13',email:'Carrie.Buckley@freeman.com' },
+  {name:'Charlotte Randle',preferred:'',hireDate:'2026-01-12',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Ellen Crowley',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Sep 02',email:'Charlotte.Randle@freeman.com' },
+  {name:'Cory Marin',preferred:'',hireDate:'2024-01-01',ftpt:'F',title:'Director Exhibitor Services',region:'Las Vegas',branch:'Las Vegas',mgr:'Ellen Crowley',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Jul 20',email:'Cory.Marin@freeman.com' },
+  {name:'Ebony Jackson',preferred:'',hireDate:'2023-08-21',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Ellen Crowley',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Aug 17',email:'Ebony.Jackson@freeman.com' },
+  {name:'Kristine Holst',preferred:'Kristy',hireDate:'2008-07-07',ftpt:'F',title:'Exhibitor Services Consultant',region:'North Central',branch:'Des Moines',mgr:'Ellen Crowley',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Aug 02',email:'Kristy.Holst@freeman.com' },
+  {name:'Mary Ligammari',preferred:'',hireDate:'1998-09-01',ftpt:'F',title:'Director Exhibitor Services',region:'North Central',branch:'Chicago',mgr:'Ellen Crowley',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Jul 23',email:'Mary.Ligammari@freeman.com' },
+  {name:'Melanie Franco',preferred:'',hireDate:'2025-09-08',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Ellen Crowley',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Jun 02',email:'Melanie.Franco@freeman.com' },
+  {name:'Michael Alberts',preferred:'',hireDate:'2025-03-03',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Ellen Crowley',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Dec 12',email:'Michael.Alberts@freeman.com' },
+  {name:'Sharon Esquivel',preferred:'',hireDate:'2025-10-20',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Ellen Crowley',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Jun 15',email:'Sharon.Esquivel@freeman.com' },
+  {name:'Valerie Miranda',preferred:'',hireDate:'2026-03-16',ftpt:'P',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Ellen Crowley',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'2026-08-03 00:00:00',email:'Valerie.Miranda@freeman.com' },
+  {name:'Elaine Yesh',preferred:'',hireDate:'2000-07-05',ftpt:'F',title:'Director Exhibitor Services',region:'Off-Site',branch:'Nashville',mgr:'Jennifer Vaughan',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Jan 19',email:'Elaine.Yesh@freeman.com' },
+  {name:'Jennifer Pearson',preferred:'',hireDate:'1992-02-24',ftpt:'F',title:'Director Exhibitor Services',region:'Off-Site',branch:'Dallas',mgr:'Jennifer Vaughan',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Oct 08',email:'Jennifer.Pearson@freeman.com' },
+  {name:'Niall McCarthy',preferred:'',hireDate:'2015-06-10',ftpt:'F',title:'Manager Exhibitor Services',region:'NW/SoCal',branch:'Anaheim',mgr:'Leslie Davis',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Jul 03',email:'Niall.Mccarthy@freeman.com' },
+  {name:'Nicole Hanna',preferred:'',hireDate:'2007-09-10',ftpt:'F',title:'Director Exhibitor Services',region:'NW/SoCal',branch:'Anaheim',mgr:'Leslie Davis',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Jun 16',email:'Nicole.Hanna@freeman.com' },
+  {name:'T Lam',preferred:'T',hireDate:'2002-10-08',ftpt:'F',title:'Director Exhibitor Services',region:'NW/SoCal',branch:'Denver',mgr:'Leslie Davis',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Sep 30',email:'T.Lam@freeman.com' },
+  {name:'Jose Medina',preferred:'',hireDate:'2018-10-15',ftpt:'F',title:'Director Exhibitor Services',region:'Southeast',branch:'Orlando',mgr:'Lisette Bergeron',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Apr 24',email:'Jose.Medina@freeman.com' },
+  {name:'Tricia Orme',preferred:'Tricia',hireDate:'1997-03-03',ftpt:'F',title:'Director Exhibitor Services',region:'Southeast',branch:'Nashville',mgr:'Lisette Bergeron',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'May 06',email:'Tricia.Orme@freeman.com' },
+  {name:'Joan Davis',preferred:'',hireDate:'2008-10-01',ftpt:'F',title:'Director Exhibitor Services',region:'South Central',branch:'Houston',mgr:'Lubi Garza',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Aug 24',email:'Joan.Davis@freeman.com' },
+  {name:'Tiffany Jarrett',preferred:'',hireDate:'2025-12-02',ftpt:'F',title:'Manager Exhibitor Services',region:'South Central',branch:'Dallas',mgr:'Lubi Garza',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Dec 24',email:'Tiffany.Jarrett@freeman.com' },
+  {name:'Faye Moffatt',preferred:'',hireDate:'1995-04-10',ftpt:'F',title:'Exhibitor Services Consultant',region:'Canada',branch:'Toronto',mgr:'Maud Langlois',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'2026-02-26 00:00:00',email:'Faye.Moffatt@freeman.com' },
+  {name:'Gina Alberto',preferred:'',hireDate:'2016-09-06',ftpt:'F',title:'Manager Exhibitor Services',region:'Northeast',branch:'New York',mgr:'Maud Langlois',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Nov 24',email:'Gina.Alberto@freeman.com' },
+  {name:'Harsheen Oberoi',preferred:'',hireDate:'2025-03-03',ftpt:'F',title:'Exhibitor Services Specialist',region:'Canada',branch:'Toronto',mgr:'Maud Langlois',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'2026-03-06 00:00:00',email:'Harsheen.Oberoi@freeman.com' },
+  {name:'Laura Ewell',preferred:'',hireDate:'2000-09-01',ftpt:'F',title:'Director Exhibitor Services',region:'Northeast',branch:'Boston',mgr:'Maud Langlois',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'Feb 07',email:'Laura.Ewell@freeman.com' },
+  {name:'Lydia Mahiet',preferred:'',hireDate:'2000-03-01',ftpt:'F',title:'Exhibitor Services Consultant',region:'Canada',branch:'Toronto',mgr:'Maud Langlois',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'2026-10-02 00:00:00',email:'Lydia.Mahiet@freeman.com' },
+];
 
 var hires = [
   {id:'h1', role:'ES Event Experience Supervisor', ftpt:'Full-Time', branch:'Las Vegas',
@@ -2388,10 +2488,10 @@ var APPROVAL_STAGES = {
 // Tasks are grouped by phase; phases unlock as position advances
 var TASK_STAGE_MAP = {
   'approved-not-posted': ['t1','t2','t3'],
-  'posted':              ['t1','t2','t3','t4','t5','t5b','t6','t7','t8','t9'],
-  'interviewing':        ['t1','t2','t3','t4','t5','t5b','t6','t7','t8','t9','t10','t11','t12','t13'],
-  'offer':               ['t1','t2','t3','t4','t5','t5b','t6','t7','t8','t9','t10','t11','t12','t13'],
-  'complete':            ['t1','t2','t3','t4','t5','t5b','t6','t7','t8','t9','t10','t11','t12','t13'],
+  'posted':              ['t1','t2','t3','t4','t5','t6','t7','t8','t9'],
+  'interviewing':        ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],
+  'offer':               ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],
+  'complete':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],
 };
 
 function addDays(s,n){if(!s)return new Date('2099-01-01');var d=new Date(s);if(isNaN(d.getTime()))return new Date('2099-01-01');d.setDate(d.getDate()+n);return d;}
@@ -2469,117 +2569,10 @@ function canViewInScope(h) {
   return identityCanSeeBranch(h.branch);
 }
 
-// ── NEEDS ATTENTION — RECRUITING & HIRING ───────────────────────────────
-// Returns true if the current identity is the next responsible party
-// on this hire record. Used by both the sidebar highlight AND renderNeedsAttention().
 function needsMyAction(h) {
-  if(h.closed) return false;
-  var na = getRecruitingNACard(h);
-  return na !== null;
-}
-
-// Returns the full card data object if the current identity has a pending action
-// on this hire, or null if not. This is the single source of truth for both
-// the sidebar action-needed highlight and the Needs Attention tile.
-function getRecruitingNACard(h) {
-  if(h.closed) return null;
-  var p = currentIdentity();
-  var activeTasks = TASK_STAGE_MAP[h.stage] || TASK_STAGE_MAP['approved-not-posted'];
-
-  // Find the first unchecked task in the active set
-  var nextTask = null;
-  for(var i=0; i<TASKS.length; i++) {
-    var t = TASKS[i];
-    if(activeTasks.indexOf(t.id) < 0) continue;  // not active at this stage
-    if(h.checked.indexOf(t.id) >= 0) continue;    // already checked
-    nextTask = t;
-    break;
-  }
-  if(!nextTask) return null; // all active tasks done
-
-  // Check if current identity is responsible for this task
-  var owner = nextTask.owner;
-  var isResponsible = false;
-
-  if(owner === 'hm') {
-    isResponsible = (p.name === h.hiringManager);
-  } else if(owner === 'rd') {
-    // Skip t2 if HM is already an RD (skipIfHMisRD)
-    var hmId = null;
-    Object.keys(IDENTITY_DIRECTORY).forEach(function(k){
-      if(IDENTITY_DIRECTORY[k].name === h.hiringManager) hmId = k;
-    });
-    var hmIsRD = hmId && IDENTITY_DIRECTORY[hmId] && IDENTITY_DIRECTORY[hmId].level === 'region';
-    if(hmIsRD) return null; // t2 skipped — move on, but next task check handled by loop above
-    isResponsible = (p.level === 'region' && p.branches.indexOf(h.branch) >= 0);
-  } else if(owner === 'es') {
-    isResponsible = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
-  } else if(owner === 'anyone' || owner === 'admin') {
-    // 'anyone' and 'admin' tasks never generate a Needs Attention card
-    isResponsible = false;
-  }
-
-  if(!isResponsible) return null;
-
-  // Build record identity string — name if known, generic if not
-  var hasName = (h.firstName && h.lastName);
-  var recordId = hasName ? (h.firstName + ' ' + h.lastName) : null;
-
-  // Build "what's needed" text using the confirmed contract
-  var tid = nextTask.id;
-  var roleAndBranch = h.role + ' · ' + h.branch;
-  var candidateStr = recordId || 'Candidate TBD';
-  var actionText = '';
-
-  if(tid === 't2') actionText = 'Submit ' + roleAndBranch + ' requisition to ES Leadership for approval';
-  else if(tid === 't3') actionText = 'Submit ' + roleAndBranch + ' open position to Growth for approval';
-  else if(tid === 't4') actionText = 'Contact HR Business Partner to begin recruiting for ' + roleAndBranch;
-  else if(tid === 't5b') actionText = 'Enter requisition number from HR for ' + roleAndBranch;
-  else if(tid === 't7') actionText = 'Schedule interviews for ' + roleAndBranch + ' — ' + candidateStr;
-  else if(tid === 't8') actionText = 'Conduct interviews for ' + roleAndBranch + ' — ' + candidateStr;
-  else if(tid === 't9') actionText = 'Select final candidate for ' + roleAndBranch;
-  else if(tid === 't10') actionText = 'Make verbal offer to ' + candidateStr + ' for ' + roleAndBranch;
-  else if(tid === 't11') actionText = 'Email HRBP & HR Recruiter to initiate offer letter for ' + candidateStr;
-  else if(tid === 't12') actionText = 'Review & sign offer letter for ' + candidateStr + ' · ' + roleAndBranch;
-  else return null; // t1/t5/t6/t13 — no card
-
-  // Calculate how long this task has been waiting
-  // We use the stage's last-changed date if tracked; for now derive from checked array length as proxy
-  // naWaiting is stored on the hire when the task first becomes active
-  var waitingStr = naWaitingLabel(h, nextTask.id);
-
-  // Calculate deadline status for this task
-  var baseDate = h.proposedStart || h.start || '';
-  var taskDue = baseDate ? addDays(baseDate, nextTask.off) : null;
-  var deadlineStatus = taskDue ? taskDeadlineStatus(taskDue, false) : 'on-track';
-  var dueDateStr = taskDue ? fmtDate(taskDue) : null;
-
-  return {
-    hireId: h.id,
-    workspace: 'Recruiting & Hiring',
-    recordId: recordId,
-    recordGeneric: roleAndBranch,
-    actionText: actionText,
-    waiting: waitingStr,
-    taskId: tid,
-    hasName: hasName,
-    deadlineStatus: deadlineStatus,
-    dueDateStr: dueDateStr
-  };
-}
-
-// Returns a human-readable "waiting" label for a task
-// Stores a timestamp on first render so we can show days elapsed
-function naWaitingLabel(h, taskId) {
-  var key = 'naStart_' + taskId;
-  if(!h[key]) h[key] = new Date().toISOString().slice(0,10); // YYYY-MM-DD
-  var start = new Date(h[key]);
-  var now = new Date();
-  now.setHours(0,0,0,0); start.setHours(0,0,0,0);
-  var days = Math.round((now - start) / 86400000);
-  if(days === 0) return 'Since today';
-  if(days === 1) return '1 day';
-  return days + ' days';
+  // Flag positions that have been sitting at approved-not-posted for a while, or are in offer stage
+  if(h.stage === 'offer') return true;
+  return false;
 }
 
 function setViewAs(role, el) {
@@ -2659,52 +2652,24 @@ function goToShow(showId) {
 
 function renderNeedsAttention() {
   var el = document.getElementById('needs-attention-body'); if(!el) return;
-
-  // Collect all Needs Attention cards from all workspaces
-  var cards = [];
-
-  // -- Recruiting & Hiring --
-  hires.forEach(function(h) {
-    var card = getRecruitingNACard(h);
-    if(card) cards.push(card);
-  });
-
-  // Future workspaces add cards here as they are built:
-  // obRecords.forEach(function(r){ var c=getOnboardingNACard(r); if(c) cards.push(c); });
-  // trRecords.forEach(function(r){ var c=getTransitionsNACard(r); if(c) cards.push(c); });
-  // offRecords.forEach(function(r){ var c=getOffboardingNACard(r); if(c) cards.push(c); });
-
-  if(!cards.length) {
-    el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">No pending actions for you right now.</div>';
-    return;
-  }
-
-  var html = cards.map(function(card) {
-    var identityHtml = card.hasName
-      ? '<span style="color:var(--fb);font-weight:700">&#x1F464; ' + card.recordId + '</span>'
-      : '<span style="color:var(--muted);font-style:italic">' + card.recordGeneric + '</span>';
-
-    var pillCls = card.deadlineStatus === 'overdue' ? 'pill-overdue' : card.deadlineStatus === 'due-soon' ? 'pill-due-soon' : 'pill-on-track';
-    var pillLabel = card.deadlineStatus === 'overdue' ? 'Overdue' : card.deadlineStatus === 'due-soon' ? 'Due Soon' : 'On Track';
-    var dueLine = card.dueDateStr ? ' &middot; Due ' + card.dueDateStr : '';
-
-    return '<div class="na-card" data-gotohire="' + card.hireId + '" onclick="goToHire(this)">' +
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
-        '<div style="flex:1">' +
-          '<div class="na-card-title">' + card.actionText + '</div>' +
-          '<div class="na-card-meta" style="margin-top:3px">' + identityHtml + '</div>' +
-        '</div>' +
-        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding-top:2px">' +
-          '<span class="na-pill ' + pillCls + '">' + pillLabel + '</span>' +
-          '<span style="font-size:11px;color:var(--muted);white-space:nowrap">' + card.waiting + dueLine + '</span>' +
-        '</div>' +
-      '</div>' +
-      '<div class="na-card-tags" style="margin-top:7px">' +
-        '<span class="chip chip-ghost">' + card.workspace + '</span>' +
-      '</div>' +
+  var items = hires.filter(needsMyAction);
+  var html = items.map(function(h){
+    return '<div class="na-card" data-gotohire="'+h.id+'" onclick="goToHire(this)">'+
+      '<div class="na-card-title">Position: '+h.role+' &mdash; '+h.branch+'</div>'+
+      '<div class="na-card-meta">Requested by '+h.hiringManager+' &middot; '+h.ftpt+' &middot; Proposed start: '+h.proposedStart+'</div>'+
+      '<div class="na-card-tags"><span class="chip chip-amber">Pending Approval</span><span class="chip chip-ghost">Recruiting</span></div>'+
     '</div>';
   }).join('');
-
+  html += '<div class="na-card">'+
+    '<div class="na-card-title">Healthcare Summit &mdash; SERF Overdue</div>'+
+    '<div class="na-card-meta">Due 5 weeks pre move-in &middot; 3 days past deadline</div>'+
+    '<div class="na-card-tags"><span class="chip chip-red">Overdue</span><span class="chip chip-ghost">Lead: Kim</span></div>'+
+  '</div>'+
+  '<div class="na-card">'+
+    '<div class="na-card-title">Timekeeping &mdash; Approval Window</div>'+
+    '<div class="na-card-meta">Kronos timecards due Monday 12pm CST</div>'+
+    '<div class="na-card-tags"><span class="chip chip-amber">Due Today</span><span class="chip chip-ghost">Timekeeping</span></div>'+
+  '</div>';
   el.innerHTML = html;
 }
 
@@ -2799,6 +2764,49 @@ function fmtDateStr(s) {
 }
 
 
+
+// ── TEAM_MEMBERS helpers ──────────────────────────────────────────────────
+
+// Get all employees reporting directly to a manager name
+function getDirectReports(mgrName) {
+  return TEAM_MEMBERS.filter(function(e){ return e.mgr === mgrName; });
+}
+
+// Get employees visible to the current identity
+// - Enterprise: all employees
+// - Region: employees whose branch is in identity.branches[]
+// - Branch: employees in exact identity.branches[]
+// Used to populate dropdowns in Transitions + Offboarding
+function getTeamMembersInScope() {
+  var p = currentIdentity();
+  if (p.level === 'enterprise') return TEAM_MEMBERS;
+  return TEAM_MEMBERS.filter(function(e){
+    return p.branches.indexOf(e.branch) >= 0;
+  });
+}
+
+// Get employees for a specific branch
+function getTeamMembersByBranch(branch) {
+  return TEAM_MEMBERS.filter(function(e){ return e.branch === branch; });
+}
+
+// Get employees managed by a specific person (direct reports only)
+// Used in Transitions/Offboarding to populate employee dropdown for HMs
+function getTeamMembersForDropdown() {
+  var p = currentIdentity();
+  // Managers see only their direct reports
+  if (p.level === 'branch' && p.taskRole === 'hm') {
+    return getDirectReports(p.name);
+  }
+  // Directors, RDs, and above see all in their scope
+  return getTeamMembersInScope();
+}
+
+// Find a team member by name (for pre-populating records)
+function findTeamMember(name) {
+  return TEAM_MEMBERS.find(function(e){ return e.name === name; });
+}
+
 function rhAdvanceStage(hId) {
   var hire = hires.find(function(x){ return x.id === hId; });
   if (!hire) return;
@@ -2866,7 +2874,6 @@ function renderDetail(){
       field('Proposed Start Date', h.proposedStart ? fmtDateStr(h.proposedStart) : '', 'proposedStart', 'date')+
       field('Proposed NET Class', h.proposedNet ? fmtDateStr(h.proposedNet) : '', 'proposedNet', 'date')+
       fieldStatic('Phone Stipend', h.phoneStipend ? 'Yes' : 'No')+
-      (h.startDateOverrideReason ? fieldStatic('Start Date Override Reason', '<span style="color:var(--orange);font-weight:700">⚠ ' + h.startDateOverrideReason + '</span>') : '')+
     '</div>'+
     '<div style="padding:8px 14px;border-top:1px solid var(--border-lt)">'+
       '<div class="det-prog-wrap" style="max-width:100%"><div class="det-prog-fill" style="width:'+pct+'%"></div></div>'+
@@ -2903,9 +2910,8 @@ function renderDetail(){
       '<div class="phase-body" style="display:'+(isOpen?'block':'none')+'">';
     pt.forEach(function(t, tidx){
       var ck=h.checked.indexOf(t.id)>=0;
-      var baseDate = h.proposedStart || h.start || '';
-      var due = baseDate ? addDays(baseDate, t.off) : null;
-      var st = (!ck && !due) ? 'upcoming' : dueStatus(due ? new Date(due) : new Date('2099-01-01'), ck);
+      var due=addDays(h.proposedStart||h.start||'2026-06-16',t.off);
+      var st=dueStatus(new Date(due),ck);
       // Sequential locking: step is locked if any prior step in this phase is unchecked
       // Stage gate: task not yet available if stage hasn't unlocked this task
       var stageGated = activeTasks.indexOf(t.id) < 0;
@@ -2928,32 +2934,18 @@ function renderDetail(){
         t13FieldsComplete = !!(h.proposedStart && h.confirmedStart && h.confirmedNet &&
           h.proposedNet && h.firstName && h.lastName && h.reqNum);
       }
-      // t5b (enter req number) requires the reqNum field to be filled first
-      var t5bReqComplete = true;
-      if (t.id === 't5b') {
-        t5bReqComplete = !!(h.reqNum && h.reqNum.toString().length === 5);
-      }
-      var canInteract = !locked && t13FieldsComplete && t5bReqComplete && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
+      var canInteract = !locked && t13FieldsComplete && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
       var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'') + (!locked&&!canInteract?' not-owner':'');
       var chkAttrs = locked ? '' : ' data-hire="'+h.id+'" data-task="'+t.id+'" data-owner="'+t.owner+'"' + (!canInteract?' data-readonly="1"':'');
       clHtml+='<div class="task-row'+(locked?' step-locked':'')+'">'+
         '<div class="'+chkCls+'"'+chkAttrs+'><span class="chk-mark">&#10003;</span></div>'+
         '<div class="task-body">'+
-          '<div class="task-title'+(ck?' done':'')+'"'+(locked?' style="opacity:.35"':'')+'>'+t.title+'</div>'+
+          '<div class="task-title'+(ck?' done':'')+(locked?' style="opacity:.35"':'')+'>'+t.title+'</div>'+
           '<div class="task-desc"'+(locked?' style="opacity:.35"':'')+'>'+t.desc+'</div>'+lnks+
         '</div>'+
         '<div class="task-right">'+
           '<span class="task-owner"'+(locked?' style="opacity:.35"':'')+'>'+t.ownerLabel+'</span>'+
-          (function(){
-          if(ck) return '<span class="task-due due-done">Complete</span>';
-          if(locked) return '<span class="task-due" style="color:var(--muted)">—</span>';
-          if(!baseDate) return '<span class="task-due" style="color:var(--muted)">—</span>';
-          var ds = taskDeadlineStatus(due, false);
-          var dateStr = fmtDate(due);
-          if(ds === 'overdue') return '<span class="task-due" style="color:var(--orange);font-weight:800">' + dateStr + '</span><span class="na-pill pill-overdue">Overdue</span>';
-          if(ds === 'due-soon') return '<span class="task-due" style="color:var(--gold);font-weight:800">' + dateStr + '</span><span class="na-pill pill-due-soon">Due Soon</span>';
-          return '<span class="task-due" style="color:#1A6B35;font-weight:700">' + dateStr + '</span>';
-        })()+
+          '<span class="task-due due-'+(locked?'upcoming':st)+'">'+(ck?'Complete':locked?'&mdash;':fmtDate(due))+'</span>'+
         '</div>'+
       '</div>';
     });
@@ -3045,7 +3037,6 @@ function renderDetail(){
       var missingFields = [];
       if(!h.reqNum) missingFields.push('Req #');
       if(!h.firstName || !h.lastName) missingFields.push('Candidate Name (first + last)');
-      if(!h.reqNum) missingFields.push('Req # (enter via t5b — Enter HR Requisition Number)');
       if(!h.proposedStart) missingFields.push('Proposed Start Date');
       if(!h.confirmedStart) missingFields.push('Confirmed Start Date');
       if(!h.proposedNet) missingFields.push('Proposed NET Class');
@@ -3248,26 +3239,6 @@ var BRANCH_TO_HM = {
   'Off-Site':         ['Jennifer Pearson','Jennifer Vaughan','Elaine Yesh','Courtney Gonzalez','Michelle Bogdan'],
 };
 
-function onModalRoleChange(){
-  // Lock FT/PT to Full-Time for salaried roles
-  var role = document.getElementById('m-role') ? document.getElementById('m-role').value : '';
-  var ftptEl = document.getElementById('m-ftpt');
-  if(ftptEl) {
-    if(isSalariedRole(role)) {
-      ftptEl.value = 'Full-Time';
-      ftptEl.disabled = true;
-      ftptEl.style.opacity = '0.6';
-      ftptEl.title = 'Salaried positions are always Full-Time';
-    } else {
-      ftptEl.disabled = false;
-      ftptEl.style.opacity = '1';
-      ftptEl.title = '';
-      if(ftptEl.value === '') ftptEl.value = '';
-    }
-  }
-  populateStartDateDropdown();
-  onModalBranchChange();
-}
 function onModalBranchChange() {
   var branch = document.getElementById('m-branch').value;
   var hmSel  = document.getElementById('m-hm');
@@ -3317,85 +3288,13 @@ function openModal(){
   document.getElementById('btn-newnew').classList.add('active');
   document.getElementById('btn-backfill').classList.remove('active');
   document.getElementById('backfill-row').style.display = 'none';
-  ['m-backfill','m-role','m-ftpt','m-branch','m-hm','m-net'].forEach(function(id){
-    var el = document.getElementById(id); if(el) { el.value = ''; el._isoVal = ''; }
+  ['m-backfill','m-role','m-ftpt','m-branch','m-hm','m-start','m-net'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
   });
-  var startWarn = document.getElementById('m-start-warning');
-  if(startWarn) { startWarn.style.display='none'; startWarn.textContent=''; }
-  populateStartDateDropdown();
   document.getElementById('modal-bg').classList.add('open');
   document.getElementById('m-role').focus();
   onModalBranchChange();
-  // Attach flatpickr to modal date inputs for consistent cross-browser calendar
-  if(typeof flatpickr !== 'undefined') {
-    if(window._fpNet)   { window._fpNet.destroy(); }
-    populateStartDateDropdown();
-    window._fpNet = flatpickr('#m-net', { dateFormat:'M j, Y', allowInput:false, disableMobile:true,
-      onChange: function(d,s){ document.getElementById('m-net')._isoVal = d.length ? (d[0].getFullYear()+'-'+('0'+(d[0].getMonth()+1)).slice(-2)+'-'+('0'+d[0].getDate()).slice(-2)) : ''; }
-    });
-  }
 }
-
-function populateStartDateDropdown() {
-  var role = document.getElementById('m-role') ? document.getElementById('m-role').value : '';
-  var sel = document.getElementById('m-start');
-  if(!sel) return;
-  var dates = getStartDatesForRole(role);
-  var today = new Date(); today.setHours(0,0,0,0);
-  var currentVal = sel.value;
-  sel.innerHTML = '<option value="">Select start date...</option>';
-  dates.forEach(function(d) {
-    var sp2 = d.start.split('-');
-    var start = new Date(parseInt(sp2[0]), parseInt(sp2[1])-1, parseInt(sp2[2]));
-    if(start <= today) return; // skip past dates
-    var op2 = d.offer.split('-');
-    var offerDate2 = new Date(parseInt(op2[0]), parseInt(op2[1])-1, parseInt(op2[2]));
-    var offerPassed = offerDate2 < today;
-    var opt = document.createElement('option');
-    opt.value = d.start;
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    var sp = d.start.split('-');
-    opt.textContent = months[parseInt(sp[1],10)-1] + ' ' + parseInt(sp[2],10) + ', ' + sp[0] +
-      (offerPassed ? ' (offer deadline passed)' : '');
-    opt.disabled = offerPassed;
-    opt.style.color = offerPassed ? '#b0bec5' : '';
-    if(d.start === currentVal) opt.selected = true;
-    sel.appendChild(opt);
-  });
-  onModalStartDateChange();
-}
-
-function onModalStartDateChange() {
-  var sel = document.getElementById('m-start');
-  var warn = document.getElementById('m-start-warning');
-  var overrideRow = document.getElementById('m-override-row');
-  if(!sel || !warn) return;
-  var val = sel.value;
-  if(!val) { warn.style.display='none'; if(overrideRow) overrideRow.style.display='none'; return; }
-
-  var role = document.getElementById('m-role') ? document.getElementById('m-role').value : '';
-  var offerPassed = isOfferDeadlinePassed(val, role);
-  var tooTight = isTooTightTimeline(val);
-  var today = new Date(); today.setHours(0,0,0,0);
-  var startD = new Date(val);
-  var daysOut = Math.round((startD - today) / 86400000);
-
-  warn.style.display = 'none';
-  warn.textContent = '';
-  if(overrideRow) overrideRow.style.display = 'none';
-
-  if(offerPassed) {
-    warn.style.display = 'block';
-    warn.style.color = 'var(--orange)';
-    warn.textContent = '⚠ The offer letter deadline for this start date has passed. Please explain why you are selecting this date.';
-    if(overrideRow) overrideRow.style.display = 'block';
-  } else if(tooTight) {
-    warn.style.display = 'block';
-    warn.style.color = 'var(--gold)';
-    warn.textContent = '⚠ This start date is ' + daysOut + ' days away. The recommended lead time is 70 days (10 weeks). The timeline may be too tight to complete all recruiting steps.';
-  }
-}
-
 function closeModal(){
   document.getElementById('modal-bg').classList.remove('open');
 }
@@ -3404,10 +3303,8 @@ function createHire(){
   var ftpt = document.getElementById('m-ftpt').value;
   var branch = document.getElementById('m-branch').value;
   var hm = document.getElementById('m-hm').value;
-  var startEl = document.getElementById('m-start');
-  var start = startEl.value || '';
-  var netEl = document.getElementById('m-net');
-  var net = netEl._isoVal || netEl.value || '';
+  var start = document.getElementById('m-start').value;
+  var net = document.getElementById('m-net').value;
   var backfill = currentHireType === 'backfill' ? document.getElementById('m-backfill').value : '';
   if(!role || !ftpt || !branch || !hm || !start){
     alert('Please fill in all required fields.');return;
@@ -3422,8 +3319,7 @@ function createHire(){
     proposedStart:start, proposedNet:net,
     reqNum:'', hrRecruiter:'Megan Wierick', firstName:'', lastName:'',
     confirmedStart:'', confirmedNet:'',
-    stage:'approved-not-posted', checked:['t1'], open:{},
-    startDateOverrideReason: document.getElementById('m-start-override') ? (document.getElementById('m-start-override').value || '') : ''
+    stage:'approved-not-posted', checked:['t1'], open:{}
   });
   selId = hires[0].id;
   closeModal();
@@ -3459,44 +3355,19 @@ function startInlineEdit(el) {
       if(currentVal === opt) o.selected = true;
       input.appendChild(o);
     });
-  } else if(type === 'date' && (key === 'proposedStart')) {
-    // proposedStart uses HR-approved start date dropdown
-    input = document.createElement('select');
-    input.className = 'pos-field-input';
-    var hireForDates = hires.find(function(x){ return x.id === currentEditHireId; });
-    var roleForDates = hireForDates ? hireForDates.role : '';
-    var startDates = getStartDatesForRole(roleForDates);
-    var today = new Date(); today.setHours(0,0,0,0);
-    var blankOpt = document.createElement('option');
-    blankOpt.value = ''; blankOpt.textContent = 'Select start date...';
-    input.appendChild(blankOpt);
-    startDates.forEach(function(d) {
-      var start = new Date(d.start);
-      if(start <= today) return;
-      var offerPassed = new Date(d.offer) < today;
-      var opt = document.createElement('option');
-      opt.value = d.start;
-      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      var sp = d.start.split('-');
-      opt.textContent = months[parseInt(sp[1],10)-1] + ' ' + parseInt(sp[2],10) + ', ' + sp[0] +
-        (offerPassed ? ' (offer deadline passed)' : '');
-      opt.disabled = offerPassed;
-      if(d.start === currentVal) opt.selected = true;
-      input.appendChild(opt);
-    });
   } else if(type === 'date') {
-    // Other date fields use flatpickr calendar
+    // Use text input to avoid native date picker being blocked by edit-overlay
+    // Format: MM/DD/YYYY for entry, stored as YYYY-MM-DD internally
     input = document.createElement('input');
     input.type = 'text';
-    input.className = 'pos-field-input pos-field-date';
-    input.placeholder = 'Select date...';
-    input.readOnly = true;
+    input.className = 'pos-field-input';
+    input.placeholder = 'MM/DD/YYYY';
+    // Display stored YYYY-MM-DD as MM/DD/YYYY for editing
     if(currentVal && currentVal.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      var dp = currentVal.split('-');
-      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      input.value = months[parseInt(dp[1],10)-1] + ' ' + parseInt(dp[2],10) + ', ' + dp[0];
+      var parts = currentVal.split('-');
+      input.value = parts[1] + '/' + parts[2] + '/' + parts[0];
     } else {
-      input.value = '';
+      input.value = currentVal || '';
     }
   } else {
     input = document.createElement('input');
@@ -3510,63 +3381,13 @@ function startInlineEdit(el) {
     if(e.key === 'Enter') { e.preventDefault(); saveInlineEdit(input.value); }
     if(e.key === 'Escape') closeInlineEdit();
   };
-  // For date fields, flatpickr handles save via onChange/onClose — no onblur needed
-  if(type !== 'date') {
-    input.onblur = function() {
-      setTimeout(function(){ saveInlineEdit(input.value); }, 120);
-    };
-  }
+  input.onblur = function() { setTimeout(function(){ saveInlineEdit(input.value); }, 120); };
 
   el.innerHTML = '';
   el.appendChild(input);
   document.getElementById('edit-overlay').classList.add('open');
-
-  // Attach flatpickr for date fields — gives consistent calendar popup in all browsers
-  if(type === 'date' && typeof flatpickr !== 'undefined') {
-    var fp = flatpickr(input, {
-      dateFormat: 'M j, Y',       // Display: "Jul 6, 2026"
-      altInput: false,
-      allowInput: false,
-      disableMobile: true,        // Force flatpickr on mobile too, not native picker
-      defaultDate: currentVal || null,
-      parseDate: function(dateStr, format) {
-        // Parse our stored YYYY-MM-DD for defaultDate
-        if(dateStr && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-          var p = dateStr.split('-');
-          return new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
-        }
-        return null;
-      },
-      onChange: function(selectedDates, dateStr) {
-        // dateStr is "M j, Y" format — convert to YYYY-MM-DD for storage
-        if(selectedDates.length > 0) {
-          var d = selectedDates[0];
-          var yyyy = d.getFullYear();
-          var mm = ('0'+(d.getMonth()+1)).slice(-2);
-          var dd = ('0'+d.getDate()).slice(-2);
-          var isoVal = yyyy + '-' + mm + '-' + dd;
-          // Save directly
-          var h = hires.find(function(x){return x.id===currentEditHireId;});
-          if(h) h[currentEditKey] = isoVal;
-          currentEditEl = null; currentEditHireId = null; currentEditKey = null;
-          document.getElementById('edit-overlay').classList.remove('open');
-          fp.destroy();
-          renderList(); renderDetail();
-        }
-      },
-      onClose: function(selectedDates, dateStr, instance) {
-        // If closed without selection, just close the edit
-        if(currentEditEl) {
-          closeInlineEdit();
-        }
-        instance.destroy();
-      }
-    });
-    fp.open();
-  } else {
-    input.focus();
-    if(input.type === 'text' || input.tagName === 'SELECT') input.select && input.select();
-  }
+  input.focus();
+  if(input.type === 'text' || input.tagName === 'SELECT') input.select && input.select();
 }
 
 function saveInlineEdit(val) {
@@ -3574,15 +3395,13 @@ function saveInlineEdit(val) {
   var h = hires.find(function(x){return x.id===currentEditHireId;});
   if(h) {
     var saveVal = val.trim();
-    // Date fields using type="date" return YYYY-MM-DD natively — no conversion needed.
-    // Fallback: also accept MM/DD/YYYY typed entry (e.g. pasted values) and convert.
+    // Convert MM/DD/YYYY → YYYY-MM-DD for date fields
     var dateType = currentEditEl.getAttribute('data-type');
     if(dateType === 'date' && saveVal) {
       var dmatch = saveVal.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
       if(dmatch) {
         saveVal = dmatch[3] + '-' + ('0'+dmatch[1]).slice(-2) + '-' + ('0'+dmatch[2]).slice(-2);
       }
-      // Already YYYY-MM-DD (from native date input) — store as-is
     }
     h[currentEditKey] = saveVal;
   }
