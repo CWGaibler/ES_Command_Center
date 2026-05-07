@@ -957,9 +957,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         <div class="ml">Role <span style="color:var(--orange)">*</span></div>
         <select class="mi" id="m-role" onchange="onModalRoleChange()">
           <option value="">Select role...</option>
-          <option>ES Specialist</option><option>ES Coordinator</option>
-          <option>ES Supervisor</option><option>ES Manager</option>
-          <option>ES Director</option><option>Event Experience Supervisor</option>
+          <option>Coordinator</option><option>Specialist</option>
+          <option>Event Experience Supervisor</option>
+          <option>Manager</option><option>Director</option>
         </select>
       </div>
       <div class="mf">
@@ -2205,7 +2205,7 @@ var TASKS = [
 // ── START DATE CADENCE (HR-approved dates) ────────────────────────────────
 // Salaried: EE Supervisor, Manager, Director, RD, Training Supervisor, Sr. Director, VP
 // Hourly: Specialist, Coordinator, Senior Specialist, Consultant
-var SALARIED_ROLES = ['ES Supervisor','ES Manager','ES Director','Event Experience Supervisor','Regional Director','Training Supervisor','Sr. Director','Senior Director','Vice President','VP'];
+var SALARIED_ROLES = ['Event Experience Supervisor','Manager','Director','Regional Director','Training Supervisor','Sr. Director','Senior Director','Vice President','VP'];
 
 var START_DATES = {
   salaried: [
