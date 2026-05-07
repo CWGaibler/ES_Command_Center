@@ -2578,7 +2578,7 @@ function renderDetail(){
       field('Candidate Name', (h.firstName||h.lastName) ? ((h.firstName||'') + ' ' + (h.lastName||'')).trim() : '', 'firstName', 'text')+
       field('Confirmed Start Date', h.confirmedStart ? fmtDateStr(h.confirmedStart) : '', 'confirmedStart', 'date')+
       field('Confirmed NET Class Start', h.confirmedNet ? fmtDateStr(h.confirmedNet) : '', 'confirmedNet', 'date')+
-      fieldStatic('Proposed Start Date', fmtDateStr(h.proposedStart) || 'TBD')+
+      field('Proposed Start Date', h.proposedStart ? fmtDateStr(h.proposedStart) : '', 'proposedStart', 'date')+
       field('Proposed NET Class Start', h.proposedNet ? fmtDateStr(h.proposedNet) : '', 'proposedNet', 'date')+
       fieldStatic('Phone Stipend', h.phoneStipend ? 'Yes' : 'No')+
     '</div>'+
@@ -2635,7 +2635,13 @@ function renderDetail(){
         t.links.forEach(function(l){lnks+='<a class="tlink" href="'+l.url+'" target="_blank">'+l.label+' &#8599;</a>';});
         lnks+='</div>';
       }
-      var canInteract = !locked && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
+      // t13 (background check) requires all key position fields to be filled first
+      var t13FieldsComplete = true;
+      if (t.id === 't13') {
+        t13FieldsComplete = !!(h.proposedStart && h.confirmedStart && h.confirmedNet &&
+          h.proposedNet && h.firstName && h.lastName && h.reqNum);
+      }
+      var canInteract = !locked && t13FieldsComplete && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
       var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'') + (!locked&&!canInteract?' not-owner':'');
       var chkAttrs = locked ? '' : ' data-hire="'+h.id+'" data-task="'+t.id+'" data-owner="'+t.owner+'"' + (!canInteract?' data-readonly="1"':'');
       clHtml+='<div class="task-row'+(locked?' step-locked':'')+'">'+
@@ -2696,9 +2702,23 @@ function renderDetail(){
     }
   } else if(h.stage === 'interviewing') {
     var phase3Done = ['t10','t11','t12','t13'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
+    var t13RequiredFilled = !!(h.proposedStart && h.confirmedStart && h.confirmedNet &&
+      h.proposedNet && h.firstName && h.lastName && h.reqNum);
     // t13 is HRBP (anyone) — HM confirms hire date, so HM or ES Leadership can advance
     var canAdv2 = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
-    if(phase3Done && canAdv2) {
+    if(!t13RequiredFilled) {
+      var missingFields = [];
+      if(!h.reqNum) missingFields.push('Req #');
+      if(!h.firstName || !h.lastName) missingFields.push('Candidate Name');
+      if(!h.proposedStart) missingFields.push('Proposed Start Date');
+      if(!h.confirmedStart) missingFields.push('Confirmed Start Date');
+      if(!h.proposedNet) missingFields.push('Proposed NET Class Start');
+      if(!h.confirmedNet) missingFields.push('Confirmed NET Class Start');
+      approvalBarHtml = '<div class="approval-bar" style="background:#FFF8E6;border-top-color:rgba(255,181,0,.25)">'+
+        '<div class="approval-msg" style="color:var(--orange)">&#9888; Complete all Position Details before the final step can be checked'+
+        '<div class="sub" style="color:var(--muted)">Still needed: '+missingFields.join(', ')+'</div></div>'+
+      '</div>';
+    } else if(phase3Done && canAdv2) {
       approvalBarHtml = '<div class="approval-bar needs-action">'+
         '<div class="approval-msg">&#10003; All Job Offer steps complete &mdash; background check cleared<div class="sub">Click to mark this position as Offer Stage.</div></div>'+
         '<button class="btn-advance-stage" onclick="rhAdvanceStage(\''+ h.id +'\')" style="background:var(--green);color:#fff;border:none;padding:7px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">Mark as Offer Stage &rarr;</button>'+
@@ -3016,6 +3036,8 @@ function startInlineEdit(el) {
     input.type = 'date';
     input.className = 'pos-field-input';
     input.value = currentVal;
+    // Date pickers need onchange (selecting a date may not trigger blur reliably)
+    input.onchange = function() { saveInlineEdit(this.value); };
   } else {
     input = document.createElement('input');
     input.type = 'text';
