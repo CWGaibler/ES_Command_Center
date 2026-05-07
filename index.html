@@ -253,9 +253,11 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .pos-field-val.editable:hover{border-bottom-color:var(--mb);color:var(--mb)}
 .pos-field-val.editable.empty:hover{color:var(--mb)}
 .pos-field-input{font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:700;color:var(--fb);border:none;border-bottom:1.5px solid var(--mb);outline:none;background:transparent;width:100%;padding:0}
+.pos-field-date{color-scheme:light;cursor:pointer}
+.pos-field-date::-webkit-calendar-picker-indicator{opacity:0.5;cursor:pointer}
 .pos-tag{display:inline-flex;gap:5px;flex-wrap:wrap;margin-top:2px}
 /* inline edit overlay */
-.edit-overlay{display:none;position:fixed;inset:0;z-index:998}
+.edit-overlay{display:none;position:fixed;inset:0;z-index:10}
 .edit-overlay.open{display:block}
 
 
@@ -3068,18 +3070,16 @@ function startInlineEdit(el) {
       input.appendChild(o);
     });
   } else if(type === 'date') {
-    // Use text input to avoid native date picker being blocked by edit-overlay
-    // Format: MM/DD/YYYY for entry, stored as YYYY-MM-DD internally
+    // Native date picker — works now that edit-overlay z-index is below picker popup
+    // Browser stores and returns value as YYYY-MM-DD, which is our internal format
     input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'pos-field-input';
-    input.placeholder = 'MM/DD/YYYY';
-    // Display stored YYYY-MM-DD as MM/DD/YYYY for editing
+    input.type = 'date';
+    input.className = 'pos-field-input pos-field-date';
+    // Value must be set as YYYY-MM-DD for type="date"
     if(currentVal && currentVal.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      var parts = currentVal.split('-');
-      input.value = parts[1] + '/' + parts[2] + '/' + parts[0];
+      input.value = currentVal;
     } else {
-      input.value = currentVal || '';
+      input.value = '';
     }
   } else {
     input = document.createElement('input');
@@ -3093,7 +3093,12 @@ function startInlineEdit(el) {
     if(e.key === 'Enter') { e.preventDefault(); saveInlineEdit(input.value); }
     if(e.key === 'Escape') closeInlineEdit();
   };
-  input.onblur = function() { setTimeout(function(){ saveInlineEdit(input.value); }, 120); };
+  input.onblur = function() {
+    // Date pickers fire blur when the calendar popup opens; use a longer delay
+    // so the picker can complete its selection before we attempt to save.
+    var delay = (input.type === 'date') ? 300 : 120;
+    setTimeout(function(){ saveInlineEdit(input.value); }, delay);
+  };
 
   el.innerHTML = '';
   el.appendChild(input);
@@ -3107,13 +3112,15 @@ function saveInlineEdit(val) {
   var h = hires.find(function(x){return x.id===currentEditHireId;});
   if(h) {
     var saveVal = val.trim();
-    // Convert MM/DD/YYYY → YYYY-MM-DD for date fields
+    // Date fields using type="date" return YYYY-MM-DD natively — no conversion needed.
+    // Fallback: also accept MM/DD/YYYY typed entry (e.g. pasted values) and convert.
     var dateType = currentEditEl.getAttribute('data-type');
     if(dateType === 'date' && saveVal) {
       var dmatch = saveVal.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
       if(dmatch) {
         saveVal = dmatch[3] + '-' + ('0'+dmatch[1]).slice(-2) + '-' + ('0'+dmatch[2]).slice(-2);
       }
+      // Already YYYY-MM-DD (from native date input) — store as-is
     }
     h[currentEditKey] = saveVal;
   }
