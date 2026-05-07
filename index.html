@@ -2108,81 +2108,81 @@ var TASKS = [
   // Stage gate: active at 'approved-not-posted'
   // Step 1 auto-checked on position create; clicking checkbox opens +New modal
   {phase:'Job Requisition', id:'t1',
-   title:'Submit open position request',
+   title:'Open position request submitted',
    desc:'Opens the position in the system. All required details must be entered before the requisition can be submitted.',
    owner:'hm', ownerLabel:'Hiring Manager', off:-70, links:[]},
 
   {phase:'Job Requisition', id:'t2',
-   title:'Submit requisition to ES Leadership for approval',
+   title:'Requisition submitted to ES Leadership for approval',
    desc:'Confirms the request is complete and accurate before formal submission to ES Leadership for sign-off.',
    owner:'rd', ownerLabel:'Regional Director', off:-65, links:[],
    skipIfHMisRD: true},
 
   {phase:'Job Requisition', id:'t3',
-   title:'Submit open position to Growth for approval',
+   title:'Open position submitted to Growth for approval',
    desc:'Submits the approved requisition to Growth leadership for final authorization. May not be required for all position types.',
    owner:'es', ownerLabel:'ES Leadership', off:-60, links:[]},
 
   // ── Phase 2: Recruiting & Interviewing ───────────────────────────────
   // Stage gate: unlocks when stage = 'posted'
   {phase:'Recruiting & Interviewing', id:'t4',
-   title:'Notify HR Business Partner to begin recruiting',
+   title:'HR Business Partner notified to begin recruiting',
    desc:'Formally initiates the recruiting process via email. HR Recruiter, Hiring Manager, Regional Director, Erica Cochran, and Erii Rodriguez are copied.',
    owner:'es', ownerLabel:'ES Leadership', off:-56,
    links:[{label:'HRBP: Chastity Austin', url:'mailto:Chastity.Austin@freeman.com'}]},
 
   {phase:'Recruiting & Interviewing', id:'t5',
-   title:'Post position to job boards',
+   title:'Position posted to job boards',
    desc:'Publishes the open position to the company careers site, LinkedIn, and applicable job boards.',
    owner:'anyone', ownerLabel:'HR Business Partner', off:-49, links:[]},
 
   {phase:'Recruiting & Interviewing', id:'t5b',
-   title:'Enter HR Requisition Number',
+   title:'HR Requisition Number entered in Position Details',
    desc:'HR provides a requisition number via email or the shared tracking spreadsheet. Enter it in the Req # field in Position Details before marking this step complete.',
    owner:'es', ownerLabel:'ES Leadership', off:-46, links:[],
    reqNumGate: true},
 
   {phase:'Recruiting & Interviewing', id:'t6',
-   title:'Screen applicants and share candidate shortlist',
+   title:'Applicants screened and candidate shortlist shared',
    desc:'Applicants are screened against position requirements and a qualified shortlist is shared with the Hiring Manager.',
    owner:'anyone', ownerLabel:'HR Recruiter', off:-42, links:[]},
 
   {phase:'Recruiting & Interviewing', id:'t7',
-   title:'Schedule candidate interviews',
+   title:'Candidate interviews scheduled',
    desc:'Interviews are scheduled with shortlisted candidates. Panel interviews are required for all leadership-level positions.',
    owner:'hm', ownerLabel:'Hiring Manager', off:-35,
    links:[{label:'Interview Questions', url:'https://freemanco.sharepoint.com/teams/ExhibitorServices296/Shared%20Documents/General/Recruiting%20and%20Hiring%20%28docs%20accessible%20to%20all%29/Exhibitor%20Services%20Interview%20Questions.pdf'}]},
 
   {phase:'Recruiting & Interviewing', id:'t8',
-   title:'Conduct candidate interviews',
+   title:'Candidate interviews conducted',
    desc:'Interviews are conducted using the ES leadership interview question guide. Feedback must be documented for each candidate.',
    owner:'hm', ownerLabel:'Hiring Manager', off:-28, links:[]},
 
   {phase:'Recruiting & Interviewing', id:'t9',
-   title:'Select final candidate',
+   title:'Final candidate selected',
    desc:'Final candidate is identified from interview feedback. Proposed compensation must be approved before advancing to the offer stage.',
    owner:'hm', ownerLabel:'Hiring Manager', off:-21, links:[]},
 
   // ── Phase 3: Job Offer ────────────────────────────────────────────────
   // Stage gate: unlocks when stage = 'interviewing'
   {phase:'Job Offer', id:'t10',
-   title:'Extend verbal offer to candidate',
+   title:'Verbal offer extended to candidate',
    desc:'Candidate is contacted with a verbal offer, contingent on background check clearance.',
    owner:'hm', ownerLabel:'Hiring Manager', off:-18, links:[]},
 
   {phase:'Job Offer', id:'t11',
-   title:'Initiate offer letter via HR',
+   title:'Offer letter initiated via HR',
    desc:'Upon verbal acceptance, HR Business Partner and HR Recruiter are notified to initiate the formal offer letter via DocuSign.',
    owner:'hm', ownerLabel:'Hiring Manager', off:-17,
    links:[{label:'Megan Wierick', url:'mailto:Megan.Wierick@freeman.com'}]},
 
   {phase:'Job Offer', id:'t12',
-   title:'Review and sign offer letter',
+   title:'Offer letter reviewed and signed',
    desc:'Hiring Manager and candidate both sign via DocuSign. Must be fully executed at least 11 business days before the intended start date.',
    owner:'hm', ownerLabel:'Hiring Manager', off:-14, links:[]},
 
   {phase:'Job Offer', id:'t13',
-   title:'Confirm background check clearance and start date',
+   title:'Background check cleared and start date confirmed',
    desc:'Background screening is completed and the confirmed start date is communicated to the Hiring Manager and recorded in Position Details.',
    owner:'anyone', ownerLabel:'HR Business Partner', off:-11, links:[]},
 ];
