@@ -2341,10 +2341,108 @@ function canViewInScope(h) {
   return identityCanSeeBranch(h.branch);
 }
 
+// ── NEEDS ATTENTION — RECRUITING & HIRING ───────────────────────────────
+// Returns true if the current identity is the next responsible party
+// on this hire record. Used by both the sidebar highlight AND renderNeedsAttention().
 function needsMyAction(h) {
-  // Flag positions that have been sitting at approved-not-posted for a while, or are in offer stage
-  if(h.stage === 'offer') return true;
-  return false;
+  if(h.closed) return false;
+  var na = getRecruitingNACard(h);
+  return na !== null;
+}
+
+// Returns the full card data object if the current identity has a pending action
+// on this hire, or null if not. This is the single source of truth for both
+// the sidebar action-needed highlight and the Needs Attention tile.
+function getRecruitingNACard(h) {
+  if(h.closed) return null;
+  var p = currentIdentity();
+  var activeTasks = TASK_STAGE_MAP[h.stage] || TASK_STAGE_MAP['approved-not-posted'];
+
+  // Find the first unchecked task in the active set
+  var nextTask = null;
+  for(var i=0; i<TASKS.length; i++) {
+    var t = TASKS[i];
+    if(activeTasks.indexOf(t.id) < 0) continue;  // not active at this stage
+    if(h.checked.indexOf(t.id) >= 0) continue;    // already checked
+    nextTask = t;
+    break;
+  }
+  if(!nextTask) return null; // all active tasks done
+
+  // Check if current identity is responsible for this task
+  var owner = nextTask.owner;
+  var isResponsible = false;
+
+  if(owner === 'hm') {
+    isResponsible = (p.name === h.hiringManager);
+  } else if(owner === 'rd') {
+    // Skip t2 if HM is already an RD (skipIfHMisRD)
+    var hmId = null;
+    Object.keys(IDENTITY_DIRECTORY).forEach(function(k){
+      if(IDENTITY_DIRECTORY[k].name === h.hiringManager) hmId = k;
+    });
+    var hmIsRD = hmId && IDENTITY_DIRECTORY[hmId] && IDENTITY_DIRECTORY[hmId].level === 'region';
+    if(hmIsRD) return null; // t2 skipped — move on, but next task check handled by loop above
+    isResponsible = (p.level === 'region' && p.branches.indexOf(h.branch) >= 0);
+  } else if(owner === 'es') {
+    isResponsible = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
+  } else if(owner === 'anyone' || owner === 'admin') {
+    // 'anyone' and 'admin' tasks never generate a Needs Attention card
+    isResponsible = false;
+  }
+
+  if(!isResponsible) return null;
+
+  // Build record identity string — name if known, generic if not
+  var hasName = (h.firstName && h.lastName);
+  var recordId = hasName ? (h.firstName + ' ' + h.lastName) : null;
+
+  // Build "what's needed" text using the confirmed contract
+  var tid = nextTask.id;
+  var roleAndBranch = h.role + ' · ' + h.branch;
+  var candidateStr = recordId || 'Candidate TBD';
+  var actionText = '';
+
+  if(tid === 't2') actionText = 'Submit ' + roleAndBranch + ' requisition to ES Leadership for approval';
+  else if(tid === 't3') actionText = 'Submit ' + roleAndBranch + ' open position to Growth for approval';
+  else if(tid === 't4') actionText = 'Contact HR Business Partner to begin recruiting for ' + roleAndBranch;
+  else if(tid === 't7') actionText = 'Schedule interviews for ' + roleAndBranch + ' — ' + candidateStr;
+  else if(tid === 't8') actionText = 'Conduct interviews for ' + roleAndBranch + ' — ' + candidateStr;
+  else if(tid === 't9') actionText = 'Select final candidate for ' + roleAndBranch;
+  else if(tid === 't10') actionText = 'Make verbal offer to ' + candidateStr + ' for ' + roleAndBranch;
+  else if(tid === 't11') actionText = 'Email HRBP & HR Recruiter to initiate offer letter for ' + candidateStr;
+  else if(tid === 't12') actionText = 'Review & sign offer letter for ' + candidateStr + ' · ' + roleAndBranch;
+  else return null; // t1/t5/t6/t13 — no card
+
+  // Calculate how long this task has been waiting
+  // We use the stage's last-changed date if tracked; for now derive from checked array length as proxy
+  // naWaiting is stored on the hire when the task first becomes active
+  var waitingStr = naWaitingLabel(h, nextTask.id);
+
+  return {
+    hireId: h.id,
+    workspace: 'Recruiting & Hiring',
+    recordId: recordId,
+    recordGeneric: roleAndBranch,
+    actionText: actionText,
+    waiting: waitingStr,
+    taskId: tid,
+    hasName: hasName
+  };
+}
+
+// Returns a human-readable "waiting" label for a task
+// Stores a timestamp on first render so we can show days elapsed
+function naWaitingLabel(h, taskId) {
+  var key = 'naStart_' + taskId;
+  if(!h[key]) h[key] = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+  var start = new Date(h[key]);
+  var now = new Date();
+  now.setHours(0,0,0,0); start.setHours(0,0,0,0);
+  var days = Math.round((now - start) / 86400000);
+  if(days === 0) return 'Since today';
+  if(days === 1) return '1 day';
+  return days + ' days';
 }
 
 function setViewAs(role, el) {
@@ -2424,24 +2522,45 @@ function goToShow(showId) {
 
 function renderNeedsAttention() {
   var el = document.getElementById('needs-attention-body'); if(!el) return;
-  var items = hires.filter(needsMyAction);
-  var html = items.map(function(h){
-    return '<div class="na-card" data-gotohire="'+h.id+'" onclick="goToHire(this)">'+
-      '<div class="na-card-title">Position: '+h.role+' &mdash; '+h.branch+'</div>'+
-      '<div class="na-card-meta">Requested by '+h.hiringManager+' &middot; '+h.ftpt+' &middot; Proposed start: '+h.proposedStart+'</div>'+
-      '<div class="na-card-tags"><span class="chip chip-amber">Pending Approval</span><span class="chip chip-ghost">Recruiting</span></div>'+
+
+  // Collect all Needs Attention cards from all workspaces
+  var cards = [];
+
+  // -- Recruiting & Hiring --
+  hires.forEach(function(h) {
+    var card = getRecruitingNACard(h);
+    if(card) cards.push(card);
+  });
+
+  // Future workspaces add cards here as they are built:
+  // obRecords.forEach(function(r){ var c=getOnboardingNACard(r); if(c) cards.push(c); });
+  // trRecords.forEach(function(r){ var c=getTransitionsNACard(r); if(c) cards.push(c); });
+  // offRecords.forEach(function(r){ var c=getOffboardingNACard(r); if(c) cards.push(c); });
+
+  if(!cards.length) {
+    el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">No pending actions for you right now.</div>';
+    return;
+  }
+
+  var html = cards.map(function(card) {
+    var identityHtml = card.hasName
+      ? '<span style="color:var(--fb);font-weight:700">&#x1F464; ' + card.recordId + '</span>'
+      : '<span style="color:var(--muted);font-style:italic">' + card.recordGeneric + '</span>';
+
+    return '<div class="na-card" data-gotohire="' + card.hireId + '" onclick="goToHire(this)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
+        '<div style="flex:1">' +
+          '<div class="na-card-title">' + card.actionText + '</div>' +
+          '<div class="na-card-meta" style="margin-top:3px">' + identityHtml + '</div>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--muted);white-space:nowrap;padding-top:2px">' + card.waiting + '</div>' +
+      '</div>' +
+      '<div class="na-card-tags" style="margin-top:7px">' +
+        '<span class="chip chip-ghost">' + card.workspace + '</span>' +
+      '</div>' +
     '</div>';
   }).join('');
-  html += '<div class="na-card">'+
-    '<div class="na-card-title">Healthcare Summit &mdash; SERF Overdue</div>'+
-    '<div class="na-card-meta">Due 5 weeks pre move-in &middot; 3 days past deadline</div>'+
-    '<div class="na-card-tags"><span class="chip chip-red">Overdue</span><span class="chip chip-ghost">Lead: Kim</span></div>'+
-  '</div>'+
-  '<div class="na-card">'+
-    '<div class="na-card-title">Timekeeping &mdash; Approval Window</div>'+
-    '<div class="na-card-meta">Kronos timecards due Monday 12pm CST</div>'+
-    '<div class="na-card-tags"><span class="chip chip-amber">Due Today</span><span class="chip chip-ghost">Timekeeping</span></div>'+
-  '</div>';
+
   el.innerHTML = html;
 }
 
