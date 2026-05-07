@@ -192,6 +192,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .task-chk.checked .chk-mark{display:block}
 .task-body{flex:1;min-width:0}
 .task-title{font-size:14px;font-weight:800;line-height:1.4;color:var(--fb)}
+.na-pill{display:inline-block;font-size:11px;font-weight:800;padding:1px 7px;border-radius:999px;margin-left:5px;vertical-align:middle;text-transform:uppercase;letter-spacing:.04em}
+.pill-on-track{background:#EAFAF0;color:#1A6B35}
+.pill-due-soon{background:#FFF8E1;color:#B8860B}
+.pill-overdue{background:#FFF0E0;color:#C0392B}
 .task-title.done{color:var(--fb);font-weight:800;opacity:0.35}
 .task-desc{font-size:12px;font-weight:400;color:#9fadbf;margin-top:3px;line-height:1.4}
 .task-links{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
@@ -951,7 +955,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="mf">
         <div class="ml">Role <span style="color:var(--orange)">*</span></div>
-        <select class="mi" id="m-role">
+        <select class="mi" id="m-role" onchange="onModalRoleChange()">
           <option value="">Select role...</option>
           <option>ES Representative</option><option>ES Supervisor</option>
           <option>ES Manager</option><option>ES Director</option>
@@ -1002,11 +1006,18 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       </div>
       <div class="mf">
         <div class="ml">Proposed Start Date <span style="color:var(--orange)">*</span></div>
-        <input class="mi" id="m-start" type="text" placeholder="Select date..." readonly/>
+        <select class="mi" id="m-start" onchange="onModalStartDateChange()">
+          <option value="">Select start date...</option>
+        </select>
+        <div id="m-start-warning" style="display:none;margin-top:4px;font-size:12px;color:var(--orange);font-weight:700"></div>
       </div>
       <div class="mf">
         <div class="ml">Proposed NET Class</div>
         <input class="mi" id="m-net" type="text" placeholder="Select date (optional)" readonly/>
+      </div>
+      <div id="m-override-row" class="mf" style="display:none;grid-column:1/-1">
+        <div class="ml">Reason for selecting this date <span style="color:var(--orange)">*</span></div>
+        <input class="mi" id="m-start-override" type="text" placeholder="Explain why this date was selected despite the passed deadline..."/>
       </div>
       <div class="modal-actions" style="grid-column:1/-1;margin-top:8px">
         <button class="m-cancel" onclick="closeModal()">Cancel</button>
@@ -2116,37 +2127,37 @@ var TASKS = [
   {phase:'Job Requisition', id:'t2',
    title:'Requisition submitted to ES Leadership for approval',
    desc:'Confirms the request is complete and accurate before formal submission to ES Leadership for sign-off.',
-   owner:'rd', ownerLabel:'Regional Director', off:-65, links:[],
+   owner:'rd', ownerLabel:'Regional Director', off:-67, links:[],
    skipIfHMisRD: true},
 
   {phase:'Job Requisition', id:'t3',
    title:'Open position submitted to Growth for approval',
    desc:'Submits the approved requisition to Growth leadership for final authorization. May not be required for all position types.',
-   owner:'es', ownerLabel:'ES Leadership', off:-60, links:[]},
+   owner:'es', ownerLabel:'ES Leadership', off:-64, links:[]},
 
   // ── Phase 2: Recruiting & Interviewing ───────────────────────────────
   // Stage gate: unlocks when stage = 'posted'
   {phase:'Recruiting & Interviewing', id:'t4',
    title:'HR Business Partner notified to begin recruiting',
    desc:'Formally initiates the recruiting process via email. HR Recruiter, Hiring Manager, Regional Director, Erica Cochran, and Erii Rodriguez are copied.',
-   owner:'es', ownerLabel:'ES Leadership', off:-56,
+   owner:'es', ownerLabel:'ES Leadership', off:-60,
    links:[{label:'HRBP: Chastity Austin', url:'mailto:Chastity.Austin@freeman.com'}]},
 
   {phase:'Recruiting & Interviewing', id:'t5',
    title:'Position posted to job boards',
    desc:'Publishes the open position to the company careers site, LinkedIn, and applicable job boards.',
-   owner:'anyone', ownerLabel:'HR Business Partner', off:-49, links:[]},
+   owner:'anyone', ownerLabel:'HR Business Partner', off:-53, links:[]},
 
   {phase:'Recruiting & Interviewing', id:'t5b',
    title:'HR Requisition Number entered in Position Details',
    desc:'HR provides a requisition number via email or the shared tracking spreadsheet. Enter it in the Req # field in Position Details before marking this step complete.',
-   owner:'es', ownerLabel:'ES Leadership', off:-46, links:[],
+   owner:'es', ownerLabel:'ES Leadership', off:-51, links:[],
    reqNumGate: true},
 
   {phase:'Recruiting & Interviewing', id:'t6',
    title:'Applicants screened and candidate shortlist shared',
    desc:'Applicants are screened against position requirements and a qualified shortlist is shared with the Hiring Manager.',
-   owner:'anyone', ownerLabel:'HR Recruiter', off:-42, links:[]},
+   owner:'anyone', ownerLabel:'HR Recruiter', off:-38, links:[]},
 
   {phase:'Recruiting & Interviewing', id:'t7',
    title:'Candidate interviews scheduled',
@@ -2162,33 +2173,141 @@ var TASKS = [
   {phase:'Recruiting & Interviewing', id:'t9',
    title:'Final candidate selected',
    desc:'Final candidate is identified from interview feedback. Proposed compensation must be approved before advancing to the offer stage.',
-   owner:'hm', ownerLabel:'Hiring Manager', off:-21, links:[]},
+   owner:'hm', ownerLabel:'Hiring Manager', off:-25, links:[]},
 
   // ── Phase 3: Job Offer ────────────────────────────────────────────────
   // Stage gate: unlocks when stage = 'interviewing'
   {phase:'Job Offer', id:'t10',
    title:'Verbal offer extended to candidate',
    desc:'Candidate is contacted with a verbal offer, contingent on background check clearance.',
-   owner:'hm', ownerLabel:'Hiring Manager', off:-18, links:[]},
+   owner:'hm', ownerLabel:'Hiring Manager', off:-22, links:[]},
 
   {phase:'Job Offer', id:'t11',
    title:'Offer letter initiated via HR',
    desc:'Upon verbal acceptance, HR Business Partner and HR Recruiter are notified to initiate the formal offer letter via DocuSign.',
-   owner:'hm', ownerLabel:'Hiring Manager', off:-17,
+   owner:'hm', ownerLabel:'Hiring Manager', off:-19,
    links:[{label:'Megan Wierick', url:'mailto:Megan.Wierick@freeman.com'}]},
 
   {phase:'Job Offer', id:'t12',
    title:'Offer letter reviewed and signed',
    desc:'Hiring Manager and candidate both sign via DocuSign. Must be fully executed at least 11 business days before the intended start date.',
-   owner:'hm', ownerLabel:'Hiring Manager', off:-14, links:[]},
+   owner:'hm', ownerLabel:'Hiring Manager', off:-17, links:[]},
 
   {phase:'Job Offer', id:'t13',
    title:'Background check cleared and start date confirmed',
    desc:'Background screening is completed and the confirmed start date is communicated to the Hiring Manager and recorded in Position Details.',
-   owner:'anyone', ownerLabel:'HR Business Partner', off:-11, links:[]},
+   owner:'anyone', ownerLabel:'HR Business Partner', off:-10, links:[]},
 ];
 
 
+
+
+// ── START DATE CADENCE (HR-approved dates) ────────────────────────────────
+// Salaried: EE Supervisor, Manager, Director, RD, Training Supervisor, Sr. Director, VP
+// Hourly: Specialist, Coordinator, Senior Specialist, Consultant
+var SALARIED_ROLES = ['ES Event Experience Supervisor','Manager','Director','Regional Director','Training Supervisor','Sr. Director','Senior Director','Vice President','VP'];
+
+var START_DATES = {
+  salaried: [
+    {start:'2026-05-11', offer:'2026-04-24'},
+    {start:'2026-05-26', offer:'2026-05-08'},
+    {start:'2026-06-08', offer:'2026-05-22'},
+    {start:'2026-06-22', offer:'2026-06-05'},
+    {start:'2026-07-06', offer:'2026-06-18'},
+    {start:'2026-07-20', offer:'2026-07-02'},
+    {start:'2026-08-03', offer:'2026-07-17'},
+    {start:'2026-08-17', offer:'2026-07-31'},
+    {start:'2026-08-31', offer:'2026-08-14'},
+    {start:'2026-09-14', offer:'2026-08-28'},
+    {start:'2026-09-28', offer:'2026-09-11'},
+    {start:'2026-10-12', offer:'2026-09-25'},
+    {start:'2026-10-26', offer:'2026-10-09'},
+    {start:'2026-11-09', offer:'2026-10-23'},
+    {start:'2026-11-16', offer:'2026-11-06'},
+    {start:'2026-12-07', offer:'2026-11-20'},
+  ],
+  hourly: [
+    {start:'2026-05-11', offer:'2026-04-24'},
+    {start:'2026-05-18', offer:'2026-05-01'},
+    {start:'2026-06-01', offer:'2026-05-15'},
+    {start:'2026-06-08', offer:'2026-05-22'},
+    {start:'2026-06-15', offer:'2026-05-29'},
+    {start:'2026-06-22', offer:'2026-06-05'},
+    {start:'2026-06-29', offer:'2026-06-12'},
+    {start:'2026-07-06', offer:'2026-06-18'},
+    {start:'2026-07-13', offer:'2026-06-26'},
+    {start:'2026-07-20', offer:'2026-07-03'},
+    {start:'2026-07-27', offer:'2026-07-10'},
+    {start:'2026-08-03', offer:'2026-07-17'},
+    {start:'2026-08-10', offer:'2026-07-24'},
+    {start:'2026-08-17', offer:'2026-07-31'},
+    {start:'2026-08-24', offer:'2026-08-07'},
+    {start:'2026-08-31', offer:'2026-08-14'},
+    {start:'2026-09-14', offer:'2026-08-28'},
+    {start:'2026-09-21', offer:'2026-09-04'},
+    {start:'2026-09-28', offer:'2026-09-11'},
+    {start:'2026-10-05', offer:'2026-09-18'},
+    {start:'2026-10-12', offer:'2026-09-25'},
+    {start:'2026-10-19', offer:'2026-10-02'},
+    {start:'2026-10-26', offer:'2026-10-09'},
+    {start:'2026-11-02', offer:'2026-10-16'},
+    {start:'2026-11-09', offer:'2026-10-23'},
+    {start:'2026-11-16', offer:'2026-10-30'},
+    {start:'2026-11-30', offer:'2026-11-13'},
+    {start:'2026-12-07', offer:'2026-11-20'},
+  ]
+};
+
+function isSalariedRole(role) {
+  if(!role) return false;
+  return SALARIED_ROLES.some(function(r){ return role.toLowerCase().indexOf(r.toLowerCase()) >= 0; });
+}
+
+function getStartDatesForRole(role) {
+  return isSalariedRole(role) ? START_DATES.salaried : START_DATES.hourly;
+}
+
+function getOfferDeadline(startDateStr, role) {
+  var dates = getStartDatesForRole(role);
+  var match = dates.find(function(d){ return d.start === startDateStr; });
+  return match ? match.offer : null;
+}
+
+function isOfferDeadlinePassed(startDateStr, role) {
+  var offer = getOfferDeadline(startDateStr, role);
+  if(!offer) return false;
+  var today = new Date(); today.setHours(0,0,0,0);
+  return new Date(offer) < today;
+}
+
+function isTooTightTimeline(startDateStr) {
+  // Warn if fewer than 56 days (8 weeks) remain from today to start date
+  // Ideal is 70 days (10 weeks) but warn at 56
+  if(!startDateStr) return false;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var start = new Date(startDateStr);
+  var daysUntil = Math.round((start - today) / 86400000);
+  return daysUntil < 56;
+}
+
+function fmtStartDateLabel(isoStr) {
+  if(!isoStr) return '';
+  var d = new Date(isoStr);
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+
+// Task deadline status: 'done', 'overdue', 'due-soon' (<=3 days), 'on-track'
+function taskDeadlineStatus(dueDate, isChecked) {
+  if(isChecked) return 'done';
+  if(!dueDate) return 'on-track';
+  var today = new Date(); today.setHours(0,0,0,0);
+  var due = new Date(dueDate); due.setHours(0,0,0,0);
+  var diff = Math.round((due - today) / 86400000);
+  if(diff < 0) return 'overdue';
+  if(diff <= 3) return 'due-soon';
+  return 'on-track';
+}
 
 var hires = [
   {id:'h1', role:'ES Event Experience Supervisor', ftpt:'Full-Time', branch:'Las Vegas',
@@ -2427,6 +2546,12 @@ function getRecruitingNACard(h) {
   // naWaiting is stored on the hire when the task first becomes active
   var waitingStr = naWaitingLabel(h, nextTask.id);
 
+  // Calculate deadline status for this task
+  var baseDate = h.proposedStart || h.start || '';
+  var taskDue = baseDate ? addDays(baseDate, nextTask.off) : null;
+  var deadlineStatus = taskDue ? taskDeadlineStatus(taskDue, false) : 'on-track';
+  var dueDateStr = taskDue ? fmtDate(taskDue) : null;
+
   return {
     hireId: h.id,
     workspace: 'Recruiting & Hiring',
@@ -2435,7 +2560,9 @@ function getRecruitingNACard(h) {
     actionText: actionText,
     waiting: waitingStr,
     taskId: tid,
-    hasName: hasName
+    hasName: hasName,
+    deadlineStatus: deadlineStatus,
+    dueDateStr: dueDateStr
   };
 }
 
@@ -2555,13 +2682,20 @@ function renderNeedsAttention() {
       ? '<span style="color:var(--fb);font-weight:700">&#x1F464; ' + card.recordId + '</span>'
       : '<span style="color:var(--muted);font-style:italic">' + card.recordGeneric + '</span>';
 
+    var pillCls = card.deadlineStatus === 'overdue' ? 'pill-overdue' : card.deadlineStatus === 'due-soon' ? 'pill-due-soon' : 'pill-on-track';
+    var pillLabel = card.deadlineStatus === 'overdue' ? 'Overdue' : card.deadlineStatus === 'due-soon' ? 'Due Soon' : 'On Track';
+    var dueLine = card.dueDateStr ? ' &middot; Due ' + card.dueDateStr : '';
+
     return '<div class="na-card" data-gotohire="' + card.hireId + '" onclick="goToHire(this)">' +
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
         '<div style="flex:1">' +
           '<div class="na-card-title">' + card.actionText + '</div>' +
           '<div class="na-card-meta" style="margin-top:3px">' + identityHtml + '</div>' +
         '</div>' +
-        '<div style="font-size:11px;color:var(--muted);white-space:nowrap;padding-top:2px">' + card.waiting + '</div>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding-top:2px">' +
+          '<span class="na-pill ' + pillCls + '">' + pillLabel + '</span>' +
+          '<span style="font-size:11px;color:var(--muted);white-space:nowrap">' + card.waiting + dueLine + '</span>' +
+        '</div>' +
       '</div>' +
       '<div class="na-card-tags" style="margin-top:7px">' +
         '<span class="chip chip-ghost">' + card.workspace + '</span>' +
@@ -2730,6 +2864,7 @@ function renderDetail(){
       field('Proposed Start Date', h.proposedStart ? fmtDateStr(h.proposedStart) : '', 'proposedStart', 'date')+
       field('Proposed NET Class', h.proposedNet ? fmtDateStr(h.proposedNet) : '', 'proposedNet', 'date')+
       fieldStatic('Phone Stipend', h.phoneStipend ? 'Yes' : 'No')+
+      (h.startDateOverrideReason ? fieldStatic('Start Date Override Reason', '<span style="color:var(--orange);font-weight:700">⚠ ' + h.startDateOverrideReason + '</span>') : '')+
     '</div>'+
     '<div style="padding:8px 14px;border-top:1px solid var(--border-lt)">'+
       '<div class="det-prog-wrap" style="max-width:100%"><div class="det-prog-fill" style="width:'+pct+'%"></div></div>'+
@@ -2807,7 +2942,16 @@ function renderDetail(){
         '</div>'+
         '<div class="task-right">'+
           '<span class="task-owner"'+(locked?' style="opacity:.35"':'')+'>'+t.ownerLabel+'</span>'+
-          '<span class="task-due due-'+(locked?'upcoming':st)+'">'+(ck?'Complete':locked?'&mdash;':(!baseDate?'&mdash;':fmtDate(due)))+'</span>'+
+          (function(){
+          if(ck) return '<span class="task-due due-done">Complete</span>';
+          if(locked) return '<span class="task-due" style="color:var(--muted)">—</span>';
+          if(!baseDate) return '<span class="task-due" style="color:var(--muted)">—</span>';
+          var ds = taskDeadlineStatus(due, false);
+          var dateStr = fmtDate(due);
+          if(ds === 'overdue') return '<span class="task-due" style="color:var(--orange);font-weight:800">' + dateStr + '</span><span class="na-pill pill-overdue">Overdue</span>';
+          if(ds === 'due-soon') return '<span class="task-due" style="color:var(--gold);font-weight:800">' + dateStr + '</span><span class="na-pill pill-due-soon">Due Soon</span>';
+          return '<span class="task-due" style="color:#1A6B35;font-weight:700">' + dateStr + '</span>';
+        })()+
         '</div>'+
       '</div>';
     });
@@ -3102,6 +3246,10 @@ var BRANCH_TO_HM = {
   'Off-Site':         ['Jennifer Pearson','Jennifer Vaughan','Elaine Yesh','Courtney Gonzalez','Michelle Bogdan'],
 };
 
+function onModalRoleChange(){
+  populateStartDateDropdown();
+  onModalBranchChange();
+}
 function onModalBranchChange() {
   var branch = document.getElementById('m-branch').value;
   var hmSel  = document.getElementById('m-hm');
@@ -3151,24 +3299,82 @@ function openModal(){
   document.getElementById('btn-newnew').classList.add('active');
   document.getElementById('btn-backfill').classList.remove('active');
   document.getElementById('backfill-row').style.display = 'none';
-  ['m-backfill','m-role','m-ftpt','m-branch','m-hm','m-start','m-net'].forEach(function(id){
+  ['m-backfill','m-role','m-ftpt','m-branch','m-hm','m-net'].forEach(function(id){
     var el = document.getElementById(id); if(el) { el.value = ''; el._isoVal = ''; }
   });
+  var startWarn = document.getElementById('m-start-warning');
+  if(startWarn) { startWarn.style.display='none'; startWarn.textContent=''; }
+  populateStartDateDropdown();
   document.getElementById('modal-bg').classList.add('open');
   document.getElementById('m-role').focus();
   onModalBranchChange();
   // Attach flatpickr to modal date inputs for consistent cross-browser calendar
   if(typeof flatpickr !== 'undefined') {
-    if(window._fpStart) { window._fpStart.destroy(); }
     if(window._fpNet)   { window._fpNet.destroy(); }
-    window._fpStart = flatpickr('#m-start', { dateFormat:'M j, Y', allowInput:false, disableMobile:true,
-      onChange: function(d,s){ document.getElementById('m-start')._isoVal = d.length ? (d[0].getFullYear()+'-'+('0'+(d[0].getMonth()+1)).slice(-2)+'-'+('0'+d[0].getDate()).slice(-2)) : ''; }
-    });
+    populateStartDateDropdown();
     window._fpNet = flatpickr('#m-net', { dateFormat:'M j, Y', allowInput:false, disableMobile:true,
       onChange: function(d,s){ document.getElementById('m-net')._isoVal = d.length ? (d[0].getFullYear()+'-'+('0'+(d[0].getMonth()+1)).slice(-2)+'-'+('0'+d[0].getDate()).slice(-2)) : ''; }
     });
   }
 }
+
+function populateStartDateDropdown() {
+  var role = document.getElementById('m-role') ? document.getElementById('m-role').value : '';
+  var sel = document.getElementById('m-start');
+  if(!sel) return;
+  var dates = getStartDatesForRole(role);
+  var today = new Date(); today.setHours(0,0,0,0);
+  var currentVal = sel.value;
+  sel.innerHTML = '<option value="">Select start date...</option>';
+  dates.forEach(function(d) {
+    var start = new Date(d.start);
+    if(start <= today) return; // skip past dates
+    var offerPassed = new Date(d.offer) < today;
+    var opt = document.createElement('option');
+    opt.value = d.start;
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var sd = new Date(d.start);
+    opt.textContent = months[sd.getMonth()] + ' ' + sd.getDate() + ', ' + sd.getFullYear() +
+      (offerPassed ? ' (offer deadline passed)' : '');
+    opt.disabled = offerPassed;
+    opt.style.color = offerPassed ? '#b0bec5' : '';
+    if(d.start === currentVal) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  onModalStartDateChange();
+}
+
+function onModalStartDateChange() {
+  var sel = document.getElementById('m-start');
+  var warn = document.getElementById('m-start-warning');
+  var overrideRow = document.getElementById('m-override-row');
+  if(!sel || !warn) return;
+  var val = sel.value;
+  if(!val) { warn.style.display='none'; if(overrideRow) overrideRow.style.display='none'; return; }
+
+  var role = document.getElementById('m-role') ? document.getElementById('m-role').value : '';
+  var offerPassed = isOfferDeadlinePassed(val, role);
+  var tooTight = isTooTightTimeline(val);
+  var today = new Date(); today.setHours(0,0,0,0);
+  var startD = new Date(val);
+  var daysOut = Math.round((startD - today) / 86400000);
+
+  warn.style.display = 'none';
+  warn.textContent = '';
+  if(overrideRow) overrideRow.style.display = 'none';
+
+  if(offerPassed) {
+    warn.style.display = 'block';
+    warn.style.color = 'var(--orange)';
+    warn.textContent = '⚠ The offer letter deadline for this start date has passed. Please explain why you are selecting this date.';
+    if(overrideRow) overrideRow.style.display = 'block';
+  } else if(tooTight) {
+    warn.style.display = 'block';
+    warn.style.color = 'var(--gold)';
+    warn.textContent = '⚠ This start date is ' + daysOut + ' days away. The recommended lead time is 70 days (10 weeks). The timeline may be too tight to complete all recruiting steps.';
+  }
+}
+
 function closeModal(){
   document.getElementById('modal-bg').classList.remove('open');
 }
@@ -3178,7 +3384,7 @@ function createHire(){
   var branch = document.getElementById('m-branch').value;
   var hm = document.getElementById('m-hm').value;
   var startEl = document.getElementById('m-start');
-  var start = startEl._isoVal || startEl.value || '';
+  var start = startEl.value || '';
   var netEl = document.getElementById('m-net');
   var net = netEl._isoVal || netEl.value || '';
   var backfill = currentHireType === 'backfill' ? document.getElementById('m-backfill').value : '';
@@ -3195,7 +3401,8 @@ function createHire(){
     proposedStart:start, proposedNet:net,
     reqNum:'', hrRecruiter:'Megan Wierick', firstName:'', lastName:'',
     confirmedStart:'', confirmedNet:'',
-    stage:'approved-not-posted', checked:['t1'], open:{}
+    stage:'approved-not-posted', checked:['t1'], open:{},
+    startDateOverrideReason: document.getElementById('m-start-override') ? (document.getElementById('m-start-override').value || '') : ''
   });
   selId = hires[0].id;
   closeModal();
@@ -3231,15 +3438,38 @@ function startInlineEdit(el) {
       if(currentVal === opt) o.selected = true;
       input.appendChild(o);
     });
+  } else if(type === 'date' && (key === 'proposedStart')) {
+    // proposedStart uses HR-approved start date dropdown
+    input = document.createElement('select');
+    input.className = 'pos-field-input';
+    var hireForDates = hires.find(function(x){ return x.id === currentEditHireId; });
+    var roleForDates = hireForDates ? hireForDates.role : '';
+    var startDates = getStartDatesForRole(roleForDates);
+    var today = new Date(); today.setHours(0,0,0,0);
+    var blankOpt = document.createElement('option');
+    blankOpt.value = ''; blankOpt.textContent = 'Select start date...';
+    input.appendChild(blankOpt);
+    startDates.forEach(function(d) {
+      var start = new Date(d.start);
+      if(start <= today) return;
+      var offerPassed = new Date(d.offer) < today;
+      var opt = document.createElement('option');
+      opt.value = d.start;
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var sd = new Date(d.start);
+      opt.textContent = months[sd.getMonth()] + ' ' + sd.getDate() + ', ' + sd.getFullYear() +
+        (offerPassed ? ' (offer deadline passed)' : '');
+      opt.disabled = offerPassed;
+      if(d.start === currentVal) opt.selected = true;
+      input.appendChild(opt);
+    });
   } else if(type === 'date') {
-    // Use a plain text input, then attach flatpickr for a consistent cross-browser
-    // calendar popup (Safari native date inputs don't show a popup calendar)
+    // Other date fields use flatpickr calendar
     input = document.createElement('input');
     input.type = 'text';
     input.className = 'pos-field-input pos-field-date';
     input.placeholder = 'Select date...';
-    input.readOnly = true; // flatpickr handles all input
-    // Display stored YYYY-MM-DD as human-readable for the field
+    input.readOnly = true;
     if(currentVal && currentVal.match(/^\d{4}-\d{2}-\d{2}$/)) {
       var dp = currentVal.split('-');
       var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
