@@ -2205,7 +2205,7 @@ var TASKS = [
 // ── START DATE CADENCE (HR-approved dates) ────────────────────────────────
 // Salaried: EE Supervisor, Manager, Director, RD, Training Supervisor, Sr. Director, VP
 // Hourly: Specialist, Coordinator, Senior Specialist, Consultant
-var SALARIED_ROLES = ['ES Event Experience Supervisor','Manager','Director','Regional Director','Training Supervisor','Sr. Director','Senior Director','Vice President','VP'];
+var SALARIED_ROLES = ['ES Supervisor','ES Manager','ES Director','Event Experience Supervisor','Regional Director','Training Supervisor','Sr. Director','Senior Director','Vice President','VP'];
 
 var START_DATES = {
   salaried: [
@@ -3249,6 +3249,22 @@ var BRANCH_TO_HM = {
 };
 
 function onModalRoleChange(){
+  // Lock FT/PT to Full-Time for salaried roles
+  var role = document.getElementById('m-role') ? document.getElementById('m-role').value : '';
+  var ftptEl = document.getElementById('m-ftpt');
+  if(ftptEl) {
+    if(isSalariedRole(role)) {
+      ftptEl.value = 'Full-Time';
+      ftptEl.disabled = true;
+      ftptEl.style.opacity = '0.6';
+      ftptEl.title = 'Salaried positions are always Full-Time';
+    } else {
+      ftptEl.disabled = false;
+      ftptEl.style.opacity = '1';
+      ftptEl.title = '';
+      if(ftptEl.value === '') ftptEl.value = '';
+    }
+  }
   populateStartDateDropdown();
   onModalBranchChange();
 }
