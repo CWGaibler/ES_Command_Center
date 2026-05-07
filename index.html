@@ -2766,8 +2766,9 @@ function renderDetail(){
       '<div class="phase-body" style="display:'+(isOpen?'block':'none')+'">';
     pt.forEach(function(t, tidx){
       var ck=h.checked.indexOf(t.id)>=0;
-      var due=addDays(h.proposedStart||h.start||'2026-06-16',t.off);
-      var st=dueStatus(new Date(due),ck);
+      var baseDate = h.proposedStart || h.start || '';
+      var due = baseDate ? addDays(baseDate, t.off) : null;
+      var st = (!ck && !due) ? 'upcoming' : dueStatus(due ? new Date(due) : new Date('2099-01-01'), ck);
       // Sequential locking: step is locked if any prior step in this phase is unchecked
       // Stage gate: task not yet available if stage hasn't unlocked this task
       var stageGated = activeTasks.indexOf(t.id) < 0;
@@ -2806,7 +2807,7 @@ function renderDetail(){
         '</div>'+
         '<div class="task-right">'+
           '<span class="task-owner"'+(locked?' style="opacity:.35"':'')+'>'+t.ownerLabel+'</span>'+
-          '<span class="task-due due-'+(locked?'upcoming':st)+'">'+(ck?'Complete':locked?'&mdash;':fmtDate(due))+'</span>'+
+          '<span class="task-due due-'+(locked?'upcoming':st)+'">'+(ck?'Complete':locked?'&mdash;':(!baseDate?'&mdash;':fmtDate(due)))+'</span>'+
         '</div>'+
       '</div>';
     });
