@@ -2590,10 +2590,11 @@ function renderDetail(){
   var phases=[]; var seen={};
   TASKS.forEach(function(t){if(!seen[t.phase]){seen[t.phase]=true;phases.push(t.phase);}});
   var clHtml='<div class="rh-detail" style="margin-top:0">';
+  // hmIsRD and activeTasks computed once, used in both the task loop and approval bar
+  var hmIsRD = (function(){ var hmId=null; Object.keys(IDENTITY_DIRECTORY).forEach(function(k){ if(IDENTITY_DIRECTORY[k].name===h.hiringManager) hmId=k; }); return hmId && IDENTITY_DIRECTORY[hmId] && IDENTITY_DIRECTORY[hmId].level==='region'; })();
+  var activeTasks = TASK_STAGE_MAP[h.stage] || TASK_STAGE_MAP['approved-not-posted'];
+
   phases.forEach(function(phase){
-    // Filter tasks: apply skipIfHMisRD for t2, and filter to current stage's active tasks
-    var hmIsRD = (function(){ var hmId=null; Object.keys(IDENTITY_DIRECTORY).forEach(function(k){ if(IDENTITY_DIRECTORY[k].name===h.hiringManager) hmId=k; }); return hmId && IDENTITY_DIRECTORY[hmId] && IDENTITY_DIRECTORY[hmId].level==='region'; })();
-    var activeTasks = TASK_STAGE_MAP[h.stage] || TASK_STAGE_MAP['approved-not-posted'];
     var pt=TASKS.filter(function(t){
       if(t.phase!==phase) return false;
       if(t.skipIfHMisRD && hmIsRD) return false;
