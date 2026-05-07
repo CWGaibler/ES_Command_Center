@@ -2669,12 +2669,7 @@ function renderDetail(){
       return h.checked.indexOf(tid) >= 0;
     });
     var canPost = (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
-    if(phase1Done && canPost) {
-      approvalBarHtml = '<div class="approval-bar needs-action">'+
-        '<div class="approval-msg">&#10003; All requisition steps complete &mdash; ready to post<div class="sub">Click to advance this position to the Recruiting & Interviewing phase.</div></div>'+
-        '<button class="btn-advance-stage" onclick="rhAdvanceStage(\''+ h.id +'\')" style="background:var(--green);color:#fff;border:none;padding:7px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">Mark as Posted &rarr;</button>'+
-      '</div>';
-    } else if(phase1Done) {
+    if(phase1Done) {
       approvalBarHtml = '<div class="approval-bar">'+
         '<div class="approval-msg">&#10003; Requisition approved &mdash; awaiting ES Leadership to post<div class="sub">Craig Gaibler or Nesana Wieger will mark this as posted when submitted to HR.</div></div>'+
         '<span class="chip chip-approved-np">Requested</span>'+
@@ -2695,14 +2690,9 @@ function renderDetail(){
     var phase2Done = ['t4','t5','t6','t7','t8','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
     // t9 is owned by the HM — they or ES Leadership can advance
     var canAdv = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
-    if(phase2Done && canAdv) {
-      approvalBarHtml = '<div class="approval-bar needs-action">'+
-        '<div class="approval-msg">&#10003; Recruiting & Interviewing steps complete &mdash; ready to advance<div class="sub">Click to mark this position as Interviewing and unlock the Job Offer phase.</div></div>'+
-        '<button class="btn-advance-stage" onclick="rhAdvanceStage(\''+ h.id +'\')" style="background:var(--green);color:#fff;border:none;padding:7px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">Mark as Interviewing &rarr;</button>'+
-      '</div>';
-    } else if(phase2Done) {
+    if(phase2Done) {
       approvalBarHtml = '<div class="approval-bar">'+
-        '<div class="approval-msg">&#10003; All Recruiting & Interviewing steps complete<div class="sub">Waiting for the Hiring Manager or ES Leadership to advance to Interviewing.</div></div>'+
+        '<div class="approval-msg">&#10003; Position posted &mdash; recruiting in progress<div class="sub">Complete all Recruiting &amp; Interviewing steps to advance.</div></div>'+
         '<span class="chip chip-posted">Posted</span>'+
       '</div>';
     }
@@ -2724,14 +2714,9 @@ function renderDetail(){
         '<div class="approval-msg" style="color:var(--orange)">&#9888; Complete all Position Details before the final step can be checked'+
         '<div class="sub" style="color:var(--muted)">Still needed: '+missingFields.join(', ')+'</div></div>'+
       '</div>';
-    } else if(phase3Done && canAdv2) {
-      approvalBarHtml = '<div class="approval-bar needs-action">'+
-        '<div class="approval-msg">&#10003; All Job Offer steps complete &mdash; background check cleared<div class="sub">Click to mark this position as Offer Stage.</div></div>'+
-        '<button class="btn-advance-stage" onclick="rhAdvanceStage(\''+ h.id +'\')" style="background:var(--green);color:#fff;border:none;padding:7px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">Mark as Offer Stage &rarr;</button>'+
-      '</div>';
     } else if(phase3Done) {
       approvalBarHtml = '<div class="approval-bar">'+
-        '<div class="approval-msg">&#10003; All Job Offer steps complete<div class="sub">Waiting for the Hiring Manager or ES Leadership to advance to Offer Stage.</div></div>'+
+        '<div class="approval-msg">&#10003; Interviewing in progress<div class="sub">Complete all Job Offer steps below to advance to Offer Stage.</div></div>'+
         '<span class="chip chip-amber">Interviewing</span>'+
       '</div>';
     }
@@ -2740,6 +2725,44 @@ function renderDetail(){
       '<div class="approval-msg">&#10007; Request rejected<div class="sub">Reason: '+(h.rejectionNote||'See notes')+'</div></div>'+
       '<span class="chip chip-rejected">Rejected</span>'+
     '</div>';
+  }
+
+  // Build stage advance bar (renders BELOW checklist so it's visible after tasks are done)
+  var advanceBarHtml = '';
+  if(h.stage === 'approved-not-posted') {
+    var phase1DoneAdv = ['t1','t2','t3'].every(function(tid){
+      if(tid==='t2' && hmIsRD) return true;
+      return h.checked.indexOf(tid) >= 0;
+    });
+    var canPostAdv = (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
+    if(phase1DoneAdv && canPostAdv) {
+      advanceBarHtml = '<div class="rh-handoff-bar" style="background:#F0FBF4;border-top-color:rgba(0,166,81,.2)">'+
+        '<div class="rh-handoff-msg">&#10003; All requisition steps complete'+
+        '<div class="sub">Click to advance to the Recruiting &amp; Interviewing phase.</div></div>'+
+        '<button onclick="rhAdvanceStage(\''+ h.id +'\')" style="background:var(--green);color:#fff;border:none;padding:8px 20px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">Mark as Posted &rarr;</button>'+
+        '</div>';
+    }
+  } else if(h.stage === 'posted') {
+    var phase2DoneAdv = ['t4','t5','t6','t7','t8','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
+    var canAdvAdv = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
+    if(phase2DoneAdv && canAdvAdv) {
+      advanceBarHtml = '<div class="rh-handoff-bar" style="background:#F0FBF4;border-top-color:rgba(0,166,81,.2)">'+
+        '<div class="rh-handoff-msg">&#10003; All Recruiting &amp; Interviewing steps complete'+
+        '<div class="sub">Click to unlock the Job Offer phase.</div></div>'+
+        '<button onclick="rhAdvanceStage(\''+ h.id +'\')" style="background:var(--green);color:#fff;border:none;padding:8px 20px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">Mark as Interviewing &rarr;</button>'+
+        '</div>';
+    }
+  } else if(h.stage === 'interviewing') {
+    var t13Ready = !!(h.proposedStart && h.confirmedStart && h.confirmedNet && h.proposedNet && h.firstName && h.lastName && h.reqNum);
+    var phase3DoneAdv = t13Ready && ['t10','t11','t12','t13'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
+    var canAdv3 = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
+    if(phase3DoneAdv && canAdv3) {
+      advanceBarHtml = '<div class="rh-handoff-bar" style="background:#F0FBF4;border-top-color:rgba(0,166,81,.2)">'+
+        '<div class="rh-handoff-msg">&#10003; All Job Offer steps complete &mdash; background check cleared'+
+        '<div class="sub">Click to mark this position as Offer Stage.</div></div>'+
+        '<button onclick="rhAdvanceStage(\''+ h.id +'\')" style="background:var(--green);color:#fff;border:none;padding:8px 20px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">Mark as Offer Stage &rarr;</button>'+
+        '</div>';
+    }
   }
 
   // Build completion / handoff bar
@@ -2768,7 +2791,7 @@ function renderDetail(){
     }
   }
 
-  panel.innerHTML = '<div style="overflow-y:auto;max-height:calc(100vh - 220px);padding-right:2px">'+posHtml+approvalBarHtml+clHtml+handoffBar+'</div>';
+  panel.innerHTML = '<div style="overflow-y:auto;max-height:calc(100vh - 220px);padding-right:2px">'+posHtml+approvalBarHtml+clHtml+advanceBarHtml+handoffBar+'</div>';
 
     // Attach phase toggle listeners
   panel.querySelectorAll('.phase-hdr').forEach(function(hdr){
