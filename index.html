@@ -2136,6 +2136,12 @@ var TASKS = [
    desc:'HR Business Partner publishes position to company site, LinkedIn, and job boards.',
    owner:'anyone', ownerLabel:'HR Business Partner', off:-49, links:[]},
 
+  {phase:'Recruiting & Interviewing', id:'t5b',
+   title:'Enter HR Requisition Number',
+   desc:'HR will share the requisition number generated from their internal system via email or the shared tracking spreadsheet. Enter it in the Req # field in Position Details above before marking this step complete.',
+   owner:'es', ownerLabel:'ES Leadership', off:-46, links:[],
+   reqNumGate: true},
+
   {phase:'Recruiting & Interviewing', id:'t6',
    title:'Screen applicants & share candidate shortlist',
    desc:'HR Recruiter aligns on expectations with Hiring Manager, screens applicants, and shares a qualified candidate shortlist.',
@@ -2260,10 +2266,10 @@ var APPROVAL_STAGES = {
 // Tasks are grouped by phase; phases unlock as position advances
 var TASK_STAGE_MAP = {
   'approved-not-posted': ['t1','t2','t3'],
-  'posted':              ['t1','t2','t3','t4','t5','t6','t7','t8','t9'],
-  'interviewing':        ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],
-  'offer':               ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],
-  'complete':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],
+  'posted':              ['t1','t2','t3','t4','t5','t5b','t6','t7','t8','t9'],
+  'interviewing':        ['t1','t2','t3','t4','t5','t5b','t6','t7','t8','t9','t10','t11','t12','t13'],
+  'offer':               ['t1','t2','t3','t4','t5','t5b','t6','t7','t8','t9','t10','t11','t12','t13'],
+  'complete':            ['t1','t2','t3','t4','t5','t5b','t6','t7','t8','t9','t10','t11','t12','t13'],
 };
 
 function addDays(s,n){if(!s)return new Date('2099-01-01');var d=new Date(s);if(isNaN(d.getTime()))return new Date('2099-01-01');d.setDate(d.getDate()+n);return d;}
@@ -2406,6 +2412,7 @@ function getRecruitingNACard(h) {
   if(tid === 't2') actionText = 'Submit ' + roleAndBranch + ' requisition to ES Leadership for approval';
   else if(tid === 't3') actionText = 'Submit ' + roleAndBranch + ' open position to Growth for approval';
   else if(tid === 't4') actionText = 'Contact HR Business Partner to begin recruiting for ' + roleAndBranch;
+  else if(tid === 't5b') actionText = 'Enter requisition number from HR for ' + roleAndBranch;
   else if(tid === 't7') actionText = 'Schedule interviews for ' + roleAndBranch + ' — ' + candidateStr;
   else if(tid === 't8') actionText = 'Conduct interviews for ' + roleAndBranch + ' — ' + candidateStr;
   else if(tid === 't9') actionText = 'Select final candidate for ' + roleAndBranch;
@@ -2782,7 +2789,12 @@ function renderDetail(){
         t13FieldsComplete = !!(h.proposedStart && h.confirmedStart && h.confirmedNet &&
           h.proposedNet && h.firstName && h.lastName && h.reqNum);
       }
-      var canInteract = !locked && t13FieldsComplete && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
+      // t5b (enter req number) requires the reqNum field to be filled first
+      var t5bReqComplete = true;
+      if (t.id === 't5b') {
+        t5bReqComplete = !!(h.reqNum && h.reqNum.toString().length === 5);
+      }
+      var canInteract = !locked && t13FieldsComplete && t5bReqComplete && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
       var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'') + (!locked&&!canInteract?' not-owner':'');
       var chkAttrs = locked ? '' : ' data-hire="'+h.id+'" data-task="'+t.id+'" data-owner="'+t.owner+'"' + (!canInteract?' data-readonly="1"':'');
       clHtml+='<div class="task-row'+(locked?' step-locked':'')+'">'+
@@ -2885,6 +2897,7 @@ function renderDetail(){
       var missingFields = [];
       if(!h.reqNum) missingFields.push('Req #');
       if(!h.firstName || !h.lastName) missingFields.push('Candidate Name (first + last)');
+      if(!h.reqNum) missingFields.push('Req # (enter via t5b — Enter HR Requisition Number)');
       if(!h.proposedStart) missingFields.push('Proposed Start Date');
       if(!h.confirmedStart) missingFields.push('Confirmed Start Date');
       if(!h.proposedNet) missingFields.push('Proposed NET Class');
