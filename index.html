@@ -535,6 +535,21 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 
 /* v6-fix cache-bust: 2111000001 */
 </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+  <style>
+    /* Flatpickr theme overrides to match Freeman brand */
+    .flatpickr-calendar { font-family: 'Nunito Sans', sans-serif; border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,0.13); border: 1px solid var(--border); }
+    .flatpickr-day.selected, .flatpickr-day.selected:hover { background: var(--fb); border-color: var(--fb); }
+    .flatpickr-day:hover { background: var(--fb-xlt); }
+    .flatpickr-months .flatpickr-month { background: var(--fb); border-radius: 10px 10px 0 0; }
+    .flatpickr-current-month, .flatpickr-monthDropdown-months, .flatpickr-current-month input.cur-year { color: #fff; font-family: 'Nunito Sans', sans-serif; font-weight: 700; }
+    .flatpickr-weekday { color: var(--muted); font-family: 'Nunito Sans', sans-serif; font-weight: 700; }
+    .flatpickr-prev-month svg, .flatpickr-next-month svg { fill: #fff; }
+    .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: var(--mb); }
+    .flatpickr-day.today { border-color: var(--mb); }
+    .flatpickr-day.today:hover { background: var(--mb); border-color: var(--mb); color: #fff; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
 </head>
 <body>
 
@@ -986,11 +1001,11 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       </div>
       <div class="mf">
         <div class="ml">Proposed Start Date <span style="color:var(--orange)">*</span></div>
-        <input class="mi" id="m-start" type="date"/>
+        <input class="mi" id="m-start" type="text" placeholder="Select date..." readonly/>
       </div>
       <div class="mf">
         <div class="ml">Proposed NET Class</div>
-        <input class="mi" id="m-net" type="date"/>
+        <input class="mi" id="m-net" type="text" placeholder="Select date (optional)" readonly/>
       </div>
       <div class="modal-actions" style="grid-column:1/-1;margin-top:8px">
         <button class="m-cancel" onclick="closeModal()">Cancel</button>
@@ -3003,11 +3018,22 @@ function openModal(){
   document.getElementById('btn-backfill').classList.remove('active');
   document.getElementById('backfill-row').style.display = 'none';
   ['m-backfill','m-role','m-ftpt','m-branch','m-hm','m-start','m-net'].forEach(function(id){
-    var el = document.getElementById(id); if(el) el.value = '';
+    var el = document.getElementById(id); if(el) { el.value = ''; el._isoVal = ''; }
   });
   document.getElementById('modal-bg').classList.add('open');
   document.getElementById('m-role').focus();
   onModalBranchChange();
+  // Attach flatpickr to modal date inputs for consistent cross-browser calendar
+  if(typeof flatpickr !== 'undefined') {
+    if(window._fpStart) { window._fpStart.destroy(); }
+    if(window._fpNet)   { window._fpNet.destroy(); }
+    window._fpStart = flatpickr('#m-start', { dateFormat:'M j, Y', allowInput:false, disableMobile:true,
+      onChange: function(d,s){ document.getElementById('m-start')._isoVal = d.length ? (d[0].getFullYear()+'-'+('0'+(d[0].getMonth()+1)).slice(-2)+'-'+('0'+d[0].getDate()).slice(-2)) : ''; }
+    });
+    window._fpNet = flatpickr('#m-net', { dateFormat:'M j, Y', allowInput:false, disableMobile:true,
+      onChange: function(d,s){ document.getElementById('m-net')._isoVal = d.length ? (d[0].getFullYear()+'-'+('0'+(d[0].getMonth()+1)).slice(-2)+'-'+('0'+d[0].getDate()).slice(-2)) : ''; }
+    });
+  }
 }
 function closeModal(){
   document.getElementById('modal-bg').classList.remove('open');
@@ -3017,8 +3043,10 @@ function createHire(){
   var ftpt = document.getElementById('m-ftpt').value;
   var branch = document.getElementById('m-branch').value;
   var hm = document.getElementById('m-hm').value;
-  var start = document.getElementById('m-start').value;
-  var net = document.getElementById('m-net').value;
+  var startEl = document.getElementById('m-start');
+  var start = startEl._isoVal || startEl.value || '';
+  var netEl = document.getElementById('m-net');
+  var net = netEl._isoVal || netEl.value || '';
   var backfill = currentHireType === 'backfill' ? document.getElementById('m-backfill').value : '';
   if(!role || !ftpt || !branch || !hm || !start){
     alert('Please fill in all required fields.');return;
@@ -3070,14 +3098,18 @@ function startInlineEdit(el) {
       input.appendChild(o);
     });
   } else if(type === 'date') {
-    // Native date picker — works now that edit-overlay z-index is below picker popup
-    // Browser stores and returns value as YYYY-MM-DD, which is our internal format
+    // Use a plain text input, then attach flatpickr for a consistent cross-browser
+    // calendar popup (Safari native date inputs don't show a popup calendar)
     input = document.createElement('input');
-    input.type = 'date';
+    input.type = 'text';
     input.className = 'pos-field-input pos-field-date';
-    // Value must be set as YYYY-MM-DD for type="date"
+    input.placeholder = 'Select date...';
+    input.readOnly = true; // flatpickr handles all input
+    // Display stored YYYY-MM-DD as human-readable for the field
     if(currentVal && currentVal.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      input.value = currentVal;
+      var dp = currentVal.split('-');
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      input.value = months[parseInt(dp[1],10)-1] + ' ' + parseInt(dp[2],10) + ', ' + dp[0];
     } else {
       input.value = '';
     }
@@ -3093,18 +3125,63 @@ function startInlineEdit(el) {
     if(e.key === 'Enter') { e.preventDefault(); saveInlineEdit(input.value); }
     if(e.key === 'Escape') closeInlineEdit();
   };
-  input.onblur = function() {
-    // Date pickers fire blur when the calendar popup opens; use a longer delay
-    // so the picker can complete its selection before we attempt to save.
-    var delay = (input.type === 'date') ? 300 : 120;
-    setTimeout(function(){ saveInlineEdit(input.value); }, delay);
-  };
+  // For date fields, flatpickr handles save via onChange/onClose — no onblur needed
+  if(type !== 'date') {
+    input.onblur = function() {
+      setTimeout(function(){ saveInlineEdit(input.value); }, 120);
+    };
+  }
 
   el.innerHTML = '';
   el.appendChild(input);
   document.getElementById('edit-overlay').classList.add('open');
-  input.focus();
-  if(input.type === 'text' || input.tagName === 'SELECT') input.select && input.select();
+
+  // Attach flatpickr for date fields — gives consistent calendar popup in all browsers
+  if(type === 'date' && typeof flatpickr !== 'undefined') {
+    var fp = flatpickr(input, {
+      dateFormat: 'M j, Y',       // Display: "Jul 6, 2026"
+      altInput: false,
+      allowInput: false,
+      disableMobile: true,        // Force flatpickr on mobile too, not native picker
+      defaultDate: currentVal || null,
+      parseDate: function(dateStr, format) {
+        // Parse our stored YYYY-MM-DD for defaultDate
+        if(dateStr && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          var p = dateStr.split('-');
+          return new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+        }
+        return null;
+      },
+      onChange: function(selectedDates, dateStr) {
+        // dateStr is "M j, Y" format — convert to YYYY-MM-DD for storage
+        if(selectedDates.length > 0) {
+          var d = selectedDates[0];
+          var yyyy = d.getFullYear();
+          var mm = ('0'+(d.getMonth()+1)).slice(-2);
+          var dd = ('0'+d.getDate()).slice(-2);
+          var isoVal = yyyy + '-' + mm + '-' + dd;
+          // Save directly
+          var h = hires.find(function(x){return x.id===currentEditHireId;});
+          if(h) h[currentEditKey] = isoVal;
+          currentEditEl = null; currentEditHireId = null; currentEditKey = null;
+          document.getElementById('edit-overlay').classList.remove('open');
+          fp.destroy();
+          renderList(); renderDetail();
+        }
+      },
+      onClose: function(selectedDates, dateStr, instance) {
+        // If closed without selection, just close the edit
+        if(currentEditEl) {
+          closeInlineEdit();
+        }
+        instance.destroy();
+      }
+    });
+    fp.open();
+  } else {
+    input.focus();
+    if(input.type === 'text' || input.tagName === 'SELECT') input.select && input.select();
+  }
 }
 
 function saveInlineEdit(val) {
