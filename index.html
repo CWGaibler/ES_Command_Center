@@ -2592,8 +2592,11 @@ function canViewInScope(h) {
 }
 
 function needsMyAction(h) {
-  // Recruiting: flag offer stage positions
-  if(h.stage === 'offer') return true;
+  var p = currentIdentity();
+  // Offer stage - always flag
+  if (h.stage === 'offer') return true;
+  // Flag positions where current identity has overdue tasks
+  if (countOverdue(h) > 0 && canView(h)) return true;
   return false;
 }
 
@@ -2756,20 +2759,11 @@ function renderNeedsAttention() {
     '</div>';
   }).join('');
 
-  // ── Hardcoded placeholder items (on hold) ───────────────────────────
-  html += '<div class="na-card">'+
-    '<div class="na-card-title">Healthcare Summit &mdash; SERF Overdue</div>'+
-    '<div class="na-card-meta">Due 5 weeks pre move-in &middot; 3 days past deadline</div>'+
-    '<div class="na-card-tags"><span class="chip chip-red">Overdue</span><span class="chip chip-ghost">Lead: Kim</span></div>'+
-  '</div>'+
-  '<div class="na-card">'+
-    '<div class="na-card-title">Timekeeping &mdash; Approval Window</div>'+
-    '<div class="na-card-meta">Kronos timecards due Monday 12pm CST</div>'+
-    '<div class="na-card-tags"><span class="chip chip-amber">Due Today</span><span class="chip chip-ghost">Timekeeping</span></div>'+
-  '</div>';
+  // Hardcoded placeholder items removed — pending process timeline definition
 
   // Empty state
-  if (!html) {
+  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length;
+  if (totalItems === 0) {
     html = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No items need your attention right now.</div>';
   }
 
