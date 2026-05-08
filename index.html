@@ -4912,7 +4912,7 @@ function trSetBackfill(recId, decision) {
   if (!rec) return;
   rec.backfillDecision = decision;
   if (decision === 'backfill') {
-    alert('Backfill request created! A new Recruiting & Hiring record for ' + rec.role + ' (' + rec.branch + ') has been added to the Active Pipeline.');
+    alert('Backfill decision saved. A Recruiting & Hiring requisition for ' + rec.role + ' (' + rec.branch + ') will be created when you close this record.');
   }
   renderTrDetail(); updateTrStats(); renderTrList();
 }
@@ -4951,7 +4951,7 @@ function renderTrDetail() {
         '<button class="btn-backfill-rif" onclick="trSetBackfill(\''+rec.id+'\',\'rif\')">🚫 RIF / No Backfill</button>' +
       '</div>';
     } else if (rec.backfillDecision === 'backfill') {
-      backfillBar = '<div class="lc-handoff-bar"><div class="lc-handoff-msg">✅ Backfill Needed — Recruiting record created in Active Pipeline</div></div>';
+      backfillBar = '<div class="lc-handoff-bar"><div class="lc-handoff-msg">✅ Backfill Needed — Recruiting record will be created when this record is closed</div></div>';
     } else {
       backfillBar = '<div class="lc-handoff-bar" style="background:#F2F4F8;border-color:var(--border)"><div class="lc-handoff-msg" style="color:var(--muted)">🚫 Marked as RIF / No Backfill — position will not be posted</div></div>';
     }
@@ -5017,7 +5017,7 @@ function trCloseRecord(recId) {
       whyBackfill: 'Internal Transfer', proposedStart: '', proposedNet: '',
       reqNum: '', hrRecruiter: '', firstName: '', lastName: '',
       confirmedStart: '', confirmedNet: '', rejectionNote: '',
-      phoneStipend: false, stage: 'requisition', checked: [], open: {}, closed: false
+      phoneStipend: false, stage: 'approved-not-posted', checked: ['t1'], open: {}, closed: false
     });
   }
   rec.closed = true;
@@ -5145,7 +5145,7 @@ function offSetBackfill(recId, decision) {
   if (!rec) return;
   rec.backfillDecision = decision;
   if (decision === 'backfill') {
-    alert('Backfill request created! A new Recruiting & Hiring record for ' + rec.role + ' (' + rec.branch + ') has been added to the Active Pipeline.');
+    alert('Backfill decision saved. A Recruiting & Hiring requisition for ' + rec.role + ' (' + rec.branch + ') will be created when you close this record.');
   }
   renderOffDetail(); updateOffStats(); renderOffList();
 }
@@ -5184,7 +5184,7 @@ function renderOffDetail() {
       '<button class="btn-backfill-rif" onclick="offSetBackfill(\''+rec.id+'\',\'rif\')">🚫 RIF / No Backfill</button>' +
     '</div>';
   } else if (rec.backfillDecision === 'backfill') {
-    backfillBar = '<div class="lc-handoff-bar"><div class="lc-handoff-msg">✅ Backfill Needed — Recruiting record created in Active Pipeline</div></div>';
+    backfillBar = '<div class="lc-handoff-bar"><div class="lc-handoff-msg">✅ Backfill Needed — Recruiting record will be created when this record is closed</div></div>';
   } else {
     backfillBar = '<div class="lc-handoff-bar" style="background:#F2F4F8;border-color:var(--border)"><div class="lc-handoff-msg" style="color:var(--muted)">🚫 Marked as RIF / No Backfill — position will not be posted</div></div>';
   }
@@ -5258,7 +5258,7 @@ function offCloseRecord(recId) {
       proposedStart: '', proposedNet: '', reqNum: '', hrRecruiter: '',
       firstName: '', lastName: '', confirmedStart: '', confirmedNet: '',
       rejectionNote: '', phoneStipend: false,
-      stage: 'requisition', checked: [], open: {}, closed: false
+      stage: 'approved-not-posted', checked: ['t1'], open: {}, closed: false
     });
   }
   rec.closed = true;
@@ -5476,8 +5476,8 @@ function lcModalClose() {
           <div class="lc-ml">Backfill Needed? <span style="color:var(--orange)">*</span></div>
           <select class="lc-mi" id="lc-backfill">
             <option value="">Select...</option>
-            <option value="yes">Yes — open a requisition</option>
-            <option value="no">No — position eliminated</option>
+            <option value="backfill">Yes — open a requisition</option>
+            <option value="rif">No — position eliminated</option>
           </select>
         </div>
       </div>
