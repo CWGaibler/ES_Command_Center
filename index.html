@@ -229,9 +229,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .due-done{color:#1A6B35}
 
 /* MODAL */
-.modal-bg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,31,95,.5);z-index:999;align-items:flex-start;justify-content:center;padding-top:80px}
-.modal-bg.open{display:flex}
-.modal-box{background:var(--white);border-radius:10px;padding:16px 18px;width:400px;border:1px solid var(--border);box-shadow:0 8px 40px rgba(0,0,0,.2)}
+/* .modal-bg retired v6.28 — R&H modal now uses .lc-modal-overlay pattern */
+
+/* .modal-box retired v6.28 */
 .modal-title{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--fb);margin-bottom:12px}
 .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mf{display:flex;flex-direction:column;gap:3px}
@@ -239,9 +239,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .mi{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:600;color:var(--fb);width:100%;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;background:var(--surface)}
 .mi:focus{border-color:var(--mb);background:#fff}
 .modal-actions{display:flex;gap:6px;justify-content:flex-end;grid-column:1/-1;margin-top:4px}
-.m-cancel{font-family:'Nunito Sans',sans-serif;font-size:13px;font-weight:700;padding:7px 18px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--muted);cursor:pointer}
+.m-cancel{font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:700;padding:10px 24px;border-radius:999px;border:1.5px solid var(--border);background:#fff;color:var(--text);cursor:pointer}
 .m-cancel:hover{border-color:var(--fb);color:var(--fb)}
-.m-submit{font-family:'Nunito Sans',sans-serif;font-size:13px;font-weight:700;padding:8px 22px;border-radius:8px;border:none;background:var(--fb);color:#fff;cursor:pointer}
+.m-submit{font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:700;padding:10px 24px;border-radius:999px;border:none;background:var(--fb);color:#fff;cursor:pointer}
 .m-submit:hover{opacity:.85}
 
 .hidden { display: none !important; }
@@ -936,78 +936,80 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 </div>
 
 <!-- MODAL (fixed to viewport) -->
-<div class="modal-bg" id="modal-bg">
-  <div class="modal-box" style="width:500px;max-height:90vh;overflow-y:auto">
-    <div class="modal-title">Open a Position</div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="mf">
-        <div class="ml">Role <span style="color:var(--orange)">*</span></div>
-        <select class="mi" id="m-role">
-          <option value="">Select role...</option>
-          <option>Exhibitor Services Specialist</option>
-          <option>Exhibitor Services Sr Specialist</option>
-          <option>Exhibitor Services Consultant</option>
-          <option>Exhibitor Services Event Experience Supervisor</option>
-          <option>Exhibitor Services Sr Event Experience Supervisor</option>
-          <option>Manager Exhibitor Services</option>
-          <option>Director Exhibitor Services</option>
-          <option>Director Exhibitor Services Business Operations</option>
-          <option>Regional Director Exhibitor Services</option>
-          <option>Sr Director Exhibitor Services</option>
-        </select>
+<div class="lc-modal-overlay" id="modal-bg" onclick="if(event.target===this) closeModal()">
+  <div class="lc-modal-box">
+    <div class="lc-modal-title">Open a Position</div>
+    <div class="lc-modal-body">
+      <div class="lc-field-grid">
+        <div class="lc-mf">
+          <div class="lc-ml">Role <span style="color:var(--orange)">*</span></div>
+          <select class="lc-mi" id="m-role">
+            <option value="">Select role...</option>
+            <option>Exhibitor Services Specialist</option>
+            <option>Exhibitor Services Sr Specialist</option>
+            <option>Exhibitor Services Consultant</option>
+            <option>Exhibitor Services Event Experience Supervisor</option>
+            <option>Exhibitor Services Sr Event Experience Supervisor</option>
+            <option>Manager Exhibitor Services</option>
+            <option>Director Exhibitor Services</option>
+            <option>Director Exhibitor Services Business Operations</option>
+            <option>Regional Director Exhibitor Services</option>
+            <option>Sr Director Exhibitor Services</option>
+          </select>
+        </div>
+        <div class="lc-mf">
+          <div class="lc-ml">Full-Time or Part-Time <span style="color:var(--orange)">*</span></div>
+          <select class="lc-mi" id="m-ftpt">
+            <option value="">Select...</option>
+            <option>Full-Time</option>
+            <option>Part-Time</option>
+          </select>
+        </div>
+        <div class="lc-mf">
+          <div class="lc-ml">Branch / Team <span style="color:var(--orange)">*</span></div>
+          <select class="lc-mi" id="m-branch" onchange="onModalBranchChange()">
+            <option value="">Select branch / team...</option>
+            <option>Anaheim</option><option>Atlanta</option><option>Boston</option>
+            <option>Chicago</option><option>Dallas</option><option>Denver</option>
+            <option>Des Moines</option><option>High-Touch Accounts</option>
+            <option>Houston</option><option>Las Vegas</option><option>Nashville</option>
+            <option>New Orleans</option><option>New York</option><option>Off-Site</option>
+            <option>Orlando</option><option>Reno</option><option>San Antonio</option>
+            <option>San Francisco</option><option>Toronto</option><option>Washington D.C.</option>
+          </select>
+        </div>
+        <div class="lc-mf">
+          <div class="lc-ml">Hiring Manager <span style="color:var(--orange)">*</span></div>
+          <select class="lc-mi" id="m-hm">
+            <option value="">Select hiring manager...</option>
+            <option>Anne Wolkenhauer</option><option>Cassandra Karns</option>
+            <option>Chenille Book</option><option>Cory Marin</option>
+            <option>Courtney Gonzalez</option><option>Craig Gaibler</option>
+            <option>Ellen Crowley</option><option>Emily Dodd</option>
+            <option>Erica Cochran</option><option>Gina Alberto</option>
+            <option>Jennifer Pearson</option><option>Jennifer Vaughan</option>
+            <option>Jessica Montoro</option><option>Joan Davis</option>
+            <option>Joanne Peau</option><option>Jose Medina</option>
+            <option>Laura Ewell</option><option>Leslie Davis</option>
+            <option>Lisa Park</option><option>Lisette Bergeron</option>
+            <option>Lubi Garza</option><option>Lymari Colon</option>
+            <option>Mary Ligammari</option><option>Maud Langlois</option>
+            <option>Michelle Bogdan</option><option>Nesana Wieger</option>
+            <option>Nicole Hanna</option><option>Niall McCarthy</option>
+            <option>Regina Serigne</option><option>T. Lam</option>
+            <option>Tiffany Jarrett</option><option>Tricia Orme</option>
+          </select>
+        </div>
+        <div class="lc-mf">
+          <div class="lc-ml">Proposed Start Date <span style="color:var(--orange)">*</span></div>
+          <input class="lc-mi" id="m-start" type="date" />
+        </div>
+        <div class="lc-mf">
+          <div class="lc-ml">Proposed NET Class</div>
+          <input class="lc-mi" id="m-net" type="date" />
+        </div>
       </div>
-      <div class="mf">
-        <div class="ml">Full-Time or Part-Time <span style="color:var(--orange)">*</span></div>
-        <select class="mi" id="m-ftpt">
-          <option value="">Select...</option>
-          <option>Full-Time</option><option>Part-Time</option>
-        </select>
-      </div>
-      <div class="mf">
-        <div class="ml">Branch / Team <span style="color:var(--orange)">*</span></div>
-        <select class="mi" id="m-branch" onchange="onModalBranchChange()">
-          <option value="">Select branch / team...</option>
-          <option>Anaheim</option><option>Atlanta</option><option>Boston</option>
-          <option>Chicago</option><option>Dallas</option><option>Denver</option>
-          <option>Des Moines</option><option>High-Touch Accounts</option>
-          <option>Houston</option><option>Las Vegas</option><option>Nashville</option>
-          <option>New Orleans</option><option>New York</option><option>Off-Site</option>
-          <option>Orlando</option><option>Reno</option><option>San Antonio</option>
-          <option>San Francisco</option><option>Toronto</option><option>Washington D.C.</option>
-        </select>
-      </div>
-      <div class="mf">
-        <div class="ml">Hiring Manager <span style="color:var(--orange)">*</span></div>
-        <select class="mi" id="m-hm">
-          <option value="">Select hiring manager...</option>
-          <option>Anne Wolkenhauer</option><option>Cassandra Karns</option>
-          <option>Chenille Book</option><option>Cory Marin</option>
-          <option>Courtney Gonzalez</option><option>Craig Gaibler</option>
-          <option>Ellen Crowley</option><option>Emily Dodd</option>
-          <option>Erica Cochran</option><option>Gina Alberto</option>
-          <option>Jennifer Pearson</option><option>Jennifer Vaughan</option>
-          <option>Jessica Montoro</option><option>Joan Davis</option>
-          <option>Joanne Peau</option><option>Jose Medina</option>
-          <option>Laura Ewell</option><option>Leslie Davis</option>
-          <option>Lisa Park</option><option>Lisette Bergeron</option>
-          <option>Lubi Garza</option><option>Lymari Colon</option>
-          <option>Mary Ligammari</option><option>Maud Langlois</option>
-          <option>Michelle Bogdan</option><option>Nesana Wieger</option>
-          <option>Nicole Hanna</option><option>Niall McCarthy</option>
-          <option>Regina Serigne</option><option>T. Lam</option>
-          <option>Tiffany Jarrett</option><option>Tricia Orme</option>
-        </select>
-      </div>
-      <div class="mf">
-        <div class="ml">Proposed Start Date <span style="color:var(--orange)">*</span></div>
-        <input class="mi" id="m-start" type="date"/>
-      </div>
-      <div class="mf">
-        <div class="ml">Proposed NET Class</div>
-        <input class="mi" id="m-net" type="date"/>
-      </div>
-      <div class="modal-actions" style="grid-column:1/-1;margin-top:8px">
+      <div class="lc-modal-actions">
         <button class="m-cancel" onclick="closeModal()">Cancel</button>
         <button class="m-submit" onclick="createHire()">Open Position</button>
       </div>
