@@ -823,7 +823,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         <div id="ob-person-list"></div>
       </div>
       <div class="lc-detail" id="ob-detail">
-        <div class="lc-empty"><div class="lc-empty-icon">📋</div><div class="lc-empty-msg">Select a new hire</div><div class="lc-empty-sub">Choose a person from the left to review their onboarding checklist</div></div>
+        <div class="lc-empty"><div class="lc-empty-icon">📋</div><div class="lc-empty-msg">Select a new hire to view their onboarding checklist</div><div class="lc-empty-sub">Onboarding records are created automatically when a candidate accepts an offer in Recruiting &amp; Hiring.</div></div>
       </div>
     </div>
   </div>
@@ -847,7 +847,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         <div id="tr-person-list"></div>
       </div>
       <div class="lc-detail" id="tr-detail">
-        <div class="lc-empty"><div class="lc-empty-icon">🔄</div><div class="lc-empty-msg">Select a transition</div><div class="lc-empty-sub">Choose a person from the left to review their transition checklist</div></div>
+        <div class="lc-empty"><div class="lc-empty-icon">🔄</div><div class="lc-empty-msg">Select a transition to view details</div><div class="lc-empty-sub">Transition records are created automatically when an employee is promoted or transferred.</div></div>
       </div>
     </div>
   </div>
@@ -871,7 +871,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         <div id="off-person-list"></div>
       </div>
       <div class="lc-detail" id="off-detail">
-        <div class="lc-empty"><div class="lc-empty-icon">👋</div><div class="lc-empty-msg">Select a departure</div><div class="lc-empty-sub">Choose a person from the left to review their offboarding checklist</div></div>
+        <div class="lc-empty"><div class="lc-empty-icon">👋</div><div class="lc-empty-msg">Select a departure to view details</div><div class="lc-empty-sub">Offboarding records are created when a resignation or termination is initiated. Completed records marked Backfill Needed will automatically create a Recruiting requisition.</div></div>
       </div>
     </div>
   </div>
@@ -937,20 +937,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 <div class="modal-bg" id="modal-bg">
   <div class="modal-box" style="width:500px;max-height:90vh;overflow-y:auto">
     <div class="modal-title">Open a Position</div>
-
-    <!-- Net New / Backfill toggle -->
-    <div style="display:flex;gap:6px;margin-bottom:14px">
-      <button class="hire-type-btn active" id="btn-newnew" onclick="setHireType('new')">Net New</button>
-      <button class="hire-type-btn" id="btn-backfill" onclick="setHireType('backfill')">Backfill</button>
-    </div>
-
-    <!-- Backfill selector -->
-    <div id="backfill-row" style="display:none;margin-bottom:12px">
-      <div class="ml" style="margin-bottom:3px">Backfilling For <span style="color:var(--orange)">*</span></div>
-      <select class="mi" id="m-backfill" style="width:100%">
-        <option value="">Select branch first, then choose departed employee...</option>
-      </select>
-    </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="mf">
@@ -2876,7 +2862,7 @@ function renderDetail(){
     selId = visH.length ? visH[0].id : null;
   }
   var h=hires.find(function(x){return x.id===selId;});
-  if(!h){panel.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);font-size:14.4px">Select a position to view details</div>';return;}
+  if(!h){panel.innerHTML='<div class="lc-empty"><div class="lc-empty-icon">📋</div><div class="lc-empty-msg">Select a position to view details</div><div class="lc-empty-sub">Use + New to create a position manually. Backfill positions will appear automatically when an offboarding or transition is completed.</div></div>';return;}
 
   var done=h.checked.length, total=TASKS.length, pct=Math.round(done/total*100), ov=countOverdue(h);
 
@@ -3251,39 +3237,6 @@ function initRecruiting(){
 }
 
 // Modal
-var currentHireType = 'new';
-
-function setHireType(type) {
-  currentHireType = type;
-  document.getElementById('btn-newnew').classList.toggle('active', type === 'new');
-  document.getElementById('btn-backfill').classList.toggle('active', type === 'backfill');
-  document.getElementById('backfill-row').style.display = type === 'backfill' ? 'block' : 'none';
-  if (type === 'backfill') onModalBranchChange(); // refresh backfill list for current branch
-}
-
-
-var BRANCH_TO_HM = {
-  'Anaheim':          ['Joanne Peau','Nicole Hanna','Leslie Davis'],
-  'Atlanta':          ['Anne Wolkenhauer','Tricia Orme','Lisette Bergeron'],
-  'Boston':           ['Laura Ewell','Maud Langlois'],
-  'Chicago':          ['Mary Ligammari','Ellen Crowley'],
-  'Dallas':           ['Tiffany Jarrett','Lubi Garza'],
-  'Denver':           ['T Lam','Leslie Davis'],
-  'Des Moines':       ['Ellen Crowley'],
-  'Houston':          ['Joan Davis','Lubi Garza'],
-  'Las Vegas':        ['Chenille Book','Emily Dodd','Jessica Montoro','Lisa Park','Cory Marin','Ellen Crowley'],
-  'Nashville':        ['Tricia Orme','Lisette Bergeron'],
-  'New Orleans':      ['Regina Serigne','Jose Medina','Lisette Bergeron'],
-  'New York':         ['Gina Alberto','Maud Langlois'],
-  'Orlando':          ['Lymari Colon','Jose Medina','Lisette Bergeron'],
-  'Reno':             ['T Lam','Leslie Davis'],
-  'San Antonio':      ['Lubi Garza'],
-  'San Francisco':    ['Niall McCarthy','Leslie Davis'],
-  'Toronto':          ['Maud Langlois'],
-  'Washington D.C.':  ['Cassandra Karns','Maud Langlois'],
-  'High-Touch Accounts': ['Craig Gaibler','Nesana Wieger'],
-  'Off-Site':         ['Jennifer Pearson','Jennifer Vaughan','Elaine Yesh','Courtney Gonzalez','Michelle Bogdan'],
-};
 
 function onModalBranchChange() {
   var branch = document.getElementById('m-branch').value;
