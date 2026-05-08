@@ -182,28 +182,31 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .phase-advance-msg{font-size:13px;font-weight:600;color:#00693E;flex:1}
 .btn-phase-advance{background:var(--green);color:#fff;border:none;padding:7px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .btn-phase-advance:hover{opacity:.9}
-.emp-picker-overlay{display:none;position:fixed;inset:0;background:rgba(0,31,95,.5);z-index:2000;align-items:center;justify-content:center}
-.emp-picker-overlay.open{display:flex}
-.emp-picker-modal{background:#fff;border-radius:10px;width:520px;min-height:380px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.2);overflow:hidden}
-.emp-picker-hdr{padding:18px 20px 14px;border-bottom:1.5px solid var(--border);flex-shrink:0}
-.emp-picker-title{font-size:16px;font-weight:800;color:var(--fb);margin-bottom:3px;text-transform:none;letter-spacing:0}
-.emp-picker-sub{font-size:12px;color:var(--muted)}
-.emp-picker-search{padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
-.emp-picker-search input{width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'Nunito Sans',sans-serif;font-size:13px;color:var(--fb);outline:none;box-sizing:border-box}
-.emp-picker-search input:focus{border-color:var(--blue)}
-.emp-picker-list{overflow-y:auto;flex:1;min-height:100px;padding:6px 0}
-.emp-picker-item{padding:9px 20px;cursor:pointer;display:flex;flex-direction:column;gap:1px;border-bottom:1px solid var(--surface)}
-.emp-picker-item:hover{background:var(--surface)}
-.emp-picker-item.selected{background:#EBF8FF}
-.emp-picker-name{font-size:13.5px;font-weight:700;color:var(--fb)}
-.emp-picker-meta{font-size:11.5px;color:var(--muted)}
-.emp-picker-footer{padding:12px 20px;border-top:1.5px solid var(--border);display:flex;flex-direction:column;align-items:stretch;flex-shrink:0;gap:0}
-.emp-picker-type{display:flex;gap:6px}
-.emp-picker-type-btn{padding:7px 18px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:#fff;color:var(--muted)}
-.emp-picker-type-btn.active{border-color:var(--mb);color:var(--mb);background:var(--fb-xlt)}
-.emp-picker-confirm{background:var(--fb);color:#fff;border:none;padding:8px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;pointer-events:none;transition:opacity .15s;font-family:'Nunito Sans',sans-serif}
-.emp-picker-confirm.ready{opacity:1;pointer-events:auto;cursor:pointer}
-.emp-picker-confirm.ready:hover{opacity:.88}
+.lc-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,31,95,.5);z-index:2000;align-items:center;justify-content:center}
+.lc-modal-overlay.open{display:flex}
+.lc-modal-box{background:#fff;border-radius:14px;width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.2)}
+.lc-modal-title{font-size:13px;font-weight:800;color:var(--fb);padding:20px 24px 16px;text-transform:uppercase;letter-spacing:.06em}
+.lc-modal-body{padding:0 24px 20px}
+.lc-type-row{display:flex;gap:6px;margin-bottom:16px}
+.lc-type-btn{font-family:'Nunito Sans',sans-serif;font-size:13px;font-weight:700;padding:8px 16px;border-radius:8px;border:2px solid var(--border);color:var(--muted);background:#fff;cursor:pointer}
+.lc-type-btn.active{border-color:var(--mb);color:var(--mb);background:rgba(0,189,246,.08)}
+.lc-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lc-mf{display:flex;flex-direction:column;gap:5px}
+.lc-mf.full{grid-column:1/-1}
+.lc-ml{font-size:11px;font-weight:700;color:var(--fb);text-transform:uppercase;letter-spacing:.06em}
+.lc-mi{font-family:'Nunito Sans',sans-serif;font-size:13.5px;color:var(--muted);background:var(--surface);border:1.5px solid var(--border);border-radius:9px;padding:9px 12px;width:100%;box-sizing:border-box;outline:none}
+.lc-mi:focus{border-color:var(--mb)}
+.lc-mi.filled{color:var(--fb);background:var(--surface)}
+.lc-mi.autofill{color:var(--fb);background:var(--surface);pointer-events:none}
+.lc-search-wrap{grid-column:1/-1;position:relative}
+.lc-search-drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--mb);border-top:none;border-radius:0 0 9px 9px;z-index:100;max-height:180px;overflow-y:auto;display:none}
+.lc-search-drop.open{display:block}
+.lc-drop-item{padding:9px 12px;cursor:pointer;border-bottom:.5px solid var(--border)}
+.lc-drop-item:last-child{border-bottom:none}
+.lc-drop-item:hover,.lc-drop-item.sel{background:#EBF8FF}
+.lc-drop-name{font-size:13.5px;font-weight:700;color:var(--fb)}
+.lc-drop-meta{font-size:11.5px;color:var(--muted);margin-top:1px}
+.lc-modal-actions{display:flex;justify-content:flex-end;gap:10px;padding-top:18px}
 .task-chk{width:17px;height:17px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--white);transition:all .15s}
 .task-chk.not-owner{opacity:0.4;cursor:not-allowed}
 .task-chk:hover{border-color:var(--mb)}
@@ -943,9 +946,16 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         <div class="ml">Role <span style="color:var(--orange)">*</span></div>
         <select class="mi" id="m-role">
           <option value="">Select role...</option>
-          <option>ES Representative</option><option>ES Supervisor</option>
-          <option>ES Manager</option><option>ES Director</option>
-          <option>Event Experience Supervisor</option>
+          <option>Exhibitor Services Specialist</option>
+          <option>Exhibitor Services Sr Specialist</option>
+          <option>Exhibitor Services Consultant</option>
+          <option>Exhibitor Services Event Experience Supervisor</option>
+          <option>Exhibitor Services Sr Event Experience Supervisor</option>
+          <option>Manager Exhibitor Services</option>
+          <option>Director Exhibitor Services</option>
+          <option>Director Exhibitor Services Business Operations</option>
+          <option>Regional Director Exhibitor Services</option>
+          <option>Sr Director Exhibitor Services</option>
         </select>
       </div>
       <div class="mf">
@@ -5261,256 +5271,263 @@ function offCloseRecord(recId) {
 function initOffboarding() { updateOffStats(); renderOffList(); renderOffDetail(); }
 
 // ── Employee Picker State ────────────────────────────────────────────────
-var empPickerWorkspace  = null;   // 'tr' or 'off'
-var empPickerSelected   = null;   // selected TEAM_MEMBERS entry
-var empPickerType       = null;   // transitionType or departureType
+var lcModalWorkspace  = null;   // 'tr' or 'off'
+var lcModalSelected   = null;   // selected TEAM_MEMBERS entry
+var lcModalType       = null;   // transitionType or departureType
 
 function lcNewRecord(ws) {
-  empPickerWorkspace = ws;
-  empPickerSelected  = null;
-  empPickerType      = ws === 'tr' ? 'promotion' : 'resignation'; // sensible default
+  lcModalWorkspace = ws;
+  lcModalSelected  = null;
+  lcModalType      = ws === 'tr' ? 'promotion' : 'resignation';
 
-  // Title and sub
-  var title = document.getElementById('emp-picker-title');
-  var sub   = document.getElementById('emp-picker-sub');
+  // Reset all fields
+  var fields = ['lc-emp-search','lc-current-role','lc-current-branch','lc-new-role','lc-eff-date','lc-last-day','lc-backfill'];
+  fields.forEach(function(id){ var el=document.getElementById(id); if(el){ el.value=''; if(el.tagName==='SELECT') el.selectedIndex=0; }});
+
+  // Set type buttons
+  var pBtn = document.getElementById('lc-type-btn-primary');
+  var sBtn = document.getElementById('lc-type-btn-secondary');
   if (ws === 'tr') {
-    title.textContent = 'Select Employee — Transition';
-    sub.textContent   = 'Choose the employee whose role or status is changing.';
+    document.getElementById('lc-modal-title').textContent = 'OPEN A TRANSITION';
+    pBtn.textContent = 'Promotion / Title Change'; pBtn.setAttribute('data-type','promotion');
+    sBtn.textContent = 'Transfer Out of ES';       sBtn.setAttribute('data-type','transfer');
+    document.getElementById('lc-submit-btn').textContent = 'Open Transition';
   } else {
-    title.textContent = 'Select Employee — Departure';
-    sub.textContent   = 'Choose the employee who is leaving the team.';
+    document.getElementById('lc-modal-title').textContent = 'INITIATE A DEPARTURE';
+    pBtn.textContent = 'Resignation';   pBtn.setAttribute('data-type','resignation');
+    sBtn.textContent = 'Termination';   sBtn.setAttribute('data-type','termination');
+    document.getElementById('lc-submit-btn').textContent = 'Initiate a Departure';
   }
+  pBtn.classList.add('active'); sBtn.classList.remove('active');
 
-  // Type selector buttons
-  var typeEl = document.getElementById('emp-picker-type');
-  if (ws === 'tr') {
-    typeEl.innerHTML =
-      '<button class="emp-picker-type-btn active" data-type="promotion">Promotion / Title Change</button>'+
-      '<button class="emp-picker-type-btn" data-type="transfer">Transfer Out of ES</button>';
-  } else {
-    typeEl.innerHTML =
-      '<button class="emp-picker-type-btn active" data-type="resignation">Resignation</button>'+
-      '<button class="emp-picker-type-btn" data-type="termination">Termination</button>';
-  }
+  // Show/hide conditional fields
+  lcModalUpdateFields();
 
-  // Clear search
-  var search = document.getElementById('emp-picker-search');
-  if (search) search.value = '';
+  // Close dropdown, clear search results
+  var drop = document.getElementById('lc-search-drop');
+  if (drop) drop.classList.remove('open');
 
-  // Populate list
-  empPickerRenderList('');
-
-  // Attach type button listeners after innerHTML is set
-  var typeContainer = document.getElementById('emp-picker-type');
-  if (typeContainer) {
-    typeContainer.querySelectorAll('.emp-picker-type-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        empPickerType = this.getAttribute('data-type');
-        typeContainer.querySelectorAll('.emp-picker-type-btn').forEach(function(b){
-          b.classList.remove('active');
-        });
-        this.classList.add('active');
-      });
-    });
-  }
-
-  // Show
-  document.getElementById('emp-picker-overlay').classList.add('open');
-  if (search) setTimeout(function(){ search.focus(); }, 100);
+  // Show modal
+  document.getElementById('lc-modal-overlay').classList.add('open');
+  setTimeout(function(){ var s=document.getElementById('lc-emp-search'); if(s) s.focus(); }, 100);
 }
 
-function setEmpPickerType(btn, type) {
-  // Decode HTML entities if passed from inline onclick
-  empPickerType = type.replace(/&quot;/g,'"');
-  var btns = btn.parentElement.querySelectorAll('.emp-picker-type-btn');
-  btns.forEach(function(b){ b.classList.remove('active'); });
+function lcModalSetType(btn) {
+  lcModalType = btn.getAttribute('data-type');
+  document.querySelectorAll('.lc-type-btn').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
+  lcModalUpdateFields();
 }
 
-function empPickerFilter() {
-  var q = (document.getElementById('emp-picker-search').value || '').toLowerCase();
-  empPickerRenderList(q);
+function lcModalUpdateFields() {
+  var ws = lcModalWorkspace;
+  var type = lcModalType;
+  // new-role row: only show for TR promotion
+  var newRoleRow = document.getElementById('lc-new-role-row');
+  if (newRoleRow) newRoleRow.style.display = (ws==='tr' && type==='promotion') ? 'flex' : 'none';
+  // backfill row: show for TR transfer OR any OFF type
+  var backfillRow = document.getElementById('lc-backfill-row');
+  if (backfillRow) backfillRow.style.display = (ws==='off' || type==='transfer') ? 'flex' : 'none';
+  // date label: 'Effective Date' for TR, 'Last Day' for OFF
+  var dateLabel = document.getElementById('lc-date-label');
+  if (dateLabel) dateLabel.textContent = ws==='tr' ? 'Effective Date' : 'Last Day';
+  // eff-date full width when no backfill (TR promotion)
+  var effDateWrap = document.getElementById('lc-eff-date-wrap');
+  if (effDateWrap) {
+    var showBackfill = (ws==='off' || type==='transfer');
+    effDateWrap.className = 'lc-mf' + (showBackfill ? '' : ' full');
+  }
+  // Show correct date input
+  var effDate = document.getElementById('lc-eff-date');
+  var lastDay = document.getElementById('lc-last-day');
+  if (effDate && lastDay) {
+    if (ws === 'tr') { effDate.style.display=''; lastDay.style.display='none'; }
+    else             { effDate.style.display='none'; lastDay.style.display=''; }
+  }
 }
 
-function empPickerRenderList(query) {
-  var listEl = document.getElementById('emp-picker-list');
-  if (!listEl) return;
+function lcModalEmpSearch() {
+  var q = (document.getElementById('lc-emp-search').value || '').toLowerCase();
+  var drop = document.getElementById('lc-search-drop');
+  if (!q) { drop.classList.remove('open'); return; }
 
   var p = currentIdentity();
-  var pool;
-  if (p.level === 'enterprise') {
-    pool = TEAM_MEMBERS;
-  } else {
-    pool = TEAM_MEMBERS.filter(function(e){
-      return p.branches.indexOf(e.branch) >= 0;
-    });
-  }
-
-  if (query) {
-    var q = query.toLowerCase();
-    pool = pool.filter(function(e){
-      return e.name.toLowerCase().indexOf(q) >= 0 ||
-             (e.preferred && e.preferred.toLowerCase().indexOf(q) >= 0);
-    });
-  }
-
-  pool = pool.slice().sort(function(a,b){
-    var aLast = a.name.split(' ').slice(-1)[0] || '';
-    var bLast = b.name.split(' ').slice(-1)[0] || '';
-    return aLast.localeCompare(bLast);
+  var pool = p.level === 'enterprise' ? TEAM_MEMBERS : TEAM_MEMBERS.filter(function(e){
+    return p.branches.indexOf(e.branch) >= 0;
   });
+  pool = pool.filter(function(e){
+    return e.name.toLowerCase().indexOf(q) >= 0 || (e.preferred && e.preferred.toLowerCase().indexOf(q) >= 0);
+  }).slice().sort(function(a,b){
+    return a.name.split(' ').slice(-1)[0].localeCompare(b.name.split(' ').slice(-1)[0]);
+  }).slice(0, 8);
 
   if (!pool.length) {
-    listEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px">No employees found in your scope</div>';
-    return;
+    drop.innerHTML = '<div style="padding:14px 12px;font-size:13px;color:var(--muted)">No employees found</div>';
+    drop.classList.add('open'); return;
   }
-
   var html = '';
-  for (var i = 0; i < pool.length; i++) {
-    var e = pool[i];
-    var isSelected = empPickerSelected && empPickerSelected.name === e.name;
-    var displayName = e.preferred ? e.name + ' (' + e.preferred + ')' : e.name;
-    var meta = [];
-    if (e.title) meta.push(e.title);
-    if (e.branch) meta.push(e.branch);
-    if (e.mgr) meta.push('Mgr: ' + e.mgr);
-    var metaStr = meta.join('  ·  ');
+  pool.forEach(function(e) {
+    var display = e.preferred ? e.name + ' (' + e.preferred + ')' : e.name;
     var tenure = '';
     if (e.hireDate) {
-      var hd = new Date(e.hireDate);
-      var yrs = Math.floor((new Date() - hd) / (365.25*24*3600*1000));
-      tenure = yrs > 0 ? yrs + ' yr' + (yrs > 1 ? 's' : '') : 'New hire';
+      var yrs = Math.floor((new Date() - new Date(e.hireDate)) / (365.25*24*3600*1000));
+      tenure = yrs > 0 ? ' — ' + yrs + ' yr' + (yrs>1?'s':'') : ' — New hire';
     }
-    var idx = i; // capture for closure
-    html += '<div class="emp-picker-item' + (isSelected ? ' selected' : '') + '" data-name="' + e.name.replace(/"/g,'&quot;') + '" onclick="selectEmpPickerItem(this)">';
-    html += '<span class="emp-picker-name">' + displayName;
-    if (tenure) html += ' <span style="font-weight:400;font-size:11px;color:var(--muted)">— ' + tenure + '</span>';
-    html += '</span>';
-    html += '<span class="emp-picker-meta">' + metaStr + '</span>';
-    html += '</div>';
-  }
-  listEl.innerHTML = html;
-}
-function selectEmpPickerItem(el) {
-  // Walk up to .emp-picker-item in case a child element was clicked
-  var item = el.closest ? el.closest('.emp-picker-item') : el;
-  if (!item) return;
-  var name = item.getAttribute('data-name');
-  empPickerSelected = TEAM_MEMBERS.find(function(e){ return e.name === name; });
-  // Update visual selection
-  var listEl = document.getElementById('emp-picker-list');
-  if (listEl) {
-    listEl.querySelectorAll('.emp-picker-item').forEach(function(i){
-      i.classList.remove('selected');
-    });
-    item.classList.add('selected');
-  }
-  // Enable confirm button
-  var btn = document.getElementById('emp-picker-confirm');
-  if (btn) btn.classList.add('ready');
+    var meta = [e.title, e.branch, e.mgr ? 'Mgr: '+e.mgr : ''].filter(Boolean).join('  ·  ');
+    html += '<div class="lc-drop-item" data-name="'+e.name.replace(/"/g,'&quot;')+'" onclick="lcModalSelectEmp(this)">';
+    html += '<div class="lc-drop-name">'+display+'<span style="font-weight:400;font-size:11px;color:var(--muted)">'+tenure+'</span></div>';
+    html += '<div class="lc-drop-meta">'+meta+'</div></div>';
+  });
+  drop.innerHTML = html;
+  drop.classList.add('open');
 }
 
-function confirmEmpPicker() {
-  if (!empPickerSelected || !empPickerWorkspace) return;
-  var e = empPickerSelected;
+function lcModalSelectEmp(el) {
+  var name = el.getAttribute('data-name');
+  lcModalSelected = TEAM_MEMBERS.find(function(e){ return e.name === name; });
+  if (!lcModalSelected) return;
+  var display = lcModalSelected.preferred ? lcModalSelected.name + ' (' + lcModalSelected.preferred + ')' : lcModalSelected.name;
+  document.getElementById('lc-emp-search').value = display;
+  document.getElementById('lc-current-role').value = lcModalSelected.title || '';
+  document.getElementById('lc-current-branch').value = lcModalSelected.branch || '';
+  document.getElementById('lc-search-drop').classList.remove('open');
+}
 
-  // Split name into first/last
-  var nameParts = e.name.trim().split(' ');
+function lcModalSubmit() {
+  var ws   = lcModalWorkspace;
+  var type = lcModalType;
+  var emp  = lcModalSelected;
+
+  if (!emp) { alert('Please select an employee.'); return; }
+
+  var dateVal = document.getElementById(ws==='tr' ? 'lc-eff-date' : 'lc-last-day').value;
+  if (!dateVal) { alert('Please enter ' + (ws==='tr' ? 'an effective date.' : 'a last day.')); return; }
+
+  // Backfill required for OFF or TR transfer
+  var needsBackfill = (ws==='off' || type==='transfer');
+  var backfill = needsBackfill ? document.getElementById('lc-backfill').value : '';
+  if (needsBackfill && !backfill) { alert('Please select a backfill decision.'); return; }
+
+  // New role required for TR promotion
+  if (ws==='tr' && type==='promotion') {
+    var newRole = document.getElementById('lc-new-role').value;
+    if (!newRole) { alert('Please select a new role / title.'); return; }
+  }
+
+  var nameParts = emp.name.trim().split(' ');
   var firstName = nameParts[0];
   var lastName  = nameParts.slice(1).join(' ');
+  var ftpt = emp.ftpt === 'F' ? 'Full-Time' : emp.ftpt === 'P' ? 'Part-Time' : (emp.ftpt || '');
 
-  if (empPickerWorkspace === 'tr') {
-    // Create new transition record
+  if (ws === 'tr') {
     var newRec = {
-      id: 'tr-r' + (trRecords.length + 1) + '-' + Date.now(),
-      firstName: firstName,
-      lastName:  lastName,
-      role:      e.title,
-      branch:    e.branch,
-      ftpt:      e.ftpt === 'F' ? 'Full-Time' : e.ftpt === 'P' ? 'Part-Time' : e.ftpt,
-      hiringManager: e.mgr,
-      hireDate:  e.hireDate,
-      email:     e.email,
-      transitionType: empPickerType,
-      newRole:   '',
-      checked:   {},
-      backfillDecision: null,
-      closed:    false
+      id: 'tr-r' + (trRecords.length+1) + '-' + Date.now(),
+      firstName: firstName, lastName: lastName,
+      role: emp.title, branch: emp.branch, ftpt: ftpt,
+      hiringManager: emp.mgr, hireDate: emp.hireDate, email: emp.email,
+      transitionType: type,
+      newRole: type==='promotion' ? document.getElementById('lc-new-role').value : '',
+      effectiveDate: dateVal,
+      backfillDecision: backfill || null,
+      checked: {}, closed: false
     };
     trRecords.unshift(newRec);
     selTrId = newRec.id;
-
-  } else if (empPickerWorkspace === 'off') {
-    // Create new offboarding record
-    var newOffRec = {
-      id: 'off-r' + (offRecords.length + 1) + '-' + Date.now(),
-      firstName: firstName,
-      lastName:  lastName,
-      role:      e.title,
-      branch:    e.branch,
-      ftpt:      e.ftpt === 'F' ? 'Full-Time' : e.ftpt === 'P' ? 'Part-Time' : e.ftpt,
-      hiringManager: e.mgr,
-      hireDate:  e.hireDate,
-      email:     e.email,
-      departureType: empPickerType,
-      checked:   {},
-      backfillDecision: null
-    };
-    offRecords.unshift(newOffRec);
-    selOffId = newOffRec.id;
-  }
-
-  closeEmpPicker();
-
-  // Re-render the appropriate workspace
-  if (empPickerWorkspace === 'tr') {
+    lcModalClose();
     renderTrList(); updateTrStats(); renderTrDetail();
   } else {
+    var newOff = {
+      id: 'off-r' + (offRecords.length+1) + '-' + Date.now(),
+      firstName: firstName, lastName: lastName,
+      role: emp.title, branch: emp.branch, ftpt: ftpt,
+      hiringManager: emp.mgr, hireDate: emp.hireDate, email: emp.email,
+      departureType: type,
+      lastDay: dateVal,
+      backfillDecision: backfill,
+      checked: {}
+    };
+    offRecords.unshift(newOff);
+    selOffId = newOff.id;
+    lcModalClose();
     renderOffList(); updateOffStats(); renderOffDetail();
   }
 }
 
-function closeEmpPicker() {
-  document.getElementById('emp-picker-overlay').classList.remove('open');
-  empPickerSelected  = null;
-  empPickerWorkspace = null;
-  var btn = document.getElementById('emp-picker-confirm');
-  if (btn) btn.classList.remove('ready');
+function lcModalClose() {
+  document.getElementById('lc-modal-overlay').classList.remove('open');
+  lcModalWorkspace = null; lcModalSelected = null; lcModalType = null;
 }
 
-</script>
+<!-- LC Modal (Transitions + Offboarding) -->
+<div class="lc-modal-overlay" id="lc-modal-overlay" onclick="if(event.target===this) lcModalClose()">
+  <div class="lc-modal-box">
+    <div class="lc-modal-title" id="lc-modal-title">OPEN A TRANSITION</div>
+    <div class="lc-modal-body">
 
-<!-- Employee Picker Modal -->
-<div class="emp-picker-overlay" id="emp-picker-overlay">
-  <div class="emp-picker-modal">
-    <div class="emp-picker-hdr">
-      <div class="emp-picker-title" id="emp-picker-title">Select Employee</div>
-      <div class="emp-picker-sub" id="emp-picker-sub">Choose the employee for this record</div>
-    </div>
-    <div class="emp-picker-search">
-      <input type="text" id="emp-picker-search" placeholder="Search by name..." oninput="empPickerFilter()">
-    </div>
-    <div class="emp-picker-list" id="emp-picker-list"></div>
-    <div class="emp-picker-footer">
-      <div class="emp-picker-type" id="emp-picker-type" style="margin-bottom:10px;width:100%"></div>
-      <div style="display:flex;gap:8px;width:100%;justify-content:flex-end">
-        <button class="m-cancel" onclick="closeEmpPicker()">Cancel</button>
-        <button class="emp-picker-confirm" id="emp-picker-confirm" onclick="confirmEmpPicker()">Select Employee</button>
+      <div class="lc-type-row">
+        <button class="lc-type-btn active" id="lc-type-btn-primary" data-type="promotion" onclick="lcModalSetType(this)">Promotion / Title Change</button>
+        <button class="lc-type-btn" id="lc-type-btn-secondary" data-type="transfer" onclick="lcModalSetType(this)">Transfer Out of ES</button>
       </div>
+
+      <div class="lc-field-grid">
+
+        <div class="lc-search-wrap lc-mf full">
+          <div class="lc-ml">Employee <span style="color:var(--orange)">*</span></div>
+          <input class="lc-mi" id="lc-emp-search" type="text" placeholder="Type a name to search..." oninput="lcModalEmpSearch()" autocomplete="off" />
+          <div class="lc-search-drop" id="lc-search-drop"></div>
+        </div>
+
+        <div class="lc-mf">
+          <div class="lc-ml">Current Role</div>
+          <input class="lc-mi autofill" id="lc-current-role" type="text" placeholder="Auto-filled" readonly />
+        </div>
+
+        <div class="lc-mf">
+          <div class="lc-ml">Branch / Team</div>
+          <input class="lc-mi autofill" id="lc-current-branch" type="text" placeholder="Auto-filled" readonly />
+        </div>
+
+        <div class="lc-mf" id="lc-new-role-row" style="display:flex">
+          <div class="lc-ml">New Role / Title <span style="color:var(--orange)">*</span></div>
+          <select class="lc-mi" id="lc-new-role">
+            <option value="">Select new role...</option>
+          <option value="Exhibitor Services Specialist">Exhibitor Services Specialist</option>
+          <option value="Exhibitor Services Sr Specialist">Exhibitor Services Sr Specialist</option>
+          <option value="Exhibitor Services Consultant">Exhibitor Services Consultant</option>
+          <option value="Exhibitor Services Event Experience Supervisor">Exhibitor Services Event Experience Supervisor</option>
+          <option value="Exhibitor Services Sr Event Experience Supervisor">Exhibitor Services Sr Event Experience Supervisor</option>
+          <option value="Manager Exhibitor Services">Manager Exhibitor Services</option>
+          <option value="Director Exhibitor Services">Director Exhibitor Services</option>
+          <option value="Director Exhibitor Services Business Operations">Director Exhibitor Services Business Operations</option>
+          <option value="Regional Director Exhibitor Services">Regional Director Exhibitor Services</option>
+          <option value="Sr Director Exhibitor Services">Sr Director Exhibitor Services</option>
+          </select>
+        </div>
+
+        <div class="lc-mf" id="lc-eff-date-wrap">
+          <div class="lc-ml" id="lc-date-label">Effective Date <span style="color:var(--orange)">*</span></div>
+          <input class="lc-mi" id="lc-eff-date" type="date" />
+          <input class="lc-mi" id="lc-last-day" type="date" style="display:none" />
+        </div>
+
+        <div class="lc-mf" id="lc-backfill-row" style="display:none">
+          <div class="lc-ml">Backfill Needed? <span style="color:var(--orange)">*</span></div>
+          <select class="lc-mi" id="lc-backfill">
+            <option value="">Select...</option>
+            <option value="yes">Yes — open a requisition</option>
+            <option value="no">No — position eliminated</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="lc-modal-actions">
+        <button class="m-cancel" onclick="lcModalClose()">Cancel</button>
+        <button class="m-submit" id="lc-submit-btn" onclick="lcModalSubmit()">Open Transition</button>
+      </div>
+
     </div>
   </div>
 </div>
 
-<div style="display:none;position:fixed;inset:0;background:rgba(0,31,95,.5);z-index:1000;align-items:center;justify-content:center" id="reject-modal">
-  <div style="background:#fff;border-radius:10px;padding:20px;width:400px;box-shadow:0 8px 40px rgba(0,0,0,.2)">
-    <div style="font-size:12px;font-weight:800;color:var(--fb);margin-bottom:4px">Reject Position Request</div>
-    <div style="font-size:10px;color:var(--muted);margin-bottom:12px" id="reject-modal-sub">Please provide a reason for rejection.</div>
-    <textarea id="reject-notes" style="font-family:'Nunito Sans',sans-serif;font-size:11px;color:var(--fb);width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;outline:none;resize:vertical;min-height:80px;background:var(--surface)" placeholder="Enter reason for rejection..."></textarea>
-    <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:10px">
-      <button class="m-cancel" onclick="closeRejectModal()">Cancel</button>
-      <button class="btn-reject" style="background:var(--orange);color:#fff;border:none" onclick="confirmReject()">Confirm Rejection</button>
-    </div>
-  </div>
-</div>
-</body>
-</html>
+
