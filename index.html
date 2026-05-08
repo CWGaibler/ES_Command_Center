@@ -2592,9 +2592,43 @@ function canViewInScope(h) {
 }
 
 function needsMyAction(h) {
-  // Flag positions that have been sitting at approved-not-posted for a while, or are in offer stage
+  // Recruiting: flag offer stage positions
   if(h.stage === 'offer') return true;
   return false;
+}
+
+// LC workspace action checks — used by renderNeedsAttention
+
+function naCardClick(el) {
+  var ws = el.getAttribute('data-na-ws');
+  var id = el.getAttribute('data-na-id');
+  if (ws === 'onboarding')  { showPage('page-onboarding');  selObId  = id; renderObDetail(); }
+  if (ws === 'transitions') { showPage('page-transitions'); selTrId  = id; renderTrDetail(); }
+  if (ws === 'offboarding') { showPage('page-offboarding'); selOffId = id; renderOffDetail(); }
+}
+
+function lcNeedsAction(records, taskSet, workspace) {
+  var p = currentIdentity();
+  var items = [];
+  records.forEach(function(rec) {
+    if (rec.closed) return;
+    // Must be HM on this record
+    if (rec.hiringManager !== p.name) return;
+    // Check for unchecked HM tasks
+    var tasks = typeof taskSet === 'function' ? taskSet(rec) : taskSet;
+    var pendingHMTasks = tasks.filter(function(t) {
+      return t.owner === 'hm' && !rec.checked[t.id];
+    });
+    if (pendingHMTasks.length > 0) {
+      items.push({
+        rec: rec,
+        workspace: workspace,
+        pendingCount: pendingHMTasks.length,
+        nextTask: pendingHMTasks[0].title
+      });
+    }
+  });
+  return items;
 }
 
 function setViewAs(role, el) {
@@ -2674,14 +2708,55 @@ function goToShow(showId) {
 
 function renderNeedsAttention() {
   var el = document.getElementById('needs-attention-body'); if(!el) return;
-  var items = hires.filter(needsMyAction);
-  var html = items.map(function(h){
+  var html = '';
+
+  // ── Recruiting: offer stage positions ───────────────────────────────
+  var rhItems = hires.filter(needsMyAction);
+  html += rhItems.map(function(h){
     return '<div class="na-card" data-gotohire="'+h.id+'" onclick="goToHire(this)">'+
       '<div class="na-card-title">Position: '+h.role+' &mdash; '+h.branch+'</div>'+
-      '<div class="na-card-meta">Requested by '+h.hiringManager+' &middot; '+h.ftpt+' &middot; Proposed start: '+h.proposedStart+'</div>'+
-      '<div class="na-card-tags"><span class="chip chip-amber">Pending Approval</span><span class="chip chip-ghost">Recruiting</span></div>'+
+      '<div class="na-card-meta">Requested by '+h.hiringManager+' &middot; '+h.ftpt+' &middot; Proposed start: '+(h.proposedStart||'TBD')+'</div>'+
+      '<div class="na-card-tags"><span class="chip chip-amber">Offer Stage</span><span class="chip chip-ghost">Recruiting</span></div>'+
     '</div>';
   }).join('');
+
+  // ── Onboarding: HM tasks pending ────────────────────────────────────
+  var obItems = lcNeedsAction(obRecords, OB_TASKS, 'onboarding');
+  html += obItems.map(function(item){
+    var rec = item.rec;
+    return '<div class="na-card" data-na-ws="onboarding" data-na-id="'+rec.id+'" onclick="naCardClick(this)">'+
+      '<div class="na-card-title">'+rec.firstName+' '+rec.lastName+' &mdash; Onboarding</div>'+
+      '<div class="na-card-meta">'+item.pendingCount+' task'+(item.pendingCount>1?'s':'')+' waiting &middot; Next: '+item.nextTask.substring(0,60)+(item.nextTask.length>60?'...':'')+'</div>'+
+      '<div class="na-card-tags"><span class="chip chip-mb">Onboarding</span><span class="chip chip-ghost">'+rec.branch+'</span></div>'+
+    '</div>';
+  }).join('');
+
+  // ── Transitions: HM tasks pending ───────────────────────────────────
+  var trItems = lcNeedsAction(trRecords, function(rec){ return trTaskSet(rec); }, 'transitions');
+  html += trItems.map(function(item){
+    var rec = item.rec;
+    return '<div class="na-card" data-na-ws="transitions" data-na-id="'+rec.id+'" onclick="naCardClick(this)">'+
+      '<div class="na-card-title">'+rec.firstName+' '+rec.lastName+' &mdash; Transition</div>'+
+      '<div class="na-card-meta">'+item.pendingCount+' task'+(item.pendingCount>1?'s':'')+' waiting &middot; Next: '+item.nextTask.substring(0,60)+(item.nextTask.length>60?'...':'')+'</div>'+
+      '<div class="na-card-tags"><span class="chip chip-ft">Transition</span><span class="chip chip-ghost">'+rec.branch+'</span></div>'+
+    '</div>';
+  }).join('');
+
+  // ── Offboarding: HM tasks pending ───────────────────────────────────
+  var offItems = lcNeedsAction(offRecords, function(rec){ return offTaskSet(rec); }, 'offboarding');
+  html += offItems.map(function(item){
+    var rec = item.rec;
+    var typeChip = rec.departureType === 'resignation' ?
+      '<span class="chip chip-resignation">Resignation</span>' :
+      '<span class="chip chip-termination">Termination</span>';
+    return '<div class="na-card" data-na-ws="offboarding" data-na-id="'+rec.id+'" onclick="naCardClick(this)">'+
+      '<div class="na-card-title">'+rec.firstName+' '+rec.lastName+' &mdash; Offboarding</div>'+
+      '<div class="na-card-meta">'+item.pendingCount+' task'+(item.pendingCount>1?'s':'')+' waiting &middot; Next: '+item.nextTask.substring(0,60)+(item.nextTask.length>60?'...':'')+'</div>'+
+      '<div class="na-card-tags">'+typeChip+'<span class="chip chip-ghost">'+rec.branch+'</span></div>'+
+    '</div>';
+  }).join('');
+
+  // ── Hardcoded placeholder items (on hold) ───────────────────────────
   html += '<div class="na-card">'+
     '<div class="na-card-title">Healthcare Summit &mdash; SERF Overdue</div>'+
     '<div class="na-card-meta">Due 5 weeks pre move-in &middot; 3 days past deadline</div>'+
@@ -2692,6 +2767,12 @@ function renderNeedsAttention() {
     '<div class="na-card-meta">Kronos timecards due Monday 12pm CST</div>'+
     '<div class="na-card-tags"><span class="chip chip-amber">Due Today</span><span class="chip chip-ghost">Timekeeping</span></div>'+
   '</div>';
+
+  // Empty state
+  if (!html) {
+    html = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No items need your attention right now.</div>';
+  }
+
   el.innerHTML = html;
 }
 
