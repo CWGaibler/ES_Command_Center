@@ -2433,64 +2433,8 @@ var TEAM_MEMBERS = [
   {name:'Lydia Mahiet',preferred:'',hireDate:'2000-03-01',ftpt:'F',title:'Exhibitor Services Consultant',region:'Canada',branch:'Toronto',mgr:'Maud Langlois',mgr2:'Craig Gaibler',mgr3:'Nesana Wieger',birthday:'2026-10-02 00:00:00',email:'Lydia.Mahiet@freeman.com' },
 ];
 
-var hires = [
-  {id:'h1', role:'ES Event Experience Supervisor', ftpt:'Full-Time', branch:'Las Vegas',
-   hiringManagerFirst:'Jessica', hiringManagerLast:'Montoro',
-   hiringManager:'Jessica Montoro',
-   hireType:'backfill', backfillFor:'Nick Addesso',
-   backfillForFirst:'Nick', backfillForLast:'Addesso',
-   whyBackfill:'moved to Growth',
-   proposedStart:'', proposedNet:'',
-   reqNum:'', hrRecruiter:'Megan Wierick', firstName:'', lastName:'',
-   confirmedStart:'', confirmedNet:'', rejectionNote:'',
-   phoneStipend: false,
-   stage:'approved-not-posted', checked:['t1'], open:{}, closed:false, closed:false},
-  {id:'h2', role:'ES Specialist', ftpt:'Full-Time', branch:'Las Vegas',
-   hiringManagerFirst:'Chenille', hiringManagerLast:'Book',
-   hiringManager:'Chenille Book',
-   hireType:'backfill', backfillFor:'Taylor Fox',
-   backfillForFirst:'Taylor', backfillForLast:'Fox',
-   whyBackfill:'Terminated',
-   proposedStart:'', proposedNet:'',
-   reqNum:'', hrRecruiter:'Megan Wierick', firstName:'', lastName:'',
-   confirmedStart:'', confirmedNet:'', rejectionNote:'',
-   phoneStipend: false,
-   stage:'approved-not-posted', checked:['t1'], open:{}, closed:false, closed:false},
-  {id:'h3', role:'ES Specialist', ftpt:'Part-Time', branch:'San Francisco',
-   hiringManagerFirst:'Niall', hiringManagerLast:'McCarthy',
-   hiringManager:'Niall McCarthy',
-   hireType:'backfill', backfillFor:'Julie Sales',
-   backfillForFirst:'Julie', backfillForLast:'Sales',
-   whyBackfill:'internal ES promotion',
-   proposedStart:'', proposedNet:'',
-   reqNum:'', hrRecruiter:'Megan Wierick', firstName:'', lastName:'',
-   confirmedStart:'', confirmedNet:'', rejectionNote:'',
-   phoneStipend: false,
-   stage:'approved-not-posted', checked:['t1'], open:{}, closed:false, closed:false},
-  {id:'h4', role:'ES Specialist', ftpt:'Part-Time', branch:'San Antonio',
-   hiringManagerFirst:'Lubi', hiringManagerLast:'Garza',
-   hiringManager:'Lubi Garza',
-   hireType:'backfill', backfillFor:'Katya Castellanos',
-   backfillForFirst:'Katya', backfillForLast:'Castellanos',
-   whyBackfill:'Resignation',
-   proposedStart:'', proposedNet:'',
-   reqNum:'', hrRecruiter:'Megan Wierick', firstName:'', lastName:'',
-   confirmedStart:'', confirmedNet:'', rejectionNote:'',
-   phoneStipend: false,
-   stage:'approved-not-posted', checked:['t1'], open:{}, closed:false, closed:false},
-  {id:'h5', role:'ES Sr. Specialist', ftpt:'Full-Time', branch:'High-Touch Accounts',
-   hiringManagerFirst:'Jennifer', hiringManagerLast:'Pearson',
-   hiringManager:'Jennifer Pearson',
-   hireType:'backfill', backfillFor:'Lindsey Moritz',
-   backfillForFirst:'Lindsey', backfillForLast:'Moritz',
-   whyBackfill:'Resignation',
-   proposedStart:'', proposedNet:'',
-   reqNum:'', hrRecruiter:'Megan Wierick', firstName:'', lastName:'',
-   confirmedStart:'', confirmedNet:'', rejectionNote:'',
-   phoneStipend: false,
-   stage:'approved-not-posted', checked:['t1'], open:{}, closed:false}
-];
-var selId = 'h1';
+var hires = []
+var selId = null;
 var rhReady = false;
 var currentViewAs = 'hm';
 var pendingRejectId = null;
@@ -4728,24 +4672,8 @@ var OB_TASKS = [
   {id:'ob32', phase:'During NET', title:'Spend at least 1 hour per week in NET classes where direct reports are attending', owner:'hm', links:[]},
 ];
 
-var obRecords = [
-  {id:'ob-r1', firstName:'Marcus', lastName:'Thompson', role:'ES Specialist', branch:'Las Vegas', ftpt:'Full-Time',
-   hiringManager:'Chenille Book', startDate:'2026-05-19', netDate:'2026-05-19',
-   phase:'Before Start Date', checked:{}, backfillDecision:null, closed:false},
-  {id:'ob-r2', firstName:'Priya', lastName:'Nair', role:'ES Event Experience Supervisor', branch:'Dallas', ftpt:'Full-Time',
-   hiringManager:'Tiffany Jarrett', startDate:'2026-05-12', netDate:'2026-05-12',
-   phase:'First Week', checked:{}, backfillDecision:null, closed:false},
-  {id:'ob-r3', firstName:'DeShawn', lastName:'Williams', role:'ES Sr. Specialist', branch:'Orlando', ftpt:'Full-Time',
-   hiringManager:'Lymari Colon', startDate:'2026-04-28', netDate:'2026-04-28',
-   phase:'During NET', checked:{ob1:true,ob2:true,ob3:true,ob4:true,ob5:true,ob6:true,ob7:true,ob8:true,ob9:true,ob10:true,ob11:true,ob12:true,ob13:true,ob14:true,ob15:true,ob16:true,ob17:true,ob18:true,ob19:true,ob20:true,ob21:true,ob22:true,ob23:true,ob24:true,ob25:true,ob26:true}, backfillDecision:null, closed:false},
-  {id:'ob-r4', firstName:'Sofia', lastName:'Reyes', role:'ES Specialist', branch:'Atlanta', ftpt:'Part-Time',
-   hiringManager:'Anne Wolkenhauer', startDate:'2026-05-26', netDate:'2026-05-26',
-   phase:'Before Start Date', checked:{}, backfillDecision:null, closed:false},
-  {id:'ob-r5', firstName:'James', lastName:'Park', role:'ES Specialist', branch:'San Francisco', ftpt:'Full-Time',
-   hiringManager:'Niall McCarthy', startDate:'2026-06-02', netDate:'2026-06-02',
-   phase:'Before Start Date', checked:{}, backfillDecision:null, closed:false},
-];
-selObId = 'ob-r1';
+var obRecords = [];
+selObId = null;
 
 function obCanCheck(taskOwner) {
   var key = CURRENT_IDENTITY_KEY;
@@ -4960,18 +4888,8 @@ var TR_TASKS_PROMOTION = [
   {id:'trp10', title:'Provide ongoing support — schedule regular check-ins during transition period', owner:'hm'},
 ];
 
-var trRecords = [
-  {id:'tr-r1', firstName:'Aaliyah', lastName:'Foster', role:'ES Specialist', branch:'New York', ftpt:'Full-Time',
-   hiringManager:'Gina Alberto', transitionType:'promotion', newRole:'ES Sr. Specialist',
-   checked:{}, backfillDecision:null, closed:false},
-  {id:'tr-r2', firstName:'Devon', lastName:'Park', role:'ES Specialist', branch:'Houston', ftpt:'Full-Time',
-   hiringManager:'Joan Davis', transitionType:'transfer', newRole:'',
-   checked:{tr1:true,tr2:true}, backfillDecision:null, closed:false},
-  {id:'tr-r3', firstName:'Maya', lastName:'Chen', role:'ES Sr. Specialist', branch:'Atlanta', ftpt:'Full-Time',
-   hiringManager:'Anne Wolkenhauer', transitionType:'promotion', newRole:'ES Supervisor',
-   checked:{}, backfillDecision:null, closed:false},
-];
-selTrId = 'tr-r1';
+var trRecords = [];
+selTrId = null;
 
 function trTaskSet(rec) { return rec.transitionType === 'promotion' ? TR_TASKS_PROMOTION : TR_TASKS_TRANSFER; }
 
@@ -5190,15 +5108,8 @@ var OFF_TASKS_TERMINATION = [
   {id:'offt13', title:'Communicate backfill intent to ES Leadership', owner:'hm'},
 ];
 
-var offRecords = [
-  {id:'off-r1', firstName:'Jordan', lastName:'Martinez', role:'ES Specialist', branch:'Atlanta', ftpt:'Part-Time',
-   hiringManager:'Anne Wolkenhauer', departureType:'resignation',
-   checked:{}, backfillDecision:null},
-  {id:'off-r2', firstName:'Sam', lastName:'Okafor', role:'ES Specialist', branch:'Las Vegas', ftpt:'Full-Time',
-   hiringManager:'Emily Dodd', departureType:'termination',
-   checked:{}, backfillDecision:null},
-];
-selOffId = 'off-r1';
+var offRecords = [];
+selOffId = null;
 
 function offTaskSet(rec) { return rec.departureType === 'resignation' ? OFF_TASKS_RESIGNATION : OFF_TASKS_TERMINATION; }
 
