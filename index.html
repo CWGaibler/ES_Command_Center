@@ -4667,11 +4667,19 @@ var obRecords = [
 selObId = 'ob-r1';
 
 function obCanCheck(taskOwner) {
-  var v = LC_VIEW.ob;
-  if (v === 'rd' || v === 'es') return false; // read-only for RD and ES Leadership
-  if (v === 'hm' && taskOwner === 'hm') return true;
-  if (v === 'admin' && taskOwner === 'admin') return true;
-  if (v === 'cx' && taskOwner === 'cx') return true;
+  var key = CURRENT_IDENTITY_KEY;
+  var p   = currentIdentity();
+  // ES Admin (Erii) can check admin tasks
+  if (taskOwner === 'admin') return key === 'erii';
+  // CX Enablement tasks — no dashboard user, anyone can check
+  if (taskOwner === 'cx') return true;
+  // HM tasks — only the identity whose name matches the record's HM
+  // For LC workspaces the HM is the manager field on the record
+  if (taskOwner === 'hm') {
+    // RDs and ES Leadership are read-only on HM tasks
+    if (p.level === 'region' || p.level === 'enterprise') return false;
+    return true; // branch-level managers can check HM tasks on records in their scope
+  }
   return false;
 }
 
@@ -4872,10 +4880,14 @@ selTrId = 'tr-r1';
 function trTaskSet(rec) { return rec.transitionType === 'promotion' ? TR_TASKS_PROMOTION : TR_TASKS_TRANSFER; }
 
 function trCanCheck(taskOwner) {
-  var v = LC_VIEW.tr;
-  if (v === 'rd') return false;
-  if (v === 'hm' && taskOwner === 'hm') return true;
-  if (v === 'es' && taskOwner === 'es') return true;
+  var key = CURRENT_IDENTITY_KEY;
+  var p   = currentIdentity();
+  if (taskOwner === 'admin') return key === 'erii';
+  if (taskOwner === 'es')    return key === 'craig' || key === 'nesana';
+  if (taskOwner === 'hm') {
+    if (p.level === 'region' || p.level === 'enterprise') return false;
+    return true;
+  }
   return false;
 }
 
@@ -5080,10 +5092,13 @@ selOffId = 'off-r1';
 function offTaskSet(rec) { return rec.departureType === 'resignation' ? OFF_TASKS_RESIGNATION : OFF_TASKS_TERMINATION; }
 
 function offCanCheck(taskOwner) {
-  var v = LC_VIEW.off;
-  if (v === 'rd' || v === 'es') return false;
-  if (v === 'hm' && taskOwner === 'hm') return true;
-  if (v === 'admin' && taskOwner === 'admin') return true;
+  var key = CURRENT_IDENTITY_KEY;
+  var p   = currentIdentity();
+  if (taskOwner === 'admin') return key === 'erii';
+  if (taskOwner === 'hm') {
+    if (p.level === 'region' || p.level === 'enterprise') return false;
+    return true;
+  }
   return false;
 }
 
