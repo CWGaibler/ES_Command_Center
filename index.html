@@ -4708,7 +4708,7 @@ function renderObDetail() {
     selObId = visOb.length ? visOb[0].id : null;
   }
   var rec = obRecords.find(function(r){ return r.id === selObId; });
-  if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">📋</div><div class="lc-empty-msg">Select a new hire</div></div>'; return; }
+  if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">📋</div><div class="lc-empty-msg">Select a new hire to view their onboarding checklist</div><div class="lc-empty-sub">Onboarding records are created automatically when a candidate accepts an offer in Recruiting &amp; Hiring.</div></div>'; return; }
   var prog = obTotalProgress(rec);
   var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
   var phases = ['Before Start Date', 'First Week', 'During NET'];
@@ -4914,7 +4914,7 @@ function renderTrDetail() {
     selTrId = visTr.length ? visTr[0].id : null;
   }
   var rec = trRecords.find(function(r){ return r.id === selTrId; });
-  if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">🔄</div><div class="lc-empty-msg">Select a transition</div></div>'; return; }
+  if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">🔄</div><div class="lc-empty-msg">Select a transition to view details</div><div class="lc-empty-sub">Transition records are created automatically when an employee is promoted or transferred.</div></div>'; return; }
   var tasks = trTaskSet(rec);
   var prog = trTotalProgress(rec);
   var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
@@ -5147,7 +5147,7 @@ function renderOffDetail() {
     selOffId = visOff.length ? visOff[0].id : null;
   }
   var rec = offRecords.find(function(r){ return r.id === selOffId; });
-  if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">👋</div><div class="lc-empty-msg">Select a departure</div></div>'; return; }
+  if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">👋</div><div class="lc-empty-msg">Select a departure to view details</div><div class="lc-empty-sub">Offboarding records are created when a resignation or termination is initiated. Completed records marked Backfill Needed will automatically create a Recruiting requisition.</div></div>'; return; }
   var tasks = offTaskSet(rec);
   var prog = offTotalProgress(rec);
   var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
