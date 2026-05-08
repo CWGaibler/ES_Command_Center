@@ -2605,9 +2605,9 @@ function needsMyAction(h) {
 function naCardClick(el) {
   var ws = el.getAttribute('data-na-ws');
   var id = el.getAttribute('data-na-id');
-  if (ws === 'onboarding')  { showPage('page-onboarding');  selObId  = id; renderObDetail(); }
-  if (ws === 'transitions') { showPage('page-transitions'); selTrId  = id; renderTrDetail(); }
-  if (ws === 'offboarding') { showPage('page-offboarding'); selOffId = id; renderOffDetail(); }
+  if (ws === 'onboarding')  { selObId  = id; showPage('onboarding'); }
+  if (ws === 'transitions') { selTrId  = id; showPage('transitions'); }
+  if (ws === 'offboarding') { selOffId = id; showPage('offboarding'); }
 }
 
 function lcNeedsAction(records, taskSet, workspace) {
