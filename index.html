@@ -2611,23 +2611,28 @@ function naCardClick(el) {
 }
 
 function lcNeedsAction(records, taskSet, workspace) {
-  var p = currentIdentity();
   var items = [];
+  // Determine which canCheck function to use for this workspace
+  var canCheckFn = workspace === 'onboarding'  ? obCanCheck  :
+                   workspace === 'transitions' ? trCanCheck  :
+                   workspace === 'offboarding' ? offCanCheck : function(){ return false; };
+
   records.forEach(function(rec) {
     if (rec.closed) return;
-    // Must be HM on this record
-    if (rec.hiringManager !== p.name) return;
-    // Check for unchecked HM tasks
+    // Only surface records that are in the current identity's scope
+    if (!identityCanSeeBranch(rec.branch)) return;
+    // Get the task list for this record
     var tasks = typeof taskSet === 'function' ? taskSet(rec) : taskSet;
-    var pendingHMTasks = tasks.filter(function(t) {
-      return t.owner === 'hm' && !rec.checked[t.id];
+    // Find unchecked tasks that the current identity CAN check
+    var pendingTasks = tasks.filter(function(t) {
+      return canCheckFn(t.owner) && !rec.checked[t.id];
     });
-    if (pendingHMTasks.length > 0) {
+    if (pendingTasks.length > 0) {
       items.push({
         rec: rec,
         workspace: workspace,
-        pendingCount: pendingHMTasks.length,
-        nextTask: pendingHMTasks[0].title
+        pendingCount: pendingTasks.length,
+        nextTask: pendingTasks[0].title
       });
     }
   });
