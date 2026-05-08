@@ -5297,12 +5297,12 @@ function lcNewRecord(ws) {
   var typeEl = document.getElementById('emp-picker-type');
   if (ws === 'tr') {
     typeEl.innerHTML =
-      '<button class="emp-picker-type-btn active" onclick="setEmpPickerType(this,&quot;promotion&quot;)">Promotion / Title Change</button>'+
-      '<button class="emp-picker-type-btn" onclick="setEmpPickerType(this,&quot;transfer&quot;)">Transfer Out of ES</button>';
+      '<button class="emp-picker-type-btn active" data-type="promotion">Promotion / Title Change</button>'+
+      '<button class="emp-picker-type-btn" data-type="transfer">Transfer Out of ES</button>';
   } else {
     typeEl.innerHTML =
-      '<button class="emp-picker-type-btn active" onclick="setEmpPickerType(this,&quot;resignation&quot;)">Resignation</button>'+
-      '<button class="emp-picker-type-btn" onclick="setEmpPickerType(this,&quot;termination&quot;)">Termination</button>';
+      '<button class="emp-picker-type-btn active" data-type="resignation">Resignation</button>'+
+      '<button class="emp-picker-type-btn" data-type="termination">Termination</button>';
   }
 
   // Clear search
@@ -5311,6 +5311,20 @@ function lcNewRecord(ws) {
 
   // Populate list
   empPickerRenderList('');
+
+  // Attach type button listeners after innerHTML is set
+  var typeContainer = document.getElementById('emp-picker-type');
+  if (typeContainer) {
+    typeContainer.querySelectorAll('.emp-picker-type-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        empPickerType = this.getAttribute('data-type');
+        typeContainer.querySelectorAll('.emp-picker-type-btn').forEach(function(b){
+          b.classList.remove('active');
+        });
+        this.classList.add('active');
+      });
+    });
+  }
 
   // Show
   document.getElementById('emp-picker-overlay').classList.add('open');
@@ -5390,19 +5404,22 @@ function empPickerRenderList(query) {
   listEl.innerHTML = html;
 }
 function selectEmpPickerItem(el) {
-  var name = el.getAttribute('data-name');
+  // Walk up to .emp-picker-item in case a child element was clicked
+  var item = el.closest ? el.closest('.emp-picker-item') : el;
+  if (!item) return;
+  var name = item.getAttribute('data-name');
   empPickerSelected = TEAM_MEMBERS.find(function(e){ return e.name === name; });
   // Update visual selection
   var listEl = document.getElementById('emp-picker-list');
   if (listEl) {
-    listEl.querySelectorAll('.emp-picker-item').forEach(function(item){
-      item.classList.remove('selected');
+    listEl.querySelectorAll('.emp-picker-item').forEach(function(i){
+      i.classList.remove('selected');
     });
-    el.classList.add('selected');
+    item.classList.add('selected');
   }
   // Enable confirm button
   var btn = document.getElementById('emp-picker-confirm');
-  if (btn) btn.disabled = false;
+  if (btn) btn.removeAttribute('disabled');
 }
 
 function confirmEmpPicker() {
@@ -5470,7 +5487,7 @@ function closeEmpPicker() {
   empPickerSelected  = null;
   empPickerWorkspace = null;
   var btn = document.getElementById('emp-picker-confirm');
-  if (btn) btn.disabled = true;
+  if (btn) btn.setAttribute('disabled', 'disabled');
 }
 
 </script>
