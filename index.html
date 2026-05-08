@@ -4807,15 +4807,30 @@ function renderObDetail() {
       ' remaining before onboarding can be closed.</div></div>';
   }
 
-  el.innerHTML = '<div class="lc-det-hdr">' +
-    '<div><div class="lc-det-name">'+rec.firstName+' '+rec.lastName+'</div>' +
-    '<div class="lc-det-sub">'+rec.role+' &middot; '+rec.branch+' &middot; '+rec.ftpt+' &middot; HM: '+rec.hiringManager+'</div>' +
-    '<div class="lc-det-sub" style="margin-top:2px">Start: '+rec.startDate+' &middot; NET: '+rec.netDate+'</div>' +
-    '<div class="lc-det-prog-wrap"><div class="lc-det-prog-fill ob" style="width:'+pct+'%"></div></div>' +
-    '<div class="lc-det-prog-lbl">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div></div>' +
-    '<div><span class="chip chip-mb">Onboarding</span></div>' +
-  '</div>' + viewNote +
-  '<div class="lc-det-scroll">'+phaseSections+'</div>'+obCloseBar;
+  var ftChip = rec.ftpt === 'Full-Time' ?
+    '<span class="chip chip-ft">Full-Time</span>' :
+    '<span class="chip chip-pt">Part-Time</span>';
+  el.innerHTML =
+    '<div class="pos-card">'+
+      '<div class="pos-card-hdr">'+
+        '<span class="pos-card-title">Employee Details</span>'+
+        '<div style="display:flex;gap:5px">'+ftChip+'<span class="chip chip-mb">Onboarding</span></div>'+
+      '</div>'+
+      '<div class="pos-card-body">'+
+        '<div class="pos-field"><div class="pos-field-lbl">Name</div><div class="pos-field-val">'+rec.firstName+' '+rec.lastName+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Role</div><div class="pos-field-val">'+rec.role+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Branch / Team</div><div class="pos-field-val">'+rec.branch+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Hiring Manager</div><div class="pos-field-val">'+rec.hiringManager+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Start Date</div><div class="pos-field-val">'+rec.startDate+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">NET Class Date</div><div class="pos-field-val">'+rec.netDate+'</div></div>'+
+      '</div>'+
+      '<div style="padding:8px 16px 12px">'+
+        '<div class="lc-det-prog-wrap" style="max-width:100%;margin-top:0"><div class="lc-det-prog-fill ob" style="width:'+pct+'%"></div></div>'+
+        '<div class="lc-det-prog-lbl" style="margin-top:4px">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div>'+
+      '</div>'+
+    '</div>'
+    + viewNote +
+    '<div class="lc-det-scroll">'+phaseSections+'</div>'+obCloseBar;
 }
 
 
@@ -5008,15 +5023,30 @@ function renderTrDetail() {
       missingTr.join(' and ') + '.</div></div>';
   }
 
-  el.innerHTML = '<div class="lc-det-hdr">' +
-    '<div><div class="lc-det-name">'+rec.firstName+' '+rec.lastName+'</div>' +
-    '<div class="lc-det-sub">'+rec.role+(rec.newRole?' → '+rec.newRole:'')+' &middot; '+rec.branch+' &middot; HM: '+rec.hiringManager+'</div>' +
-    '<div class="lc-det-prog-wrap"><div class="lc-det-prog-fill tr" style="width:'+pct+'%"></div></div>' +
-    '<div class="lc-det-prog-lbl">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div></div>' +
-    '<div>'+typeChip+'</div>' +
-  '</div>' +
-  '<div class="lc-det-scroll"><div class="phase-sec">'+taskHtml+'</div></div>' +
-  backfillBar+trCloseBar;
+  var ftChipTr = rec.ftpt === 'Full-Time' ?
+    '<span class="chip chip-ft">Full-Time</span>' :
+    rec.ftpt === 'Part-Time' ? '<span class="chip chip-pt">Part-Time</span>' : '';
+  el.innerHTML =
+    '<div class="pos-card">'+
+      '<div class="pos-card-hdr">'+
+        '<span class="pos-card-title">Employee Details</span>'+
+        '<div style="display:flex;gap:5px">'+ftChipTr+typeChip+'</div>'+
+      '</div>'+
+      '<div class="pos-card-body">'+
+        '<div class="pos-field"><div class="pos-field-lbl">Name</div><div class="pos-field-val">'+rec.firstName+' '+rec.lastName+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Current Role</div><div class="pos-field-val">'+rec.role+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">New Role</div><div class="pos-field-val">'+(rec.newRole||'<span style="color:var(--muted);font-style:italic">Not yet set</span>')+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Branch / Team</div><div class="pos-field-val">'+rec.branch+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Hiring Manager</div><div class="pos-field-val">'+rec.hiringManager+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Transition Type</div><div class="pos-field-val" style="text-transform:capitalize">'+rec.transitionType+'</div></div>'+
+      '</div>'+
+      '<div style="padding:8px 16px 12px">'+
+        '<div class="lc-det-prog-wrap" style="max-width:100%;margin-top:0"><div class="lc-det-prog-fill tr" style="width:'+pct+'%"></div></div>'+
+        '<div class="lc-det-prog-lbl" style="margin-top:4px">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="lc-det-scroll"><div class="phase-sec">'+taskHtml+'</div></div>'+
+    backfillBar+trCloseBar;
 }
 
 
@@ -5231,15 +5261,36 @@ function renderOffDetail() {
       missingOff.join(' and ') + '.</div></div>';
   }
 
-  el.innerHTML = '<div class="lc-det-hdr">' +
-    '<div><div class="lc-det-name">'+rec.firstName+' '+rec.lastName+'</div>' +
-    '<div class="lc-det-sub">'+rec.role+' &middot; '+rec.branch+' &middot; '+rec.ftpt+' &middot; HM: '+rec.hiringManager+'</div>' +
-    '<div class="lc-det-prog-wrap"><div class="lc-det-prog-fill off" style="width:'+pct+'%"></div></div>' +
-    '<div class="lc-det-prog-lbl">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div></div>' +
-    '<div>'+typeChip+'</div>' +
-  '</div>' +
-  '<div class="lc-det-scroll"><div class="phase-sec">'+taskHtml+'</div></div>' +
-  backfillBar+offCloseBar;
+  var ftChipOff = rec.ftpt === 'Full-Time' ?
+    '<span class="chip chip-ft">Full-Time</span>' :
+    rec.ftpt === 'Part-Time' ? '<span class="chip chip-pt">Part-Time</span>' : '';
+  var tenureStr = '';
+  if (rec.hireDate) {
+    var hd = new Date(rec.hireDate);
+    var yrs = Math.floor((new Date() - hd) / (365.25*24*3600*1000));
+    tenureStr = yrs > 0 ? yrs + ' yr' + (yrs !== 1 ? 's' : '') : '< 1 yr';
+  }
+  el.innerHTML =
+    '<div class="pos-card">'+
+      '<div class="pos-card-hdr">'+
+        '<span class="pos-card-title">Employee Details</span>'+
+        '<div style="display:flex;gap:5px">'+ftChipOff+typeChip+'</div>'+
+      '</div>'+
+      '<div class="pos-card-body">'+
+        '<div class="pos-field"><div class="pos-field-lbl">Name</div><div class="pos-field-val">'+rec.firstName+' '+rec.lastName+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Role</div><div class="pos-field-val">'+rec.role+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Branch / Team</div><div class="pos-field-val">'+rec.branch+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Hiring Manager</div><div class="pos-field-val">'+rec.hiringManager+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Departure Type</div><div class="pos-field-val" style="text-transform:capitalize">'+rec.departureType+'</div></div>'+
+        '<div class="pos-field"><div class="pos-field-lbl">Tenure</div><div class="pos-field-val">'+( tenureStr || '—')+'</div></div>'+
+      '</div>'+
+      '<div style="padding:8px 16px 12px">'+
+        '<div class="lc-det-prog-wrap" style="max-width:100%;margin-top:0"><div class="lc-det-prog-fill off" style="width:'+pct+'%"></div></div>'+
+        '<div class="lc-det-prog-lbl" style="margin-top:4px">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="lc-det-scroll"><div class="phase-sec">'+taskHtml+'</div></div>'+
+    backfillBar+offCloseBar;
 }
 
 
