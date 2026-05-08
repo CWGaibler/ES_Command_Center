@@ -3283,11 +3283,7 @@ function onModalBranchChange() {
   }
 }
 function openModal(){
-  currentHireType = 'new';
-  document.getElementById('btn-newnew').classList.add('active');
-  document.getElementById('btn-backfill').classList.remove('active');
-  document.getElementById('backfill-row').style.display = 'none';
-  ['m-backfill','m-role','m-ftpt','m-branch','m-hm','m-start','m-net'].forEach(function(id){
+  ['m-role','m-ftpt','m-branch','m-hm','m-start','m-net'].forEach(function(id){
     var el = document.getElementById(id); if(el) el.value = '';
   });
   document.getElementById('modal-bg').classList.add('open');
@@ -3304,17 +3300,13 @@ function createHire(){
   var hm = document.getElementById('m-hm').value;
   var start = document.getElementById('m-start').value;
   var net = document.getElementById('m-net').value;
-  var backfill = currentHireType === 'backfill' ? document.getElementById('m-backfill').value : '';
   if(!role || !ftpt || !branch || !hm || !start){
     alert('Please fill in all required fields.');return;
-  }
-  if(currentHireType === 'backfill' && !backfill){
-    alert('Please select who this hire is backfilling for.');return;
   }
   hires.unshift({
     id:'h'+Date.now(),
     role:role, ftpt:ftpt, branch:branch, hiringManager:hm,
-    hireType:currentHireType, backfillFor:backfill,
+    hireType:'new', backfillFor:'',
     proposedStart:start, proposedNet:net,
     reqNum:'', hrRecruiter:'Megan Wierick', firstName:'', lastName:'',
     confirmedStart:'', confirmedNet:'',
