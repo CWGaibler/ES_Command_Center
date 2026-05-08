@@ -494,12 +494,12 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .lc-det-prog-lbl{font-size:14px;color:var(--muted);margin-top:3px}
 .lc-det-scroll{max-height:calc(100vh - 340px);overflow-y:auto}
 /* owner badge on tasks */
-.task-owner-badge{display:inline-flex;align-items:center;font-size:13px;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap}
-.owner-hm{background:#EBF0FA;color:var(--fb);border:1px solid #C5CDE8}
-.owner-admin{background:rgba(255,181,0,.1);color:#7A5C00;border:1px solid rgba(255,181,0,.25)}
-.owner-cx{background:rgba(66,187,55,.1);color:#1A6B35;border:1px solid rgba(66,187,55,.2)}
-.owner-it{background:rgba(251,71,31,.1);color:#7A2A00;border:1px solid rgba(251,71,31,.2)}
-.owner-hr{background:rgba(0,189,246,.1);color:#006A8A;border:1px solid rgba(0,189,246,.25)}
+
+
+
+
+
+
 .task-chk.readonly{opacity:.55;cursor:not-allowed;background:var(--fb-xlt)}
 /* phase filter tabs */
 .lc-phase-tabs{display:flex;gap:6px;padding:8px 13px;border-bottom:1px solid var(--border-lt)}
@@ -4708,9 +4708,9 @@ function obTotalProgress(rec) {
 }
 
 function obOwnerLabel(owner) {
-  var map = {hm:'Hiring Manager', admin:'ES Administrator', cx:'CX Enablement', it:'IT', hr:'HR'};
-  var cls = {hm:'owner-hm', admin:'owner-admin', cx:'owner-cx', it:'owner-it', hr:'owner-hr'};
-  return '<span class="task-owner-badge ' + (cls[owner]||'owner-hm') + '">' + (map[owner]||owner) + '</span>';
+  // Matches the plain text style used in Recruiting & Hiring
+  var map = {hm:'Hiring Manager', admin:'ES Administrator', cx:'CX Enablement', it:'IT', hr:'HR', es:'ES Leadership', rd:'Regional Director', anyone:'HR Business Partner'};
+  return '<span class="task-owner">' + (map[owner]||owner) + '</span>';
 }
 
 function updateObStats() {
