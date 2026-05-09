@@ -6702,7 +6702,7 @@ function kpiPickKpi(id) {
   if (kpiInner && photo) {
     var esc = k.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     kpiInner.innerHTML =
-      '<div class="tl-photo"><img src="' + photo + '" alt="' + esc + '" /></div>' +
+      '<div class="tl-photo"><img src="' + photo + '" alt="' + esc + '" style="width:136px;height:136px;object-fit:cover;flex-shrink:0" /></div>' +
       '<div style="flex:1;min-width:0" id="kpi-info-inner"></div>';
     // Restore info content into the new inner div
     document.getElementById('kpi-info-inner').innerHTML =
