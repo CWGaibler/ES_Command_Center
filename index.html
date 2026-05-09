@@ -6700,9 +6700,17 @@ function kpiPickKpi(id) {
   if (iconSlot) {
     var photo = KPI_PHOTOS[id];
     if (photo) {
-      iconSlot.innerHTML = '<img src="' + photo + '" style="width:136px;height:136px;display:block" alt="' + k.name + '" />';
-      iconSlot.style.border = 'none';
-      iconSlot.style.background = 'transparent';
+      var newDiv = document.createElement('div');
+      newDiv.className = 'tl-photo';
+      newDiv.id = 'kpi-icon-slot';
+      var img = document.createElement('img');
+      img.src = photo;
+      img.alt = k.name;
+      img.style.width = '136px';
+      img.style.height = '136px';
+      img.style.objectFit = 'cover';
+      newDiv.appendChild(img);
+      iconSlot.parentNode.replaceChild(newDiv, iconSlot);
     }
   }
   document.getElementById('kpi-lens-name').textContent = k.name;
