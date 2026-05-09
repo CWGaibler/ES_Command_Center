@@ -54,9 +54,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 /* KPI STRIP */
 .kpi-strip{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
 .kpi-strip::-webkit-scrollbar{height:4px}.kpi-strip::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.kpi-card{background:var(--white);border:2.5px solid var(--mb);border-radius:14px;padding:14px 13px;cursor:pointer;transition:box-shadow .15s,transform .1s;flex:0 0 calc(11.11% - 7px);min-width:110px;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:space-between;position:relative;box-sizing:border-box}
+.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 13px;cursor:pointer;transition:box-shadow .15s,transform .1s;flex:0 0 calc(11.11% - 7px);min-width:110px;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:space-between;position:relative;box-sizing:border-box}
 .kpi-card:hover{box-shadow:0 4px 16px rgba(0,31,95,.10);transform:translateY(-1px)}
-.kpi-card.kpi-active{box-shadow:0 0 0 2px var(--mb);border-top-color:var(--mb)}
+.kpi-card.kpi-active{background:var(--fb-lt);border-color:var(--mb);border-left:3px solid var(--mb)}
 .kpi-lbl{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);line-height:1.35;white-space:normal;word-break:break-word}
 .kpi-bottom{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
 .kpi-val{font-size:46px;font-weight:900;line-height:1;text-align:left}
@@ -65,7 +65,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-status-fill{display:none}
 /* KPI Workspace */
 .kpi-workspace{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 140px);gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.kpi-sidebar{border-right:1px solid var(--border);overflow-y:auto;background:var(--surface)}
+.kpi-sidebar{border-right:1px solid var(--border);overflow-y:auto;background:var(--white)}
 .kpi-detail{overflow-y:auto;background:var(--white)}
 .kpi-sidebar-card{padding:14px 16px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .12s}
 .kpi-sidebar-card:hover{background:var(--fb-xlt)}
