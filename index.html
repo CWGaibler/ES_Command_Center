@@ -5631,11 +5631,34 @@ function elRenderShow() {
   // Header
   var rdDisplay = s.rdName || '';
   var flagsHtml = '';
+  // 1. Platform (Freeman Now / Freeman Next) — always shown
+  var isNext = s.freemanPlatform === 'Freeman Next';
+  flagsHtml += isNext
+    ? '<span class="chip" style="background:#CBF0FC;color:#005A75;border:2px solid #7DD9F3;font-weight:700">Freeman Next</span> '
+    : '<span class="chip" style="background:#FFF4D6;color:#7A5200;border:2px solid #FFD166;font-weight:700">Freeman Now</span> ';
+  // 2. Service model
   if (s.serviceModel && s.serviceModel !== '') flagsHtml += '<span class="chip chip-mb">' + s.serviceModel + '</span> ';
+  // 3. Custom staffing flag
   if (s.standardModel === 'No') flagsHtml += '<span class="chip chip-amber">Custom Staffing</span> ';
+  // 4. FTE
   if (s.fte === 'Y') flagsHtml += '<span class="chip chip-green">FTE</span> ';
+  // 5. Freeman AV
   if (s.freemanAV === 'Yes') flagsHtml += '<span class="chip chip-mb">Freeman AV</span> ';
-  if (s.perLbMH === 'Y') flagsHtml += '<span class="chip chip-ghost">Per LB MH</span> ';
+  // 6. Electrical Only / Electrical
+  if (s.freemanElectricalOnly) {
+    flagsHtml += '<span class="chip chip-ghost">Electrical Only</span> ';
+  } else if (s.freemanElectrical === 'TRUE' || s.freemanElectrical === 'True' || s.freemanElectrical === 'true') {
+    flagsHtml += '<span class="chip chip-ghost">Electrical</span> ';
+  }
+  // 7. Non-Standard MH (shown only when perLbMH is NOT Y, and not electrical-only)
+  if (s.perLbMH === 'N' && !s.freemanElectricalOnly) flagsHtml += '<span class="chip chip-ghost">Non-Standard MH</span> ';
+  // 8. Exhibitor Store link (platform-aware URL)
+  var ecomUrl = isNext
+    ? 'https://store.freeman.com/event-homepage?eventId=' + elSelId
+    : 'https://www.freemanco.com/store/show/landing?showID=' + elSelId;
+  flagsHtml += '<a class="chip chip-mb" href="' + ecomUrl + '" target="_blank" style="text-decoration:none">Exhibitor Store ↗</a> ';
+  // 9. Prior year job number (hidden until pyJobNumber is populated)
+  if (s.pyJobNumber) flagsHtml += '<span class="chip chip-ghost" style="cursor:pointer" onclick="elSelectShow(\'' + s.pyJobNumber + '\')">Prior Year #: ' + s.pyJobNumber + '</span> ';
 
   var html = '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px">' +
     '<div>' +
