@@ -1099,7 +1099,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="kpi-id-hdr">
         <div class="kpi-id-bar"></div>
         <div class="kpi-id-inner" id="kpi-id-inner">
-          <div id="kpi-icon-slot" style="width:136px;height:136px;border-radius:50%;flex-shrink:0;background:var(--surface) center/cover no-repeat"></div>
+          <div id="kpi-icon-slot" style="width:136px;height:136px;border-radius:50%;flex-shrink:0;background-color:var(--surface);background-size:cover;background-position:center center;background-repeat:no-repeat;background-origin:border-box;background-clip:border-box"></div>
           <div style="flex:1;min-width:0">
             <div class="tl-id-name" id="kpi-lens-name"></div>
             <div class="tl-id-title" id="kpi-lens-val"></div>
@@ -6699,7 +6699,10 @@ function kpiPickKpi(id) {
   if (iconSlot && photo) {
     iconSlot.style.backgroundImage = 'url(' + photo + ')';
     iconSlot.style.backgroundSize = 'cover';
-    iconSlot.style.backgroundPosition = 'center';
+    iconSlot.style.backgroundPosition = 'center center';
+    iconSlot.style.backgroundRepeat = 'no-repeat';
+    iconSlot.style.backgroundOrigin = 'border-box';
+    iconSlot.style.backgroundClip = 'border-box';
   }
   document.getElementById('kpi-lens-name').textContent = k.name;
   var valEl = document.getElementById('kpi-lens-val');
