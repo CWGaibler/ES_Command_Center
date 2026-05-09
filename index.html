@@ -687,8 +687,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-dd-label{flex:1;font-size:14px;font-weight:700;color:var(--muted)}
 .kpi-dd-label.chosen{color:var(--fb)}
 .kpi-dd-chevron{flex-shrink:0;transition:transform .15s}
-.kpi-id-hdr{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:14px}
-.kpi-id-bar{height:4px;background:#00BDF6;border-radius:9px 9px 0 0;margin:-1px -1px 0 -1px}
+.kpi-id-hdr{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden}
+.kpi-id-bar{height:4px;background:#00BDF6;border-radius:10px 10px 0 0}
 .kpi-id-inner{display:flex;gap:24px;align-items:center;padding:22px 24px}
 
 .kpi-icon-circle{width:136px;height:136px;border-radius:50%;flex-shrink:0;overflow:hidden;display:block;background:var(--surface)}</style>
@@ -1099,7 +1099,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="kpi-id-hdr">
         <div class="kpi-id-bar"></div>
         <div class="kpi-id-inner" id="kpi-id-inner">
-          <div id="kpi-icon-slot" style="width:136px;height:136px;border-radius:50%;flex-shrink:0;background-color:var(--surface);background-size:cover;background-position:center center;background-repeat:no-repeat;background-origin:border-box;background-clip:border-box"></div>
+          <div id="kpi-icon-slot" style="width:136px;height:136px;border-radius:50%;flex-shrink:0;overflow:hidden;background-color:var(--surface);background-size:cover;background-position:center center;background-repeat:no-repeat"></div>
           <div style="flex:1;min-width:0">
             <div class="tl-id-name" id="kpi-lens-name"></div>
             <div class="tl-id-title" id="kpi-lens-val"></div>
