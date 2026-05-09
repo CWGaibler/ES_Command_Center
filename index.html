@@ -1099,8 +1099,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="kpi-id-hdr">
         <div class="kpi-id-bar"></div>
         <div class="kpi-id-inner">
-          <div class="kpi-icon-circle" id="kpi-icon-slot">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="1.2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <div id="kpi-icon-slot" style="width:136px;height:136px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--surface)">
+            <img id="kpi-icon-img" src="" alt="" style="width:136px;height:136px;object-fit:cover;display:none" />
+            <svg id="kpi-icon-svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="1.2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           </div>
           <div style="flex:1;min-width:0">
             <div class="tl-id-name" id="kpi-lens-name"></div>
@@ -6697,21 +6698,14 @@ function kpiPickKpi(id) {
 
   // Update icon slot
   var iconSlot = document.getElementById('kpi-icon-slot');
-  if (iconSlot) {
-    var photo = KPI_PHOTOS[id];
-    if (photo) {
-      var newDiv = document.createElement('div');
-      newDiv.className = 'tl-photo';
-      newDiv.id = 'kpi-icon-slot';
-      var img = document.createElement('img');
-      img.src = photo;
-      img.alt = k.name;
-      img.style.width = '136px';
-      img.style.height = '136px';
-      img.style.objectFit = 'cover';
-      newDiv.appendChild(img);
-      iconSlot.parentNode.replaceChild(newDiv, iconSlot);
-    }
+  var iconImg = document.getElementById('kpi-icon-img');
+  var iconSvg = document.getElementById('kpi-icon-svg');
+  var photo = KPI_PHOTOS[id];
+  if (iconImg && photo) {
+    iconImg.src = photo;
+    iconImg.alt = k.name;
+    iconImg.style.display = 'block';
+    if (iconSvg) iconSvg.style.display = 'none';
   }
   document.getElementById('kpi-lens-name').textContent = k.name;
   var valEl = document.getElementById('kpi-lens-val');
