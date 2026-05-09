@@ -5528,7 +5528,7 @@ function lcNewRecord(ws) {
   lcModalUpdateFields();
   var drop = document.getElementById('lc-search-drop');
   if (drop) drop.classList.remove('open');
-  document.getElementById('lc-modal-overlay').classList.add('open');
+  document.getElementById('modal-bg').classList.add('open');
   setTimeout(function(){ var s=document.getElementById('lc-emp-search'); if(s) s.focus(); }, 100);
 }
 
@@ -5649,7 +5649,7 @@ function lcModalSubmit() {
 }
 
 function lcModalClose() {
-  document.getElementById('lc-modal-overlay').classList.remove('open');
+  document.getElementById('modal-bg').classList.remove('open');
   lcModalWorkspace = null; lcModalSelected = null; lcModalType = null;
 }
 
