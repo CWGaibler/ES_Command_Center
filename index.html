@@ -2825,7 +2825,7 @@ function renderList(){
   var el=document.getElementById('hire-list'); if(!el)return;
   el.innerHTML='';
   var visible = hires.filter(canViewInScope);
-  if(!visible.length){ el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No positions in this view.</div>'; updateStats(); return; }
+  if(!visible.length){ el.innerHTML='<div style="padding:16px;text-align:center;color:var(--muted);font-size:13.5px">No positions in this view.</div>'; updateStats(); return; }
   visible.forEach(function(h){
     var pct=Math.round(h.checked.length/TASKS.length*100);
     var d=document.createElement('div');
@@ -5712,7 +5712,7 @@ function elRenderShow() {
   dotsHtml = dotsHtml.replace('<div class="el-dot-row">',
     '<div class="el-dot-row"><div class="el-track"></div><div style="position:absolute;top:50%;left:12px;height:2px;background:var(--green);width:' + pct + '%;transform:translateY(-50%);z-index:1"></div>');
 
-  html += '<div class="el-tl-card"><div class="el-tl-hdr"><span class="el-tl-hdr-title">Event timeline</span></div><div class="el-tl-body">' +
+  html += '<div class="el-tl-card"><div class="el-tl-hdr"><span class="el-tl-hdr-title">Event Timeline</span></div><div class="el-tl-body">' +
     dotsHtml + labelsHtml +
     '<div class="el-legend">' +
       '<div class="el-leg"><div class="el-leg-dot" style="background:var(--green)"></div>Completed</div>' +
@@ -5722,7 +5722,7 @@ function elRenderShow() {
     '</div></div></div>';
 
   // Revenue section
-  html += '<div class="el-section-div">Event scale &amp; revenue</div>';
+  html += '<div class="el-section-div">Event Scale &amp; Revenue</div>';
   var curBooths = s.currentBooths || s.projectedBooths || 0;
   var projBooths = s.projectedBooths || 0;
   var pyBooths = s.pyBooths || 0;
