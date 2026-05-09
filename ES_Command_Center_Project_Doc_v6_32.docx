@@ -1,0 +1,480 @@
+**ES Command Center**
+
+Project Documentation & Reference
+
+*Freeman Exhibitor Services  |  Version 6.32  |  May 9, 2026*
+
+*Working Document — All decisions are permanent record*
+
+# 1.  Project Overview
+
+The ES Command Center is a web-based leadership dashboard built for Freeman Exhibitor Services leaders. It surfaces real-time operational intelligence, compliance deadlines, and actionable workspaces for each of the 9 Leader Resource responsibility areas.
+
+**Live URL:**
+
+- https://cwgaibler.github.io/ES_Command_Center/
+
+**GitHub Repo:**
+
+- https://github.com/CWGaibler/ES_Command_Center
+
+**PAT:**
+
+- [redacted — stored separately]
+
+# 2.  Build Status
+
+| **Workspace** | **Status** | **Notes** |
+| --- | --- | --- |
+| Today's Priorities | ✅ Built | Active Events dynamic; Needs Attention fully dynamic |
+| Recruiting & Hiring | ✅ Built | 13 tasks, stage gating, advance buttons |
+| Onboarding | ✅ Built | 32 tasks, 3 phases |
+| Transitions | ✅ Built | Promotion + Transfer Out flows, backfill handoff |
+| Offboarding | ✅ Built | Resignation + Termination, backfill handoff |
+| Staffing & Scheduling | ✅ Built | 705 NSS shows, staffing calculator, Events Lens deep-link |
+| KPIs | ✅ Built | 9 KPIs, scope-aware |
+| Events Lens | ✅ Built | Full show profile page — see Section 16 |
+| Timekeeping & Utilization | ⏳ Placeholder | Next build priority |
+| Team Lens | ⏳ Placeholder | Design not yet started |
+| Customers Lens | ⏳ Placeholder | Qualtrics integration required |
+| All others | ⏳ Placeholder | — |
+
+# 3.  Freeman Brand Standards
+
+## Colors
+
+| **Variable** | **Hex** | **Usage** |
+| --- | --- | --- |
+| --fb | #001F5F | Freeman Blue / navy — primary color, headings, strong emphasis |
+| --mb | #00BDF6 | Medium Blue — accents, job numbers, links, active states |
+| --green | #42BB37 | Success states, completion indicators, positive deltas |
+| --gold | #FFB500 | Warning states, in-progress indicators, active timeline dots |
+| --orange | #FB471F | Error states, negative deltas, custom staffing flag |
+| --surface | #F5F6FA | Page background |
+| --white | #ffffff | Card backgrounds |
+| --border | #E2E5EF | Card and component borders (1px) |
+| --border-lt | #ECEEF5 | Light dividers inside cards |
+| --muted | #7A8099 | Secondary text, labels, metadata |
+| --fb-lt | #EBF0FA | Light navy tint — role total backgrounds, subtle fills |
+| --fb-xlt | #F4F6FC | Extra light navy — hover states in dropdowns |
+
+## Typography
+
+- Font family: Nunito Sans throughout
+
+- Body text: 14px / font-weight 700
+
+- Meta / secondary text: 13.5px / font-weight 700
+
+- Page titles: 21.6px / font-weight 800
+
+- Large stat values (KPIs, revenue tiles): font-weight 900
+
+- Section dividers: 12px / font-weight 900 / uppercase / letter-spacing 0.09em
+
+## Component Standards
+
+- Cards: white background, 1px solid #E2E5EF, 10px border-radius
+
+- Chips (.chip): 14px, font-weight 700, 999px border-radius, 1.5px border
+
+- Modal pattern: .lc-modal-overlay, top-anchored padding-top 80px, 500px wide, 10px radius, pill buttons 999px
+
+- Page headers: .page-hdr with .page-title (21.6px/800) and .page-sub (14px/muted)
+
+- Section dividers: ::after rule draws 1px line extending to right edge
+
+# 4.  ES Regional Organization
+
+| **Region** | **Branches** |
+| --- | --- |
+| Canada | Toronto |
+| Las Vegas | Las Vegas |
+| North Central | Chicago, Des Moines |
+| Northeast | Boston, New York, Washington D.C. |
+| NW/SoCal | Anaheim, Denver, Reno, San Francisco |
+| South Central | Dallas, Houston, San Antonio |
+| Southeast | Atlanta, Nashville, New Orleans, Orlando |
+
+*Off-Site is a separate identity scope (Jennifer Vaughan), not a geographic region.*
+
+# 5.  Architecture Rules (Rules 1–10, Permanent)
+
+| **Rule** | **Statement** |
+| --- | --- |
+| Rule 1 | Scope pill drives visibility of data, not ownership of tasks. |
+| Rule 2 | One filter function per data type: getScopeShows(), lcScopeFilter(), canView(), canViewInScope(), getKpiScopeValue(). |
+| Rule 3 | Identity scope (who you are) is independent of scope pill (what you are viewing). |
+| Rule 4 | Never hardcode scope assumptions into workspace render functions. |
+| Rule 5 | Declare filter contract before building any workspace. |
+| Rule 6 | Visibility ≠ ownership. A leader can see records they do not own. |
+| Rule 7 | resetWorkspaceState() is called on every showPage() to prevent stale selections. |
+| Rule 8 | All modals use .lc-modal-overlay pattern. No legacy .modal-bg usage. |
+| Rule 9 | Checklist advance buttons and approval bars use 8px border-radius (pending cleanup pass). |
+| Rule 10 | onScopeChanged() must handle every built page explicitly — no silent failures on scope switch. |
+
+# 6.  Identity & Scope Architecture
+
+Two independent dimensions drive all data visibility:
+
+- Identity Scope — who you are; drives LC record ownership, task checkability, and stat tile ownership
+
+- Scope Pill — Enterprise / Region / Branch; drives shows, KPIs, and sidebar visibility
+
+## Identity Directory (37 leaders)
+
+- craig / nesana — enterprise, ES level, task role: es
+
+- ellen, lubi, maud, lisette, leslie — Regional Directors
+
+- jennifer.vaughan — Off-Site region
+
+- Branch-level Hiring Managers: h1 through h18
+
+- erii — admin
+
+# 7.  Filter Functions
+
+| **Function** | **Drives** |
+| --- | --- |
+| getScopeShows() | Shows in Staffing & Scheduling + Active Events |
+| lcScopeFilter() | LC record visibility in sidebar lists |
+| canView() | Recruiting ownership + stat tiles |
+| canViewInScope() | Recruiting visibility in sidebar |
+| getKpiScopeValue() | KPI metric values by scope |
+
+# 8.  Role Title Standard (Locked)
+
+"Exhibitor Services" is always spelled in full. Never abbreviated to "ES" as a title prefix. Eleven roles: Coordinator through Sr. Director.
+
+# 9.  Recruiting & Hiring Workspace
+
+13 tasks in sequential order, stage-gated. Key decisions:
+
+- t2 (Compensation Review) is owned by the RD, not the HM — skipped for HMs whose direct manager is an RD
+
+- t13 gate: offer letter must be sent before a position can be marked filled
+
+- Stat tiles: Open Requisitions, In Process, Offer Stage, Filled (YTD)
+
+- "In Process" label (no hyphen) — locked permanently
+
+- Advance buttons use 8px border-radius — deferred cleanup pass
+
+- h4 (Lubi Garza / San Antonio) is the canonical end-to-end test case — t2 is not skipped because the HM is not the RD
+
+# 10.  Onboarding Workspace
+
+32 tasks across 3 phases:
+
+- Phase 1: Pre-arrival (HM tasks before new hire start date)
+
+- Phase 2: First week
+
+- Phase 3: First 90 days
+
+Records are created automatically when a candidate accepts an offer in Recruiting & Hiring.
+
+# 11.  Transitions Workspace
+
+Two flows:
+
+- Promotion — internal move up within the organization
+
+- Transfer Out — lateral move or branch change
+
+Both flows include a backfill handoff trigger — see Section 13 for full architecture.
+
+# 12.  Offboarding Workspace
+
+Two flows:
+
+- Resignation
+
+- Termination
+
+Both flows include a backfill handoff trigger — see Section 13 for full architecture.
+
+# 13.  Backfill Handoff Architecture
+
+When a Transition or Offboarding record reaches the backfill trigger task, a pre-populated Recruiting record is created automatically with the following inherited values:
+
+- Role — inherited from departing person
+
+- Branch — inherited from departing person
+
+- Hiring Manager — inherited from scope
+
+- Backfill flag — set to true
+
+- Source record ID — linked to originating TR or OFF record
+
+The inline override button in the Recruiting modal allows the HM to adjust role and FT/PT status before confirming the backfill record.
+
+# 14.  Staffing & Scheduling Workspace
+
+## SHOWS Data Object
+
+705 NSS shows loaded from ES_National_Show_Schedule.xlsx. Each show record contains:
+
+**Original fields (present since initial build):**
+
+name, city, facility, region, showOpen, showClose, moveInStart, clearDate, currentBooths, projectedBooths, pyBooths, revenueActuals, sfRevenue, pyJobNumber, freemanPlatform, freemanAV, freemanElectrical, freemanElectricalOnly, fte, perLbMH, producingBranch
+
+**Added in v6.31 (Events Lens enrichment — all 705 shows):**
+
+discountDate, advFreightDate, showClosePlus8, rdName, directors[ ], supervisor, lead, offsitePrep, offsitePost, growthOwner, growthAE, serviceDesk, serviceModel, standardModel, customReason, onSiteReps, remoteReps, totalReps, boothRange, orderPct, pyOrderPct
+
+## Staffing Model (MODEL Array)
+
+15 booth tiers from 1–750 booths, each defining cf (customer-facing), br (back room), as (additional support), sv (supervisory) counts. Freight/storage desk (fr) always defaults to 0 — user-entered only.
+
+## ssCalcRec() Function
+
+Derives staffing model recommendation from booth count and revenue. Revenue overlay: if revenue > $2M AND revenue > tier average, adds extra back room roles. Supervisor triggered independently if revenue > $2M regardless of booth tier.
+
+## Five Staffing UI Flows
+
+| **Flow** | **Trigger** | **Description** |
+| --- | --- | --- |
+| 1 — Remote eligibility | Booth count below threshold | Prompts whether to use remote service model |
+| 2 — Standard model | Normal booth count | Recommends model from MODEL array based on booth count |
+| 3 — Custom plan | 751+ booths | Allows manual entry of all 5 staffing categories |
+| 4 — Confirmed plan | Plan has been confirmed | Locked view with Edit button to modify |
+| 5 — Completion popup | All tasks complete | Show-close confirmation and summary |
+
+## Cross-Link to Events Lens
+
+- Job number in Staffing sidebar is clickable → goToEventLens() — stopPropagation prevents sidebar show selection from also firing
+
+- Staffing detail panel has "View full event profile ↗" tlink next to every job number
+
+- goToSsFromEvents() links back from Events Lens staffing card to the full staffing plan
+
+# 15.  Lens Pages Architecture
+
+Lens pages are entity-centric — they cut across all process workspaces and aggregate everything known about a single entity. They are distinct from process-centric workspaces.
+
+| **Lens** | **Entity Unit** | **Status** |
+| --- | --- | --- |
+| KPIs | Metric / aggregate | ✅ Built |
+| Events | Single show (job number) | ✅ Built |
+| Team | Person or whole team | ⏳ Placeholder — design not started |
+| Customers | Customer / account | ⏳ Placeholder — Qualtrics integration required |
+
+*Key architectural decision: The Events Lens is the canonical home base for any show referenced anywhere in the site. All show references site-wide link to it. The pattern is: action → event (not action → staffing page).*
+
+# 16.  Events Lens — Full Specification
+
+## Entry Points
+
+| **Entry Point** | **Trigger** | **Function Called** |
+| --- | --- | --- |
+| goToEventLens(showId) | Universal — called from anywhere in the site | Direct navigation to Events Lens |
+| Active Events cards (Today's Priorities) | Click any active event card | goToShow() → goToEventLens() |
+| Staffing & Scheduling detail panel | "View full event profile ↗" tlink | goToEventLens(ssSelId) |
+| Staffing & Scheduling sidebar | Click job number | goToEventLens(sid) + stopPropagation |
+| Search bar on Events page | Type show name or job number | elSelectShow() → elRenderShow() |
+| Direct URL / back navigation | elSelId persists last-viewed show | initEvents() → elRenderShow() |
+
+## Page Structure
+
+Page header: "Events" (page-title 21.6px/800) + "Look up any show by job number" (page-sub 14px/muted) — matching .page-hdr pattern used on all other pages.
+
+Search bar: 1.5px border, 9px border-radius, 14px input, live dropdown up to 10 results showing name, city, branch, open date. Dropdown closes on outside click.
+
+Show header: Show name (21.6px/800), meta row (facility, city, branch, RD name), chip flags row (platform, service model, custom staffing, FTE, AV, electrical, MH, exhibitor store link, prior year job #).
+
+## Event Timeline Card
+
+7 milestones on a horizontal progress track:
+
+| **Milestone** | **Data Field** | **Notes** |
+| --- | --- | --- |
+| Discount deadline | discountDate | NSS: Discount Price Deadline Date |
+| Advance freight deadline | advFreightDate | NSS: Advance Freight Receiving Deadline Date |
+| Exhibitor move-in start | moveInStart | NSS: Move-In Start Date |
+| Show open | showOpen | NSS: Show Open Date |
+| Show close | showClose | NSS: Show Close Date |
+| Exhibitor clear | clearDate | NSS: Clear Date |
+| Show close +8 | showClosePlus8 | NSS col HX: 8th Business Day Date — distinctive navy dot |
+
+Progress track fills green for completed milestones based on today's date. Dot states: green checkmark = done, gold fill = active/today, white outline with gray border = upcoming, navy fill = show close +8.
+
+*Label convention (locked): "Event Timeline" — not "Show Timeline"*
+
+## Event Scale & Revenue (3 Stat Tiles)
+
+| **Tile** | **Primary Value** | **Supporting Detail** | **Accent Color** |
+| --- | --- | --- | --- |
+| Current booths | currentBooths (formatted with comma) | vs projectedBooths; YoY delta vs pyBooths | --mb blue |
+| Revenue actuals | revenueActuals (formatted $X.XXM) | vs sfRevenue projection; order rate % | Green |
+| Current order % | orderPct (X.X%) | prior year pyOrderPct; delta in pts ▲/▼ | Gold |
+
+*Design decision: Current order % is the headline value. Prior year is supporting context — not the reverse. Delta shown as ▲/▼ pts.*
+
+*Label convention (locked): "Event Scale **&** Revenue" — not "Show Scale **&** Revenue"*
+
+## Three-Column Row: Staffing Plan / ES Team / Growth Contacts
+
+Staffing Plan card:
+
+- 5 role categories derived from ssCalcRec(): Customer-facing, Back room, Additional support, Supervisory, Freight/storage desk
+
+- Total rep count displayed in navy highlight bar at bottom
+
+- Standard model flag — green "Yes" or orange "No — [custom reason]"
+
+- Off-site hours removed from this card
+
+- "Off-Site — Post" field suppressed when NSS value is "Branch" (placeholder, not a person)
+
+- "📋 View confirmed staffing plan ↗" or "📋 Open in Staffing & Scheduling ↗" link depending on plan confirmation state
+
+ES Team card:
+
+- Rows: Regional Director, Directors/Managers (collapsed with +N), On-Site Supervisor, On-Site Lead, Off-Site Prep (if not "Branch")
+
+- Service desk phone number at bottom of this card — separated by divider with phone icon
+
+- Service desk was deliberately moved here from the Staffing Plan card
+
+Growth Contacts card:
+
+- Opportunity Owner only
+
+- Producing AE only
+
+- "Off-site support" and all lines below it removed
+
+## Placeholder Rows
+
+Team Operations (2-col): ESM task compliance (SERF, NERF, FOL, show close) | Timekeeping & hours (Workfront)
+
+Service Excellence (3-col): Post-show survey results (Qualtrics) | Service requests (Salesforce) | BBB / social media
+
+## State Persistence
+
+elSelId persists the last-viewed show. Navigating away and back restores the show. Same pattern as ssSelId in Staffing & Scheduling.
+
+# 17.  Cross-Site Integration Map
+
+| **Source Location** | **Trigger** | **Destination** | **Function** |
+| --- | --- | --- | --- |
+| Today's Priorities — Active Events cards | Click card | Events Lens | goToShow() → goToEventLens() |
+| Staffing & Scheduling — Detail panel | "View full event profile ↗" tlink | Events Lens | goToEventLens(ssSelId) |
+| Staffing & Scheduling — Sidebar job# | Click job number (stopPropagation) | Events Lens | goToEventLens(sid) |
+| Events Lens — Staffing plan card | "Open in Staffing & Scheduling ↗" | Staffing & Scheduling | goToSsFromEvents(elSelId) |
+| Needs Attention cards (future) | When show-linked tasks added | Events Lens | goToEventLens() — infrastructure ready |
+
+*Key decision: goToShow() was the original Active Events routing function targeting Staffing **&** Scheduling. It has been permanently rerouted to call goToEventLens() instead. Events Lens is the show home base — this is not reversible.*
+
+# 18.  Design System — Alignment Decisions (v6.31)
+
+The Events Lens mockup went through a formal design audit against the live build before implementation. Eight corrections were applied:
+
+| **Property** | **Live Build Standard** | **Correction Applied** |
+| --- | --- | --- |
+| Font sizes | 14px body, 13.5px meta, 21.6px titles | Scaled up from 11–12px in original mockup |
+| Font weight on stat values | 900 | Bumped from 800 |
+| Card borders | 1px solid #E2E5EF | Changed from 0.5px |
+| Card border-radius | 10px | Changed from 12px |
+| Chip font size | 14px / font-weight 700 | Changed from 11px |
+| Page header | .page-hdr with title + sub | Added — was missing from original mockup |
+| Job number style | --mb blue text, inline | Changed from white-on-navy pill chip |
+| Placeholder style | White bg, solid border, emoji icon | Changed from dashed border on surface background |
+
+# 19.  KPI Workspace
+
+9 KPIs, fully scope-aware. KPI sidebar + detail panel. Scope breakdowns shown per KPI in a 3-column grid. All values respond dynamically to Enterprise / Region / Branch scope pill.
+
+# 20.  Platform Chip Design Decisions
+
+Freeman Now and Freeman Next chips appear in two locations with deliberately different styling:
+
+| **Location** | **Freeman Next** | **Freeman Now** |
+| --- | --- | --- |
+| Active Events (Today's Priorities) | Light blue tint #CBF0FC, dark teal text #005A75, 2px border #7DD9F3 | Light gold tint #FFF4D6, dark amber text #7A5200, 2px border #FFD166 |
+| Staffing & Scheduling detail panel | Light blue pill (ss-pill-blue class) | Light blue pill (same style as Next) |
+
+*Rationale: In Staffing detail, platform is one data point among several equals — uniform styling appropriate. In Active Events, blue vs. gold creates immediate at-a-glance distinction since platform is the primary differentiator between cards.*
+
+# 21.  Needs Attention Panel
+
+Confirmed fully dynamic — no hardcoded cards remain. The panel draws from four live data sources, filtered through needsMyAction() and lcNeedsAction():
+
+- Recruiting — hires filtered by needsMyAction()
+
+- Onboarding — obRecords via lcNeedsAction()
+
+- Transitions — trRecords via lcNeedsAction()
+
+- Offboarding — offRecords via lcNeedsAction()
+
+*Code comment confirms: "Hardcoded placeholder items removed — pending process timeline definition"*
+
+Future integration: when show-linked tasks are added to Needs Attention, those cards will carry goToEventLens() links. The infrastructure is in place.
+
+# 22.  Open & Pending Items
+
+| **Priority** | **Item** | **Notes** |
+| --- | --- | --- |
+| 🔴 Immediate | Deploy "Event Timeline" / "Event Scale & Revenue" label changes | Two text substitutions — ready to deploy |
+| 🟡 Next | Timekeeping & Utilization workspace build | Define filter contract (Rule 5) before building |
+| 🟡 Next | Validate TR and OFF modals end-to-end (all 4 flows) | — |
+| 🟡 Next | Validate Recruiting full flow live — h4 / Lubi Garza / San Antonio | — |
+| 🟡 Next | Recruiting → Onboarding handoff verification | — |
+| 🟠 Deferred | Button cleanup pass | Checklist advance / approval bar buttons still 8px radius |
+| 🟠 Deferred | Needs Attention trigger events | Define process timelines per card type before building dynamic logic |
+| 🔵 Waiting on IT | Power BI integration | Need Workspace ID, Semantic Model ID, measure names, RLS config, Entra ID app registration |
+| 🔵 Waiting | Customers Lens | Qualtrics API token, Survey IDs, Data Center ID, branch/region field confirmation needed |
+| 🔵 Future | Team Lens design | Individual vs. aggregate view design not started |
+
+# 23.  Technical Reference
+
+## Key Functions
+
+| **Function** | **Purpose** |
+| --- | --- |
+| showPage(id, el) | Navigate to page, call page init function, reset stale workspace state |
+| onScopeChanged() | Re-render the active page when scope pill changes |
+| resetWorkspaceState() | Clear stale selections before page transition |
+| getScopeShows() | Return show list matching the active scope pill |
+| lcScopeFilter(rec) | Filter LC records (Recruiting/OB/TR/OFF) by active scope |
+| canView(h) | Recruiting — determine ownership + stat tile visibility for identity h |
+| canViewInScope(h) | Recruiting — determine sidebar visibility for identity h |
+| getKpiScopeValue(kpi) | Return KPI value appropriate for current scope |
+| goToShow(showId) | Route to Events Lens — rerouted from Staffing in v6.31 |
+| goToEventLens(showId) | Navigate to Events Lens page and render the specified show |
+| goToSsFromEvents(showId) | Navigate from Events Lens back to Staffing & Scheduling for this show |
+| elRenderShow() | Render full Events Lens show profile from elSelId |
+| elSearchInput(val) | Live search handler — filters all 705 shows by name or job number |
+| elSelectShow(id) | Select a show from the search dropdown and render it |
+| initEvents() | Initialize Events Lens page on navigation |
+| elFmtDate(d) | Format ISO date string to "Mon DD" display format |
+| elInitials(name) | Extract initials from a full name for avatar display |
+| ssCalcRec(show) | Derive 5-category staffing model recommendation from show data |
+| renderSsList() | Render Staffing & Scheduling sidebar show list |
+| renderSsDetail() | Render Staffing detail panel for the selected show |
+| renderActiveEvents() | Render Active Events panel on Today's Priorities |
+| renderNeedsAttention() | Render dynamic Needs Attention panel from all LC data sources |
+| initRecruiting() | Initialize Recruiting workspace |
+| renderList() | Render Recruiting sidebar list |
+| renderDetail() | Render Recruiting detail panel |
+
+# 24.  Change Log
+
+| **Version** | **Date** | **Key Changes** |
+| --- | --- | --- |
+| v6.32 | May 9, 2026 | Events Lens chip audit completed. Five chips added to flagsHtml: (1) Freeman Now/Freeman Next platform chip (always shown, inline styles matching Active Events); (2) Electrical Only / Electrical chip (mirrors Calculator logic — freemanElectricalOnly takes priority); (3) Non-Standard MH chip (shown when perLbMH === 'N' and not electrical-only — matches Calculator convention, replaces prior Per LB MH chip); (4) Exhibitor Store linked chip (platform-aware URL — Freeman Next: store.freeman.com, Freeman Now: freemanco.com); (5) Prior Year Job # chip (clickable, triggers elSelectShow — currently hidden for all 705 shows as pyJobNumber field is empty). Chip order locked: Platform → Service Model → Custom Staffing → FTE → AV → Electrical → MH → Exhibitor Store → Prior Year #. ES Staffing Calculator: "View Exhibitor Store" label renamed to "Exhibitor Store" to match Events Lens. |
+| v6.31 | May 9, 2026 | Events Lens fully built and deployed. 19 new fields added to all 705 SHOWS records from NSS (discountDate, advFreightDate, showClosePlus8, rdName, directors, supervisor, lead, offsitePrep, offsitePost, growthOwner, growthAE, serviceDesk, serviceModel, standardModel, customReason, onSiteReps, remoteReps, totalReps, boothRange, orderPct, pyOrderPct). goToShow() permanently rerouted to goToEventLens(). Staffing detail panel and sidebar job# deep-linked to Events Lens. Full design audit applied (8 corrections). Cross-site integration map established and documented. Label conventions locked: "Event Timeline" and "Event Scale & Revenue". Two label changes pending deployment. |
+| v6.30 | May 8, 2026 | Events Lens mockup designed (Option 1 — command center layout). Lens architecture documented. Customers Lens placeholder added to nav. "Team Building & Collaboration" nav label finalized. "In Process" (no hyphen) locked. Full design audit of mockup vs live build — 8 corrections identified. Five content decisions applied: order % flipped (current = primary), staffing categories aligned to calculator model, off-site hours removed, Branch placeholder suppressed, growth contacts trimmed to Owner + AE, service desk moved to ES Team card. |
+| v6.29 | May 7, 2026 | Full Staffing & Scheduling workspace built. 705 shows. Remote eligibility flow. Standard model recommendation. Custom plan flow. Confirmation popup. ssCalcRec() calculator logic. Platform chip styling decisions locked. Backfill handoff from TR/OFF. |
+| v6.28 | May 6, 2026 | Transitions and Offboarding workspaces built. All 4 modal flows (Promotion, Transfer Out, Resignation, Termination). Backfill handoff architecture finalized. |
+| v6.27 | May 6, 2026 | Onboarding workspace built. 32 tasks across 3 phases. Auto-creation from Recruiting offer acceptance. |
+| v6.26 | May 6, 2026 | Recruiting workspace built. 13 tasks, stage gating, advance buttons, stat tiles. Seed data (h1–h6). canViewInScope() added. |
+| v6.25 | May 6, 2026 | Full filtering architecture audit. Rules 1–10 documented and locked. Off-site identity scopes corrected. onScopeChanged() covers all pages. |
+| v6.24 | May 6, 2026 | Active Events panel made dynamic. BRANCH_MAP defined as global var. Scope pills fully unrestricted. setScope() pre-populates dropdowns on pill switch. |
+| v6.23 | May 6, 2026 | Full lifecycle handoff flow deployed. Global identity selector (37 leaders). All four LC workspaces. Today page Active Events panel. |
+
+*Freeman Confidential  |  ES Command Center  |  Working Document v6.32  |  All decisions are permanent record*
