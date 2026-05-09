@@ -1156,7 +1156,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div class="lc-modal-title">Open a Position</div>
     <div class="lc-modal-body">
       <div class="lc-field-grid">
-        <div class="lc-mf">
+        <div class="lc-mf full">
           <div class="lc-ml">Role <span style="color:var(--orange)">*</span></div>
           <select class="lc-mi" id="m-role">
             <option value="">Select role...</option>
@@ -1173,14 +1173,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
           </select>
         </div>
         <div class="lc-mf">
-          <div class="lc-ml">Full-Time or Part-Time <span style="color:var(--orange)">*</span></div>
-          <select class="lc-mi" id="m-ftpt">
-            <option value="">Select...</option>
-            <option>Full-Time</option>
-            <option>Part-Time</option>
-          </select>
-        </div>
-        <div class="lc-mf">
           <div class="lc-ml">Branch / Team <span style="color:var(--orange)">*</span></div>
           <select class="lc-mi" id="m-branch" onchange="onModalBranchChange()">
             <option value="">Select branch / team...</option>
@@ -1191,6 +1183,14 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
             <option>New Orleans</option><option>New York</option><option>Off-Site</option>
             <option>Orlando</option><option>Reno</option><option>San Antonio</option>
             <option>San Francisco</option><option>Toronto</option><option>Washington D.C.</option>
+          </select>
+        </div>
+        <div class="lc-mf">
+          <div class="lc-ml">Full-Time or Part-Time <span style="color:var(--orange)">*</span></div>
+          <select class="lc-mi" id="m-ftpt">
+            <option value="">Select...</option>
+            <option>Full-Time</option>
+            <option>Part-Time</option>
           </select>
         </div>
         <div class="lc-mf">
@@ -1227,68 +1227,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="lc-modal-actions">
         <button class="m-cancel" onclick="closeModal()">Cancel</button>
         <button class="m-submit" onclick="createHire()">Open Position</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- TR / OFF modal -->
-<div class="lc-modal-overlay" id="lc-modal-bg" onclick="if(event.target===this) lcModalClose()">
-  <div class="lc-modal-box">
-    <div class="lc-modal-title" id="lc-modal-title">Open a Transition</div>
-    <div class="lc-modal-body">
-      <div class="lc-type-row">
-        <button class="lc-type-btn active" id="lc-type-btn-primary" data-type="promotion" onclick="lcModalSetType(this)">Promotion / Title Change</button>
-        <button class="lc-type-btn" id="lc-type-btn-secondary" data-type="transfer" onclick="lcModalSetType(this)">Transfer Out of ES</button>
-      </div>
-      <div class="lc-field-grid">
-        <div class="lc-search-wrap">
-          <div class="lc-ml">Employee <span style="color:var(--orange)">*</span></div>
-          <input class="lc-mi" id="lc-emp-search" type="text" placeholder="Search by name..." autocomplete="off" oninput="lcModalEmpSearch()" />
-          <div class="lc-search-drop" id="lc-search-drop"></div>
-        </div>
-        <div class="lc-mf">
-          <div class="lc-ml">Current Role</div>
-          <input class="lc-mi autofill" id="lc-current-role" type="text" readonly placeholder="Auto-filled" />
-        </div>
-        <div class="lc-mf">
-          <div class="lc-ml">Current Branch</div>
-          <input class="lc-mi autofill" id="lc-current-branch" type="text" readonly placeholder="Auto-filled" />
-        </div>
-        <div class="lc-mf" id="lc-new-role-row" style="display:none">
-          <div class="lc-ml">New Role / Title <span style="color:var(--orange)">*</span></div>
-          <select class="lc-mi" id="lc-new-role">
-            <option value="">Select new role...</option>
-            <option>Exhibitor Services Specialist</option>
-            <option>Exhibitor Services Sr Specialist</option>
-            <option>Exhibitor Services Consultant</option>
-            <option>Exhibitor Services Event Experience Supervisor</option>
-            <option>Exhibitor Services Sr Event Experience Supervisor</option>
-            <option>Manager Exhibitor Services</option>
-            <option>Director Exhibitor Services</option>
-            <option>Director Exhibitor Services Business Operations</option>
-            <option>Regional Director Exhibitor Services</option>
-            <option>Sr Director Exhibitor Services</option>
-          </select>
-        </div>
-        <div class="lc-mf" id="lc-eff-date-wrap">
-          <div class="lc-ml" id="lc-date-label">Effective Date <span style="color:var(--orange)">*</span></div>
-          <input class="lc-mi" id="lc-eff-date" type="date" style="display:block" />
-          <input class="lc-mi" id="lc-last-day" type="date" style="display:none" />
-        </div>
-        <div class="lc-mf" id="lc-backfill-row" style="display:none">
-          <div class="lc-ml">Backfill Decision <span style="color:var(--orange)">*</span></div>
-          <select class="lc-mi" id="lc-backfill">
-            <option value="">Select...</option>
-            <option>Backfill Approved</option>
-            <option>No Backfill</option>
-            <option>Decision Pending</option>
-          </select>
-        </div>
-      </div>
-      <div class="lc-modal-actions">
-        <button class="m-cancel" onclick="lcModalClose()">Cancel</button>
-        <button class="m-submit" id="lc-submit-btn" onclick="lcModalSubmit()">Open Transition</button>
       </div>
     </div>
   </div>
@@ -5590,7 +5528,7 @@ function lcNewRecord(ws) {
   lcModalUpdateFields();
   var drop = document.getElementById('lc-search-drop');
   if (drop) drop.classList.remove('open');
-  document.getElementById('lc-modal-bg').classList.add('open');
+  document.getElementById('modal-bg').classList.add('open');
   setTimeout(function(){ var s=document.getElementById('lc-emp-search'); if(s) s.focus(); }, 100);
 }
 
@@ -5711,7 +5649,7 @@ function lcModalSubmit() {
 }
 
 function lcModalClose() {
-  document.getElementById('lc-modal-bg').classList.remove('open');
+  document.getElementById('modal-bg').classList.remove('open');
   lcModalWorkspace = null; lcModalSelected = null; lcModalType = null;
 }
 
