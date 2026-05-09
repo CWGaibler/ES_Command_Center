@@ -690,7 +690,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-id-hdr{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden}
 .kpi-id-bar{height:4px;background:#00BDF6;border-radius:10px 10px 0 0}
 .kpi-id-inner{display:flex;gap:24px;align-items:center;padding:22px 24px}
-</style>
+
+.kpi-icon-circle{width:136px;height:136px;border-radius:50%;flex-shrink:0;overflow:hidden;display:block;background:var(--surface)}</style>
 </head>
 <body>
 
@@ -1098,7 +1099,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="kpi-id-hdr">
         <div class="kpi-id-bar"></div>
         <div class="kpi-id-inner">
-          <div class="tl-photo" id="kpi-icon-slot">
+          <div class="kpi-icon-circle" id="kpi-icon-slot">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="1.2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           </div>
           <div style="flex:1;min-width:0">
@@ -6699,10 +6700,9 @@ function kpiPickKpi(id) {
   if (iconSlot) {
     var photo = KPI_PHOTOS[id];
     if (photo) {
-      iconSlot.innerHTML = '<img src="' + photo + '" alt="' + k.name + '" />';
+      iconSlot.innerHTML = '<img src="' + photo + '" style="width:136px;height:136px;display:block" alt="' + k.name + '" />';
       iconSlot.style.border = 'none';
       iconSlot.style.background = 'transparent';
-      iconSlot.style.padding = '0';
     }
   }
   document.getElementById('kpi-lens-name').textContent = k.name;
