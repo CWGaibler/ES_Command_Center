@@ -641,28 +641,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 /* ══ END EVENTS LENS ══════════════════════════════════════════════════════ */
 
 /* ── TEAM LENS ─────────────────────────────────────────────────────────── */
-.tl-workspace{display:flex;height:calc(100vh - 56px);overflow:hidden}
-.tl-sidebar{width:240px;min-width:240px;border-right:1px solid var(--border);overflow-y:auto;background:var(--white);display:flex;flex-direction:column}
-.tl-sidebar-hdr{padding:14px 16px 10px;border-bottom:1px solid var(--border-lt);flex-shrink:0}
-.tl-sidebar-title{font-size:12px;font-weight:900;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.tl-search{width:100%;border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-size:13.5px;font-weight:700;font-family:inherit;color:var(--fb);background:var(--surface);outline:none}
-.tl-search:focus{border-color:var(--mb)}
-.tl-filter-row{display:flex;gap:6px;margin-top:8px}
-.tl-filter{flex:1;border:1px solid var(--border);border-radius:7px;padding:5px 8px;font-size:12px;font-weight:700;font-family:inherit;color:var(--fb);background:var(--surface);outline:none;cursor:pointer}
-.tl-list{flex:1;overflow-y:auto}
-.tl-person-row{padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border-lt);display:flex;align-items:center;gap:10px}
-.tl-person-row:hover{background:var(--fb-xlt)}
-.tl-person-row.active{background:var(--fb-lt);border-left:3px solid var(--mb);padding-left:13px}
-.tl-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
-.tl-row-info{flex:1;min-width:0}
-.tl-row-name{font-size:13.5px;font-weight:800;color:var(--fb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tl-row-meta{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tl-count{font-size:12px;color:var(--muted);flex-shrink:0;padding:2px 4px;border-radius:4px;background:var(--fb-lt)}
-.tl-detail{flex:1;overflow-y:auto;padding:20px 24px;background:var(--surface)}
-.tl-empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted)}
-.tl-empty-icon{font-size:36px;margin-bottom:12px}
-.tl-empty-msg{font-size:15px;font-weight:800;color:var(--fb)}
-.tl-empty-sub{font-size:13.5px;margin-top:6px;text-align:center}
+/* tl-workspace sidebar styles removed — Team Lens now uses Events Lens layout */
 .tl-id-hdr{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:14px;display:flex;gap:18px;align-items:flex-start}
 .tl-photo{width:68px;height:68px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;overflow:hidden}
 .tl-photo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
@@ -1098,31 +1077,25 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     </div>
   </div>
   <div class="page" id="page-team">
-  <div class="tl-workspace">
-    <div class="tl-sidebar">
-      <div class="tl-sidebar-hdr">
-        <div class="tl-sidebar-title">Team members</div>
-        <input class="tl-search" id="tl-search" type="text" placeholder="Search by name..." oninput="tlFilterList()" autocomplete="off" />
-        <div class="tl-filter-row">
-          <select class="tl-filter" id="tl-filter-branch" onchange="tlFilterList()">
-            <option value="">All branches</option>
-          </select>
-          <select class="tl-filter" id="tl-filter-title" onchange="tlFilterList()">
-            <option value="">All titles</option>
-          </select>
-        </div>
-      </div>
-      <div class="tl-list" id="tl-list"></div>
+    <div class="page-hdr">
+      <span class="page-title">Team</span>
+      <span class="page-sub">Look up any team member by name</span>
     </div>
-    <div class="tl-detail" id="tl-detail">
-      <div class="tl-empty-state">
-        <div class="tl-empty-icon">&#128101;</div>
-        <div class="tl-empty-msg">Select a team member</div>
-        <div class="tl-empty-sub">Choose someone from the list to view their profile</div>
+    <div class="el-search-row">
+      <div class="el-search-box">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--muted)" stroke-width="1.5" style="flex-shrink:0"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+        <input id="tl-search-input" type="text" placeholder="Search by name..." autocomplete="off" oninput="tlSearchInput(this.value)" />
+        <div id="tl-search-results" class="el-search-dropdown"></div>
+      </div>
+    </div>
+    <div id="tl-content">
+      <div class="el-empty">
+        <div class="el-empty-icon">&#128101;</div>
+        <div class="el-empty-msg">Select a team member to view their profile</div>
+        <div class="el-empty-sub">Search by name above — type a few letters to find anyone on your team</div>
       </div>
     </div>
   </div>
-</div>
   <div class="page" id="page-customers"><div class="coming-soon"><div class="cs-icon">⭐</div><div class="cs-title">Customers Lens</div><div class="cs-sub">Post-show survey results, NPS trends, and customer satisfaction insights by branch and region.</div></div></div>
 
 </main>
@@ -5676,7 +5649,7 @@ function elSearchInput(val) {
 function elSelectShow(id) {
   elSelId = id;
   var inp = document.getElementById('el-search-input');
-  if (inp) inp.value = SHOWS[id] ? SHOWS[id].name + '  #' + id : id;
+  if (inp) { inp.value = ''; inp.blur(); }
   var drop = document.getElementById('el-search-results');
   if (drop) { drop.classList.remove('open'); drop.innerHTML = ''; }
   elRenderShow();
@@ -6373,75 +6346,58 @@ function tlGetScopePeople() {
 
 function initTeam() {
   tlSelName = null;
-  tlPopulateFilters();
-  tlRenderList();
-  tlRenderDetail();
+  var inp = document.getElementById('tl-search-input');
+  if (inp) inp.value = '';
+  var drop = document.getElementById('tl-search-results');
+  if (drop) { drop.classList.remove('open'); drop.innerHTML = ''; }
+  var cnt = document.getElementById('tl-content');
+  if (cnt) cnt.innerHTML = '<div class="el-empty"><div class="el-empty-icon">&#128101;</div><div class="el-empty-msg">Select a team member to view their profile</div><div class="el-empty-sub">Search by name above \u2014 type a few letters to find anyone on your team</div></div>';
 }
 
-function tlPopulateFilters() {
-  var people = tlGetScopePeople();
-  var branches = people.map(function(p){return p.branch;}).filter(Boolean)
-    .filter(function(v,i,a){return a.indexOf(v)===i;}).sort();
-  var titles = people.map(function(p){return tlShortTitle(p.title);}).filter(Boolean)
-    .filter(function(v,i,a){return a.indexOf(v)===i;}).sort();
-
-  var bSel = document.getElementById('tl-filter-branch');
-  var tSel = document.getElementById('tl-filter-title');
-  if (!bSel || !tSel) return;
-  bSel.innerHTML = '<option value="">All branches</option>' +
-    branches.map(function(b){return '<option value="'+b+'">'+b+'</option>';}).join('');
-  tSel.innerHTML = '<option value="">All titles</option>' +
-    titles.map(function(t){return '<option value="'+t+'">'+t+'</option>';}).join('');
-}
-
-function tlFilterList() { tlRenderList(); }
-
-function tlRenderList() {
-  var listEl = document.getElementById('tl-list');
-  if (!listEl) return;
-
-  var query = (document.getElementById('tl-search') ? document.getElementById('tl-search').value : '').toLowerCase().trim();
-  var filterBranch = document.getElementById('tl-filter-branch') ? document.getElementById('tl-filter-branch').value : '';
-  var filterTitle = document.getElementById('tl-filter-title') ? document.getElementById('tl-filter-title').value : '';
-
-  var people = tlGetScopePeople().filter(function(p) {
-    if (query && p.name.toLowerCase().indexOf(query) < 0) return false;
-    if (filterBranch && p.branch !== filterBranch) return false;
-    if (filterTitle && tlShortTitle(p.title) !== filterTitle) return false;
-    return true;
+function tlSearchInput(val) {
+  var drop = document.getElementById('tl-search-results');
+  if (!drop) return;
+  var q = val.trim().toLowerCase();
+  if (q.length < 1) { drop.classList.remove('open'); drop.innerHTML = ''; return; }
+  var scopePeople = tlGetScopePeople();
+  var matches = scopePeople.filter(function(p) { return p.name.toLowerCase().indexOf(q) >= 0; });
+  matches.sort(function(a,b) { return a.name.split(' ').pop().localeCompare(b.name.split(' ').pop()); });
+  var allPeople = Object.values(PEOPLE);
+  var outOfScope = allPeople.filter(function(p) {
+    return p.name.toLowerCase().indexOf(q) >= 0 && !scopePeople.some(function(sp) { return sp.name === p.name; });
   });
-
-  people.sort(function(a, b) {
-    var aLast = a.name.split(' ').pop();
-    var bLast = b.name.split(' ').pop();
-    return aLast.localeCompare(bLast);
-  });
-
-  if (!people.length) {
-    listEl.innerHTML = '<div style="padding:16px;text-align:center;font-size:13.5px;color:var(--muted)">No team members match this filter.</div>';
-    return;
+  if (!matches.length && outOfScope.length) {
+    drop.innerHTML = '<div style="padding:10px 14px;font-size:12.5px;color:var(--muted);line-height:1.5">No team members match your search in the current scope. To expand your results, consider switching to Region or Enterprise view.</div>';
+    drop.classList.add('open'); return;
   }
-
-  // KEY FIX: use data-name attribute — no name embedded in onclick string
-  listEl.innerHTML = people.map(function(p) {
+  if (!matches.length) {
+    drop.innerHTML = '<div style="padding:10px 14px;font-size:12.5px;color:var(--muted)">No results found.</div>';
+    drop.classList.add('open'); return;
+  }
+  var shown = matches.slice(0, 10);
+  drop.innerHTML = shown.map(function(p) {
     var av = tlAvColor(p.name);
-    var assignCount = (ASSIGNMENTS[p.name] || []).length;
-    var isActive = p.name === tlSelName;
-    var escapedName = p.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return '<div class="tl-person-row' + (isActive ? ' active' : '') + '" data-name="' + escapedName + '" onclick="tlSelectPerson(this.getAttribute(\'data-name\'))">' +
-      '<div class="tl-av" style="background:' + av.bg + ';color:' + av.color + '">' + p.initials + '</div>' +
-      '<div class="tl-row-info">' +
-        '<div class="tl-row-name">' + escapedName + '</div>' +
-        '<div class="tl-row-meta">' + tlShortTitle(p.title) + ' &middot; ' + p.branch + '</div>' +
-      '</div>' +
-      (assignCount > 0 ? '<div class="tl-count">' + assignCount + '</div>' : '') +
-    '</div>';
+    var en = p.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return '<div class="el-result-item" data-name="' + en + '" onclick="tlSelectPerson(this.dataset.name)">' +
+      '<div style="display:flex;align-items:center;gap:10px">' +
+        '<div style="width:28px;height:28px;border-radius:50%;background:' + av.bg + ';color:' + av.color + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">' + p.initials + '</div>' +
+        '<div><div style="font-size:13.5px;font-weight:800;color:var(--fb)">' + en + '</div>' +
+        '<div style="font-size:12px;font-weight:700;color:var(--muted)">' + tlShortTitle(p.title) + ' &middot; ' + tlEsc(p.branch) + '</div></div>' +
+      '</div></div>';
   }).join('');
+  if (matches.length > 10) {
+    drop.innerHTML += '<div style="padding:6px 14px;font-size:12px;color:var(--muted);font-style:italic">+ ' + (matches.length - 10) + ' more \u2014 keep typing to narrow results</div>';
+  }
+  drop.classList.add('open');
 }
+
 
 function tlSelectPerson(name) {
   tlSelName = name;
-  tlRenderList();
+  var inp = document.getElementById('tl-search-input');
+  if (inp) { inp.value = ''; inp.blur(); }
+  var drop = document.getElementById('tl-search-results');
+  if (drop) { drop.classList.remove('open'); drop.innerHTML = ''; }
   tlRenderDetail();
 }
 
@@ -6458,11 +6414,11 @@ function tlEsc(s) {
 }
 
 function tlRenderDetail() {
-  var el = document.getElementById('tl-detail');
+  var el = document.getElementById('tl-content');
   if (!el) return;
 
   if (!tlSelName || !PEOPLE[tlSelName]) {
-    el.innerHTML = '<div class="tl-empty-state"><div class="tl-empty-icon">&#128101;</div><div class="tl-empty-msg">Select a team member</div><div class="tl-empty-sub">Choose someone from the list to view their profile</div></div>';
+    el.innerHTML = '<div class="el-empty"><div class="el-empty-icon">&#128101;</div><div class="el-empty-msg">Select a team member to view their profile</div><div class="el-empty-sub">Search by name above</div></div>';
     return;
   }
 
