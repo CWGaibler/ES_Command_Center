@@ -6355,14 +6355,6 @@ function tlShortTitle(title) {
   return TL_TITLE_SHORT[title] || title;
 }
 
-// Delegate click handler on the list — reads data-name attribute (safe for any name)
-function tlHandleListClick(e) {
-  var row = e.target.closest('.tl-person-row');
-  if (!row) return;
-  var name = row.getAttribute('data-name');
-  if (name) tlSelectPerson(name);
-}
-
 function tlGetScopePeople() {
   var activePill = document.querySelector('.scope-pill.active');
   var scope = activePill ? (activePill.getAttribute('data-scope') || 'enterprise').toLowerCase() : 'enterprise';
@@ -6384,12 +6376,6 @@ function initTeam() {
   tlPopulateFilters();
   tlRenderList();
   tlRenderDetail();
-  // Attach delegated click handler (remove first to avoid duplicates)
-  var listEl = document.getElementById('tl-list');
-  if (listEl) {
-    listEl.removeEventListener('click', tlHandleListClick);
-    listEl.addEventListener('click', tlHandleListClick);
-  }
 }
 
 function tlPopulateFilters() {
@@ -6442,7 +6428,7 @@ function tlRenderList() {
     var assignCount = (ASSIGNMENTS[p.name] || []).length;
     var isActive = p.name === tlSelName;
     var escapedName = p.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return '<div class="tl-person-row' + (isActive ? ' active' : '') + '" data-name="' + escapedName + '">' +
+    return '<div class="tl-person-row' + (isActive ? ' active' : '') + '" data-name="' + escapedName + '" onclick="tlSelectPerson(this.getAttribute(\'data-name\'))">' +
       '<div class="tl-av" style="background:' + av.bg + ';color:' + av.color + '">' + p.initials + '</div>' +
       '<div class="tl-row-info">' +
         '<div class="tl-row-name">' + escapedName + '</div>' +
