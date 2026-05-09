@@ -5682,7 +5682,7 @@ function elRenderShow() {
   dotsHtml = dotsHtml.replace('<div class="el-dot-row">',
     '<div class="el-dot-row"><div class="el-track"></div><div style="position:absolute;top:50%;left:12px;height:2px;background:var(--green);width:' + pct + '%;transform:translateY(-50%);z-index:1"></div>');
 
-  html += '<div class="el-tl-card"><div class="el-tl-hdr"><span class="el-tl-hdr-title">Show timeline</span></div><div class="el-tl-body">' +
+  html += '<div class="el-tl-card"><div class="el-tl-hdr"><span class="el-tl-hdr-title">Event timeline</span></div><div class="el-tl-body">' +
     dotsHtml + labelsHtml +
     '<div class="el-legend">' +
       '<div class="el-leg"><div class="el-leg-dot" style="background:var(--green)"></div>Completed</div>' +
@@ -5692,7 +5692,7 @@ function elRenderShow() {
     '</div></div></div>';
 
   // Revenue section
-  html += '<div class="el-section-div">Show scale &amp; revenue</div>';
+  html += '<div class="el-section-div">Event scale &amp; revenue</div>';
   var curBooths = s.currentBooths || s.projectedBooths || 0;
   var projBooths = s.projectedBooths || 0;
   var pyBooths = s.pyBooths || 0;
