@@ -6376,19 +6376,16 @@ function tlSearchInput(val) {
   }
   var shown = matches.slice(0, 10);
   drop.innerHTML = shown.map(function(p) {
-    var av = tlAvColor(p.name);
     var en = p.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return '<div class="el-result-item" data-name="' + en + '" onclick="tlSelectPerson(this.dataset.name)">' +
-      '<div style="display:flex;align-items:center;gap:10px">' +
-        '<div style="width:28px;height:28px;border-radius:50%;background:' + av.bg + ';color:' + av.color + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">' + p.initials + '</div>' +
-        '<div><div style="font-size:13.5px;font-weight:800;color:var(--fb)">' + en + '</div>' +
-        '<div style="font-size:12px;font-weight:700;color:var(--muted)">' + tlShortTitle(p.title) + ' &middot; ' + tlEsc(p.branch) + '</div></div>' +
-      '</div></div>';
+    return '<div class="el-dd-item" data-name="' + en + '" onclick="tlSelectPerson(this.dataset.name)">' +
+      '<div><span class="el-dd-name">' + en + '</span></div>' +
+      '<div class="el-dd-meta">' + tlShortTitle(p.title) + ' · ' + tlEsc(p.branch) + '</div>' +
+    '</div>';
   }).join('');
   if (matches.length > 10) {
-    drop.innerHTML += '<div style="padding:6px 14px;font-size:12px;color:var(--muted);font-style:italic">+ ' + (matches.length - 10) + ' more \u2014 keep typing to narrow results</div>';
+    drop.innerHTML += '<div style="padding:6px 14px;font-size:12px;color:var(--muted);font-style:italic">+ ' + (matches.length - 10) + ' more — keep typing to narrow results</div>';
   }
-  drop.classList.add('open');
+    drop.classList.add('open');
 }
 
 
