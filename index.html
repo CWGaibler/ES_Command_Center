@@ -387,6 +387,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .ss-cmp-btn-primary:hover{background:#38a830}
 /* Step locked state */
 .task-chk.locked{opacity:.38;cursor:not-allowed}
+.task-locked{opacity:.5}
+.task-title.muted{color:var(--muted)}
 .task-row.step-locked .task-title{color:var(--muted)}
 
 /* Full Calculator Upgrade - v6.3 */
@@ -4947,10 +4949,26 @@ function obCanCheck(taskOwner) {
 function obToggleTask(recId, taskId) {
   var rec = obRecords.find(function(r){ return r.id === recId; });
   if (!rec) return;
-  var t = OB_TASKS.find(function(t){ return t.id === taskId; });
-  if (!t) return;
+  var idx = OB_TASKS.findIndex(function(t){ return t.id === taskId; });
+  if (idx < 0) return;
+  var t = OB_TASKS[idx];
   if (!obCanCheck(t.owner)) return;
+  // Sequential gate: all prior tasks must be checked before this one can be checked
+  if (!rec.checked[taskId]) {
+    for (var i = 0; i < idx; i++) {
+      if (!rec.checked[OB_TASKS[i].id]) {
+        alert('Please complete "' + OB_TASKS[i].title + '" before checking this task.');
+        return;
+      }
+    }
+  }
   rec.checked[taskId] = !rec.checked[taskId];
+  // If unchecking, also uncheck all subsequent tasks
+  if (!rec.checked[taskId]) {
+    for (var j = idx + 1; j < OB_TASKS.length; j++) {
+      rec.checked[OB_TASKS[j].id] = false;
+    }
+  }
   renderObDetail();
   updateObStats();
   renderObList();
@@ -5028,10 +5046,14 @@ function renderObDetail() {
     var taskHtml = tasks.map(function(t) {
       var isChecked = !!rec.checked[t.id];
       var canCheck = obCanCheck(t.owner);
-      var chkCls = isChecked ? 'checked' : (!canCheck ? 'readonly' : '');
-      var titleCls = isChecked ? 'done' : '';
-      var clickAttr = canCheck ? 'onclick="obToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
-      return '<div class="task-row">' +
+      // Sequential gate across ALL ob tasks (not just within phase)
+      var globalIdx = OB_TASKS.findIndex(function(ot){ return ot.id === t.id; });
+      var priorDone = OB_TASKS.slice(0, globalIdx).every(function(pt){ return !!rec.checked[pt.id]; });
+      var seqLocked = !isChecked && !priorDone;
+      var chkCls = isChecked ? 'checked' : (seqLocked ? 'locked' : (!canCheck ? 'readonly' : ''));
+      var titleCls = isChecked ? 'done' : (seqLocked ? 'muted' : '');
+      var clickAttr = (canCheck && !seqLocked) ? 'onclick="obToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
+      return '<div class="task-row' + (seqLocked ? ' task-locked' : '') + '">' +
         '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
         '<div class="task-body">' +
           '<div class="task-title '+titleCls+'">'+t.title+'</div>' +
@@ -5160,10 +5182,27 @@ function trCanCheck(taskOwner) {
 function trToggleTask(recId, taskId) {
   var rec = trRecords.find(function(r){ return r.id === recId; });
   if (!rec) return;
-  var allTasks = TR_TASKS_TRANSFER.concat(TR_TASKS_PROMOTION);
-  var t = allTasks.find(function(t){ return t.id === taskId; });
-  if (!t || !trCanCheck(t.owner)) return;
+  var tasks = trTaskSet(rec);
+  var idx = tasks.findIndex(function(t){ return t.id === taskId; });
+  if (idx < 0) return;
+  var t = tasks[idx];
+  if (!trCanCheck(t.owner)) return;
+  // Sequential gate: all prior tasks must be checked before this one can be checked
+  if (!rec.checked[taskId]) {
+    for (var i = 0; i < idx; i++) {
+      if (!rec.checked[tasks[i].id]) {
+        alert('Please complete "' + tasks[i].title + '" before checking this task.');
+        return;
+      }
+    }
+  }
   rec.checked[taskId] = !rec.checked[taskId];
+  // If unchecking, also uncheck all subsequent tasks
+  if (!rec.checked[taskId]) {
+    for (var j = idx + 1; j < tasks.length; j++) {
+      rec.checked[tasks[j].id] = false;
+    }
+  }
   renderTrDetail(); updateTrStats(); renderTrList();
 }
 
@@ -5227,14 +5266,16 @@ function renderTrDetail() {
   var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
   var allDone = prog.done === prog.total;
   var typeChip = rec.transitionType === 'promotion' ? '<span class="chip chip-promotion">Promotion / Title Change</span>' : '<span class="chip chip-transfer">Transfer Out of ES</span>';
-  var taskHtml = tasks.map(function(t) {
+  var taskHtml = tasks.map(function(t, idx) {
     var isChecked = !!rec.checked[t.id];
     var canCheck = trCanCheck(t.owner);
-    var chkCls = isChecked ? 'checked' : (!canCheck ? 'readonly' : '');
-    var clickAttr = canCheck ? 'onclick="trToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
-    return '<div class="task-row">' +
+    var priorDone = tasks.slice(0, idx).every(function(pt){ return !!rec.checked[pt.id]; });
+    var seqLocked = !isChecked && !priorDone;
+    var chkCls = isChecked ? 'checked' : (seqLocked ? 'locked' : (!canCheck ? 'readonly' : ''));
+    var clickAttr = (canCheck && !seqLocked) ? 'onclick="trToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
+    return '<div class="task-row' + (seqLocked ? ' task-locked' : '') + '">' +
       '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
-      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+'">'+t.title+'</div></div>' +
+      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div></div>' +
       '<div class="task-right">'+obOwnerLabel(t.owner)+'</div>' +
     '</div>';
   }).join('');
@@ -5381,10 +5422,27 @@ function offCanCheck(taskOwner) {
 function offToggleTask(recId, taskId) {
   var rec = offRecords.find(function(r){ return r.id === recId; });
   if (!rec) return;
-  var allTasks = OFF_TASKS_RESIGNATION.concat(OFF_TASKS_TERMINATION);
-  var t = allTasks.find(function(t){ return t.id === taskId; });
-  if (!t || !offCanCheck(t.owner)) return;
+  var tasks = offTaskSet(rec);
+  var idx = tasks.findIndex(function(t){ return t.id === taskId; });
+  if (idx < 0) return;
+  var t = tasks[idx];
+  if (!offCanCheck(t.owner)) return;
+  // Sequential gate: all prior tasks must be checked before this one can be checked
+  if (!rec.checked[taskId]) {
+    for (var i = 0; i < idx; i++) {
+      if (!rec.checked[tasks[i].id]) {
+        alert('Please complete "' + tasks[i].title + '" before checking this task.');
+        return;
+      }
+    }
+  }
   rec.checked[taskId] = !rec.checked[taskId];
+  // If unchecking, also uncheck all subsequent tasks
+  if (!rec.checked[taskId]) {
+    for (var j = idx + 1; j < tasks.length; j++) {
+      rec.checked[tasks[j].id] = false;
+    }
+  }
   renderOffDetail(); updateOffStats(); renderOffList();
 }
 
@@ -5463,14 +5521,17 @@ function renderOffDetail() {
   var typeChip = rec.departureType === 'resignation' ?
     '<span class="chip chip-resignation">Resignation</span>' :
     '<span class="chip chip-termination">Termination</span>';
-  var taskHtml = tasks.map(function(t) {
+  var taskHtml = tasks.map(function(t, idx) {
     var isChecked = !!rec.checked[t.id];
     var canCheck = offCanCheck(t.owner);
-    var chkCls = isChecked ? 'checked' : (!canCheck ? 'readonly' : '');
-    var clickAttr = canCheck ? 'onclick="offToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
-    return '<div class="task-row">' +
+    // Sequential gate: locked if any prior task is unchecked
+    var priorDone = tasks.slice(0, idx).every(function(pt){ return !!rec.checked[pt.id]; });
+    var seqLocked = !isChecked && !priorDone;
+    var chkCls = isChecked ? 'checked' : (seqLocked ? 'locked' : (!canCheck ? 'readonly' : ''));
+    var clickAttr = (canCheck && !seqLocked) ? 'onclick="offToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
+    return '<div class="task-row' + (seqLocked ? ' task-locked' : '') + '">' +
       '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
-      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+'">'+t.title+'</div></div>' +
+      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div></div>' +
       '<div class="task-right">'+obOwnerLabel(t.owner)+'</div>' +
     '</div>';
   }).join('');
