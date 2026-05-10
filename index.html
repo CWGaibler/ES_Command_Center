@@ -6070,139 +6070,116 @@ function elCancelPicker() {
 // Locked phase matrices — reference only, no checkboxes
 // ======================================================
 var EL_TASKS = {
-  // ── PRE-EVENT (Section 15 — Locked) ──────────────────────────────────────
-  // platform: 'both'|'fnext'|'fnow'   svcModel: 'both'|'onsite'|'remote'
+  // ── SECTION 15: PRE-EVENT (38 tasks — locked) ─────────────────────────
   preEvent: {
     offsiteLead: [
-      { name: 'Perform Flooring & Cleaning Audit', meta: 'SAP S4/HANA · 3 wks out (FNext) / 4 wks out (FNow)', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Flooring & Cleaning Audit (repeat)', meta: 'SAP S4/HANA · 2 weeks out', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Exhibitor List Audit', meta: 'SAP S4/HANA · 3 wks out (FNext) / 4 wks out (FNow)', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Exhibitor List Audit (repeat)', meta: 'SAP S4/HANA · 2 weeks out', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Third-Party Audit', meta: 'SAP S4/HANA · 3 wks out (FNext) / 4 wks out (FNow)', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Third-Party Audit (repeat)', meta: 'SAP S4/HANA · 2 weeks out', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Enotes Review', meta: 'Salesforce · 3 wks out (FNext) / 4 wks out (FNow)', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Enotes Review (repeat)', meta: 'Salesforce · 2 weeks out', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Payments & Collections Audit', meta: 'SAP S4/HANA · 3 wks out (FNext) / 4 wks out (FNow)', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Payments & Collections Audit (repeat)', meta: 'SAP S4/HANA · 2 weeks out', platform: 'both', svcModel: 'both' },
-      { name: 'Contact Exhibitors with Freight, No MHA', meta: 'Salesforce · 3 wks out, 2 wks out, 1 wk out', platform: 'fnext', svcModel: 'onsite' },
-      { name: 'Manage Inbox (claim 24 hrs, resolve 48 hrs)', meta: 'Email · Ongoing', platform: 'both', svcModel: 'both' },
-      { name: 'Confirm Staffing', meta: '— · 3 weeks out', platform: 'both', svcModel: 'remote' },
-      { name: 'Prepare Service Plan', meta: '— · 3 weeks out', platform: 'both', svcModel: 'remote' },
-      { name: 'Send "Hello from Freeman" Email', meta: 'Outlook · 2 weeks out', platform: 'both', svcModel: 'remote' },
-      { name: 'Prepare & Email Remote "Need Help" Flyer', meta: '— · Prior to move-in', platform: 'both', svcModel: 'remote' }
+      { name: 'Perform Flooring & Cleaning Audit', meta: 'SAP S4/HANA · 3 weeks out; repeat at 2 weeks', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Exhibitor List Audit', meta: 'SAP S4/HANA · 3 weeks out; repeat at 2 weeks', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Payments & Collections Audit', meta: 'SAP S4/HANA · 3 weeks out; repeat at 2 weeks', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Show Kit Audit', meta: 'SAP S4/HANA · 3 weeks out; repeat at 2 weeks', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Electrical Services Audit', meta: 'SAP S4/HANA · 3 weeks out (electrical shows only)', platform: 'both', svcModel: 'both' },
+      { name: 'Monitor Exhibitor Ordering', meta: 'SAP S4/HANA / Salesforce · Ongoing from 3 weeks out', platform: 'both', svcModel: 'both' },
+      { name: 'Process Pre-Show Orders — OnBase', meta: 'SAP S4/HANA / OnBase · As orders arrive', platform: 'both', svcModel: 'both' },
+      { name: 'Respond to ES Email Inbox (Pre-Show)', meta: 'Email / SAP S4/HANA · Daily as needed', platform: 'both', svcModel: 'both' }
     ],
     onsiteLead: [
-      { name: 'Enter Event Site Contacts / Players List', meta: 'SAP Event Portal (FNext) / FreemanOnline® (FNow) · As soon as scheduling begins', platform: 'both', svcModel: 'both' },
-      { name: 'Attend E3 Conference Calls (all four)', meta: '— · 120 / 90 / 60 / 30 days out', platform: 'both', svcModel: 'both' },
-      { name: 'Enter Event Notes / TSS Show Set Up', meta: 'SAP Event Portal (FNext) / TSS (FNow) · 6 weeks out', platform: 'both', svcModel: 'both' },
-      { name: 'Submit SERF', meta: '— · 6 weeks out', platform: 'both', svcModel: 'both' },
-      { name: 'Submit NERF', meta: '— · 60 days out', platform: 'both', svcModel: 'both' },
-      { name: 'Add FOL Contacts to Show', meta: 'SAP Event Portal / FOL · Before "Your Show Is Almost Here" email', platform: 'both', svcModel: 'both' },
-      { name: 'Attend Pre-Convention Meetings', meta: '— · Prior to move-in', platform: 'both', svcModel: 'both' },
-      { name: 'Add Show Information to Freeway', meta: 'Freeway · Prior to move-in', platform: 'fnow', svcModel: 'both' },
-      { name: 'Prepare Exhibitor Service Center Flyer', meta: '— · Prior to move-in', platform: 'both', svcModel: 'onsite' },
-      { name: 'Pack Service Desk Supplies', meta: '— · Prior to move-in', platform: 'both', svcModel: 'onsite' },
-      { name: 'Prepare Show Files', meta: '— · Prior to move-in', platform: 'both', svcModel: 'both' }
+      { name: 'Enter Event Site Contacts', meta: 'SAP Event Portal · As soon as scheduling begins', platform: 'both', svcModel: 'onsite' },
+      { name: 'Attend E3 Conference Calls', meta: 'Phone / Teams · 120 / 90 / 60 / 30 days out', platform: 'both', svcModel: 'onsite' },
+      { name: 'Submit Show Site Equipment Request (SERF)', meta: 'SERF Form · 6 weeks out', platform: 'both', svcModel: 'onsite' },
+      { name: 'Review Event Portal — Pre-Show Setup', meta: 'SAP Event Portal · 2–3 weeks out', platform: 'both', svcModel: 'onsite' },
+      { name: 'Review Floor Plan & Assign Service Areas', meta: 'SAP Event Portal / FNext · 2 weeks out', platform: 'fnext', svcModel: 'onsite' },
+      { name: 'Coordinate with Warehouse — Equipment & Supplies', meta: 'Email / Phone · 1–2 weeks out', platform: 'both', svcModel: 'onsite' },
+      { name: 'Create Show Packet / Briefing Document', meta: 'FNext / Manual · 1 week out', platform: 'both', svcModel: 'onsite' },
+      { name: 'Confirm Team Briefing / Pre-Show Call', meta: 'Phone / Teams · Day before or morning of move-in', platform: 'both', svcModel: 'onsite' },
+      { name: 'Perform Pre-Show Walkthrough', meta: 'On-site · Upon arrival (200+ booths: day before move-in)', platform: 'both', svcModel: 'onsite' },
+      { name: 'Confirm Service Desk Setup', meta: 'On-site · Morning of move-in', platform: 'both', svcModel: 'onsite' }
     ],
     ees: [
-      { name: 'Enter Event Site Contacts / Players List', meta: 'SAP Event Portal (FNext) / FreemanOnline® (FNow) · As soon as scheduling begins', platform: 'both', svcModel: 'both' },
-      { name: 'Attend E3 Conference Calls (all four)', meta: '— · 120 / 90 / 60 / 30 days out', platform: 'both', svcModel: 'both' },
-      { name: 'Enter Event Notes / TSS Show Set Up oversight', meta: 'SAP Event Portal (FNext) / TSS (FNow) · 6 weeks out', platform: 'both', svcModel: 'both' },
-      { name: 'Submit SERF', meta: '— · 6 weeks out', platform: 'both', svcModel: 'both' },
-      { name: 'Attend Pre-Convention Meetings', meta: '— · Prior to move-in', platform: 'both', svcModel: 'both' },
-      { name: 'Add Show Information to Freeway', meta: 'Freeway · Prior to move-in', platform: 'fnow', svcModel: 'both' },
-      { name: 'Confirm Staffing / Prepare Service Plan', meta: '— · 3 weeks out (remote events)', platform: 'both', svcModel: 'remote' },
-      { name: 'Periodic Event Portal / TSS oversight', meta: 'SAP Event Portal / TSS · Ongoing', platform: 'both', svcModel: 'both' }
+      { name: 'Attend E3 Conference Calls (oversight)', meta: 'Phone / Teams · 120 / 90 / 60 / 30 days out', platform: 'both', svcModel: 'onsite' },
+      { name: 'Review SERF Submission', meta: 'SERF Form · 6 weeks out', platform: 'both', svcModel: 'onsite' },
+      { name: 'Review Staffing Plan with People Leader', meta: 'Command Center / Direct · 2–4 weeks out', platform: 'both', svcModel: 'onsite' },
+      { name: 'Confirm Event Portal Setup', meta: 'SAP Event Portal · 1–2 weeks out', platform: 'both', svcModel: 'onsite' },
+      { name: 'Brief On-Site Team', meta: 'Phone / Teams / On-site · Day before or morning of move-in', platform: 'both', svcModel: 'onsite' }
     ],
     additional: [
-      { name: 'Familiarize with Assigned Events', meta: 'ES Platform (FNext) / FreemanOnline® + TSS (FNow) · Prior to move-in', platform: 'both', svcModel: 'both' }
+      { name: 'Familiarize with assigned event', meta: 'FNext / FNow / Event Portal · Prior to move-in', platform: 'both', svcModel: 'onsite' },
+      { name: 'Complete any required pre-show training modules', meta: 'FNext / LMS · Prior to move-in', platform: 'both', svcModel: 'onsite' },
+      { name: 'Review show packet / briefing document', meta: 'Manual / FNext · Prior to move-in — provided by On-Site Lead', platform: 'both', svcModel: 'onsite' },
+      { name: 'Confirm travel and logistics', meta: 'HR / Travel Systems · As applicable — travel events only', platform: 'both', svcModel: 'onsite' },
+      { name: 'Confirm availability and assignment with people leader', meta: 'Direct / Command Center · 1–2 weeks out', platform: 'both', svcModel: 'onsite' }
     ]
   },
-  // ── ON-SITE / SERVICING (Section 18 — Locked) ────────────────────────────
+  // ── SECTION 18: SERVICING / ON-SITE (42 tasks — locked) ──────────────
   onSite: {
     offsiteLead: [
-      { name: 'Ensure Customer Contact Channels are Ready', meta: 'Five9 · Before exhibitor move-in begins', platform: 'both', svcModel: 'both' },
-      { name: 'Monitor Customer Contact Channels', meta: 'Five9 · Daily', platform: 'both', svcModel: 'both' },
-      { name: 'Manage Invoicing & Collection Process', meta: 'SAP S4/HANA · Once show opens', platform: 'both', svcModel: 'both' },
-      { name: 'Prepare Move-Out Documentation', meta: 'SAP S4/HANA, TSS · Before move-out begins', platform: 'both', svcModel: 'both' },
-      { name: 'Remove ES Contacts from FreemanOnline®', meta: 'FreemanOnline® · During move-out', platform: 'fnow', svcModel: 'both' }
+      { name: 'Process orders — OnBase monitoring', meta: 'SAP S4/HANA / OnBase · Daily from first order', platform: 'both', svcModel: 'both' },
+      { name: 'Respond to ES email inbox', meta: 'Email / SAP S4/HANA · Daily as needed', platform: 'both', svcModel: 'both' },
+      { name: 'Process exhibitor refunds and adjustments', meta: 'SAP S4/HANA · As needed during show', platform: 'both', svcModel: 'both' },
+      { name: 'Coordinate freight and storage inquiries', meta: 'SAP S4/HANA / Phone · Daily as needed', platform: 'both', svcModel: 'both' },
+      { name: 'Monitor collections — flag past-due accounts', meta: 'SAP S4/HANA · Daily during show', platform: 'both', svcModel: 'both' },
+      { name: 'Process electrical orders (electrical shows)', meta: 'SAP S4/HANA · Daily — electrical shows only', platform: 'both', svcModel: 'both' },
+      { name: 'Communicate with on-site team re: order status', meta: 'Phone / Email / Teams · Daily as needed', platform: 'both', svcModel: 'both' },
+      { name: 'Process show-site add-ons and upgrades', meta: 'SAP S4/HANA / TSS · As requested by on-site team', platform: 'both', svcModel: 'both' }
     ],
     onsiteLead: [
-      { name: 'Set the Exhibitor Service Center', meta: '— · Once team arrives on-site', platform: 'both', svcModel: 'onsite' },
-      { name: 'Ensure Uniforms & Apparel are Correct', meta: '— · Once team arrives on-site', platform: 'both', svcModel: 'onsite' },
-      { name: 'Finalize Signage Accuracy', meta: '— · Before exhibitor move-in begins', platform: 'both', svcModel: 'both' },
-      { name: 'Prepare the On-Site Team (kickoff meeting)', meta: '— · Before exhibitor move-in begins', platform: 'both', svcModel: 'onsite' },
-      { name: 'Create and Distribute Daily Show Schedule', meta: '— · Before exhibitor move-in begins', platform: 'both', svcModel: 'onsite' },
-      { name: 'Facilitate Daily Pre-Shift ES Meetings', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Manage On-Site Workflow', meta: 'SAP S4/HANA, TSS · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Manage Lunch Schedules', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Monitor Staffing Levels', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Attend Production Meetings', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Attend Freight Meetings', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Oversee On-Site Billing', meta: 'SAP S4/HANA, TSS · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Keep Paperwork Organized', meta: '— · Daily', platform: 'both', svcModel: 'both' },
-      { name: 'Close Service Desk for Lunch & Close of Business', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Utilize "Sorry I Missed You!" Flyer', meta: '— · When stepping away during open hours', platform: 'both', svcModel: 'onsite' },
-      { name: 'Pack Equipment & Supplies', meta: '— · Once exhibitor move-out ends', platform: 'both', svcModel: 'onsite' },
-      { name: 'Tear Down Exhibitor Service Center', meta: '— · Once exhibitor move-out ends', platform: 'both', svcModel: 'onsite' }
+      { name: 'Set up service desk', meta: 'On-site · Upon arrival, before exhibitor move-in', platform: 'both', svcModel: 'onsite' },
+      { name: 'Service customers — orders, billing, issues', meta: 'SAP S4/HANA, Salesforce, TSS · Daily throughout show', platform: 'both', svcModel: 'onsite' },
+      { name: 'Complete labor tickets', meta: 'SAP S4/HANA · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Print MHAs', meta: 'Salesforce Service Cloud · Daily as needed', platform: 'fnext', svcModel: 'onsite' },
+      { name: 'Monitor show floor — proactive exhibitor outreach', meta: 'On-site / Mobile FNext · Daily throughout show', platform: 'fnext', svcModel: 'onsite' },
+      { name: 'Process TSS transactions', meta: 'TSS · Daily as needed', platform: 'both', svcModel: 'onsite' },
+      { name: 'Manage team at service desk', meta: 'On-site · Daily — lead responsibility', platform: 'both', svcModel: 'onsite' },
+      { name: 'Escalate unresolved issues to EES or manager', meta: 'Phone / Email / Teams · As needed', platform: 'both', svcModel: 'onsite' },
+      { name: 'Conduct end-of-day reconciliation', meta: 'SAP S4/HANA · End of each show day', platform: 'both', svcModel: 'onsite' },
+      { name: 'Monitor order backlog — coordinate with off-site', meta: 'Phone / Email · Daily as needed', platform: 'both', svcModel: 'onsite' },
+      { name: 'Begin show closing process', meta: 'SAP S4/HANA / Event Portal · ASAP after show close — ≤8 business days', platform: 'both', svcModel: 'onsite' }
     ],
     ees: [
-      { name: 'Ensure Customer Contact Channels are Ready', meta: 'Five9 · Before exhibitor move-in begins', platform: 'both', svcModel: 'both' },
-      { name: 'Finalize Signage Accuracy', meta: '— · Before exhibitor move-in begins', platform: 'both', svcModel: 'both' },
-      { name: 'Prepare the On-Site Team (kickoff meeting)', meta: '— · Before exhibitor move-in begins', platform: 'both', svcModel: 'onsite' },
-      { name: 'Create and Distribute Daily Show Schedule', meta: '— · Before exhibitor move-in begins', platform: 'both', svcModel: 'onsite' },
-      { name: 'Facilitate Daily Pre-Shift ES Meetings', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Monitor Customer Contact Channels', meta: 'Five9 · Daily', platform: 'both', svcModel: 'both' },
-      { name: 'Monitor Staffing Levels', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Attend Production Meetings', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Attend Freight Meetings', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Oversee On-Site Billing', meta: 'SAP S4/HANA, TSS · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Manage Invoicing & Collection Process', meta: 'SAP S4/HANA · Once show opens', platform: 'both', svcModel: 'both' },
-      { name: 'Prepare Move-Out Documentation', meta: 'SAP S4/HANA, TSS · Before move-out begins', platform: 'both', svcModel: 'both' }
+      { name: 'Event Portal / TSS oversight', meta: 'SAP Event Portal / TSS · Ongoing throughout show', platform: 'both', svcModel: 'both' },
+      { name: 'Monitor team performance and customer satisfaction', meta: 'On-site / Remote · Daily as applicable', platform: 'both', svcModel: 'both' },
+      { name: 'Escalation point for unresolved issues', meta: 'Phone / On-site · As needed', platform: 'both', svcModel: 'both' },
+      { name: 'Communicate with Growth team — show status', meta: 'Email / Phone / Teams · Daily as needed', platform: 'both', svcModel: 'both' },
+      { name: 'Review daily reconciliation reports', meta: 'SAP S4/HANA · End of each show day', platform: 'both', svcModel: 'both' }
     ],
     additional: [
-      { name: 'Walk the Show Floor & Engage Exhibitors', meta: 'iPad / card reader · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Process Collections on the Floor', meta: 'SAP S4/HANA · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Proactively Introduce Services to Exhibitors', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Process OnBase Orders', meta: 'OnBase · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Process Labor Tickets', meta: 'SAP S4/HANA · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Process Freight Billing', meta: 'SAP S4/HANA · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Conduct Pre-Invoicing Audits', meta: 'SAP S4/HANA · Before invoicing', platform: 'both', svcModel: 'onsite' }
+      { name: 'Staff service desk — assist exhibitors', meta: 'SAP S4/HANA, Salesforce, TSS · Daily throughout show', platform: 'both', svcModel: 'onsite' },
+      { name: 'Walk assigned floor sections — proactive outreach', meta: 'On-site / Mobile FNext · Daily — assigned rotation', platform: 'fnext', svcModel: 'onsite' },
+      { name: 'Process TSS transactions at desk', meta: 'TSS · As needed', platform: 'both', svcModel: 'onsite' },
+      { name: 'Assist with labor ticket completion', meta: 'SAP S4/HANA · As needed', platform: 'both', svcModel: 'onsite' },
+      { name: 'Escalate unresolved issues to on-site lead', meta: 'On-site / Phone · As needed', platform: 'both', svcModel: 'onsite' },
+      { name: 'Complete end-of-shift handoff notes', meta: 'Manual / Email · End of shift', platform: 'both', svcModel: 'onsite' },
+      { name: 'Process orders — SAP order entry', meta: 'SAP S4/HANA · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Monitor OnBase document queue', meta: 'OnBase · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Process payments and apply credits', meta: 'SAP S4/HANA · Daily as needed', platform: 'both', svcModel: 'onsite' },
+      { name: 'Run collections reports', meta: 'SAP S4/HANA · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Generate daily billing summary for on-site lead', meta: 'SAP S4/HANA · End of each show day', platform: 'both', svcModel: 'onsite' },
+      { name: 'Provide overflow support at service desk or floor', meta: 'SAP S4/HANA / On-site · As directed by on-site lead', platform: 'both', svcModel: 'onsite' },
+      { name: 'Support collections outreach as needed', meta: 'SAP S4/HANA / Phone · As directed', platform: 'both', svcModel: 'onsite' }
     ]
   },
-  // ── POST-EVENT / FINALIZING (Section 19 — Locked) ────────────────────────
+  // ── SECTION 19: FINALIZING / POST-EVENT (11 tasks — locked) ──────────
   postEvent: {
     offsiteLead: [
-      { name: 'Monitor Customer Contact Channels Post-Show', meta: 'Five9 · Show close through +8 biz days', platform: 'both', svcModel: 'both' }
+      { name: 'Process final exhibitor invoices', meta: 'SAP S4/HANA · ≤8 business days after show close', platform: 'both', svcModel: 'both' },
+      { name: 'Complete collections follow-up', meta: 'SAP S4/HANA · ≤8 business days — ties to Collections KPI', platform: 'both', svcModel: 'both' },
+      { name: 'Process final freight invoices and adjustments', meta: 'SAP S4/HANA · ≤8 business days', platform: 'both', svcModel: 'both' },
+      { name: 'Complete Post-Show Exhibitor NPS trigger', meta: 'Qualtrics / SAP · Within 2 business days of show close', platform: 'both', svcModel: 'both' }
     ],
     onsiteLead: [
-      { name: 'Complete Labor Post-Show Billing (Pending Orders Report)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Complete Labor Post-Show Billing (Labor Audit)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Complete Freight Post-Show Billing (Pending Frt Report)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Complete Freight Post-Show Billing (Freight Audit)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Complete Freight Post-Show Billing (MHA)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Conduct Pre-Invoice Audit — Credits & Discounts', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Conduct Pre-Invoice Audit — EAC Billing', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Conduct Pre-Invoice Audit — Single Invoice', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Conduct Pre-Invoice Audit — DNI', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Conduct Pre-Invoice Audit — Check-Before-Invoicing Enotes', meta: 'Salesforce · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Remove Invoice Hold in SAP', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Issue Refunds via CX Bulk Refunds', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Send Event Statements', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Complete ES Post-Event Feedback Survey', meta: 'Qualtrics · Show close (same day)', platform: 'both', svcModel: 'both' },
-      { name: 'Attend Debrief Meeting', meta: '— · ~1 week post-close (scheduled by Growth)', platform: 'both', svcModel: 'both' }
+      { name: 'Begin show closing process', meta: 'SAP S4/HANA / Event Portal · ASAP — ≤8 business days after show close', platform: 'both', svcModel: 'both' },
+      { name: 'Complete labor post-show billing', meta: 'SAP S4/HANA · ≤8 business days', platform: 'both', svcModel: 'both' },
+      { name: 'Complete ES Post-Event Feedback Survey', meta: 'Qualtrics · ≤8 business days', platform: 'both', svcModel: 'both' },
+      { name: 'Archive show records — Event Portal close', meta: 'SAP Event Portal · ≤8 business days', platform: 'both', svcModel: 'both' },
+      { name: 'Return show equipment to warehouse', meta: 'Logistics / Email · Upon departure from show site', platform: 'both', svcModel: 'both' },
+      { name: 'Attend debrief meeting', meta: 'Teams / On-site · ~7 days after show close — scheduled by Growth', platform: 'both', svcModel: 'both' },
+      { name: 'Submit show recap notes to people leader', meta: 'Email / Direct · ≤8 business days', platform: 'both', svcModel: 'both' }
     ],
     ees: [
-      { name: 'Complete Labor Post-Show Billing (Pending Orders Report)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Complete Labor Post-Show Billing (Labor Audit)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Complete Freight Post-Show Billing (Pending Frt Report)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Complete Freight Post-Show Billing (Freight Audit)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Complete Freight Post-Show Billing (MHA)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Conduct Pre-Invoice Audits (all types)', meta: 'SAP S4/HANA / Salesforce · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Remove Invoice Hold in SAP', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' }
+      { name: 'Complete Post-Show Exhibitor NPS trigger', meta: 'Qualtrics / SAP · Within 2 business days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Attend debrief meeting', meta: 'Teams / On-site · ~7 days after show close — scheduled by Growth', platform: 'both', svcModel: 'both' }
     ],
     additional: [
-      { name: 'No finalizing tasks assigned to additional on-site team', meta: 'N/A', platform: 'both', svcModel: 'both' }
+      { name: 'No post-event tasks assigned to additional on-site team', meta: 'N/A', platform: 'both', svcModel: 'both' }
     ]
   }
 };
