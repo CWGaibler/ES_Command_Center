@@ -7106,7 +7106,25 @@ function tlRenderDetail() {
 
   var p = PEOPLE[tlSelName];
   var av = tlAvColor(p.name);
-  var assigns = ASSIGNMENTS[p.name] || [];
+
+  // Build event assignments from ROLE_ASSIGNMENTS only — NSS ASSIGNMENTS object no longer used here
+  var assigns = [];
+  Object.keys(ROLE_ASSIGNMENTS).forEach(function(jobNum) {
+    var ra = ROLE_ASSIGNMENTS[jobNum];
+    if (!ra || !ra.slots) return;
+    ra.slots.forEach(function(slot) {
+      if (slot.person === p.name) {
+        var show = SHOWS[jobNum];
+        if (show) {
+          assigns.push({
+            jobNum: jobNum,
+            showName: show.name,
+            role: slot.label
+          });
+        }
+      }
+    });
+  });
 
   // Identity header
   var photoHtml = PEOPLE_PHOTOS[p.name]
@@ -7151,7 +7169,7 @@ function tlRenderDetail() {
       html += '<div class="tl-assign-more">+ ' + (assigns.length - 5) + ' more assignment' + (assigns.length - 5 > 1 ? 's' : '') + '</div>';
     }
   } else {
-    html += '<div class="tl-no-data">No named show assignments found in NSS for this team member. Individual scheduling at this role level is not yet systematized.</div>';
+    html += '<div class="tl-no-data">No event assignments yet. Assignments appear here once a team member is placed into a slot on any show in the Events Lens.</div>';
   }
   html += '</div>';
 
