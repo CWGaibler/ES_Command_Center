@@ -1280,9 +1280,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
           <div class="lc-ml">Backfill Decision <span style="color:var(--orange)">*</span></div>
           <select class="lc-mi" id="lc-backfill">
             <option value="">Select...</option>
-            <option>Backfill Approved</option>
-            <option>No Backfill</option>
-            <option>Decision Pending</option>
+            <option value="backfill">Backfill Approved</option>
+            <option value="rif">No Backfill</option>
+            <option value="pending">Decision Pending</option>
           </select>
         </div>
       </div>
@@ -5247,14 +5247,16 @@ function renderTrDetail() {
         '<button class="btn-backfill-rif" onclick="trSetBackfill(\''+rec.id+'\',\'rif\')">🚫 RIF / No Backfill</button>' +
       '</div>';
     } else if (rec.backfillDecision === 'backfill') {
-      backfillBar = '<div class="lc-handoff-bar"><div class="lc-handoff-msg">✅ Backfill Needed — Recruiting record will be created when this record is closed</div></div>';
+      backfillBar = '<div class="lc-handoff-bar"><div class="lc-handoff-msg">✅ Backfill Approved — Recruiting record will be created when this record is closed</div></div>';
+    } else if (rec.backfillDecision === 'pending') {
+      backfillBar = '<div class="lc-handoff-bar" style="background:#FFF8E6;border-color:var(--gold)"><div class="lc-handoff-msg" style="color:#7A5C00">⏳ Backfill Decision Pending — update before closing this record</div></div>';
     } else {
       backfillBar = '<div class="lc-handoff-bar" style="background:#F2F4F8;border-color:var(--border)"><div class="lc-handoff-msg" style="color:var(--muted)">🚫 Marked as RIF / No Backfill — position will not be posted</div></div>';
     }
   }
   
   var trAllDone = prog.done === prog.total;
-  var trCanClose = trAllDone && (rec.transitionType === 'promotion' || !!rec.backfillDecision);
+  var trCanClose = trAllDone && (rec.transitionType === 'promotion' || (!!rec.backfillDecision && rec.backfillDecision !== 'pending'));
   var trCloseBar;
   if (rec.closed) {
     trCloseBar = '<div class="lc-complete-bar"><div class="lc-complete-msg">&#10003; Transition complete &mdash; record closed.</div></div>';
@@ -5480,13 +5482,15 @@ function renderOffDetail() {
       '<button class="btn-backfill-rif" onclick="offSetBackfill(\''+rec.id+'\',\'rif\')">🚫 RIF / No Backfill</button>' +
     '</div>';
   } else if (rec.backfillDecision === 'backfill') {
-    backfillBar = '<div class="lc-handoff-bar"><div class="lc-handoff-msg">✅ Backfill Needed — Recruiting record will be created when this record is closed</div></div>';
+    backfillBar = '<div class="lc-handoff-bar"><div class="lc-handoff-msg">✅ Backfill Approved — Recruiting record will be created when this record is closed</div></div>';
+  } else if (rec.backfillDecision === 'pending') {
+    backfillBar = '<div class="lc-handoff-bar" style="background:#FFF8E6;border-color:var(--gold)"><div class="lc-handoff-msg" style="color:#7A5C00">⏳ Backfill Decision Pending — update before closing this record</div></div>';
   } else {
     backfillBar = '<div class="lc-handoff-bar" style="background:#F2F4F8;border-color:var(--border)"><div class="lc-handoff-msg" style="color:var(--muted)">🚫 Marked as RIF / No Backfill — position will not be posted</div></div>';
   }
   
   var offAllDone = offAllTasksDone(rec);
-  var offCanClose = offAllDone && !!rec.backfillDecision;
+  var offCanClose = offAllDone && !!rec.backfillDecision && rec.backfillDecision !== 'pending';
   var offCloseBar;
   if (rec.closed) {
     offCloseBar = '<div class="lc-complete-bar"><div class="lc-complete-msg">&#10003; Offboarding complete &mdash; record closed.</div></div>';
