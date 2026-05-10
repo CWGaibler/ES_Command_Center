@@ -640,6 +640,74 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .el-cs-icon{color:var(--muted);flex-shrink:0}
 .el-cs-title{font-size:13px;font-weight:800;color:var(--fb)}
 .el-cs-sub{font-size:12px;font-weight:700;color:var(--muted);margin-top:1px}
+
+/* ── EVENTS LENS REDESIGN v13.0 ─────────────────────── */
+/* Staffing & Scheduling unified panel */
+.el-ss-panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.el-ss-panel-hdr{padding:10px 14px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center;justify-content:space-between}
+.el-ss-panel-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.el-ss-panel-link{font-size:13px;font-weight:700;color:#006A8A;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.el-ss-panel-link:hover{text-decoration:underline}
+.el-ss-gap-badge{display:inline-flex;align-items:center;font-size:13px;font-weight:700;padding:2px 10px;border-radius:999px;background:#FFEDE7;color:var(--orange);border:1.5px solid rgba(251,71,31,.2)}
+.el-context-strip{padding:9px 14px;border-bottom:1px solid var(--border-lt);background:var(--surface);font-size:13px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap}
+.el-context-strip span{display:inline-flex;align-items:center;gap:4px}
+.el-context-strip strong{color:var(--fb);font-weight:700}
+/* Roster slots */
+.el-roster{padding:10px 14px}
+.el-slot{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden}
+.el-slot:last-child{margin-bottom:0}
+.el-slot-filled{display:flex;align-items:center;gap:12px;padding:9px 12px}
+.el-slot-open{display:flex;align-items:center;gap:10px;padding:9px 12px;border-style:dashed;border-color:var(--border)}
+.el-slot-type{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);flex-shrink:0;min-width:120px}
+.el-slot-person{display:flex;align-items:center;gap:8px;flex:1}
+.el-slot-av{width:28px;height:28px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.el-slot-name{font-size:13.5px;font-weight:800;color:var(--fb)}
+.el-slot-branch{font-size:12px;color:var(--muted);margin-top:1px}
+.el-slot-actions{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.el-slot-tl-link{font-size:12px;font-weight:700;color:#006A8A;text-decoration:none;white-space:nowrap}
+.el-slot-tl-link:hover{text-decoration:underline}
+.el-slot-open-prompt{font-size:13px;color:var(--muted);font-style:italic;flex:1}
+.el-slot-add-btn{font-family:'Nunito Sans',sans-serif;font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid var(--mb);background:transparent;color:var(--mb);cursor:pointer;white-space:nowrap}
+.el-slot-add-btn:hover{background:var(--mb);color:#fff}
+.el-slot-travel{display:inline-flex;align-items:center;font-size:12px;font-weight:700;padding:1px 6px;border-radius:999px;background:#FFF5D6;color:#7A5C00;border:1px solid rgba(255,181,0,.3);margin-left:6px}
+/* Confirm bar */
+.el-confirm-bar{padding:10px 14px;border-top:1px solid var(--border-lt);background:#FFF8E6;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.el-confirm-msg{font-size:13px;font-weight:700;color:var(--fb)}
+.el-confirm-btn{font-family:'Nunito Sans',sans-serif;font-size:13px;font-weight:700;padding:5px 14px;border-radius:999px;border:none;background:var(--green);color:#fff;cursor:pointer}
+.el-confirm-btn:hover{opacity:.85}
+/* Roster name picker dropdown */
+.el-name-picker-wrap{position:relative;width:240px}
+.el-name-picker-input{font-family:'Nunito Sans',sans-serif;font-size:13px;padding:4px 8px;border:1.5px solid var(--mb);border-radius:6px;outline:none;width:100%;background:#fff;color:var(--fb)}
+.el-name-picker-drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--mb);border-top:none;border-radius:0 0 8px 8px;z-index:200;max-height:180px;overflow-y:auto;display:none}
+.el-name-picker-drop.open{display:block}
+.el-name-picker-item{padding:7px 10px;cursor:pointer;border-bottom:.5px solid var(--border-lt);font-size:13px}
+.el-name-picker-item:last-child{border-bottom:none}
+.el-name-picker-item:hover{background:var(--fb-xlt)}
+.el-name-picker-name{font-weight:700;color:var(--fb)}
+.el-name-picker-meta{font-size:11.5px;color:var(--muted)}
+/* Team Operations accordions */
+.el-team-ops{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.el-acc-item{border-bottom:1px solid var(--border-lt)}
+.el-acc-item:last-child{border-bottom:none}
+.el-acc-hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;user-select:none;transition:background .12s}
+.el-acc-hdr:hover{background:var(--fb-xlt)}
+.el-acc-hdr.el-acc-open{background:var(--fb-lt)}
+.el-acc-label{font-size:13.5px;font-weight:800;color:var(--fb)}
+.el-acc-chev{font-size:13px;color:var(--muted);transition:transform .2s}
+.el-acc-hdr.el-acc-open .el-acc-chev{transform:rotate(180deg)}
+.el-acc-body{display:none;border-top:1px solid var(--border-lt)}
+.el-acc-body.open{display:block}
+.el-role-group{padding:8px 14px 4px;border-bottom:1px solid var(--border-lt)}
+.el-role-group:last-child{border-bottom:none}
+.el-role-group-lbl{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px;padding-bottom:4px;border-bottom:1px solid var(--border-lt)}
+.el-task-row{display:flex;align-items:flex-start;justify-content:space-between;padding:7px 0;border-bottom:.5px solid var(--border-lt)}
+.el-task-row:last-child{border-bottom:none}
+.el-task-left{flex:1;min-width:0;padding-right:16px}
+.el-task-name{font-size:13.5px;font-weight:700;color:var(--fb);line-height:1.35}
+.el-task-meta{font-size:12px;color:var(--muted);margin-top:1px}
+.el-task-person{font-size:13px;font-weight:700;color:var(--fb);text-align:right;white-space:nowrap;flex-shrink:0}
+.el-task-person.unassigned{color:var(--orange)}
+/* ── END REDESIGN v13.0 ─────────────────────────────── */
 /* ══ END EVENTS LENS ══════════════════════════════════════════════════════ */
 
 /* ── TEAM LENS ─────────────────────────────────────────────────────────── */
@@ -5885,48 +5953,350 @@ var EL_AV_COLORS = [
 ];
 function elAvColor(idx) { return EL_AV_COLORS[idx % EL_AV_COLORS.length]; }
 
+// ======================================================
+// ROLE_ASSIGNMENTS — per-show staffing panel data
+// Keyed by job number. Each show has slots[] array.
+// slot: { type: 'cf'|'br'|'as'|'sv'|'fr', label, person|null, branch|null, homeBranch|null }
+// ======================================================
+var ROLE_ASSIGNMENTS = {};
+
+function elGetSlots(showId) {
+  return ROLE_ASSIGNMENTS[showId] ? ROLE_ASSIGNMENTS[showId].slots : null;
+}
+
+function elSetSlot(showId, slotIdx, personName) {
+  if (!ROLE_ASSIGNMENTS[showId]) return;
+  var slot = ROLE_ASSIGNMENTS[showId].slots[slotIdx];
+  if (!slot) return;
+  // Find person in TEAM_MEMBERS
+  var found = TEAM_MEMBERS.find(function(m) { return m.name === personName; });
+  if (found) {
+    slot.person = found.name;
+    slot.branch = found.branch;
+    // Traveling if branch != show's producing branch
+    var show = SHOWS[showId];
+    var showBranch = show ? (show.producingBranch || show.region) : '';
+    slot.homeBranch = (showBranch && found.branch && found.branch !== showBranch) ? found.branch : null;
+  } else {
+    slot.person = null;
+    slot.branch = null;
+    slot.homeBranch = null;
+  }
+  elRenderShow();
+}
+
+function elRemoveSlot(showId, slotIdx) {
+  if (!ROLE_ASSIGNMENTS[showId]) return;
+  var slot = ROLE_ASSIGNMENTS[showId].slots[slotIdx];
+  if (!slot) return;
+  slot.person = null;
+  slot.branch = null;
+  slot.homeBranch = null;
+  elRenderShow();
+}
+
+function elConfirmPlan(showId) {
+  if (!ROLE_ASSIGNMENTS[showId]) return;
+  var ra = ROLE_ASSIGNMENTS[showId];
+  // Validation: on-site lead (from context strip) must appear in slots
+  var show = SHOWS[showId];
+  var onSiteLead = show ? (show.lead || '') : '';
+  if (onSiteLead) {
+    var leadAssigned = ra.slots.some(function(sl) { return sl.person === onSiteLead; });
+    if (!leadAssigned) {
+      alert('The on-site lead must appear in the assignments before this plan can be confirmed.');
+      return;
+    }
+  }
+  ra.confirmed = true;
+  elRenderShow();
+}
+
+function elInitRoleAssignments(showId) {
+  if (ROLE_ASSIGNMENTS[showId]) return; // already initialized
+  var show = SHOWS[showId];
+  if (!show) return;
+  var rec = typeof ssCalcRec === 'function' ? ssCalcRec(show) : null;
+  if (!rec) return;
+  var slots = [];
+  var roleLabels = {cf:'Customer-facing',br:'Back room',as:'Additional support',sv:'Supervisory',fr:'Freight / storage desk'};
+  ['cf','br','as','sv','fr'].forEach(function(role) {
+    var count = rec[role] || 0;
+    // For 'fr', ssCalcRec doesn't always return it — check
+    if (role === 'fr') count = rec.fr || 0;
+    for (var i = 0; i < count; i++) {
+      slots.push({ type: role, label: roleLabels[role], person: null, branch: null, homeBranch: null });
+    }
+  });
+  ROLE_ASSIGNMENTS[showId] = { slots: slots, confirmed: false };
+}
+
+var EL_SLOT_PICKER_STATE = {}; // { showId, slotIdx } when picker open
+
+function elOpenNamePicker(showId, slotIdx) {
+  EL_SLOT_PICKER_STATE = { showId: showId, slotIdx: slotIdx };
+  elRenderShow(); // re-render with picker open
+}
+
+function elNamePickerSearch(val) {
+  var drop = document.getElementById('el-np-drop');
+  if (!drop) return;
+  var lower = val.toLowerCase();
+  var matches = TEAM_MEMBERS.filter(function(m) {
+    return m.name.toLowerCase().indexOf(lower) >= 0 || (m.branch || '').toLowerCase().indexOf(lower) >= 0;
+  }).slice(0, 12);
+  drop.innerHTML = matches.map(function(m) {
+    return '<div class="el-name-picker-item" onclick="elPickPerson(\'' + m.name.replace(/'/g,"\\'") + '\')">' +
+      '<div class="el-name-picker-name">' + m.name + '</div>' +
+      '<div class="el-name-picker-meta">' + (m.title||'') + ' · ' + (m.branch||'') + '</div></div>';
+  }).join('');
+  drop.classList.toggle('open', matches.length > 0);
+}
+
+function elPickPerson(name) {
+  var st = EL_SLOT_PICKER_STATE;
+  if (!st || !st.showId) return;
+  elSetSlot(st.showId, st.slotIdx, name);
+  EL_SLOT_PICKER_STATE = {};
+}
+
+function elCancelPicker() {
+  EL_SLOT_PICKER_STATE = {};
+  elRenderShow();
+}
+
+// ======================================================
+// TEAM OPS TASK MATRICES (Sections 15, 18, 19)
+// Locked phase matrices — reference only, no checkboxes
+// ======================================================
+var EL_TASKS = {
+  // ── PRE-EVENT (Section 15 — Locked) ──────────────────────────────────────
+  // platform: 'both'|'fnext'|'fnow'   svcModel: 'both'|'onsite'|'remote'
+  preEvent: {
+    offsiteLead: [
+      { name: 'Perform Flooring & Cleaning Audit', meta: 'SAP S4/HANA · 3 wks out (FNext) / 4 wks out (FNow)', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Flooring & Cleaning Audit (repeat)', meta: 'SAP S4/HANA · 2 weeks out', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Exhibitor List Audit', meta: 'SAP S4/HANA · 3 wks out (FNext) / 4 wks out (FNow)', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Exhibitor List Audit (repeat)', meta: 'SAP S4/HANA · 2 weeks out', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Third-Party Audit', meta: 'SAP S4/HANA · 3 wks out (FNext) / 4 wks out (FNow)', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Third-Party Audit (repeat)', meta: 'SAP S4/HANA · 2 weeks out', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Enotes Review', meta: 'Salesforce · 3 wks out (FNext) / 4 wks out (FNow)', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Enotes Review (repeat)', meta: 'Salesforce · 2 weeks out', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Payments & Collections Audit', meta: 'SAP S4/HANA · 3 wks out (FNext) / 4 wks out (FNow)', platform: 'both', svcModel: 'both' },
+      { name: 'Perform Payments & Collections Audit (repeat)', meta: 'SAP S4/HANA · 2 weeks out', platform: 'both', svcModel: 'both' },
+      { name: 'Contact Exhibitors with Freight, No MHA', meta: 'Salesforce · 3 wks out, 2 wks out, 1 wk out', platform: 'fnext', svcModel: 'onsite' },
+      { name: 'Manage Inbox (claim 24 hrs, resolve 48 hrs)', meta: 'Email · Ongoing', platform: 'both', svcModel: 'both' },
+      { name: 'Confirm Staffing', meta: '— · 3 weeks out', platform: 'both', svcModel: 'remote' },
+      { name: 'Prepare Service Plan', meta: '— · 3 weeks out', platform: 'both', svcModel: 'remote' },
+      { name: 'Send "Hello from Freeman" Email', meta: 'Outlook · 2 weeks out', platform: 'both', svcModel: 'remote' },
+      { name: 'Prepare & Email Remote "Need Help" Flyer', meta: '— · Prior to move-in', platform: 'both', svcModel: 'remote' }
+    ],
+    onsiteLead: [
+      { name: 'Enter Event Site Contacts / Players List', meta: 'SAP Event Portal (FNext) / FreemanOnline® (FNow) · As soon as scheduling begins', platform: 'both', svcModel: 'both' },
+      { name: 'Attend E3 Conference Calls (all four)', meta: '— · 120 / 90 / 60 / 30 days out', platform: 'both', svcModel: 'both' },
+      { name: 'Enter Event Notes / TSS Show Set Up', meta: 'SAP Event Portal (FNext) / TSS (FNow) · 6 weeks out', platform: 'both', svcModel: 'both' },
+      { name: 'Submit SERF', meta: '— · 6 weeks out', platform: 'both', svcModel: 'both' },
+      { name: 'Submit NERF', meta: '— · 60 days out', platform: 'both', svcModel: 'both' },
+      { name: 'Add FOL Contacts to Show', meta: 'SAP Event Portal / FOL · Before "Your Show Is Almost Here" email', platform: 'both', svcModel: 'both' },
+      { name: 'Attend Pre-Convention Meetings', meta: '— · Prior to move-in', platform: 'both', svcModel: 'both' },
+      { name: 'Add Show Information to Freeway', meta: 'Freeway · Prior to move-in', platform: 'fnow', svcModel: 'both' },
+      { name: 'Prepare Exhibitor Service Center Flyer', meta: '— · Prior to move-in', platform: 'both', svcModel: 'onsite' },
+      { name: 'Pack Service Desk Supplies', meta: '— · Prior to move-in', platform: 'both', svcModel: 'onsite' },
+      { name: 'Prepare Show Files', meta: '— · Prior to move-in', platform: 'both', svcModel: 'both' }
+    ],
+    ees: [
+      { name: 'Enter Event Site Contacts / Players List', meta: 'SAP Event Portal (FNext) / FreemanOnline® (FNow) · As soon as scheduling begins', platform: 'both', svcModel: 'both' },
+      { name: 'Attend E3 Conference Calls (all four)', meta: '— · 120 / 90 / 60 / 30 days out', platform: 'both', svcModel: 'both' },
+      { name: 'Enter Event Notes / TSS Show Set Up oversight', meta: 'SAP Event Portal (FNext) / TSS (FNow) · 6 weeks out', platform: 'both', svcModel: 'both' },
+      { name: 'Submit SERF', meta: '— · 6 weeks out', platform: 'both', svcModel: 'both' },
+      { name: 'Attend Pre-Convention Meetings', meta: '— · Prior to move-in', platform: 'both', svcModel: 'both' },
+      { name: 'Add Show Information to Freeway', meta: 'Freeway · Prior to move-in', platform: 'fnow', svcModel: 'both' },
+      { name: 'Confirm Staffing / Prepare Service Plan', meta: '— · 3 weeks out (remote events)', platform: 'both', svcModel: 'remote' },
+      { name: 'Periodic Event Portal / TSS oversight', meta: 'SAP Event Portal / TSS · Ongoing', platform: 'both', svcModel: 'both' }
+    ],
+    additional: [
+      { name: 'Familiarize with Assigned Events', meta: 'ES Platform (FNext) / FreemanOnline® + TSS (FNow) · Prior to move-in', platform: 'both', svcModel: 'both' }
+    ]
+  },
+  // ── ON-SITE / SERVICING (Section 18 — Locked) ────────────────────────────
+  onSite: {
+    offsiteLead: [
+      { name: 'Ensure Customer Contact Channels are Ready', meta: 'Five9 · Before exhibitor move-in begins', platform: 'both', svcModel: 'both' },
+      { name: 'Monitor Customer Contact Channels', meta: 'Five9 · Daily', platform: 'both', svcModel: 'both' },
+      { name: 'Manage Invoicing & Collection Process', meta: 'SAP S4/HANA · Once show opens', platform: 'both', svcModel: 'both' },
+      { name: 'Prepare Move-Out Documentation', meta: 'SAP S4/HANA, TSS · Before move-out begins', platform: 'both', svcModel: 'both' },
+      { name: 'Remove ES Contacts from FreemanOnline®', meta: 'FreemanOnline® · During move-out', platform: 'fnow', svcModel: 'both' }
+    ],
+    onsiteLead: [
+      { name: 'Set the Exhibitor Service Center', meta: '— · Once team arrives on-site', platform: 'both', svcModel: 'onsite' },
+      { name: 'Ensure Uniforms & Apparel are Correct', meta: '— · Once team arrives on-site', platform: 'both', svcModel: 'onsite' },
+      { name: 'Finalize Signage Accuracy', meta: '— · Before exhibitor move-in begins', platform: 'both', svcModel: 'both' },
+      { name: 'Prepare the On-Site Team (kickoff meeting)', meta: '— · Before exhibitor move-in begins', platform: 'both', svcModel: 'onsite' },
+      { name: 'Create and Distribute Daily Show Schedule', meta: '— · Before exhibitor move-in begins', platform: 'both', svcModel: 'onsite' },
+      { name: 'Facilitate Daily Pre-Shift ES Meetings', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Manage On-Site Workflow', meta: 'SAP S4/HANA, TSS · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Manage Lunch Schedules', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Monitor Staffing Levels', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Attend Production Meetings', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Attend Freight Meetings', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Oversee On-Site Billing', meta: 'SAP S4/HANA, TSS · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Keep Paperwork Organized', meta: '— · Daily', platform: 'both', svcModel: 'both' },
+      { name: 'Close Service Desk for Lunch & Close of Business', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Utilize "Sorry I Missed You!" Flyer', meta: '— · When stepping away during open hours', platform: 'both', svcModel: 'onsite' },
+      { name: 'Pack Equipment & Supplies', meta: '— · Once exhibitor move-out ends', platform: 'both', svcModel: 'onsite' },
+      { name: 'Tear Down Exhibitor Service Center', meta: '— · Once exhibitor move-out ends', platform: 'both', svcModel: 'onsite' }
+    ],
+    ees: [
+      { name: 'Ensure Customer Contact Channels are Ready', meta: 'Five9 · Before exhibitor move-in begins', platform: 'both', svcModel: 'both' },
+      { name: 'Finalize Signage Accuracy', meta: '— · Before exhibitor move-in begins', platform: 'both', svcModel: 'both' },
+      { name: 'Prepare the On-Site Team (kickoff meeting)', meta: '— · Before exhibitor move-in begins', platform: 'both', svcModel: 'onsite' },
+      { name: 'Create and Distribute Daily Show Schedule', meta: '— · Before exhibitor move-in begins', platform: 'both', svcModel: 'onsite' },
+      { name: 'Facilitate Daily Pre-Shift ES Meetings', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Monitor Customer Contact Channels', meta: 'Five9 · Daily', platform: 'both', svcModel: 'both' },
+      { name: 'Monitor Staffing Levels', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Attend Production Meetings', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Attend Freight Meetings', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Oversee On-Site Billing', meta: 'SAP S4/HANA, TSS · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Manage Invoicing & Collection Process', meta: 'SAP S4/HANA · Once show opens', platform: 'both', svcModel: 'both' },
+      { name: 'Prepare Move-Out Documentation', meta: 'SAP S4/HANA, TSS · Before move-out begins', platform: 'both', svcModel: 'both' }
+    ],
+    additional: [
+      { name: 'Walk the Show Floor & Engage Exhibitors', meta: 'iPad / card reader · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Process Collections on the Floor', meta: 'SAP S4/HANA · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Proactively Introduce Services to Exhibitors', meta: '— · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Process OnBase Orders', meta: 'OnBase · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Process Labor Tickets', meta: 'SAP S4/HANA · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Process Freight Billing', meta: 'SAP S4/HANA · Daily', platform: 'both', svcModel: 'onsite' },
+      { name: 'Conduct Pre-Invoicing Audits', meta: 'SAP S4/HANA · Before invoicing', platform: 'both', svcModel: 'onsite' }
+    ]
+  },
+  // ── POST-EVENT / FINALIZING (Section 19 — Locked) ────────────────────────
+  postEvent: {
+    offsiteLead: [
+      { name: 'Monitor Customer Contact Channels Post-Show', meta: 'Five9 · Show close through +8 biz days', platform: 'both', svcModel: 'both' }
+    ],
+    onsiteLead: [
+      { name: 'Complete Labor Post-Show Billing (Pending Orders Report)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Complete Labor Post-Show Billing (Labor Audit)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Complete Freight Post-Show Billing (Pending Frt Report)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Complete Freight Post-Show Billing (Freight Audit)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Complete Freight Post-Show Billing (MHA)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Conduct Pre-Invoice Audit — Credits & Discounts', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Conduct Pre-Invoice Audit — EAC Billing', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Conduct Pre-Invoice Audit — Single Invoice', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Conduct Pre-Invoice Audit — DNI', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Conduct Pre-Invoice Audit — Check-Before-Invoicing Enotes', meta: 'Salesforce · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Remove Invoice Hold in SAP', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Issue Refunds via CX Bulk Refunds', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Send Event Statements', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Complete ES Post-Event Feedback Survey', meta: 'Qualtrics · Show close (same day)', platform: 'both', svcModel: 'both' },
+      { name: 'Attend Debrief Meeting', meta: '— · ~1 week post-close (scheduled by Growth)', platform: 'both', svcModel: 'both' }
+    ],
+    ees: [
+      { name: 'Complete Labor Post-Show Billing (Pending Orders Report)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Complete Labor Post-Show Billing (Labor Audit)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Complete Freight Post-Show Billing (Pending Frt Report)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Complete Freight Post-Show Billing (Freight Audit)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Complete Freight Post-Show Billing (MHA)', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Conduct Pre-Invoice Audits (all types)', meta: 'SAP S4/HANA / Salesforce · Within 8 biz days of show close', platform: 'both', svcModel: 'both' },
+      { name: 'Remove Invoice Hold in SAP', meta: 'SAP S4/HANA · Within 8 biz days of show close', platform: 'both', svcModel: 'both' }
+    ],
+    additional: [
+      { name: 'No finalizing tasks assigned to additional on-site team', meta: 'N/A', platform: 'both', svcModel: 'both' }
+    ]
+  }
+};
+var EL_ROLE_GROUP_LABELS = {
+  offsiteLead: 'Off-site lead tasks',
+  onsiteLead: 'On-site lead tasks',
+  ees: 'EES tasks',
+  additional: 'Additional on-site team'
+};
+
+function elGetActivePhase(show) {
+  var today = new Date().toISOString().slice(0,10);
+  var moveIn = show.moveInStart || '';
+  var clear = show.clearDate || '';
+  if (!moveIn) return 'pre';
+  if (today < moveIn) return 'pre';
+  // clearDate + 1 day
+  if (clear) {
+    var clearPlus1 = new Date(clear);
+    clearPlus1.setDate(clearPlus1.getDate() + 1);
+    var clearPlus1Str = clearPlus1.toISOString().slice(0,10);
+    if (today > clearPlus1Str) return 'post';
+  }
+  return 'onsite';
+}
+
+function elGetRolePersonForPhase(showId, roleLookup) {
+  // Map role group label to slot types in ROLE_ASSIGNMENTS
+  // offsiteLead → assigned person in any slot? We look at NSS fields as fallback
+  var show = SHOWS[showId];
+  var ra = ROLE_ASSIGNMENTS[showId];
+  if (roleLookup === 'offsiteLead') {
+    // Off-site lead comes from NSS offsitePrep field or RA
+    if (show && show.offsitePrep && show.offsitePrep !== 'Branch') return show.offsitePrep;
+    return null;
+  }
+  if (roleLookup === 'onsiteLead') {
+    if (show && show.lead) return show.lead;
+    return null;
+  }
+  if (roleLookup === 'ees') {
+    if (show && show.supervisor && show.supervisor !== 'No Supervisor') return show.supervisor;
+    return null;
+  }
+  return null;
+}
+
+// ======================================================
+// MAIN RENDER (replaces existing elRenderShow)
+// ======================================================
 function elRenderShow() {
   var el = document.getElementById('el-content');
   if (!el) return;
   if (!elSelId || !SHOWS[elSelId]) {
-    el.innerHTML = '<div class="el-empty"><div class="el-empty-icon">\uD83D\uDCC5</div><div class="el-empty-msg">Select a show to view its event profile</div><div class="el-empty-sub">Search by show name or job number above, or click any show in Active Events</div></div>';
+    el.innerHTML = '<div class="el-empty"><div class="el-empty-icon">&#128197;</div><div class="el-empty-msg">Select a show to view its event profile</div><div class="el-empty-sub">Search by show name or job number above, or click any show in Active Events</div></div>';
     return;
   }
   var s = SHOWS[elSelId];
   var today = new Date().toISOString().slice(0,10);
-  var plan = ssPlans[elSelId];
-  var planConfirmed = plan && plan.confirmed;
 
-  // Header
+  // Init ROLE_ASSIGNMENTS for this show
+  elInitRoleAssignments(elSelId);
+  var ra = ROLE_ASSIGNMENTS[elSelId];
+  var planConfirmed = ra && ra.confirmed;
+
+  // --------------------------------------------------
+  // IDENTITY HEADER — revised (Growth Contacts inline)
+  // --------------------------------------------------
   var rdDisplay = s.rdName || '';
+  var growthMeta = '';
+  if (s.growthOwner || s.growthAE) {
+    var gPeople = [s.growthOwner, s.growthAE].filter(Boolean);
+    growthMeta = ' · Growth: ' + gPeople.join(', ');
+  }
+
   var flagsHtml = '';
-  // 1. Platform (Freeman Now / Freeman Next) — always shown
   var isNext = s.freemanPlatform === 'Freeman Next';
   flagsHtml += isNext
     ? '<span class="chip" style="background:#CBF0FC;color:#005A75;border:1.5px solid #7DD9F3;font-weight:700">Freeman Next</span> '
     : '<span class="chip" style="background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;font-weight:700">Freeman Now</span> ';
-  // 2. Service model
   if (s.serviceModel && s.serviceModel !== '') flagsHtml += '<span class="chip chip-mb">' + s.serviceModel + '</span> ';
-  // 3. Custom staffing flag
   if (s.standardModel === 'No') flagsHtml += '<span class="chip chip-amber">Custom Staffing</span> ';
-  // 4. FTE
   if (s.fte === 'Y') flagsHtml += '<span class="chip chip-green">FTE</span> ';
-  // 5. Freeman AV
   if (s.freemanAV === 'Yes') flagsHtml += '<span class="chip chip-mb">Freeman AV</span> ';
-  // 6. Electrical Only / Electrical
   if (s.freemanElectricalOnly) {
     flagsHtml += '<span class="chip chip-ghost">Electrical Only</span> ';
   } else if (s.freemanElectrical === 'TRUE' || s.freemanElectrical === 'True' || s.freemanElectrical === 'true') {
     flagsHtml += '<span class="chip chip-ghost">Electrical</span> ';
   }
-  // 7. Non-Standard MH (shown only when perLbMH is NOT Y, and not electrical-only)
   if (s.perLbMH === 'N' && !s.freemanElectricalOnly) flagsHtml += '<span class="chip chip-ghost">Non-Standard MH</span> ';
-  // 8. Exhibitor Store link (platform-aware URL)
   var ecomUrl = isNext
     ? 'https://store.freeman.com/event-homepage?eventId=' + elSelId
     : 'https://www.freemanco.com/store/show/landing?showID=' + elSelId;
   flagsHtml += '<a class="chip chip-mb" href="' + ecomUrl + '" target="_blank" style="text-decoration:none">Exhibitor Store ↗</a> ';
-  // 9. Prior year job number — shown whenever populated; clickable only if PY show exists in SHOWS
   if (s.pyJobNumber) {
     var pyInShows = !!SHOWS[s.pyJobNumber];
     if (pyInShows) {
@@ -5941,15 +6311,17 @@ function elRenderShow() {
     '<div class="el-id-card-body">' +
       '<div class="el-show-title">' + s.name + '</div>' +
       '<div class="el-show-meta">' +
-        '<span>\uD83D\uDCCD ' + (s.facility||s.city) + ', ' + s.city + '</span>' +
-        '<span>\uD83C\uDFE2 ' + (s.producingBranch||s.region) + '</span>' +
-        (rdDisplay ? '<span>\uD83D\uDC64 ' + rdDisplay + ', RD</span>' : '') +
+        '<span>&#128205; ' + (s.facility||s.city) + ', ' + s.city + '</span>' +
+        '<span>&#127962; ' + (s.producingBranch||s.region) + '</span>' +
+        (rdDisplay ? '<span>&#128100; ' + rdDisplay + ', RD' + growthMeta + '</span>' : (growthMeta ? '<span>' + growthMeta.replace(' · ','') + '</span>' : '')) +
       '</div>' +
     '</div>' +
     (flagsHtml ? '<div class="el-id-card-chips">' + flagsHtml + '</div>' : '') +
   '</div>';
 
-  // Timeline
+  // --------------------------------------------------
+  // EVENT TIMELINE — unchanged
+  // --------------------------------------------------
   var tlSteps = [
     {key:'discountDate',   lbl:'Discount deadline'},
     {key:'advFreightDate', lbl:'Advance freight deadline'},
@@ -5968,7 +6340,7 @@ function elRenderShow() {
     if (state === 'done') passedCount++;
     var isClose8 = step.key === 'showClosePlus8';
     var dotCls = state==='done' ? 'el-dot el-dot-done' : state==='active' ? 'el-dot el-dot-active' : isClose8 ? 'el-dot el-dot-close' : 'el-dot el-dot-pending';
-    var inner = state==='done' ? '<span style="color:#fff;font-size:11px;font-weight:800">\u2713</span>' : isClose8 ? '<span style="color:var(--fb);font-size:10px;font-weight:800">+8</span>' : '';
+    var inner = state==='done' ? '<span style="color:#fff;font-size:11px;font-weight:800">✓</span>' : isClose8 ? '<span style="color:var(--fb);font-size:10px;font-weight:800">+8</span>' : '';
     dotsHtml += '<div class="el-dot-cell"><div class="' + dotCls + '">' + inner + '</div></div>';
     var lblBold = (step.key==='showClose' && state!=='done') || isClose8;
     var dateColor = state==='active' ? '#cc9200' : state==='pending' && !isClose8 ? 'var(--muted)' : isClose8 ? 'var(--fb)' : 'var(--fb)';
@@ -5977,7 +6349,6 @@ function elRenderShow() {
   });
   dotsHtml += '</div>';
   labelsHtml += '</div>';
-  // Inject progress track
   var pct = Math.round((passedCount / tlSteps.length) * 100);
   dotsHtml = dotsHtml.replace('<div class="el-dot-row">',
     '<div class="el-dot-row"><div class="el-track"></div><div style="position:absolute;top:50%;left:12px;height:2px;background:var(--green);width:' + pct + '%;transform:translateY(-50%);z-index:1"></div>');
@@ -5991,7 +6362,9 @@ function elRenderShow() {
       '<div class="el-leg"><div class="el-leg-dot" style="background:var(--fb-lt);border:1.5px solid var(--fb)"></div>Show close +8 (8th business day)</div>' +
     '</div></div></div>';
 
-  // Revenue section
+  // --------------------------------------------------
+  // EVENT SCALE & REVENUE — unchanged
+  // --------------------------------------------------
   html += '<div class="el-section-div">Event Scale &amp; Revenue</div>';
   var curBooths = s.currentBooths || s.projectedBooths || 0;
   var projBooths = s.projectedBooths || 0;
@@ -6015,7 +6388,7 @@ function elRenderShow() {
       '<div class="el-stat-val">' + curBooths.toLocaleString() + '</div>' +
       '<div class="el-prog"><div class="el-prog-fill" style="width:'+boothPct+'%;background:var(--mb)"></div></div>' +
       '<div class="el-delta-row"><span class="el-mu">vs '+projBooths.toLocaleString()+' projected</span>' +
-      (boothDelta!==0?'<span class="'+(boothDelta>0?'el-up':'el-dn')+'">'+(boothDelta>0?'\u25b2':'\u25bc')+' '+Math.abs(boothDelta).toLocaleString()+' YoY</span>':'')+
+      (boothDelta!==0?'<span class="'+(boothDelta>0?'el-up':'el-dn')+'">'+(boothDelta>0?'▲':'▼')+' '+Math.abs(boothDelta).toLocaleString()+' YoY</span>':'')+
     '</div></div></div>' +
     '<div class="el-card" style="border-top:3px solid var(--green)"><div class="el-card-body">' +
       '<div class="el-stat-lbl">Revenue actuals</div>' +
@@ -6029,73 +6402,176 @@ function elRenderShow() {
       '<div class="el-stat-val">'+(orderPct>0?orderPct.toFixed(1)+'%':'&#8212;')+'</div>' +
       '<div class="el-prog"><div class="el-prog-fill" style="width:'+Math.min(100,Math.round(orderPct))+'%;background:var(--gold)"></div></div>' +
       '<div class="el-delta-row"><span class="el-mu">prior year: '+(pyOrderPct>0?pyOrderPct.toFixed(1)+'%':'&#8212;')+'</span>' +
-      (orderDelta!==0?'<span class="'+(orderDelta>0?'el-up':'el-dn')+'">'+(orderDelta>0?'\u25b2':'\u25bc')+' '+Math.abs(orderDelta).toFixed(1)+' pts</span>':'')+
+      (orderDelta!==0?'<span class="'+(orderDelta>0?'el-up':'el-dn')+'">'+(orderDelta>0?'▲':'▼')+' '+Math.abs(orderDelta).toFixed(1)+' pts</span>':'')+
     '</div></div></div>' +
   '</div>';
 
-  // 3-col: Staffing + ES Team + Growth
-  html += '<div class="el-3col">';
+  // --------------------------------------------------
+  // STAFFING & SCHEDULING — unified new panel
+  // --------------------------------------------------
+  html += '<div class="el-section-div">Staffing &amp; Scheduling</div>';
 
-  // Staffing plan
   var rec = typeof ssCalcRec === 'function' ? ssCalcRec(s) : null;
-  var cf = rec ? rec.cf : (s.onSiteReps||0);
-  var br = rec ? rec.br : (s.remoteReps||0);
-  var as2 = rec ? rec.as : 0;
-  var sv = rec ? rec.sv : 0;
-  var fr = rec ? (rec.fr||0) : 0;
-  var totalReps = s.totalReps || (cf+br+as2+sv+fr);
-  var isCustom = s.standardModel === 'No';
-  var ssLinkTxt = planConfirmed ? '\uD83D\uDCCB View confirmed staffing plan \u2197' : '\uD83D\uDCCB Open in Staffing &amp; Scheduling \u2197';
-  var ssLinkClick = "goToSsFromEvents('" + elSelId + "');return false;";
 
-  html += '<div class="el-card"><div class="el-card-hdr"><span class="el-card-hdr-title">Staffing plan</span></div><div class="el-card-body">' +
-    '<div class="el-role-row"><span class="el-role-name">Customer-facing roles</span><span class="el-role-count">'+cf+'</span></div>' +
-    '<div class="el-role-row"><span class="el-role-name">Back room roles</span><span class="el-role-count">'+br+'</span></div>' +
-    '<div class="el-role-row"><span class="el-role-name">Additional support roles</span><span class="el-role-count">'+as2+'</span></div>' +
-    '<div class="el-role-row"><span class="el-role-name">Supervisory roles</span><span class="el-role-count">'+sv+'</span></div>' +
-    '<div class="el-role-row"><span class="el-role-name">Freight / storage desk</span><span class="el-role-count">'+fr+'</span></div>' +
-    '<div class="el-role-total"><span class="el-role-total-lbl">Total rep count</span><span class="el-role-total-val">'+totalReps+'</span></div>' +
-    '<div style="margin-top:10px"><div class="el-kv" style="border-bottom:none"><span class="el-kl">Standard model?</span><span class="el-kv-v" style="color:'+(isCustom?'var(--orange)':'var(--green)')+'">'+((s.standardModel)||'&#8212;')+(isCustom&&s.customReason?' &#8212; '+s.customReason:'')+'</span></div></div>' +
-    '<a class="el-ss-link" onclick="'+ssLinkClick+'" href="#">'+ssLinkTxt+'</a>' +
-  '</div></div>';
+  if (!ra || !rec) {
+    html += '<div class="el-ss-panel"><div class="el-ss-panel-hdr"><span class="el-ss-panel-title">Staffing plan</span><span style="font-size:13px;color:var(--muted)">Staffing data not available for this show</span></div></div>';
+  } else {
+    var openSlots = ra.slots.filter(function(sl) { return !sl.person; }).length;
+    var headerTitle = planConfirmed ? 'Confirmed staffing plan' : 'Proposed staffing plan';
+    var headerRight = planConfirmed ? '' :
+      '<a class="el-ss-panel-link" href="#" onclick="goToSsFromEvents(\'' + elSelId + '\');return false;">Open in Staffing &amp; Scheduling ↗</a>';
+    var gapBadge = (!planConfirmed && openSlots > 0) ?
+      '<span class="el-ss-gap-badge" style="margin-left:10px">' + openSlots + ' slot' + (openSlots>1?'s':'') + ' open</span>' : '';
 
-  // ES Team
-  var teamPeople = [];
-  if (s.rdName) teamPeople.push({name:s.rdName, role:'Regional Director'});
-  if (s.directors && s.directors.length) {
-    var dl = s.directors.filter(function(d){return d&&d.trim();});
-    if (dl.length) teamPeople.push({name: dl.length>2 ? dl[0]+' +'+(dl.length-1) : dl.join(', '), role:'Directors / Managers'});
-  }
-  if (s.supervisor && s.supervisor!=='No Supervisor') teamPeople.push({name:s.supervisor, role:'On-Site Supervisor'});
-  if (s.lead) teamPeople.push({name:s.lead, role:'On-Site Lead'});
-  if (s.offsitePrep && s.offsitePrep!=='Branch') teamPeople.push({name:s.offsitePrep, role:'Off-Site \u2014 Prep'});
-  var teamHtml = teamPeople.map(function(p,i){
-    var av=elAvColor(i);
-    return '<div class="el-person"><div class="el-av" style="background:'+av.bg+';color:'+av.color+'">'+elInitials(p.name)+'</div>' +
-      '<div><div class="el-p-name">'+p.name+'</div><div class="el-p-role">'+p.role+'</div></div></div>';
-  }).join('');
-  var deskHtml = s.serviceDesk ? '<div class="el-desk-strip">' +
-    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--mb)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.86 9.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012.77 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L7.09 8.91a16 16 0 006 6l.91-.91a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>' +
-    '<span class="el-desk-lbl">Service desk</span><span class="el-desk-val">'+s.serviceDesk+'</span></div>' : '';
-  html += '<div class="el-card"><div class="el-card-hdr"><span class="el-card-hdr-title">ES team</span></div><div class="el-card-body">'+teamHtml+deskHtml+'</div></div>';
+    html += '<div class="el-ss-panel">' +
+      '<div class="el-ss-panel-hdr">' +
+        '<span class="el-ss-panel-title">' + headerTitle + gapBadge + '</span>' +
+        headerRight +
+      '</div>';
 
-  // Growth contacts
-  var gHtml = '';
-  if (s.growthOwner) gHtml += '<div class="el-person"><div class="el-av" style="background:#FFF5D6;color:#7A5C00">'+elInitials(s.growthOwner)+'</div><div><div class="el-p-name">'+s.growthOwner+'</div><div class="el-p-role">Opportunity Owner</div></div></div>';
-  if (s.growthAE) gHtml += '<div class="el-person"><div class="el-av" style="background:#FFF5D6;color:#7A5C00">'+elInitials(s.growthAE)+'</div><div><div class="el-p-name">'+s.growthAE+'</div><div class="el-p-role">Producing AE</div></div></div>';
-  if (!gHtml) gHtml = '<div style="padding:12px 0;font-size:13.5px;color:var(--muted)">No growth contacts on file</div>';
-  html += '<div class="el-card"><div class="el-card-hdr"><span class="el-card-hdr-title">Growth contacts</span></div><div class="el-card-body">'+gHtml+'</div></div>';
-
-  html += '</div>'; // close el-3col
-
-  // Team ops placeholders
-  html += '<div class="el-section-div" style="margin-top:14px">Team operations</div>' +
-    '<div class="el-2col" style="margin-bottom:10px">' +
-      '<div class="el-cs"><div class="el-cs-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="el-cs-title">ESM task compliance</div><div class="el-cs-sub">SERF, NERF, FOL, show close &#8212; not yet built</div></div></div>' +
-      '<div class="el-cs"><div class="el-cs-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="el-cs-title">Timekeeping &amp; hours</div><div class="el-cs-sub">Workfront hours by team member &#8212; not yet built</div></div></div>' +
+    // Context strip
+    var onSiteLead = s.lead || '—';
+    var supervisor = (s.supervisor && s.supervisor !== 'No Supervisor') ? s.supervisor : '—';
+    var offsiteLead = (s.offsitePrep && s.offsitePrep !== 'Branch') ? s.offsitePrep : 'Not yet assigned';
+    html += '<div class="el-context-strip">' +
+      '<span>On-site lead: <strong>' + onSiteLead + '</strong></span>' +
+      '<span>Supervisor: <strong>' + supervisor + '</strong></span>' +
+      '<span>Off-site lead: <strong>' + offsiteLead + '</strong></span>' +
     '</div>';
 
-  // Service excellence placeholders
+    // Roster slots
+    var pickerState = EL_SLOT_PICKER_STATE;
+    html += '<div class="el-roster">';
+    ra.slots.forEach(function(slot, idx) {
+      var isPickerOpen = pickerState && pickerState.showId === elSelId && pickerState.slotIdx === idx;
+      if (slot.person) {
+        // Filled slot
+        var avColors = [
+          {bg:'#EBF8FF',color:'#005A75'},{bg:'#EAFAF0',color:'#1A6B35'},{bg:'#FFF5D6',color:'#7A5C00'},
+          {bg:'#F3F0FF',color:'#5B3FBF'},{bg:'#FFE4E1',color:'#8B2500'},{bg:'#E0F7FA',color:'#006064'}
+        ];
+        var av = avColors[idx % avColors.length];
+        var initials = elInitials(slot.person);
+        var travelChip = slot.homeBranch ? '<span class="el-slot-travel">Traveling — ' + slot.homeBranch + '</span>' : '';
+        html += '<div class="el-slot">' +
+          '<div class="el-slot-filled">' +
+            '<span class="el-slot-type">' + slot.label + '</span>' +
+            '<div class="el-slot-person">' +
+              '<div class="el-slot-av" style="background:' + av.bg + ';color:' + av.color + '">' + initials + '</div>' +
+              '<div><div class="el-slot-name">' + slot.person + travelChip + '</div>' +
+              '<div class="el-slot-branch">' + (slot.branch||'') + '</div></div>' +
+            '</div>' +
+            '<div class="el-slot-actions">' +
+              '<a class="el-slot-tl-link" href="#" onclick="tlSelectPerson(\'' + slot.person.replace(/'/g,"\\'") + '\');showPage(\'team\');return false;">View in Team Lens ↗</a>' +
+              (!planConfirmed ? '<button onclick="elRemoveSlot(\'' + elSelId + '\',' + idx + ')" style="font-family:\'Nunito Sans\',sans-serif;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;margin-left:8px">Remove</button>' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      } else if (isPickerOpen) {
+        // Picker open for this slot
+        html += '<div class="el-slot" style="border-color:var(--mb)">' +
+          '<div class="el-slot-filled">' +
+            '<span class="el-slot-type">' + slot.label + '</span>' +
+            '<div class="el-name-picker-wrap">' +
+              '<input id="el-np-input" class="el-name-picker-input" type="text" placeholder="Search team members..." oninput="elNamePickerSearch(this.value)" onkeydown="if(event.key===\'Escape\')elCancelPicker()" autofocus />' +
+              '<div id="el-np-drop" class="el-name-picker-drop"></div>' +
+            '</div>' +
+            '<button onclick="elCancelPicker()" style="font-family:\'Nunito Sans\',sans-serif;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;margin-left:8px">Cancel</button>' +
+          '</div>' +
+        '</div>';
+      } else {
+        // Open slot
+        html += '<div class="el-slot">' +
+          '<div class="el-slot-open">' +
+            '<span class="el-slot-type">' + slot.label + '</span>' +
+            '<span class="el-slot-open-prompt">Assign a team member to this slot</span>' +
+            (!planConfirmed ? '<button class="el-slot-add-btn" onclick="elOpenNamePicker(\'' + elSelId + '\',' + idx + ')">+ Add</button>' : '') +
+          '</div>' +
+        '</div>';
+      }
+    });
+    html += '</div>'; // close el-roster
+
+    // Confirm bar (only when proposed)
+    if (!planConfirmed) {
+      html += '<div class="el-confirm-bar">' +
+        '<span class="el-confirm-msg">When ready, confirm assignments to lock this plan.</span>' +
+        '<button class="el-confirm-btn" onclick="elConfirmPlan(\'' + elSelId + '\')">Confirm assignments</button>' +
+      '</div>';
+    }
+
+    html += '</div>'; // close el-ss-panel
+  }
+
+  // --------------------------------------------------
+  // TEAM OPERATIONS — three-accordion section
+  // --------------------------------------------------
+  html += '<div class="el-section-div" style="margin-top:14px">Team Operations</div>';
+
+  var activePhase = elGetActivePhase(s);
+  var accDefs = [
+    { key: 'pre',    label: 'Pre-event',  tasks: EL_TASKS.preEvent,  phaseKey: 'pre' },
+    { key: 'onsite', label: 'On-site',    tasks: EL_TASKS.onSite,    phaseKey: 'onsite' },
+    { key: 'post',   label: 'Post-event', tasks: EL_TASKS.postEvent,  phaseKey: 'post' }
+  ];
+
+  html += '<div class="el-team-ops">';
+  accDefs.forEach(function(acc) {
+    var isActive = (activePhase === acc.phaseKey);
+    var hdrCls = 'el-acc-hdr' + (isActive ? ' el-acc-open' : '');
+    var bodyCls = 'el-acc-body' + (isActive ? ' open' : '');
+    html += '<div class="el-acc-item">' +
+      '<div class="' + hdrCls + '" onclick="elToggleAcc(this)">' +
+        '<span class="el-acc-label">' + acc.label + '</span>' +
+        '<span class="el-acc-chev">▾</span>' +
+      '</div>' +
+      '<div class="' + bodyCls + '">';
+
+    // Role groups inside accordion
+    var showPlatform = s.freemanPlatform === 'Freeman Next' ? 'fnext' : 'fnow';
+    var showSvcModel = (s.serviceModel && s.serviceModel.toLowerCase().indexOf('remote') >= 0) ? 'remote' : 'onsite';
+    ['offsiteLead','onsiteLead','ees','additional'].forEach(function(roleKey) {
+      var allTasks = acc.tasks[roleKey];
+      // Filter tasks to only those applicable for this show's platform and service model
+      var tasks = allTasks.filter(function(t) {
+        var pOk = !t.platform || t.platform === 'both' || t.platform === showPlatform;
+        var sOk = !t.svcModel || t.svcModel === 'both' || t.svcModel === showSvcModel;
+        return pOk && sOk;
+      });
+      if (tasks.length === 0) return; // skip group entirely if no applicable tasks
+      var person = elGetRolePersonForPhase(elSelId, roleKey);
+      var groupLabel = EL_ROLE_GROUP_LABELS[roleKey];
+      html += '<div class="el-role-group">' +
+        '<div class="el-role-group-lbl">' + groupLabel + '</div>';
+      tasks.forEach(function(task) {
+        var personDisplay = '';
+        if (roleKey === 'additional') {
+          personDisplay = '<span class="el-task-person" style="color:var(--muted);font-style:italic">—</span>';
+        } else if (person) {
+          personDisplay = '<span class="el-task-person">' + person + '</span>';
+        } else {
+          personDisplay = '<span class="el-task-person unassigned">' +
+            (roleKey==='offsiteLead'?'Off-site lead':roleKey==='onsiteLead'?'On-site lead':'Supervisor') +
+            ' unassigned</span>';
+        }
+        html += '<div class="el-task-row">' +
+          '<div class="el-task-left">' +
+            '<div class="el-task-name">' + task.name + '</div>' +
+            '<div class="el-task-meta">' + task.meta + '</div>' +
+          '</div>' +
+          personDisplay +
+        '</div>';
+      });
+      html += '</div>'; // close role-group
+    });
+
+    html += '</div></div>'; // close acc-body + acc-item
+  });
+  html += '</div>'; // close el-team-ops
+
+  // --------------------------------------------------
+  // SERVICE EXCELLENCE — unchanged placeholders
+  // --------------------------------------------------
   html += '<div class="el-section-div">Service excellence</div>' +
     '<div class="el-3col">' +
       '<div class="el-cs"><div class="el-cs-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="el-cs-title">Post-show survey results</div><div class="el-cs-sub">Requires Qualtrics API integration</div></div></div>' +
@@ -6104,7 +6580,21 @@ function elRenderShow() {
     '</div>';
 
   el.innerHTML = html;
+
+  // Focus the picker input if open
+  if (EL_SLOT_PICKER_STATE && EL_SLOT_PICKER_STATE.showId) {
+    var inp = document.getElementById('el-np-input');
+    if (inp) { setTimeout(function(){inp.focus();},50); }
+  }
 }
+
+function elToggleAcc(hdrEl) {
+  var body = hdrEl.nextElementSibling;
+  var isOpen = hdrEl.classList.contains('el-acc-open');
+  hdrEl.classList.toggle('el-acc-open', !isOpen);
+  if (body) body.classList.toggle('open', !isOpen);
+}
+
 
 function goToSsFromEvents(showId) {
   event.preventDefault();
