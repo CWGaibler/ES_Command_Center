@@ -643,7 +643,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 
 /* ── EVENTS LENS REDESIGN v13.0 ─────────────────────── */
 /* Staffing & Scheduling unified panel */
-.el-ss-panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.el-ss-panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:visible;margin-bottom:10px}
 .el-ss-panel-hdr{padding:10px 14px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center;justify-content:space-between}
 .el-ss-panel-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
 .el-ss-panel-link{font-size:13px;font-weight:700;color:#006A8A;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
@@ -653,8 +653,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .el-context-strip span{display:inline-flex;align-items:center;gap:4px}
 .el-context-strip strong{color:var(--fb);font-weight:700}
 /* Roster slots */
-.el-roster{padding:10px 14px}
-.el-slot{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden}
+.el-roster{padding:10px 14px;overflow:visible}
+.el-slot{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:visible;position:relative}
 .el-slot:last-child{margin-bottom:0}
 .el-slot-filled{display:flex;align-items:center;gap:12px;padding:9px 12px}
 .el-slot-open{display:flex;align-items:center;gap:10px;padding:9px 12px;border-style:dashed;border-color:var(--border)}
@@ -676,9 +676,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .el-confirm-btn{font-family:'Nunito Sans',sans-serif;font-size:13px;font-weight:700;padding:5px 14px;border-radius:999px;border:none;background:var(--green);color:#fff;cursor:pointer}
 .el-confirm-btn:hover{opacity:.85}
 /* Roster name picker dropdown */
-.el-name-picker-wrap{position:relative;width:240px}
+.el-name-picker-wrap{position:relative;width:240px;z-index:9999}
 .el-name-picker-input{font-family:'Nunito Sans',sans-serif;font-size:13px;padding:4px 8px;border:1.5px solid var(--mb);border-radius:6px;outline:none;width:100%;background:#fff;color:var(--fb)}
-.el-name-picker-drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--mb);border-top:none;border-radius:0 0 8px 8px;z-index:200;max-height:180px;overflow-y:auto;display:none}
+.el-name-picker-drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--mb);border-top:none;border-radius:0 0 8px 8px;z-index:9999;max-height:180px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,31,95,.15)}
 .el-name-picker-drop.open{display:block}
 .el-name-picker-item{padding:7px 10px;cursor:pointer;border-bottom:.5px solid var(--border-lt);font-size:13px}
 .el-name-picker-item:last-child{border-bottom:none}
