@@ -2740,7 +2740,8 @@ var APPROVAL_STAGES = {
   'interviewing':        {label:'Interviewing',  cls:'chip-amber',       nextStage:'offer',        stagePhase:3},
   'offer':               {label:'Offer Stage',   cls:'chip-green',       nextStage:'complete',     stagePhase:3},
   'complete':            {label:'Complete',      cls:'chip-ghost',       nextStage:null,           stagePhase:4},
-  'rejected':            {label:'Rejected',      cls:'chip-rejected',    nextStage:null,           stagePhase:0}
+  'rejected':            {label:'Rejected',      cls:'chip-rejected',    nextStage:null,           stagePhase:0},
+  'denied':              {label:'Denied',        cls:'chip-rejected',    nextStage:null,           stagePhase:0}
 };
 
 // Stage gate: which tasks are active at each pipeline stage?
@@ -3153,6 +3154,19 @@ function rhAdvanceStage(hId) {
   renderList(); renderDetail(); updateStats();
 }
 
+function rhDenyRequisition(hId) {
+  var hire = hires.find(function(x){ return x.id === hId; });
+  if (!hire) return;
+  var isES = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
+  if (!isES) return;
+  if (!confirm('Mark this requisition as Denied? It will be removed from the active pipeline and archived. This cannot be undone.')) return;
+  hire.stage = 'denied';
+  hire.closed = true;
+  hire.deniedBy = currentIdentity().name;
+  hire.deniedDate = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  renderList(); renderDetail(); updateStats();
+}
+
 function renderDetail(){
   var panel=document.getElementById('rh-detail'); if(!panel)return;
   // Use canViewInScope for stale guard — matches what's visible in the sidebar list
@@ -3296,6 +3310,7 @@ function renderDetail(){
       if(p1Done && canPost2 && h.stage === 'approved-not-posted') {
         phaseAdvBtn = '<div class="phase-advance-bar">'+
           '<span class="phase-advance-msg">&#10003; Job Requisition complete &mdash; ready to post</span>'+
+          '<button onclick="rhDenyRequisition(\''+ h.id +'\')" class="btn-phase-advance" style="background:var(--orange);margin-right:6px">Mark as Denied ✕</button>'+
           '<button onclick="rhAdvanceStage(\''+ h.id +'\')" class="btn-phase-advance">Mark as Posted &rarr;</button>'+
         '</div>';
       }
@@ -3388,6 +3403,12 @@ function renderDetail(){
     approvalBarHtml = '<div class="approval-bar rejected-bar">'+
       '<div class="approval-msg">&#10007; Request rejected<div class="sub">Reason: '+(h.rejectionNote||'See notes')+'</div></div>'+
       '<span class="chip chip-rejected">Rejected</span>'+
+    '</div>';
+  } else if(h.stage === 'denied') {
+    approvalBarHtml = '<div class="approval-bar rejected-bar">'+
+      '<div class="approval-msg">&#10007; Requisition denied by Growth leadership &mdash; position will not be posted'+
+      '<div class="sub">Denied by '+(h.deniedBy||'ES Leadership')+' on '+(h.deniedDate||'')+'.</div></div>'+
+      '<span class="chip chip-rejected">Denied</span>'+
     '</div>';
   }
 
