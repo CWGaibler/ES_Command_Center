@@ -689,24 +689,24 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .el-team-ops{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px}
 .el-acc-item{border-bottom:1px solid var(--border-lt)}
 .el-acc-item:last-child{border-bottom:none}
-.el-acc-hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;user-select:none;transition:background .12s}
+.el-acc-hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;cursor:pointer;user-select:none;transition:background .12s}
 .el-acc-hdr:hover{background:var(--fb-xlt)}
-.el-acc-hdr.el-acc-open{background:var(--fb-lt)}
+.el-acc-hdr.el-acc-open{background:var(--fb-lt);border-bottom:1px solid var(--border-lt)}
 .el-acc-label{font-size:13.5px;font-weight:800;color:var(--fb)}
 .el-acc-chev{font-size:13px;color:var(--muted);transition:transform .2s}
 .el-acc-hdr.el-acc-open .el-acc-chev{transform:rotate(180deg)}
-.el-acc-body{display:none;border-top:1px solid var(--border-lt)}
+.el-acc-body{display:none}
 .el-acc-body.open{display:block}
-.el-role-group{padding:8px 14px 4px;border-bottom:1px solid var(--border-lt)}
-.el-role-group:last-child{border-bottom:none}
-.el-role-group-lbl{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px;padding-bottom:4px;border-bottom:1px solid var(--border-lt)}
-.el-task-row{display:flex;align-items:flex-start;justify-content:space-between;padding:7px 0;border-bottom:.5px solid var(--border-lt)}
+.el-task-row{display:flex;align-items:flex-start;gap:16px;padding:10px 16px;border-bottom:1px solid var(--border-lt);transition:background .1s}
 .el-task-row:last-child{border-bottom:none}
-.el-task-left{flex:1;min-width:0;padding-right:16px}
-.el-task-name{font-size:13.5px;font-weight:700;color:var(--fb);line-height:1.35}
-.el-task-meta{font-size:12px;color:var(--muted);margin-top:1px}
-.el-task-person{font-size:13px;font-weight:700;color:var(--fb);text-align:right;white-space:nowrap;flex-shrink:0}
-.el-task-person.unassigned{color:var(--orange)}
+.el-task-row:hover{background:var(--fb-xlt)}
+.el-task-left{flex:1;min-width:0}
+.el-task-name{font-size:14px;font-weight:700;color:var(--fb);line-height:1.4}
+.el-task-meta{font-size:13px;color:var(--muted);margin-top:2px;line-height:1.4}
+.el-task-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;padding-top:1px}
+.el-task-person{font-size:14px;font-weight:700;color:var(--fb);white-space:nowrap}
+.el-task-person.unassigned{color:var(--orange);font-weight:700}
+.el-task-person.muted-role{color:var(--muted);font-style:italic;font-weight:400}
 /* ── END REDESIGN v13.0 ─────────────────────────────── */
 /* ══ END EVENTS LENS ══════════════════════════════════════════════════════ */
 
@@ -6629,14 +6629,14 @@ function elRenderShow() {
                              n === 'Customer-Facing Team' || n === 'Back Room Team' ||
                              n === 'Specialty Roles' || n === 'Additional Support');
             if (isSpecial) {
-              return '<span class="el-task-person" style="color:var(--muted);font-style:italic">' + n + '</span>';
+              return '<span class="el-task-person muted-role">' + n + '</span>';
             } else if (isRoleLabel) {
               return '<span class="el-task-person unassigned">' + n + '</span>';
             } else {
               return '<span class="el-task-person">' + n + '</span>';
             }
           });
-          rightHtml = nameHtmlParts.join('<span style="color:var(--border);margin:0 4px">·</span>');
+          rightHtml = nameHtmlParts.join('<br>');
         }
 
         html += '<div class="el-task-row">' +
@@ -6644,7 +6644,7 @@ function elRenderShow() {
             '<div class="el-task-name">' + task.name + '</div>' +
             '<div class="el-task-meta">' + task.timing + '</div>' +
           '</div>' +
-          '<div style="text-align:right;flex-shrink:0;padding-left:16px">' + rightHtml + '</div>' +
+          '<div class="el-task-right">' + rightHtml + '</div>' +
         '</div>';
       });
     }
