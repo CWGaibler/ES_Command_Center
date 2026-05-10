@@ -3219,6 +3219,7 @@ function rhAdvanceStage(hId) {
   var isES = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
   if (!isHM && !isES) return;
   hire.stage = stg.nextStage;
+  storageSaveHires();
   renderList(); renderDetail(); updateStats();
 }
 
@@ -3230,6 +3231,7 @@ function rhDenyRequisition(hId) {
   if (!confirm('Mark this requisition as Denied? It will be removed from the active pipeline and archived. This cannot be undone.')) return;
   hire.stage = 'denied';
   hire.closed = true;
+  storageSaveHires();
   hire.deniedBy = currentIdentity().name;
   hire.deniedDate = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
   renderList(); renderDetail(); updateStats();
@@ -3543,6 +3545,7 @@ function renderDetail(){
       if (!identityCanCheckTask(tOwner, hire.hiringManager, hire.branch)) return;
       var i = hire.checked.indexOf(tId);
       if (i >= 0) hire.checked.splice(i, 1); else hire.checked.push(tId);
+      storageSaveHires();
       renderList(); renderDetail(); updateStats();
     };
   });
@@ -3611,6 +3614,7 @@ function rhMoveToOnboarding(hireId) {
     phase: 'Before Start Date', checked: {}, backfillDecision: null, closed: false
   };
   obRecords.unshift(newOb);
+  storageSaveObRecords(); storageSaveHires();
   setTimeout(function() {
     hires = hires.filter(function(x){ return x.id !== hireId; });
     selId = hires.length ? hires[0].id : null;
@@ -3703,6 +3707,7 @@ function createHire(){
     stage:'approved-not-posted', checked:['t1'], open:{}
   });
   selId = hires[0].id;
+  storageSaveHires();
   closeModal();
   renderList(); renderDetail(); updateStats();
 }
@@ -3896,6 +3901,83 @@ function ssFmtDate(str) {
   var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PERSISTENCE LAYER — localStorage
+// Version bump required whenever a persisted object's structure changes.
+// On version mismatch the stored data is wiped and the user starts fresh.
+// Increment STORAGE_VERSION when changing: hires, obRecords, trRecords,
+// offRecords, ssPlans, or ROLE_ASSIGNMENTS structure.
+// ─────────────────────────────────────────────────────────────────────────────
+var STORAGE_VERSION = 1;
+var STORAGE_KEY_PREFIX = 'escc_v';
+
+function storageKey(name) {
+  return STORAGE_KEY_PREFIX + STORAGE_VERSION + '_' + name;
+}
+
+function storageSave(name, data) {
+  try {
+    localStorage.setItem(storageKey(name), JSON.stringify(data));
+  } catch(e) {
+    console.warn('ES Command Center: failed to save ' + name, e);
+  }
+}
+
+function storageLoad(name, fallback) {
+  try {
+    var raw = localStorage.getItem(storageKey(name));
+    if (raw === null) return fallback;
+    return JSON.parse(raw);
+  } catch(e) {
+    console.warn('ES Command Center: failed to load ' + name, e);
+    return fallback;
+  }
+}
+
+function storageWipeStale() {
+  // Remove any keys from older versions so stale data doesn't accumulate
+  var stale = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (k && k.indexOf(STORAGE_KEY_PREFIX) === 0 && k.indexOf(storageKey('').slice(0,-1)) !== 0) {
+      stale.push(k);
+    }
+  }
+  stale.forEach(function(k) { localStorage.removeItem(k); });
+  if (stale.length > 0) {
+    console.info('ES Command Center: wiped ' + stale.length + ' stale storage key(s) from a prior version.');
+  }
+}
+
+function storageLoadAll() {
+  // Called once on page load — restores all persisted state
+  storageWipeStale();
+  hires        = storageLoad('hires',        []);
+  obRecords    = storageLoad('obRecords',     []);
+  trRecords    = storageLoad('trRecords',     []);
+  offRecords   = storageLoad('offRecords',    []);
+  ssPlans      = storageLoad('ssPlans',       {});
+  ROLE_ASSIGNMENTS = storageLoad('roleAssignments', {});
+}
+
+function storageSaveAll() {
+  // Call after any user action that modifies state
+  storageSave('hires',            hires);
+  storageSave('obRecords',        obRecords);
+  storageSave('trRecords',        trRecords);
+  storageSave('offRecords',       offRecords);
+  storageSave('ssPlans',          ssPlans);
+  storageSave('roleAssignments',  ROLE_ASSIGNMENTS);
+}
+
+// Individual save helpers — for targeted saves after specific actions
+function storageSaveHires()           { storageSave('hires',           hires); }
+function storageSaveObRecords()       { storageSave('obRecords',        obRecords); }
+function storageSaveTrRecords()       { storageSave('trRecords',        trRecords); }
+function storageSaveOffRecords()      { storageSave('offRecords',       offRecords); }
+function storageSaveSsPlans()         { storageSave('ssPlans',          ssPlans); }
+function storageSaveRoleAssignments() { storageSave('roleAssignments',  ROLE_ASSIGNMENTS); }
 
 var ssPlans = {};
 var ssSelId = null;
@@ -4503,6 +4585,7 @@ function toggleSsCheck(showId, taskId) {
   var idx = plan.checked.indexOf(taskId);
   if (idx >= 0) plan.checked.splice(idx, 1);
   else plan.checked.push(taskId);
+  storageSaveSsPlans();
 
   // If all steps now checked, auto-confirm and show popup
   var allDone = SS_TASKS.every(function(t){ return plan.checked.indexOf(t.id) >= 0; });
@@ -4568,7 +4651,7 @@ function showSsCompletePopup(showId) {
 
 function updateSsOverride(showId, key, val) {
   if (!ssPlans[showId]) ssPlans[showId] = {checked:[], overrides:{}, supervisorName:"", leadName:"", confirmed:false};
-  ssPlans[showId].overrides[key] = parseInt(val) || 0;
+  ssPlans[showId].overrides[key] = parseInt(val) || 0; storageSaveSsPlans();
   var plan = ssPlans[showId];
   var rec = ssCalcRec(SHOWS[showId]);
   var ov = plan.overrides;
@@ -4583,11 +4666,13 @@ function updateSsOverride(showId, key, val) {
 function updateSsName(showId, field, val) {
   if (!ssPlans[showId]) ssPlans[showId] = {checked:[], overrides:{}, supervisorName:"", leadName:"", confirmed:false};
   ssPlans[showId][field] = val;
+  storageSaveSsPlans();
 }
 
 function confirmSs(showId) {
   if (!ssPlans[showId]) return;
   ssPlans[showId].confirmed = true;
+  storageSaveSsPlans();
   ssSelId = showId;
   renderSsDetail();
   renderSsList();
@@ -4602,6 +4687,7 @@ function confirmSsWithPopup(showId) {
 function unconfirmSs(showId) {
   if (!ssPlans[showId]) return;
   ssPlans[showId].confirmed = false;
+  storageSaveSsPlans();
   renderSsDetail();
   renderSsList();
   renderSsStats();
@@ -4937,6 +5023,7 @@ function initKpis() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  storageLoadAll(); // Restore persisted state before rendering anything
   var firstNav = document.querySelector('.nav-item');
   if(firstNav) showPage('today', firstNav);
   renderNeedsAttention();
@@ -5063,6 +5150,7 @@ function obToggleTask(recId, taskId) {
       rec.checked[OB_TASKS[j].id] = false;
     }
   }
+  storageSaveObRecords();
   renderObDetail();
   updateObStats();
   renderObList();
@@ -5213,6 +5301,7 @@ function renderObDetail() {
 function obCloseRecord(recId) {
   var rec = obRecords.find(function(r){ return r.id === recId; }); if (!rec) return;
   rec.closed = true;
+  storageSaveObRecords();
   setTimeout(function() {
     obRecords = obRecords.filter(function(r){ return r.id !== recId; });
     selObId = obRecords.length ? obRecords[0].id : null;
@@ -5297,6 +5386,7 @@ function trToggleTask(recId, taskId) {
       rec.checked[tasks[j].id] = false;
     }
   }
+  storageSaveTrRecords();
   renderTrDetail(); updateTrStats(); renderTrList();
 }
 
@@ -5454,6 +5544,7 @@ function trCloseRecord(recId) {
     });
   }
   rec.closed = true;
+  storageSaveTrRecords();
   setTimeout(function() {
     trRecords = trRecords.filter(function(r){ return r.id !== recId; });
     selTrId = trRecords.length ? trRecords[0].id : null;
@@ -5537,6 +5628,7 @@ function offToggleTask(recId, taskId) {
       rec.checked[tasks[j].id] = false;
     }
   }
+  storageSaveOffRecords();
   renderOffDetail(); updateOffStats(); renderOffList();
 }
 
@@ -5717,6 +5809,7 @@ function offCloseRecord(recId) {
     });
   }
   rec.closed = true;
+  storageSaveOffRecords();
   setTimeout(function() {
     offRecords = offRecords.filter(function(r){ return r.id !== recId; });
     selOffId = offRecords.length ? offRecords[0].id : null;
@@ -5861,7 +5954,7 @@ function lcModalSubmit() {
       newRole: (type==='promotion') ? document.getElementById('lc-new-role').value : '',
       effectiveDate:dateVal, backfillDecision:backfill||null, checked:{}, closed:false
     };
-    trRecords.unshift(newRec); selTrId = newRec.id;
+    trRecords.unshift(newRec); selTrId = newRec.id; storageSaveTrRecords();
     lcModalClose(); renderTrList(); updateTrStats(); renderTrDetail();
   } else {
     var newOff = {
@@ -5871,7 +5964,7 @@ function lcModalSubmit() {
       hireDate:emp.hireDate, email:emp.email, departureType:type,
       lastDay:dateVal, backfillDecision:backfill, checked:{}
     };
-    offRecords.unshift(newOff); selOffId = newOff.id;
+    offRecords.unshift(newOff); selOffId = newOff.id; storageSaveOffRecords();
     lcModalClose(); renderOffList(); updateOffStats(); renderOffDetail();
   }
 }
@@ -5998,6 +6091,7 @@ function elSetSlot(showId, slotIdx, personName) {
     slot.branch = null;
     slot.homeBranch = null;
   }
+  storageSaveRoleAssignments();
   elRenderShow();
 }
 
@@ -6008,6 +6102,7 @@ function elRemoveSlot(showId, slotIdx) {
   slot.person = null;
   slot.branch = null;
   slot.homeBranch = null;
+  storageSaveRoleAssignments();
   elRenderShow();
 }
 
@@ -6031,6 +6126,7 @@ function elConfirmPlan(showId) {
     }
   }
   ra.confirmed = true;
+  storageSaveRoleAssignments(); storageSaveSsPlans();
   // Sync back to ssPlans so S&S workspace also shows confirmed
   if (!ssPlans[showId]) ssPlans[showId] = {checked:[], overrides:{}, supervisorName:'', leadName:'', confirmed:false};
   ssPlans[showId].confirmed = true;
