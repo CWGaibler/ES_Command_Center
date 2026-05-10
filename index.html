@@ -6126,118 +6126,97 @@ function elCancelPicker() {
 // Locked phase matrices — reference only, no checkboxes
 // ======================================================
 var EL_TASKS = {
-  // ── SECTION 15: PRE-EVENT (38 tasks — locked) ─────────────────────────
-  preEvent: {
-    offsiteLead: [
-      { name: 'Perform Flooring & Cleaning Audit', meta: 'SAP S4/HANA · 3 weeks out; repeat at 2 weeks', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Exhibitor List Audit', meta: 'SAP S4/HANA · 3 weeks out; repeat at 2 weeks', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Payments & Collections Audit', meta: 'SAP S4/HANA · 3 weeks out; repeat at 2 weeks', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Show Kit Audit', meta: 'SAP S4/HANA · 3 weeks out; repeat at 2 weeks', platform: 'both', svcModel: 'both' },
-      { name: 'Perform Electrical Services Audit', meta: 'SAP S4/HANA · 3 weeks out (electrical shows only)', platform: 'both', svcModel: 'both' },
-      { name: 'Monitor Exhibitor Ordering', meta: 'SAP S4/HANA / Salesforce · Ongoing from 3 weeks out', platform: 'both', svcModel: 'both' },
-      { name: 'Process Pre-Show Orders — OnBase', meta: 'SAP S4/HANA / OnBase · As orders arrive', platform: 'both', svcModel: 'both' },
-      { name: 'Respond to ES Email Inbox (Pre-Show)', meta: 'Email / SAP S4/HANA · Daily as needed', platform: 'both', svcModel: 'both' }
-    ],
-    onsiteLead: [
-      { name: 'Enter Event Site Contacts', meta: 'SAP Event Portal · As soon as scheduling begins', platform: 'both', svcModel: 'onsite' },
-      { name: 'Attend E3 Conference Calls', meta: 'Phone / Teams · 120 / 90 / 60 / 30 days out', platform: 'both', svcModel: 'onsite' },
-      { name: 'Submit Show Site Equipment Request (SERF)', meta: 'SERF Form · 6 weeks out', platform: 'both', svcModel: 'onsite' },
-      { name: 'Review Event Portal — Pre-Show Setup', meta: 'SAP Event Portal · 2–3 weeks out', platform: 'both', svcModel: 'onsite' },
-      { name: 'Review Floor Plan & Assign Service Areas', meta: 'SAP Event Portal / FNext · 2 weeks out', platform: 'fnext', svcModel: 'onsite' },
-      { name: 'Coordinate with Warehouse — Equipment & Supplies', meta: 'Email / Phone · 1–2 weeks out', platform: 'both', svcModel: 'onsite' },
-      { name: 'Create Show Packet / Briefing Document', meta: 'FNext / Manual · 1 week out', platform: 'both', svcModel: 'onsite' },
-      { name: 'Confirm Team Briefing / Pre-Show Call', meta: 'Phone / Teams · Day before or morning of move-in', platform: 'both', svcModel: 'onsite' },
-      { name: 'Perform Pre-Show Walkthrough', meta: 'On-site · Upon arrival (200+ booths: day before move-in)', platform: 'both', svcModel: 'onsite' },
-      { name: 'Confirm Service Desk Setup', meta: 'On-site · Morning of move-in', platform: 'both', svcModel: 'onsite' }
-    ],
-    ees: [
-      { name: 'Attend E3 Conference Calls (oversight)', meta: 'Phone / Teams · 120 / 90 / 60 / 30 days out', platform: 'both', svcModel: 'onsite' },
-      { name: 'Review SERF Submission', meta: 'SERF Form · 6 weeks out', platform: 'both', svcModel: 'onsite' },
-      { name: 'Review Staffing Plan with People Leader', meta: 'Command Center / Direct · 2–4 weeks out', platform: 'both', svcModel: 'onsite' },
-      { name: 'Confirm Event Portal Setup', meta: 'SAP Event Portal · 1–2 weeks out', platform: 'both', svcModel: 'onsite' },
-      { name: 'Brief On-Site Team', meta: 'Phone / Teams / On-site · Day before or morning of move-in', platform: 'both', svcModel: 'onsite' }
-    ],
-    additional: [
-      { name: 'Familiarize with assigned event', meta: 'FNext / FNow / Event Portal · Prior to move-in', platform: 'both', svcModel: 'onsite' },
-      { name: 'Complete any required pre-show training modules', meta: 'FNext / LMS · Prior to move-in', platform: 'both', svcModel: 'onsite' },
-      { name: 'Review show packet / briefing document', meta: 'Manual / FNext · Prior to move-in — provided by On-Site Lead', platform: 'both', svcModel: 'onsite' },
-      { name: 'Confirm travel and logistics', meta: 'HR / Travel Systems · As applicable — travel events only', platform: 'both', svcModel: 'onsite' },
-      { name: 'Confirm availability and assignment with people leader', meta: 'Direct / Command Center · 1–2 weeks out', platform: 'both', svcModel: 'onsite' }
-    ]
-  },
-  // ── SECTION 18: SERVICING / ON-SITE (42 tasks — locked) ──────────────
-  onSite: {
-    offsiteLead: [
-      { name: 'Process orders — OnBase monitoring', meta: 'SAP S4/HANA / OnBase · Daily from first order', platform: 'both', svcModel: 'both' },
-      { name: 'Respond to ES email inbox', meta: 'Email / SAP S4/HANA · Daily as needed', platform: 'both', svcModel: 'both' },
-      { name: 'Process exhibitor refunds and adjustments', meta: 'SAP S4/HANA · As needed during show', platform: 'both', svcModel: 'both' },
-      { name: 'Coordinate freight and storage inquiries', meta: 'SAP S4/HANA / Phone · Daily as needed', platform: 'both', svcModel: 'both' },
-      { name: 'Monitor collections — flag past-due accounts', meta: 'SAP S4/HANA · Daily during show', platform: 'both', svcModel: 'both' },
-      { name: 'Process electrical orders (electrical shows)', meta: 'SAP S4/HANA · Daily — electrical shows only', platform: 'both', svcModel: 'both' },
-      { name: 'Communicate with on-site team re: order status', meta: 'Phone / Email / Teams · Daily as needed', platform: 'both', svcModel: 'both' },
-      { name: 'Process show-site add-ons and upgrades', meta: 'SAP S4/HANA / TSS · As requested by on-site team', platform: 'both', svcModel: 'both' }
-    ],
-    onsiteLead: [
-      { name: 'Set up service desk', meta: 'On-site · Upon arrival, before exhibitor move-in', platform: 'both', svcModel: 'onsite' },
-      { name: 'Service customers — orders, billing, issues', meta: 'SAP S4/HANA, Salesforce, TSS · Daily throughout show', platform: 'both', svcModel: 'onsite' },
-      { name: 'Complete labor tickets', meta: 'SAP S4/HANA · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Print MHAs', meta: 'Salesforce Service Cloud · Daily as needed', platform: 'fnext', svcModel: 'onsite' },
-      { name: 'Monitor show floor — proactive exhibitor outreach', meta: 'On-site / Mobile FNext · Daily throughout show', platform: 'fnext', svcModel: 'onsite' },
-      { name: 'Process TSS transactions', meta: 'TSS · Daily as needed', platform: 'both', svcModel: 'onsite' },
-      { name: 'Manage team at service desk', meta: 'On-site · Daily — lead responsibility', platform: 'both', svcModel: 'onsite' },
-      { name: 'Escalate unresolved issues to EES or manager', meta: 'Phone / Email / Teams · As needed', platform: 'both', svcModel: 'onsite' },
-      { name: 'Conduct end-of-day reconciliation', meta: 'SAP S4/HANA · End of each show day', platform: 'both', svcModel: 'onsite' },
-      { name: 'Monitor order backlog — coordinate with off-site', meta: 'Phone / Email · Daily as needed', platform: 'both', svcModel: 'onsite' },
-      { name: 'Begin show closing process', meta: 'SAP S4/HANA / Event Portal · ASAP after show close — ≤8 business days', platform: 'both', svcModel: 'onsite' }
-    ],
-    ees: [
-      { name: 'Event Portal / TSS oversight', meta: 'SAP Event Portal / TSS · Ongoing throughout show', platform: 'both', svcModel: 'both' },
-      { name: 'Monitor team performance and customer satisfaction', meta: 'On-site / Remote · Daily as applicable', platform: 'both', svcModel: 'both' },
-      { name: 'Escalation point for unresolved issues', meta: 'Phone / On-site · As needed', platform: 'both', svcModel: 'both' },
-      { name: 'Communicate with Growth team — show status', meta: 'Email / Phone / Teams · Daily as needed', platform: 'both', svcModel: 'both' },
-      { name: 'Review daily reconciliation reports', meta: 'SAP S4/HANA · End of each show day', platform: 'both', svcModel: 'both' }
-    ],
-    additional: [
-      { name: 'Staff service desk — assist exhibitors', meta: 'SAP S4/HANA, Salesforce, TSS · Daily throughout show', platform: 'both', svcModel: 'onsite' },
-      { name: 'Walk assigned floor sections — proactive outreach', meta: 'On-site / Mobile FNext · Daily — assigned rotation', platform: 'fnext', svcModel: 'onsite' },
-      { name: 'Process TSS transactions at desk', meta: 'TSS · As needed', platform: 'both', svcModel: 'onsite' },
-      { name: 'Assist with labor ticket completion', meta: 'SAP S4/HANA · As needed', platform: 'both', svcModel: 'onsite' },
-      { name: 'Escalate unresolved issues to on-site lead', meta: 'On-site / Phone · As needed', platform: 'both', svcModel: 'onsite' },
-      { name: 'Complete end-of-shift handoff notes', meta: 'Manual / Email · End of shift', platform: 'both', svcModel: 'onsite' },
-      { name: 'Process orders — SAP order entry', meta: 'SAP S4/HANA · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Monitor OnBase document queue', meta: 'OnBase · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Process payments and apply credits', meta: 'SAP S4/HANA · Daily as needed', platform: 'both', svcModel: 'onsite' },
-      { name: 'Run collections reports', meta: 'SAP S4/HANA · Daily', platform: 'both', svcModel: 'onsite' },
-      { name: 'Generate daily billing summary for on-site lead', meta: 'SAP S4/HANA · End of each show day', platform: 'both', svcModel: 'onsite' },
-      { name: 'Provide overflow support at service desk or floor', meta: 'SAP S4/HANA / On-site · As directed by on-site lead', platform: 'both', svcModel: 'onsite' },
-      { name: 'Support collections outreach as needed', meta: 'SAP S4/HANA / Phone · As directed', platform: 'both', svcModel: 'onsite' }
-    ]
-  },
-  // ── SECTION 19: FINALIZING / POST-EVENT (11 tasks — locked) ──────────
-  postEvent: {
-    offsiteLead: [
-      { name: 'Process final exhibitor invoices', meta: 'SAP S4/HANA · ≤8 business days after show close', platform: 'both', svcModel: 'both' },
-      { name: 'Complete collections follow-up', meta: 'SAP S4/HANA · ≤8 business days — ties to Collections KPI', platform: 'both', svcModel: 'both' },
-      { name: 'Process final freight invoices and adjustments', meta: 'SAP S4/HANA · ≤8 business days', platform: 'both', svcModel: 'both' },
-      { name: 'Complete Post-Show Exhibitor NPS trigger', meta: 'Qualtrics / SAP · Within 2 business days of show close', platform: 'both', svcModel: 'both' }
-    ],
-    onsiteLead: [
-      { name: 'Begin show closing process', meta: 'SAP S4/HANA / Event Portal · ASAP — ≤8 business days after show close', platform: 'both', svcModel: 'both' },
-      { name: 'Complete labor post-show billing', meta: 'SAP S4/HANA · ≤8 business days', platform: 'both', svcModel: 'both' },
-      { name: 'Complete ES Post-Event Feedback Survey', meta: 'Qualtrics · ≤8 business days', platform: 'both', svcModel: 'both' },
-      { name: 'Archive show records — Event Portal close', meta: 'SAP Event Portal · ≤8 business days', platform: 'both', svcModel: 'both' },
-      { name: 'Return show equipment to warehouse', meta: 'Logistics / Email · Upon departure from show site', platform: 'both', svcModel: 'both' },
-      { name: 'Attend debrief meeting', meta: 'Teams / On-site · ~7 days after show close — scheduled by Growth', platform: 'both', svcModel: 'both' },
-      { name: 'Submit show recap notes to people leader', meta: 'Email / Direct · ≤8 business days', platform: 'both', svcModel: 'both' }
-    ],
-    ees: [
-      { name: 'Complete Post-Show Exhibitor NPS trigger', meta: 'Qualtrics / SAP · Within 2 business days of show close', platform: 'both', svcModel: 'both' },
-      { name: 'Attend debrief meeting', meta: 'Teams / On-site · ~7 days after show close — scheduled by Growth', platform: 'both', svcModel: 'both' }
-    ],
-    additional: [
-      { name: 'No post-event tasks assigned to additional on-site team', meta: 'N/A', platform: 'both', svcModel: 'both' }
-    ]
-  }
+  preEvent: [
+      { id:'PRE-01', name:'Enter Event Site Contacts', timing:'As soon as scheduling begins', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'fnext', svcModel:'both' },
+      { id:'PRE-02', name:'Add Exhibitor Services Contacts to FreemanOnline®', timing:'As soon as scheduling begins', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'fnow', svcModel:'both' },
+      { id:'PRE-03', name:'Share Exhibitor Services Contacts Internally via “Players List”', timing:'As soon as scheduling begins', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'fnow', svcModel:'both' },
+      { id:'PRE-04', name:'Process Orders', timing:'As soon as orders are received, daily', onsiteParty:'Additional Off-Site Team', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'both', svcModel:'both' },
+      { id:'PRE-05', name:'Process Freight & Material Handling', timing:'As soon as freight is received, daily', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-06', name:'Attend E3 Conference Call', timing:'120 days prior to move-in', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'both', svcModel:'both' },
+      { id:'PRE-07', name:'Attend E3 Conference Call', timing:'90 days prior to move-in', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'both', svcModel:'both' },
+      { id:'PRE-08', name:'Attend E3 Conference Call', timing:'60 days prior to move-in', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'both', svcModel:'both' },
+      { id:'PRE-09', name:'Submit Show Site Network & Electrical Request', timing:'60 days prior to move-in', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-10', name:'Enter Event Notes', timing:'6 weeks prior to move-in', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'both', svcModel:'both' },
+      { id:'PRE-11', name:'Submit Show Site Equipment Request', timing:'6 weeks prior to move-in', onsiteParty:'On-Site Lead', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'PRE-12', name:'Attend E3 Conference Call', timing:'30 days prior to move-in', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'both', svcModel:'both' },
+      { id:'PRE-13', name:'Contact First-Time Exhibitors Pre-Show', timing:'30 days prior to move-in', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-14', name:'Order Electrical & Cleaning for Online Exhibits', timing:'4 weeks prior to move-in', onsiteParty:'Additional Off-Site Team', remoteParty:'Additional Off-Site Team', platform:'both', svcModel:'both' },
+      { id:'PRE-15', name:'Confirm Staffing', timing:'3 weeks prior to move-in', onsiteParty:null, remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'both', svcModel:'remote' },
+      { id:'PRE-16', name:'Prepare Service Plan', timing:'3 weeks prior to move-in', onsiteParty:null, remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'both', svcModel:'remote' },
+      { id:'PRE-17', name:'Perform Flooring & Cleaning Audits', timing:'3 weeks prior to move-in', onsiteParty:'Off-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-18', name:'Perform Exhibitor List Audit', timing:'3 weeks prior to move-in', onsiteParty:'Off-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-19', name:'Perform Third Party Audit', timing:'3 weeks prior to move-in', onsiteParty:'Off-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-20', name:'Perform Enotes Review', timing:'3 weeks prior to move-in', onsiteParty:'Off-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-21', name:'Perform Payments & Collection Audit', timing:'3 weeks prior to move-in', onsiteParty:'Off-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-22', name:'Send Remote Event "Hello from Freeman" Email', timing:'2 weeks prior to move-in', onsiteParty:null, remoteParty:'On-Site Lead', platform:'both', svcModel:'remote' },
+      { id:'PRE-23', name:'Perform Flooring & Cleaning Audits', timing:'2 weeks prior to move-in', onsiteParty:'Off-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-24', name:'Perform Exhibitor List Audit', timing:'2 weeks prior to move-in', onsiteParty:'Off-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-25', name:'Perform Third Party Audit', timing:'2 weeks prior to move-in', onsiteParty:'Off-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-26', name:'Perform Enotes Review', timing:'2 weeks prior to move-in', onsiteParty:'Off-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-27', name:'Perform Payments & Collection Audit', timing:'2 weeks prior to move-in', onsiteParty:'Off-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-28', name:'Order Electrical & Cleaning for Online Exhibits', timing:'2 weeks prior to move-in', onsiteParty:'Additional Off-Site Team', remoteParty:'Additional Off-Site Team', platform:'both', svcModel:'both' },
+      { id:'PRE-29', name:'Contact Exhibitors with Freight, no MHA', timing:'1 week prior to move-in', onsiteParty:'Off-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-30', name:'Order Electrical & Cleaning for Online Exhibits', timing:'2 day prior to move-in', onsiteParty:'Additional Off-Site Team', remoteParty:'Additional Off-Site Team', platform:'both', svcModel:'both' },
+      { id:'PRE-31', name:'Attend Pre-Convention Meetings (Pre-Cons)', timing:'Prior to move-in', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'both', svcModel:'both' },
+      { id:'PRE-32', name:'Perform Material Handling Audits', timing:'Prior to move-in', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-33', name:'Pack Service Desk Supplies', timing:'Prior to move-in', onsiteParty:'On-Site Lead', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'PRE-34', name:'Complete and Print “Need Help From Freeman?” ES Flyer', timing:'Prior to move-in', onsiteParty:'On-Site Lead', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'PRE-35', name:'Prepare and Email Remote "Need Help From Freeman?" ES Flyer', timing:'Prior to move-in', onsiteParty:null, remoteParty:'On-Site Lead', platform:'both', svcModel:'remote' },
+      { id:'PRE-36', name:'Prepare Show Files', timing:'Prior to move-in', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-37', name:'Add Show Information to Freeway', timing:'Prior to move-in', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'both', svcModel:'both' },
+      { id:'PRE-38', name:'Familiarize Yourself with Your Events', timing:'Prior to move-in', onsiteParty:'Additional On-Site Team', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'PRE-39', name:'Respond to Exhibitor Services Email Inbox', timing:'As needed, daily', onsiteParty:'Additional Off-Site Team', remoteParty:'Additional Off-Site Team', platform:'both', svcModel:'both' }
+  ],
+  onSite: [
+      { id:'SVC-01', name:'Set the Exhibitor Service Center', timing:'Once team arrives on-site', onsiteParty:'All Parties', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-02', name:'Ensure Uniforms & Apparel are Correct', timing:'Once team arrives on-site', onsiteParty:'All Parties', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-03', name:'Ensure Customer Contact Channels are Ready', timing:'Before exhibitor move-in begins', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'both', svcModel:'both' },
+      { id:'SVC-04', name:'Finalize Signage Accuracy', timing:'Before exhibitor move-in begins', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-05', name:'Confirm Signage Accuracy with Operations', timing:'Before exhibitor move-in begins', onsiteParty:null, remoteParty:'On-Site Lead', platform:'fnow', svcModel:'remote' },
+      { id:'SVC-06', name:'Connect with On-Site Partners', timing:'Before exhibitor move-in begins', onsiteParty:null, remoteParty:'On-Site Lead', platform:'fnow', svcModel:'remote' },
+      { id:'SVC-07', name:'Prepare the On-Site Team', timing:'Before exhibitor move-in begins', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-08', name:'Create and Distribute Daily Show Schedule', timing:'Before exhibitor move-in begins', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-09', name:'Send Remote Event "Reminder - I am your Freeman Contact" Email', timing:'Once exhibitor move-in begins', onsiteParty:null, remoteParty:'On-Site Lead', platform:'fnow', svcModel:'remote' },
+      { id:'SVC-10', name:'Communicate Regularly with On-Site Operations', timing:'Daily', onsiteParty:null, remoteParty:'On-Site Lead', platform:'fnow', svcModel:'remote' },
+      { id:'SVC-11', name:'Facilitate Daily Pre-Shift ES Meetings', timing:'Daily', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-12', name:'Service Customers', timing:'Daily', onsiteParty:'Customer-Facing Teams, Additional Support Teams', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-13', name:'Service Customers Remotely', timing:'Daily', onsiteParty:null, remoteParty:'On-Site Lead', platform:'fnow', svcModel:'remote' },
+      { id:'SVC-14', name:'Visit First-Time Exhibitors', timing:'Daily', onsiteParty:'Customer-Facing Teams', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-15', name:'Manage Labor Tickets', timing:'Daily', onsiteParty:'Back Room Teams, Specialty Roles', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'SVC-16', name:'Complete Freight & Material Handling Billing', timing:'Daily', onsiteParty:'Back Room Teams, Specialty Roles', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'SVC-17', name:'Monitor OnBase', timing:'Daily', onsiteParty:'Back Room Teams', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'SVC-18', name:'Monitor Customer Contact Channels', timing:'Daily', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-19', name:'Manage On-Site Workflow', timing:'Daily', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-20', name:'Manage Lunch Schedules', timing:'Daily', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-21', name:'Monitor Staffing Levels', timing:'Daily', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-22', name:'Attend Production Meetings', timing:'Daily', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-23', name:'Attend Freight Meetings', timing:'Daily', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-24', name:'Keep Paperwork Organized', timing:'Daily', onsiteParty:'All Parties', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-25', name:'Oversee On-Site Billing', timing:'Daily', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-26', name:'Close Service Desk for Lunch & Close of Business', timing:'Daily', onsiteParty:'All Parties', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-27', name:'Utilize “Sorry I Missed You!" Flyer', timing:'When stepping away from desk during open hours', onsiteParty:'All Parties', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-28', name:'Prepare for Invoicing', timing:'Once show opens', onsiteParty:'Back Room Teams, Specialty Roles', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'SVC-29', name:'Manage Invoicing & Collection Process', timing:'Once show opens', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-30', name:'Collect Customer Open Invoices', timing:'Once show is invoiced', onsiteParty:'Customer-Facing Teams, Additional Support Teams', remoteParty:'Customer-Facing Teams, Additional Support Teams', platform:'both', svcModel:'both' },
+      { id:'SVC-31', name:'Attend Move-Out Meeting', timing:'During assigned show day', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-32', name:'Prepare for Move-Out', timing:'During show days', onsiteParty:'On-Site Lead, Event Experience Supervisor', remoteParty:'On-Site Lead, Event Experience Supervisor', platform:'both', svcModel:'both' },
+      { id:'SVC-33', name:'Print MHAs & Outbound Shipping Reminders', timing:'During show days', onsiteParty:'Back Room Teams', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-34', name:'Pack Equipment & Supplies', timing:'Once exhibitor move-out ends', onsiteParty:'All Parties', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'SVC-35', name:'Tear Down Exhibitor Service Center', timing:'Once exhibitor move-out ends', onsiteParty:'All Parties', remoteParty:null, platform:'both', svcModel:'onsite' }
+  ],
+  postEvent: [
+      { id:'FIN-01', name:'Unpack Supplies', timing:'Once supplies arrive at warehouse', onsiteParty:'All Parties', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'FIN-02', name:'Return Computer Equipment', timing:'Once equipment arrives at warehouse', onsiteParty:'All Parties', remoteParty:null, platform:'both', svcModel:'onsite' },
+      { id:'FIN-03', name:'Begin Show Closing Process', timing:'ASAP, no later than 8 business days after event\'s closing', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'FIN-04', name:'Complete Labor Post-Show Billing', timing:'ASAP, no later than 8 business days after event\'s closing', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'FIN-05', name:'Complete Freight Post-Show Billing', timing:'ASAP, no later than 8 business days after event\'s closing', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'FIN-06', name:'Prepare for Invoicing', timing:'ASAP, no later than 8 business days after event\'s closing', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'FIN-07', name:'Collect Open Balance Invoices', timing:'ASAP, no later than 8 business days after event\'s closing', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'FIN-08', name:'Contact First-Time Exhibitors Post-Show', timing:'ASAP, no later than 8 business days after event\'s closing', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'FIN-09', name:'Complete Show Closing Final Steps', timing:'ASAP, no later than 8 business days after event\'s closing', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'FIN-10', name:'Complete ES Post-Event Feedback Survey', timing:'ASAP, no later than 8 business days after event\'s closing', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' },
+      { id:'FIN-11', name:'Attend Debrief Meeting', timing:'As scheduled', onsiteParty:'On-Site Lead', remoteParty:'On-Site Lead', platform:'both', svcModel:'both' }
+  ],
 };
 var EL_ROLE_GROUP_LABELS = {
   offsiteLead: 'Off-site lead tasks',
@@ -6545,14 +6524,79 @@ function elRenderShow() {
   var accDefs = [
     { key: 'pre',    label: 'Pre-event',  tasks: EL_TASKS.preEvent,  phaseKey: 'pre' },
     { key: 'onsite', label: 'On-site',    tasks: EL_TASKS.onSite,    phaseKey: 'onsite' },
-    { key: 'post',   label: 'Post-event', tasks: EL_TASKS.postEvent,  phaseKey: 'post' }
+    { key: 'post',   label: 'Post-event', tasks: EL_TASKS.postEvent, phaseKey: 'post' }
   ];
+
+  // Determine show's service model and platform for filtering
+  var showIsRemote = s.serviceModel && s.serviceModel.toLowerCase().indexOf('remote') >= 0;
+  var showSvcKey = showIsRemote ? 'remote' : 'onsite';
+  var showPlatformKey = (s.freemanPlatform === 'Freeman Next') ? 'fnext' : 'fnow';
+
+  // Helper: resolve responsible party label for a task given this show's service model
+  function getPartyLabel(task) {
+    var party = showIsRemote ? task.remoteParty : task.onsiteParty;
+    return party || null;
+  }
+
+  // Helper: resolve named people for a party label from ROLE_ASSIGNMENTS
+  function resolvePartyNames(partyLabel, showId) {
+    if (!partyLabel) return null;
+    var ra = ROLE_ASSIGNMENTS[showId];
+    var show = SHOWS[showId];
+    if (!ra || !show) return null;
+
+    // Map party label strings to people
+    var parts = partyLabel.split(',').map(function(p){ return p.trim(); });
+    var names = [];
+    parts.forEach(function(part) {
+      if (part === 'All Parties') {
+        names.push('All Parties');
+      } else if (part === 'Additional Off-Site Team') {
+        names.push('Additional Off-Site Team');
+      } else if (part === 'Additional On-Site Team') {
+        names.push('All Parties');
+      } else if (part === 'Customer-Facing Teams') {
+        names.push('Customer-Facing Team');
+      } else if (part === 'Back Room Teams') {
+        names.push('Back Room Team');
+      } else if (part === 'Specialty Roles') {
+        names.push('Specialty Roles');
+      } else if (part === 'Additional Support Teams') {
+        names.push('Additional Support');
+      } else if (part === 'On-Site Lead') {
+        // Find person assigned to an onsite lead slot — use context strip lead name
+        var lead = show.lead || null;
+        // Check if lead is in roster
+        if (lead && ra.slots.some(function(sl){ return sl.person === lead; })) {
+          names.push(lead);
+        } else if (ra.slots.some(function(sl){ return sl.person; })) {
+          names.push(part); // role label — show in orange
+        } else {
+          names.push(part);
+        }
+      } else if (part === 'Off-Site Lead') {
+        var osl = show.offsitePrep && show.offsitePrep !== 'Branch' ? show.offsitePrep : null;
+        names.push(osl || part);
+      } else if (part === 'Event Experience Supervisor') {
+        var ees = show.supervisor && show.supervisor !== 'No Supervisor' ? show.supervisor : null;
+        names.push(ees || part);
+      } else {
+        names.push(part);
+      }
+    });
+    return names;
+  }
+
+  // Role label strings that should display in orange when unresolved
+  var ROLE_LABELS = ['On-Site Lead','Off-Site Lead','Event Experience Supervisor',
+    'Customer-Facing Teams','Back Room Teams','Specialty Roles','Additional Support Teams'];
 
   html += '<div class="el-team-ops">';
   accDefs.forEach(function(acc) {
     var isActive = (activePhase === acc.phaseKey);
     var hdrCls = 'el-acc-hdr' + (isActive ? ' el-acc-open' : '');
     var bodyCls = 'el-acc-body' + (isActive ? ' open' : '');
+
     html += '<div class="el-acc-item">' +
       '<div class="' + hdrCls + '" onclick="elToggleAcc(this)">' +
         '<span class="el-acc-label">' + acc.label + '</span>' +
@@ -6560,43 +6604,50 @@ function elRenderShow() {
       '</div>' +
       '<div class="' + bodyCls + '">';
 
-    // Role groups inside accordion
-    var showPlatform = s.freemanPlatform === 'Freeman Next' ? 'fnext' : 'fnow';
-    var showSvcModel = (s.serviceModel && s.serviceModel.toLowerCase().indexOf('remote') >= 0) ? 'remote' : 'onsite';
-    ['offsiteLead','onsiteLead','ees','additional'].forEach(function(roleKey) {
-      var allTasks = acc.tasks[roleKey];
-      // Filter tasks to only those applicable for this show's platform and service model
-      var tasks = allTasks.filter(function(t) {
-        var pOk = !t.platform || t.platform === 'both' || t.platform === showPlatform;
-        var sOk = !t.svcModel || t.svcModel === 'both' || t.svcModel === showSvcModel;
-        return pOk && sOk;
-      });
-      if (tasks.length === 0) return; // skip group entirely if no applicable tasks
-      var person = elGetRolePersonForPhase(elSelId, roleKey);
-      var groupLabel = EL_ROLE_GROUP_LABELS[roleKey];
-      html += '<div class="el-role-group">' +
-        '<div class="el-role-group-lbl">' + groupLabel + '</div>';
-      tasks.forEach(function(task) {
-        var personDisplay = '';
-        if (roleKey === 'additional') {
-          personDisplay = '<span class="el-task-person" style="color:var(--muted);font-style:italic">—</span>';
-        } else if (person) {
-          personDisplay = '<span class="el-task-person">' + person + '</span>';
+    // Filter tasks by platform and service model
+    var filteredTasks = acc.tasks.filter(function(t) {
+      var pOk = t.platform === 'both' || t.platform === showPlatformKey;
+      var sOk = t.svcModel === 'both' || t.svcModel === showSvcKey;
+      return pOk && sOk;
+    });
+
+    if (filteredTasks.length === 0) {
+      html += '<div style="padding:12px 14px;font-size:13px;color:var(--muted);font-style:italic">No tasks applicable for this show type.</div>';
+    } else {
+      filteredTasks.forEach(function(task) {
+        var partyLabel = getPartyLabel(task);
+        var names = partyLabel ? resolvePartyNames(partyLabel, elSelId) : null;
+
+        // Build right-side display
+        var rightHtml = '';
+        if (!names || names.length === 0) {
+          rightHtml = '<span class="el-task-person unassigned">—</span>';
         } else {
-          personDisplay = '<span class="el-task-person unassigned">' +
-            (roleKey==='offsiteLead'?'Off-site lead':roleKey==='onsiteLead'?'On-site lead':'Supervisor') +
-            ' unassigned</span>';
+          var nameHtmlParts = names.map(function(n) {
+            var isRoleLabel = ROLE_LABELS.indexOf(n) >= 0;
+            var isSpecial = (n === 'All Parties' || n === 'Additional Off-Site Team' ||
+                             n === 'Customer-Facing Team' || n === 'Back Room Team' ||
+                             n === 'Specialty Roles' || n === 'Additional Support');
+            if (isSpecial) {
+              return '<span class="el-task-person" style="color:var(--muted);font-style:italic">' + n + '</span>';
+            } else if (isRoleLabel) {
+              return '<span class="el-task-person unassigned">' + n + '</span>';
+            } else {
+              return '<span class="el-task-person">' + n + '</span>';
+            }
+          });
+          rightHtml = nameHtmlParts.join('<span style="color:var(--border);margin:0 4px">·</span>');
         }
+
         html += '<div class="el-task-row">' +
           '<div class="el-task-left">' +
             '<div class="el-task-name">' + task.name + '</div>' +
-            '<div class="el-task-meta">' + task.meta + '</div>' +
+            '<div class="el-task-meta">' + task.timing + '</div>' +
           '</div>' +
-          personDisplay +
+          '<div style="text-align:right;flex-shrink:0;padding-left:16px">' + rightHtml + '</div>' +
         '</div>';
       });
-      html += '</div>'; // close role-group
-    });
+    }
 
     html += '</div></div>'; // close acc-body + acc-item
   });
