@@ -6626,6 +6626,78 @@ function elRenderShow() {
       return pOk && sOk;
     });
 
+    // Date calculation helpers
+    function addDays(dateStr, days) {
+      if (!dateStr) return null;
+      var d = new Date(dateStr);
+      d.setDate(d.getDate() + days);
+      return d.toISOString().slice(0,10);
+    }
+    function addBusinessDays(dateStr, n) {
+      if (!dateStr) return null;
+      var d = new Date(dateStr);
+      var added = 0;
+      while (added < n) {
+        d.setDate(d.getDate() + 1);
+        var dow = d.getDay();
+        if (dow !== 0 && dow !== 6) added++;
+      }
+      return d.toISOString().slice(0,10);
+    }
+    function fmtTaskDate(dateStr) {
+      if (!dateStr) return null;
+      var d = new Date(dateStr + 'T12:00:00');
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    }
+    function calcDeadline(timing, s) {
+      var mi = s.moveInStart || '';
+      var so = s.showOpen || '';
+      var sc = s.showClose || '';
+      var cd = s.clearDate || '';
+      var t = timing.toLowerCase();
+      // Pre-event calculable dates
+      if (t.indexOf('120 days') >= 0) return { date: addDays(mi, -120), grey: addDays(mi, 1) };
+      if (t.indexOf('90 days') >= 0)  return { date: addDays(mi, -90),  grey: addDays(mi, 1) };
+      if (t.indexOf('60 days') >= 0)  return { date: addDays(mi, -60),  grey: addDays(mi, 1) };
+      if (t.indexOf('30 days') >= 0)  return { date: addDays(mi, -30),  grey: addDays(mi, 1) };
+      if (t.indexOf('6 weeks') >= 0)  return { date: addDays(mi, -42),  grey: addDays(mi, 1) };
+      if (t.indexOf('4 weeks') >= 0)  return { date: addDays(mi, -28),  grey: addDays(mi, 1) };
+      if (t.indexOf('3 weeks') >= 0)  return { date: addDays(mi, -21),  grey: addDays(mi, 1) };
+      if (t.indexOf('2 weeks') >= 0)  return { date: addDays(mi, -14),  grey: addDays(mi, 1) };
+      if (t.indexOf('1 week') >= 0)   return { date: addDays(mi, -7),   grey: addDays(mi, 1) };
+      if (t.indexOf('2 day') >= 0)    return { date: addDays(mi, -2),   grey: addDays(mi, 1) };
+      if (t === 'prior to move-in')   return { date: addDays(mi, -1),   grey: addDays(mi, 1) };
+      if (t.indexOf('as soon as scheduling') >= 0) return { date: null, grey: addDays(mi, 1) };
+      if (t.indexOf('as soon as orders') >= 0)     return { date: null, grey: addDays(mi, 1) };
+      if (t.indexOf('as soon as freight') >= 0)    return { date: null, grey: addDays(mi, 1) };
+      if (t.indexOf('as needed, daily') >= 0)      return { date: null, grey: addDays(mi, 1) };
+      // On-site: grey day after moveInStart
+      if (t.indexOf('once team arrives') >= 0)          return { date: mi,   grey: addDays(mi, 1) };
+      if (t.indexOf('before exhibitor move-in begins') >= 0) return { date: mi, grey: addDays(mi, 1) };
+      if (t.indexOf('once exhibitor move-in begins') >= 0)   return { date: mi, grey: addDays(mi, 1) };
+      if (t.indexOf('before exhibitor move-in') >= 0)   return { date: mi, grey: addDays(mi, 1) };
+      // On-site: grey day after showOpen
+      if (t.indexOf('once show opens') >= 0)        return { date: so, grey: addDays(so, 1) };
+      if (t.indexOf('once show is invoiced') >= 0)  return { date: so, grey: addDays(so, 1) };
+      // On-site: grey day after showClose
+      if (t.indexOf('during show days') >= 0)       return { date: sc, grey: addDays(sc, 1) };
+      // On-site: grey day after clearDate
+      if (t === 'daily')                                        return { date: null, grey: addDays(cd, 1) };
+      if (t.indexOf('when stepping away') >= 0)                return { date: null, grey: addDays(cd, 1) };
+      if (t.indexOf('during assigned show day') >= 0)          return { date: null, grey: addDays(cd, 1) };
+      if (t.indexOf('once exhibitor move-out ends') >= 0)      return { date: cd,   grey: addDays(cd, 1) };
+      // Post-event: grey after showClose + 8 business days
+      if (t.indexOf('8 business days') >= 0) {
+        var deadline = addBusinessDays(sc, 8);
+        return { date: deadline, grey: addDays(deadline, 1) };
+      }
+      if (t.indexOf('as scheduled') >= 0)             return { date: null, grey: null };
+      if (t.indexOf('once supplies arrive') >= 0)     return { date: null, grey: null };
+      if (t.indexOf('once equipment arrives') >= 0)   return { date: null, grey: null };
+      return { date: null, grey: null };
+    }
+
     if (filteredTasks.length === 0) {
       html += '<div style="padding:12px 14px;font-size:13px;color:var(--muted);font-style:italic">No tasks applicable for this show type.</div>';
     } else {
@@ -6654,12 +6726,16 @@ function elRenderShow() {
           rightHtml = nameHtmlParts.join(', ');
         }
 
-        html += '<div class="el-task-row">' +
+        var td = calcDeadline(task.timing, s);
+        var isGrey = td.grey && today >= td.grey;
+        var displayDate = td.date ? fmtTaskDate(td.date) : task.timing;
+        var rowStyle = isGrey ? ' style="opacity:0.4"' : '';
+        html += '<div class="el-task-row"' + rowStyle + '>' +
           '<div class="el-task-left">' +
             '<div class="el-task-name">' + task.name + '</div>' +
           '</div>' +
           '<div class="el-task-right">' + rightHtml + '</div>' +
-          '<div class="el-task-meta">' + task.timing + '</div>' +
+          '<div class="el-task-meta">' + displayDate + '</div>' +
         '</div>';
       });
     }
