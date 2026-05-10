@@ -6026,16 +6026,26 @@ function elConfirmPlan(showId) {
     }
   }
   ra.confirmed = true;
+  // Sync back to ssPlans so S&S workspace also shows confirmed
+  if (!ssPlans[showId]) ssPlans[showId] = {checked:[], overrides:{}, supervisorName:'', leadName:'', confirmed:false};
+  ssPlans[showId].confirmed = true;
   elRenderShow();
 }
 
 function elInitRoleAssignments(showId) {
-  if (ROLE_ASSIGNMENTS[showId]) return; // already initialized
+  if (ROLE_ASSIGNMENTS[showId]) {
+    // Already initialized — sync confirmed state from ssPlans if confirmed in S&S
+    if (ssPlans[showId] && ssPlans[showId].confirmed && !ROLE_ASSIGNMENTS[showId].confirmed) {
+      ROLE_ASSIGNMENTS[showId].confirmed = true;
+    }
+    return;
+  }
   var show = SHOWS[showId];
   if (!show) return;
   var rec = typeof ssCalcRec === 'function' ? ssCalcRec(show) : null;
   if (!rec) return;
   var slots = [];
+  var alreadyConfirmed = !!(ssPlans[showId] && ssPlans[showId].confirmed);
   var roleLabels = {cf:'Customer-Facing',br:'Back room',as:'Additional support',sv:'Supervisory',fr:'Freight / storage desk'};
   ['cf','br','as','sv','fr'].forEach(function(role) {
     var count = rec[role] || 0;
@@ -6045,7 +6055,7 @@ function elInitRoleAssignments(showId) {
       slots.push({ type: role, label: roleLabels[role], person: null, branch: null, homeBranch: null });
     }
   });
-  ROLE_ASSIGNMENTS[showId] = { slots: slots, confirmed: false };
+  ROLE_ASSIGNMENTS[showId] = { slots: slots, confirmed: alreadyConfirmed };
 }
 
 var EL_SLOT_PICKER_STATE = {}; // { showId, slotIdx, slotType } when picker open
