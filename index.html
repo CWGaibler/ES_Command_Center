@@ -6037,10 +6037,26 @@ function elInitRoleAssignments(showId) {
   ROLE_ASSIGNMENTS[showId] = { slots: slots, confirmed: false };
 }
 
-var EL_SLOT_PICKER_STATE = {}; // { showId, slotIdx } when picker open
+var EL_SLOT_PICKER_STATE = {}; // { showId, slotIdx, slotType } when picker open
 
-function elOpenNamePicker(showId, slotIdx) {
-  EL_SLOT_PICKER_STATE = { showId: showId, slotIdx: slotIdx };
+var EL_SUPERVISORY_TITLES = [
+  'Event Experience Supervisor',
+  'Sr. Event Experience Supervisor',
+  'Manager',
+  'Director',
+  'Regional Director'
+];
+
+function elIsEligibleForSupervisory(member) {
+  if (!member || !member.title) return false;
+  var t = member.title.trim();
+  return EL_SUPERVISORY_TITLES.some(function(allowed) {
+    return t === allowed || t.indexOf(allowed) >= 0;
+  });
+}
+
+function elOpenNamePicker(showId, slotIdx, slotType) {
+  EL_SLOT_PICKER_STATE = { showId: showId, slotIdx: slotIdx, slotType: slotType || '' };
   elRenderShow(); // re-render with picker open
 }
 
@@ -6048,15 +6064,38 @@ function elNamePickerSearch(val) {
   var drop = document.getElementById('el-np-drop');
   if (!drop) return;
   var lower = val.toLowerCase();
+  var st = EL_SLOT_PICKER_STATE;
+  var isSupervisory = st && st.slotType === 'sv';
+
+  // Rule 3: build set of already-assigned people for this show
+  var assignedNames = {};
+  if (st && st.showId && ROLE_ASSIGNMENTS[st.showId]) {
+    ROLE_ASSIGNMENTS[st.showId].slots.forEach(function(sl, idx) {
+      if (sl.person && idx !== st.slotIdx) {
+        assignedNames[sl.person] = true;
+      }
+    });
+  }
+
   var matches = TEAM_MEMBERS.filter(function(m) {
+    // Rule 3: exclude already-assigned people
+    if (assignedNames[m.name]) return false;
+    // Rule 4: supervisory slots only show eligible titles
+    if (isSupervisory && !elIsEligibleForSupervisory(m)) return false;
+    // Text search
     return m.name.toLowerCase().indexOf(lower) >= 0 || (m.branch || '').toLowerCase().indexOf(lower) >= 0;
   }).slice(0, 12);
-  drop.innerHTML = matches.map(function(m) {
-    return '<div class="el-name-picker-item" onclick="elPickPerson(\'' + m.name.replace(/'/g,"\\'") + '\')">' +
-      '<div class="el-name-picker-name">' + m.name + '</div>' +
-      '<div class="el-name-picker-meta">' + (m.title||'') + ' · ' + (m.branch||'') + '</div></div>';
-  }).join('');
-  drop.classList.toggle('open', matches.length > 0);
+
+  drop.innerHTML = matches.length > 0
+    ? matches.map(function(m) {
+        return '<div class="el-name-picker-item" onclick="elPickPerson(\'' + m.name.replace(/'/g,"\\'") + '\')">' +
+          '<div class="el-name-picker-name">' + m.name + '</div>' +
+          '<div class="el-name-picker-meta">' + (m.title||'') + ' · ' + (m.branch||'') + '</div></div>';
+      }).join('')
+    : '<div style="padding:10px 12px;font-size:13px;color:var(--muted)">' +
+        (isSupervisory ? 'No eligible supervisors match — must be EES, Manager, Director, or RD' : 'No matches found') +
+      '</div>';
+  drop.classList.toggle('open', matches.length > 0 || lower.length > 0);
 }
 
 function elPickPerson(name) {
@@ -6468,7 +6507,7 @@ function elRenderShow() {
           '<div class="el-slot-open">' +
             '<span class="el-slot-type">' + slot.label + '</span>' +
             '<span class="el-slot-open-prompt">Assign a team member to this slot</span>' +
-            (!planConfirmed ? '<button class="el-slot-add-btn" onclick="elOpenNamePicker(\'' + elSelId + '\',' + idx + ')">+ Add</button>' : '') +
+            (!planConfirmed ? '<button class="el-slot-add-btn" onclick="elOpenNamePicker(\'' + elSelId + '\',' + idx + ',\'' + slot.type + '\')">+ Add</button>' : '') +
           '</div>' +
         '</div>';
       }
