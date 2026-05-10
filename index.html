@@ -5974,9 +5974,12 @@ function elSetSlot(showId, slotIdx, personName) {
     slot.person = found.name;
     slot.branch = found.branch;
     // Traveling if branch != show's producing branch
+    // producingBranch is formatted as '112 - Washington D.C.' so strip the number prefix for comparison
     var show = SHOWS[showId];
-    var showBranch = show ? (show.producingBranch || show.region) : '';
-    slot.homeBranch = (showBranch && found.branch && found.branch !== showBranch) ? found.branch : null;
+    var showBranchRaw = show ? (show.producingBranch || show.region) : '';
+    var showBranchClean = showBranchRaw.replace(/^\d+\s*-\s*/, '').trim();
+    var personBranch = found.branch ? found.branch.trim() : '';
+    slot.homeBranch = (showBranchClean && personBranch && personBranch !== showBranchClean) ? personBranch : null;
   } else {
     slot.person = null;
     slot.branch = null;
