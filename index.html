@@ -5998,13 +5998,19 @@ function elRemoveSlot(showId, slotIdx) {
 function elConfirmPlan(showId) {
   if (!ROLE_ASSIGNMENTS[showId]) return;
   var ra = ROLE_ASSIGNMENTS[showId];
-  // Validation: on-site lead (from context strip) must appear in slots
   var show = SHOWS[showId];
+  // Validation 1: every slot must be filled
+  var openSlots = ra.slots.filter(function(sl) { return !sl.person; });
+  if (openSlots.length > 0) {
+    alert('All ' + ra.slots.length + ' slots must be filled before this plan can be confirmed. ' + openSlots.length + ' slot' + (openSlots.length > 1 ? 's are' : ' is') + ' still open.');
+    return;
+  }
+  // Validation 2: on-site lead must appear in the roster
   var onSiteLead = show ? (show.lead || '') : '';
   if (onSiteLead) {
     var leadAssigned = ra.slots.some(function(sl) { return sl.person === onSiteLead; });
     if (!leadAssigned) {
-      alert('The on-site lead must appear in the assignments before this plan can be confirmed.');
+      alert('The on-site lead (' + onSiteLead + ') must appear in the assignments before this plan can be confirmed.');
       return;
     }
   }
