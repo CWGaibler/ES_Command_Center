@@ -3968,7 +3968,12 @@ function getScopeShows() {
     if (scope === "branch") {
       // Branch pill: filter to selected branch dropdown value
       if (!pillBranch || pillBranch === "Off-Site" || pillBranch === "High-Touch Accounts") return false;
-      return s.producingBranch === pillBranch;
+      // producingBranch is stored as "112 - Washington D.C." — strip number prefix before comparing
+      var branchStripped = (s.producingBranch || '').replace(/^\d+\s*-\s*/, '').trim();
+      // Normalize known mismatches to match dropdown values
+      var BRANCH_NORM = {'Washington D.C.': 'Washington D.C.', 'SoCal': 'Anaheim', 'Northwest': 'Reno'};
+      // Dropdown uses "Washington D.C." — branchStripped will also be "Washington D.C." after strip, so direct match
+      return branchStripped === pillBranch;
     }
 
     return false;
