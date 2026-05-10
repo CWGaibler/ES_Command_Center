@@ -3985,7 +3985,7 @@ var ssFilter = "unstaffed";
 
 var SS_TASKS = [
   {id:"s1", phase:"Leadership Steps", title:"Review show details and prior year history", desc:"Check NSS for prior year staffing, job number, and any notes from previous runs.", links:[{label:"NSS",url:"https://app.smartsheet.com/sheets/2gG6m5j4V639GvH7FjqJWG2VMjW2M7fXjJ9xFPW1"}]},
-  {id:"s2", phase:"Leadership Steps", title:"Determine staffing — review ES Staffing Service Model", desc:"Use the calculator below to get the recommended headcount. If 50 or fewer booths, refer to Remote SOP.", links:[{label:"Remote SOP",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}], calc:true, step:"2"},
+  {id:"s2", phase:"Leadership Steps", title:"Determine staffing — review ES Staffing Service Model", desc:"Use the calculator below. For events of 50 or fewer booths, the calculator will guide you through a remote eligibility assessment. For 751+ booth shows, a custom plan and rationale are required.", links:[], calc:true, step:"2"},
   {id:"s5", phase:"Leadership Steps", title:"Add event to ES Regional Schedules and assign staff", desc:"Update the Regional Schedule spreadsheet with this event and assign available staff members.", links:[{label:"Regional Schedules",url:"https://freemanco.sharepoint.com/:x:/r/teams/CustomerExperienceTeam/_layouts/15/Doc.aspx?sourcedoc=%7B4A18F518-B87C-47CE-8CE0-5E9441603823%7D&file=ES%20Regional%20Schedules%20-%20All%20Views.xlsx"}]},
   {id:"s6", phase:"Leadership Steps", title:"Enter supervisor/lead names in NSS", desc:"Once names are entered in NSS, an auto-alert is sent to assigned persons at the 10-week mark.", links:[{label:"NSS",url:"https://app.smartsheet.com/sheets/2gG6m5j4V639GvH7FjqJWG2VMjW2M7fXjJ9xFPW1"}], nameEntry:true},
   {id:"s7", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]}
@@ -4328,6 +4328,11 @@ function renderSsDetail() {
     var agreeBtn = e.target.closest("[data-calc-agree]");
     if (agreeBtn) {
       var agreeId = agreeBtn.getAttribute("data-calc-agree");
+      if (!ssPlans[agreeId]) ssPlans[agreeId] = {checked:[], overrides:{}, confirmed:false};
+      if (!ssPlans[agreeId].serviceModel) {
+        ssPlans[agreeId].serviceModel = 'On-Site Service Event';
+        if (SHOWS[agreeId]) SHOWS[agreeId].serviceModel = 'On-Site Service Event';
+      }
       confirmSs(agreeId);
       return;
     }
@@ -4357,6 +4362,10 @@ function renderSsDetail() {
       if (!ssPlans[subId]) ssPlans[subId] = {checked:[], confirmed:false};
       ssPlans[subId].overrides = overrides;
       ssPlans[subId].modifyReason = reason;
+      if (!ssPlans[subId].serviceModel) {
+        ssPlans[subId].serviceModel = 'On-Site Service Event';
+        if (SHOWS[subId]) SHOWS[subId].serviceModel = 'On-Site Service Event';
+      }
       confirmSs(subId);
       return;
     }
@@ -4370,7 +4379,268 @@ function renderSsDetail() {
   };
 }
 
+// ── SMALL EVENT REMOTE ELIGIBILITY (≤ 50 booths) ─────────────────────────────
+
+function ssSmallEventResult(showId) {
+  var plan = ssPlans[showId];
+  if (!plan) return null;
+  return plan.remoteResult || null; // "full" | "hybrid" | "onsite"
+}
+
+function ssSmallEventDetermineAndRender(showId) {
+  var mha     = parseInt(document.getElementById('ss-re-mha-'     + showId).value, 10) || 0;
+  var freight = parseInt(document.getElementById('ss-re-freight-' + showId).value, 10) || 0;
+  var revenue = parseFloat(document.getElementById('ss-re-revenue-'+ showId).value) || 0;
+
+  var result;
+  if (mha <= 10 && freight <= 10000 && revenue <= 30000) {
+    result = 'full';
+  } else if (mha > 20 || freight > 20000 || revenue > 75000) {
+    result = 'onsite';
+  } else {
+    result = 'hybrid';
+  }
+
+  if (!ssPlans[showId]) ssPlans[showId] = {checked:[], overrides:{}, confirmed:false};
+  ssPlans[showId].remoteResult   = result;
+  ssPlans[showId].remoteMha      = mha;
+  ssPlans[showId].remoteFreight  = freight;
+  ssPlans[showId].remoteRevenue  = revenue;
+
+  // If on-site, set serviceModel and go back to normal flow after a short delay
+  if (result === 'onsite') {
+    ssPlans[showId].serviceModel = 'On-Site Service Event';
+    if (SHOWS[showId]) SHOWS[showId].serviceModel = 'On-Site Service Event';
+    storageSaveSsPlans();
+    renderSsDetail();
+    return;
+  }
+
+  // For full/hybrid, set the serviceModel label now
+  ssPlans[showId].serviceModel = (result === 'full')
+    ? 'Remote (Fully Remote) Service Event'
+    : 'Remote (Partially On-Site) Service Event';
+  if (SHOWS[showId]) SHOWS[showId].serviceModel = ssPlans[showId].serviceModel;
+
+  storageSaveSsPlans();
+  renderSsDetail();
+}
+
+function ssSmallEventConfirm(showId) {
+  var notesEl = document.getElementById('ss-re-notes-' + showId);
+  var notes   = notesEl ? notesEl.value.trim() : '';
+  if (!ssPlans[showId]) ssPlans[showId] = {checked:[], overrides:{}, confirmed:false};
+  ssPlans[showId].remoteNotes = notes;
+  storageSaveSsPlans();
+  // Mark step 2 checked and confirm overall
+  confirmSs(showId);
+}
+
+function renderSsSmallEventCalc(s, plan) {
+  var uid    = s.id;
+  var result = plan.remoteResult || null;
+  var savedMha     = plan.remoteMha     != null ? plan.remoteMha     : '';
+  var savedFreight = plan.remoteFreight != null ? plan.remoteFreight : '';
+  var savedRevenue = plan.remoteRevenue != null ? plan.remoteRevenue : (s.revenueActuals > 0 ? Math.round(s.revenueActuals) : (s.sfRevenue > 0 ? Math.round(s.sfRevenue) : ''));
+
+  var html = '<div class="ss-calc-full">' +
+    '<div class="ss-calc-full-hdr-banner">' +
+      '<div class="ss-calc-full-hdr-banner-label">Remote Eligibility Assessment</div>' +
+      '<div style="flex:1"></div>' +
+      '<div class="ss-calc-full-hdr-banner-name">' + (s.name || '') + '</div>' +
+    '</div>' +
+    '<div class="ss-calc-show-hdr">' +
+      '<div class="ss-calc-job-line">Job <span>#' + uid + '</span> &nbsp;·&nbsp; <span style="color:var(--mb)">' + (s.currentBooths || s.projectedBooths || 0) + ' booths — Small Event</span></div>' +
+    '</div>' +
+    '<div style="background:rgba(0,189,246,.07);border:1px solid rgba(0,189,246,.25);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--fb);line-height:1.5">' +
+      'This show has <strong>' + (s.currentBooths || s.projectedBooths || 0) + ' booths</strong>, which puts it in the small event category (≤&nbsp;50&nbsp;booths). ' +
+      'Before determining headcount, we need to assess whether this event should be staffed <strong>fully remote</strong>, <strong>hybrid</strong>, or <strong>on-site</strong>.' +
+    '</div>';
+
+  // Input panel — always shown so values can be changed
+  html += '<div class="ss-modify-panel open" style="margin-bottom:16px">' +
+    '<div class="ss-modify-hdr" style="margin-bottom:14px">Enter Show Metrics</div>' +
+    '<div class="ss-modify-roles" style="grid-template-columns:repeat(3,1fr)">' +
+      '<div class="ss-modify-role">' +
+        '<label>MHA Count</label>' +
+        '<div class="ss-model-val">Manual &amp; Hanging Accessories</div>' +
+        '<input class="ss-modify-input" type="number" id="ss-re-mha-' + uid + '" min="0" value="' + savedMha + '" placeholder="0">' +
+      '</div>' +
+      '<div class="ss-modify-role">' +
+        '<label>Freight Value ($)</label>' +
+        '<div class="ss-model-val">Total freight revenue</div>' +
+        '<input class="ss-modify-input" type="number" id="ss-re-freight-' + uid + '" min="0" value="' + savedFreight + '" placeholder="0">' +
+      '</div>' +
+      '<div class="ss-modify-role">' +
+        '<label>Show Revenue ($)</label>' +
+        '<div class="ss-model-val">Actuals preferred, SF projection fallback</div>' +
+        '<input class="ss-modify-input" type="number" id="ss-re-revenue-' + uid + '" min="0" value="' + savedRevenue + '" placeholder="0">' +
+      '</div>' +
+    '</div>' +
+    '<button class="ss-btn-agree" style="margin-top:12px" onclick="ssSmallEventDetermineAndRender(\'' + uid + '\')">Determine Staffing Approach →</button>' +
+  '</div>';
+
+  // Result block (only shown after determination)
+  if (result) {
+    if (result === 'full') {
+      html += '<div class="ss-remote-result ss-remote-result-full">' +
+        '<div class="ss-remote-result-badge">Fully Remote</div>' +
+        '<div class="ss-remote-result-label" style="color:var(--mb)">Remote (Fully Remote) Service Event</div>' +
+        '<p style="margin:6px 0 0;font-size:13px">Based on your inputs, this event is eligible for <strong>fully remote</strong> staffing. ' +
+        'ES will not be on-site but will support customers remotely throughout the event. ' +
+        'Follow the Remote Staffing SOP for next steps including exhibitor communications, Delivery coordination, and service plan setup.</p>' +
+      '</div>';
+    } else if (result === 'hybrid') {
+      html += '<div class="ss-remote-result ss-remote-result-hybrid">' +
+        '<div class="ss-remote-result-badge" style="background:rgba(255,181,0,.15);color:#a07000;border:1px solid rgba(255,181,0,.4)">Partially On-Site (Hybrid)</div>' +
+        '<div class="ss-remote-result-label" style="color:#a07000">Remote (Partially On-Site) Service Event</div>' +
+        '<p style="margin:6px 0 0;font-size:13px">Based on your inputs, this event is eligible for <strong>partially on-site (hybrid)</strong> staffing. ' +
+        'ES will be present during certain peak times and support customers remotely for the remainder. ' +
+        'Review the additional considerations below before finalizing this approach.</p>' +
+      '</div>';
+    }
+
+    // Considerations (for full and hybrid)
+    var questions = [
+      {i:'🏙️', t:'Is this show taking place in a grey city? Grey city events may require additional coordination and may affect the feasibility of remote or hybrid staffing.'},
+      {i:'👥', t:'Are there enough ES resources in the local city, or will staff need to travel to support on-site during peak times?'},
+      {i:'📅', t:'Does the on-site CSM have less than 1 year of tenure with Freeman? Less experienced team members may benefit from more on-site support.'},
+      {i:'🔨', t:'Will Delivery be supported by a union lead? Union-led Delivery teams may require more active ES coordination on-site.'},
+      {i:'📦', t:'Has Freeman produced this event before? New-to-Freeman events may have service needs that are difficult to anticipate and manage remotely.'}
+    ];
+    var qHtml = questions.map(function(q) {
+      return '<div class="ss-consider-item"><div class="ss-consider-icon">' + q.i + '</div><div>' + q.t + '</div></div>';
+    }).join('');
+
+    html += '<button class="ss-collapsible-btn" data-collapsible="re-consider-' + uid + '">⚡ Consider These Before Finalizing <span class="ss-chev">▼</span></button>' +
+      '<div class="ss-collapsible-body" id="ss-re-consider-' + uid + '">' + qHtml + '</div>';
+
+    // Notes + confirm
+    if (!plan.confirmed) {
+      html += '<div class="ss-decision-section">' +
+        '<div class="ss-decision-lbl">Notes / Rationale (optional)</div>' +
+        '<textarea class="ss-reason-textarea" id="ss-re-notes-' + uid + '" placeholder="Add any notes about this staffing approach, grey city considerations, staff availability, or other factors that informed your decision.">' + (plan.remoteNotes || '') + '</textarea>' +
+        '<div class="ss-decision-btns" style="margin-top:10px">' +
+          '<button class="ss-btn-agree" onclick="ssSmallEventConfirm(\'' + uid + '\')">✓ Confirm This Staffing Approach</button>' +
+        '</div>' +
+      '</div>';
+    } else {
+      html += '<div class="ss-decision-section">' +
+        '<div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px">✓ Staffing approach confirmed — ' + (result === 'full' ? 'Fully Remote' : 'Hybrid (Partially On-Site)') + '.</div>' +
+      '</div>';
+    }
+  }
+
+  html += '</div>'; // close ss-calc-full
+  return html;
+}
+
+// ── 751+ CUSTOM PLAN ──────────────────────────────────────────────────────────
+
+function ssCustomPlanSubmit(showId) {
+  var panel = document.getElementById('ss-custom-roles-' + showId);
+  var overrides = {};
+  if (panel) {
+    panel.querySelectorAll('[data-mod-key]').forEach(function(inp) {
+      overrides[inp.getAttribute('data-mod-key')] = parseInt(inp.value, 10) || 0;
+    });
+  }
+  var reasonEl = document.getElementById('ss-custom-reason-' + showId);
+  var reason   = reasonEl ? reasonEl.value.trim() : '';
+  if (!reason) { alert('Please provide a custom plan rationale before submitting.'); return; }
+
+  if (!ssPlans[showId]) ssPlans[showId] = {checked:[], overrides:{}, confirmed:false};
+  ssPlans[showId].overrides       = overrides;
+  ssPlans[showId].modifyReason    = reason;
+  ssPlans[showId].serviceModel    = 'On-Site Service Event';
+  ssPlans[showId].isCustomPlan    = true;
+  if (SHOWS[showId]) SHOWS[showId].serviceModel = 'On-Site Service Event';
+  storageSaveSsPlans();
+  confirmSs(showId);
+}
+
+function renderSsCustomPlanCalc(s, rec, plan) {
+  var uid     = s.id;
+  var baseRow = SS_MODEL[SS_MODEL.length - 1]; // 701–750 row as starting suggestion
+  var ov      = ssApplyOverlay(baseRow, ssActiveRevenue(s).amount);
+
+  // Use saved overrides if available, else use model suggestion
+  var savedOv = (plan && plan.overrides) ? plan.overrides : {};
+  var getCF = savedOv.cf != null ? savedOv.cf : ov.cf;
+  var getBR = savedOv.br != null ? savedOv.br : ov.br;
+  var getAS = savedOv.as != null ? savedOv.as : ov.as;
+  var getSV = savedOv.sv != null ? savedOv.sv : ov.sv;
+  var getFR = savedOv.fr != null ? savedOv.fr : 0;
+
+  var html = '<div class="ss-calc-full">' +
+    '<div class="ss-calc-full-hdr-banner" style="background:linear-gradient(90deg,var(--orange),#ffb500)">' +
+      '<div class="ss-calc-full-hdr-banner-label">⚠ Custom Plan Required</div>' +
+      '<div style="flex:1"></div>' +
+      '<div class="ss-calc-full-hdr-banner-name">' + (s.name || '') + '</div>' +
+    '</div>' +
+    '<div class="ss-calc-show-hdr">' +
+      '<div class="ss-calc-job-line">Job <span>#' + uid + '</span> &nbsp;·&nbsp; <span style="color:var(--orange)">' + (s.currentBooths || s.projectedBooths || 0) + ' booths — Exceeds Model Ceiling</span></div>' +
+    '</div>' +
+    '<div style="background:rgba(251,71,31,.06);border:1px solid rgba(251,71,31,.25);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--fb);line-height:1.5">' +
+      'This show has <strong>' + (s.currentBooths || s.projectedBooths || 0) + ' booths</strong>, which exceeds the 750-booth model ceiling. ' +
+      'The ES Staffing Model has provided a <strong>suggested starting plan</strong> below based on the 701–750 range and revenue — ' +
+      'but this show requires your review and a custom plan rationale. Adjust any roles as needed, then submit.' +
+    '</div>';
+
+  if (plan && plan.confirmed) {
+    html += '<div class="ss-decision-section">' +
+      '<div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px">✓ Custom plan confirmed and submitted.</div>' +
+    '</div>';
+  } else {
+    html += '<div class="ss-modify-panel open" style="margin-bottom:16px">' +
+      '<div class="ss-modify-hdr" style="margin-bottom:14px">Custom Staffing Plan</div>' +
+      '<div class="ss-modify-roles" id="ss-custom-roles-' + uid + '">' +
+        '<div class="ss-modify-role"><label>Customer-Facing</label><div class="ss-model-val">Model suggestion: ' + ov.cf + '</div><input class="ss-modify-input" type="number" min="0" max="50" value="' + getCF + '" data-mod-key="cf"></div>' +
+        '<div class="ss-modify-role"><label>Back Room</label><div class="ss-model-val">Model suggestion: ' + ov.br + '</div><input class="ss-modify-input" type="number" min="0" max="50" value="' + getBR + '" data-mod-key="br"></div>' +
+        '<div class="ss-modify-role"><label>Addl Support</label><div class="ss-model-val">Model suggestion: ' + ov.as + '</div><input class="ss-modify-input" type="number" min="0" max="50" value="' + getAS + '" data-mod-key="as"></div>' +
+        '<div class="ss-modify-role"><label>Supervisory</label><div class="ss-model-val">Model suggestion: ' + ov.sv + '</div><input class="ss-modify-input" type="number" min="0" max="50" value="' + getSV + '" data-mod-key="sv"></div>' +
+        '<div class="ss-modify-role"><label>Freight/Storage</label><div class="ss-model-val">Not model-driven</div><input class="ss-modify-input" type="number" min="0" max="50" value="' + getFR + '" data-mod-key="fr"></div>' +
+      '</div>' +
+      '<div class="ss-reason-lbl" style="margin-top:14px">Custom Plan Rationale <span style="color:var(--orange)">*required</span></div>' +
+      '<textarea class="ss-reason-textarea" id="ss-custom-reason-' + uid + '" placeholder="Explain your staffing plan for this show. Include any relevant context about show complexity, historical staffing, special requirements, or other factors that informed your decisions.">' + (plan && plan.modifyReason ? plan.modifyReason : '') + '</textarea>' +
+      '<button class="ss-btn-submit-mod" style="margin-top:10px" onclick="ssCustomPlanSubmit(\'' + uid + '\')">Submit Custom Plan →</button>' +
+    '</div>';
+  }
+
+  html += '</div>'; // close ss-calc-full
+  return html;
+}
+
+// ── CSS for remote result cards ───────────────────────────────────────────────
+(function() {
+  if (document.getElementById('ss-remote-styles')) return;
+  var st = document.createElement('style');
+  st.id = 'ss-remote-styles';
+  st.textContent = [
+    '.ss-remote-result{border-radius:10px;padding:16px 18px;margin-bottom:14px}',
+    '.ss-remote-result-full{background:rgba(0,189,246,.08);border:2px solid var(--mb)}',
+    '.ss-remote-result-hybrid{background:rgba(255,181,0,.08);border:2px solid #ffb500}',
+    '.ss-remote-result-badge{display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;background:rgba(0,189,246,.12);color:var(--mb);border:1px solid rgba(0,189,246,.35)}'
+  ].join('');
+  document.head.appendChild(st);
+})();
+
+// ── MAIN renderSsCalcInline — routes to correct flow based on booth count ─────
+
 function renderSsCalcInline(s, rec, plan, stepNum) {
+  var booths = rec.booths;
+
+  // ≤ 50 booths → remote eligibility assessment
+  if (booths <= 50) {
+    return renderSsSmallEventCalc(s, plan || {});
+  }
+
+  // 751+ booths → custom plan required
+  if (booths > 750) {
+    return renderSsCustomPlanCalc(s, rec, plan || {});
+  }
+
+  // ── Normal flow (51–750 booths) ───────────────────────────────────────────
   // Build indicator pills
   var pills = "";
   var plat = s.freemanPlatform || "Freeman Now";
