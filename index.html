@@ -7259,7 +7259,7 @@ function elRenderShow() {
   // Circle: show logo > branch logo > null (no fallback image — graceful no-circle)
   var elLogoSrc = elGetShowLogo(elSelId);
   var elCircleHtml = elLogoSrc
-    ? '<div style="width:136px;height:136px;border-radius:50%;flex-shrink:0;background:url(\'' + elLogoSrc + '\') center/cover no-repeat"></div>'
+    ? '<div style="width:136px;height:136px;border-radius:50%;flex-shrink:0;background:url(&quot;' + elLogoSrc + '&quot;) center/cover no-repeat"></div>'
     : '<div class="tl-photo" style="background:var(--fb);color:#fff;font-size:20px;font-weight:800;letter-spacing:-.02em">' +
         (s.producingBranch || s.region || 'ES').replace(/^\d+\s*-\s*/, '').slice(0, 2).toUpperCase() +
       '</div>';
