@@ -5154,10 +5154,13 @@ function confirmSf(showId) {
   if (supInput)  staffingPlans[showId].supervisorName = supInput.value.trim();
   staffingPlans[showId].confirmed = true;
   storageSaveStaffingPlans();
-  sfSelId = showId;
-  renderSfDetail();
+  // Clear selection so the detail panel closes and user lands on staffing home
+  sfSelId = null;
+  renderSfEmptyDetail();
   renderSfList();
   renderSfStats();
+  // Notify scheduling queue that a new show has arrived
+  renderScList();
 }
 
 function confirmSfWithPopup(showId) {
