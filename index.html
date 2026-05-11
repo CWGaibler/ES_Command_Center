@@ -4421,12 +4421,56 @@ function renderSfDetail() {
 
   det.innerHTML = html;
 
-  // Attach step 3 picker handlers after innerHTML is set
-  sfAttachNamePickerHandlers(sfSelId);
-
   // Attach event handlers via delegation on det
   det.onclick = function(e) {
-    // Task checkbox
+    // ── Step 3 name picker clicks ──
+    var openEl = e.target.closest('[data-sf-picker-open]');
+    if (openEl) {
+      var pField = openEl.getAttribute('data-sf-picker-open');
+      var pSid = openEl.getAttribute('data-sf-picker-showid');
+      window._sfPickerState = { showId: pSid, field: pField, query: '' };
+      renderSfDetail();
+      setTimeout(function() {
+        var pinp = document.getElementById('sf-picker-inp-' + pField + '-' + pSid);
+        if (pinp) { pinp.focus(); sfPopulateDrop(pField, pSid, ''); }
+      }, 20);
+      return;
+    }
+    var clearEl = e.target.closest('[data-sf-picker-clear]');
+    if (clearEl) {
+      e.stopPropagation();
+      var cField = clearEl.getAttribute('data-sf-picker-clear');
+      var cSid = clearEl.getAttribute('data-sf-picker-showid');
+      if (!staffingPlans[cSid]) staffingPlans[cSid] = {checked:[], overrides:{}, supervisorName:'', leadName:'', confirmed:false};
+      staffingPlans[cSid][cField] = '';
+      if (cField === 'leadName') {
+        var ci = staffingPlans[cSid].checked.indexOf('s3');
+        if (ci >= 0) staffingPlans[cSid].checked.splice(ci, 1);
+      }
+      storageSaveStaffingPlans();
+      window._sfPickerState = null;
+      renderSfDetail();
+      return;
+    }
+    var cancelEl = e.target.closest('[data-sf-picker-cancel]');
+    if (cancelEl) {
+      window._sfPickerState = null;
+      renderSfDetail();
+      return;
+    }
+    var pickEl = e.target.closest('[data-sf-pick]');
+    if (pickEl) {
+      var pf3 = pickEl.getAttribute('data-sf-pick-field');
+      var ps3 = pickEl.getAttribute('data-sf-pick-showid');
+      var pn3 = pickEl.getAttribute('data-sf-pick');
+      if (!staffingPlans[ps3]) staffingPlans[ps3] = {checked:[], overrides:{}, supervisorName:'', leadName:'', confirmed:false};
+      staffingPlans[ps3][pf3] = pn3;
+      storageSaveStaffingPlans();
+      window._sfPickerState = null;
+      renderSfDetail();
+      return;
+    }
+    // ── Task checkbox
     var chk = e.target.closest(".task-chk[data-taskid]");
     if (chk) { toggleSsCheck(chk.getAttribute("data-showid"), chk.getAttribute("data-taskid")); return; }
 
@@ -4560,10 +4604,16 @@ function renderSfDetail() {
     }
   };
 
-  // Attach input handlers for override fields only (name fields now use picker, not text input)
+  // Input handler: override fields + step 3 name picker search (fires on every keystroke)
   det.oninput = function(e) {
     var inp = e.target;
     if (inp.dataset.overrideKey) updateSfOverride(inp.dataset.overrideShowid, inp.dataset.overrideKey, inp.value);
+    var pField = inp.getAttribute('data-sf-picker-inp');
+    var pSid = inp.getAttribute('data-sf-picker-showid');
+    if (pField && pSid) {
+      if (window._sfPickerState) window._sfPickerState.query = inp.value;
+      sfPopulateDrop(pField, pSid, inp.value);
+    }
   };
 }
 
@@ -5070,14 +5120,28 @@ function sfAttachNamePickerHandlers(showId) {
   var det = document.getElementById('sf-detail');
   if (!det) return;
 
-  // Delegated click handler for open/clear/cancel
-  det.addEventListener('click', function sfPickerClick(e) {
+  // Attach as det.oninput so each renderSfDetail call replaces it — no stacking, no once:true needed.
+  det.oninput = function(e) {
+    var inp = e.target;
+    // Override field numbers
+    if (inp.dataset.overrideKey) updateSfOverride(inp.dataset.overrideShowid, inp.dataset.overrideKey, inp.value);
+    // Name picker search — fires on every keystroke
+    var field = inp.getAttribute('data-sf-picker-inp');
+    var sid = inp.getAttribute('data-sf-picker-showid');
+    if (field && sid) {
+      if (window._sfPickerState) window._sfPickerState.query = inp.value;
+      sfPopulateDrop(field, sid, inp.value);
+    }
+  };
+
+  // Picker clicks are merged into the existing det.onclick (also replaced each render).
+  var prevOnclick = det.onclick;
+  det.onclick = function(e) {
     // Open picker
     var openEl = e.target.closest('[data-sf-picker-open]');
     if (openEl) {
       var field = openEl.getAttribute('data-sf-picker-open');
       var sid = openEl.getAttribute('data-sf-picker-showid');
-      if (sid !== showId) return;
       window._sfPickerState = { showId: sid, field: field, query: '' };
       renderSfDetail();
       setTimeout(function() {
@@ -5092,10 +5156,8 @@ function sfAttachNamePickerHandlers(showId) {
       e.stopPropagation();
       var field2 = clearEl.getAttribute('data-sf-picker-clear');
       var sid2 = clearEl.getAttribute('data-sf-picker-showid');
-      if (sid2 !== showId) return;
       if (!staffingPlans[sid2]) staffingPlans[sid2] = {checked:[], overrides:{}, supervisorName:'', leadName:'', confirmed:false};
       staffingPlans[sid2][field2] = '';
-      // If clearing lead and s3 is checked, uncheck it
       if (field2 === 'leadName') {
         var ci = staffingPlans[sid2].checked.indexOf('s3');
         if (ci >= 0) staffingPlans[sid2].checked.splice(ci, 1);
@@ -5118,26 +5180,16 @@ function sfAttachNamePickerHandlers(showId) {
       var field3 = pickEl.getAttribute('data-sf-pick-field');
       var sid3 = pickEl.getAttribute('data-sf-pick-showid');
       var name3 = pickEl.getAttribute('data-sf-pick');
-      if (sid3 !== showId) return;
       if (!staffingPlans[sid3]) staffingPlans[sid3] = {checked:[], overrides:{}, supervisorName:'', leadName:'', confirmed:false};
       staffingPlans[sid3][field3] = name3;
       storageSaveStaffingPlans();
       window._sfPickerState = null;
       renderSfDetail();
-      // Restore focus after re-render so step 3 checkbox gate updates
       return;
     }
-  }, { once: true });
-
-  // Input handler for search
-  det.addEventListener('input', function sfPickerInput(e) {
-    var inp = e.target;
-    var field = inp.getAttribute('data-sf-picker-inp');
-    var sid = inp.getAttribute('data-sf-picker-showid');
-    if (!field || !sid || sid !== showId) return;
-    if (window._sfPickerState) window._sfPickerState.query = inp.value;
-    sfPopulateDrop(field, sid, inp.value);
-  }, { once: true });
+    // Fall through to original onclick handler (task checkboxes, confirm bar, calculator buttons)
+    if (prevOnclick) prevOnclick.call(det, e);
+  };
 }
 
 function sfIsSupervisorEligible(member) {
