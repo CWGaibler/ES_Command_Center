@@ -823,6 +823,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     </div>
   </div>
   <div class="hdr-right">
+    <button onclick="resetAppData()" style="font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;opacity:.8" title="Clear all saved data and reload">Reset Data</button>
     <span class="hdr-date" id="hdr-date"></span>
     <select id="identity-select" onchange="setIdentity(this.value)" style="font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:4px 10px;border-radius:999px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22%3E%3Cpath d=%22M1 1l4 4 4-4%22 stroke=%22white%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;max-width:200px">
       <option value="amber">Amber Segura</option>
@@ -4020,6 +4021,12 @@ function storageSaveHires()           { storageSave('hires',           hires); }
 function storageSaveObRecords()       { storageSave('obRecords',        obRecords); }
 function storageSaveTrRecords()       { storageSave('trRecords',        trRecords); }
 function storageSaveOffRecords()      { storageSave('offRecords',       offRecords); }
+function resetAppData() {
+  if (!confirm('Clear all saved data and start fresh?')) return;
+  Object.keys(localStorage).filter(function(k) { return k.startsWith('escc_'); }).forEach(function(k) { localStorage.removeItem(k); });
+  location.reload();
+}
+
 function storageSaveStaffingPlans()    { storageSave('staffingPlans',      staffingPlans); }
 function storageSaveSchedulingPlans()  { storageSave('schedulingPlans',    schedulingPlans); }
 function storageSaveRoleAssignments()  { storageSave('roleAssignments',    ROLE_ASSIGNMENTS); }
