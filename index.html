@@ -4299,8 +4299,6 @@ function renderSfList() {
       : "background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;font-size:12px;font-weight:700";
     sfPlatformChip.textContent = s.freemanPlatform || "";
 
-    tagsDiv.appendChild(badge);
-    tagsDiv.appendChild(regionChip);
     if (s.freemanPlatform) tagsDiv.appendChild(sfPlatformChip);
 
     item.appendChild(nameRow);
@@ -7808,8 +7806,6 @@ function renderScList() {
       ? 'background:#CBF0FC;color:#005A75;border:1.5px solid #7DD9F3;font-size:12px;font-weight:700'
       : 'background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;font-size:12px;font-weight:700';
     scPlatformChip.textContent = s.freemanPlatform || '';
-    tagsDiv.appendChild(badge);
-    tagsDiv.appendChild(regionChip);
     if (s.freemanPlatform) tagsDiv.appendChild(scPlatformChip);
 
     item.appendChild(nameRow);
