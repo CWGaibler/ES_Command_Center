@@ -4315,10 +4315,14 @@ function selectSsShow(id) {
   renderSfDetail();
 }
 
-function renderSfEmptyDetail() {
+function renderSfEmptyDetail(caughtUp) {
   var det = document.getElementById("sf-detail");
   if (!det) return;
-  det.innerHTML = "<div class=\"sf-empty\"><div class=\"sf-empty-icon\">\uD83D\uDCC5</div><div class=\"sf-empty-msg\">Select a show</div><div class=\"sf-empty-sub\">Choose a show from the left panel to review its staffing plan</div></div>";
+  if (caughtUp) {
+    det.innerHTML = "<div class=\"sf-empty\"><div class=\"sf-empty-icon\" style=\"font-size:32px;opacity:1;margin-bottom:10px\">\u2705</div><div class=\"sf-empty-msg\">All caught up</div><div class=\"sf-empty-sub\">No shows are waiting for staffing in this scope.</div></div>";
+  } else {
+    det.innerHTML = "<div class=\"sf-empty\"><div class=\"sf-empty-icon\">\uD83D\uDCC5</div><div class=\"sf-empty-msg\">Select a show</div><div class=\"sf-empty-sub\">Choose a show from the left panel to review its staffing plan</div></div>";
+  }
 }
 
 function renderSfDetail() {
@@ -5461,24 +5465,16 @@ function showSfPostConfirmPopup(showId) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  document.getElementById('sf-post-confirm-close').addEventListener('click', function() {
+  function sfPostConfirmClose() {
     overlay.remove();
     sfSelId = null;
-    renderSfEmptyDetail();
+    renderSfEmptyDetail(true); // show caught-up message after completing staffing
     renderSfList();
     renderSfStats();
     renderScList();
-  });
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) {
-      overlay.remove();
-      sfSelId = null;
-      renderSfEmptyDetail();
-      renderSfList();
-      renderSfStats();
-      renderScList();
-    }
-  });
+  }
+  document.getElementById('sf-post-confirm-close').addEventListener('click', sfPostConfirmClose);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) sfPostConfirmClose(); });
 }
 
 function unconfirmSs(showId) {
@@ -7714,7 +7710,7 @@ function goToSchedulingFromStaffing(showId) {
 function initScheduling() {
   scSelId = null;
   renderScList();
-  renderScDetail();
+  renderScEmptyDetail(); // always start with clean empty state on navigation
 }
 
 function getScScopeShows() {
@@ -8224,7 +8220,6 @@ function scConfirmScheduling(showId) {
   if (requiredLead) {
     var assignedNames = ra.slots.map(function(sl) { return sl.person || ''; });
     if (assignedNames.indexOf(requiredLead) < 0) {
-      // Show inline error — store on schedulingPlans and re-render
       if (!schedulingPlans[showId]) schedulingPlans[showId] = {};
       schedulingPlans[showId]._leadError = requiredLead;
       renderScDetail();
@@ -8234,13 +8229,152 @@ function scConfirmScheduling(showId) {
   // Clear any previous error
   if (schedulingPlans[showId]) delete schedulingPlans[showId]._leadError;
 
+  // All gates passed — show pre-confirm review modal (mirrors staffing flow)
+  showScConfirmModal(showId);
+}
+
+function scDoConfirm(showId) {
+  // Called by the modal OK button — performs the actual confirmation
+  var ra = ROLE_ASSIGNMENTS[showId];
   if (!schedulingPlans[showId]) schedulingPlans[showId] = {};
   schedulingPlans[showId].confirmed = true;
   ra.confirmed = true;
   storageSaveSchedulingPlans();
   storageSaveRoleAssignments();
   renderScList();
-  renderScDetail();
+}
+
+function showScConfirmModal(showId) {
+  var s = SHOWS[showId] || {};
+  var sc = schedulingPlans[showId] || {};
+  var ra = ROLE_ASSIGNMENTS[showId];
+  var sfPlan = staffingPlans[showId] || {};
+  var leadName = sfPlan.leadName || '';
+  var supName  = sfPlan.supervisorName || '';
+
+  // Build slot roster rows
+  var rosterRows = '';
+  if (ra && ra.slots) {
+    var typeCounts = {};
+    ra.slots.forEach(function(sl) { typeCounts[sl.type] = (typeCounts[sl.type]||0)+1; });
+    var typeCounters = {};
+    var roleLabels = {cf:'Customer-Facing',br:'Back Room',as:'Additional Support',sv:'Supervisory',fr:'Freight / Storage'};
+    ra.slots.forEach(function(sl) {
+      typeCounters[sl.type] = (typeCounters[sl.type]||0)+1;
+      var label = typeCounts[sl.type] > 1 ? (roleLabels[sl.type]||sl.type) + ' ' + typeCounters[sl.type] : (roleLabels[sl.type]||sl.type);
+      rosterRows += '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
+        '<span style="color:var(--muted)">' + label + '</span>' +
+        '<span style="font-weight:700;color:var(--fb)">' + (sl.person || '—') + '</span>' +
+      '</div>';
+    });
+  }
+
+  var overlay = document.createElement('div');
+  overlay.className = 'sf-complete-overlay';
+  overlay.id = 'sc-confirm-modal-overlay';
+
+  var modal = document.createElement('div');
+  modal.className = 'sf-complete-modal';
+  modal.style.maxWidth = '520px';
+
+  modal.innerHTML =
+    '<div class="sf-cmp-head">' +
+      '<div class="sf-cmp-icon">📋</div>' +
+      '<div class="sf-cmp-title">Complete Scheduling Process</div>' +
+      '<div class="sf-cmp-sub">' + (s.name || showId) + ' &nbsp;·&nbsp; Job #' + showId + '</div>' +
+    '</div>' +
+    '<div class="sf-cmp-body">' +
+      '<div class="sf-cmp-section" style="font-size:13px;color:var(--muted);margin-bottom:12px">Review the details below. Completing this process will lock all scheduling steps for this show.</div>' +
+
+      // Steps completed
+      '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:14px">' +
+        '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Steps Completed</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
+          '<span style="color:var(--green);font-weight:800">✓</span><span style="color:var(--muted)">Added to ES Regional Schedule</span>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px">' +
+          '<span style="color:var(--green);font-weight:800">✓</span><span style="color:var(--muted)">All team member slots assigned</span>' +
+        '</div>' +
+      '</div>' +
+
+      // Slot roster
+      '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:14px">' +
+        '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Staff Roster</div>' +
+        rosterRows +
+        '<div style="display:flex;gap:24px;font-size:13px;margin-top:10px;padding-top:8px;border-top:1px solid var(--border-lt)">' +
+          '<div><div style="color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:2px">On-Site Lead</div><div style="font-weight:700;color:var(--fb)">' + (leadName || '—') + '</div></div>' +
+          (supName ? '<div><div style="color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:2px">Supervisor</div><div style="font-weight:700;color:var(--fb)">' + supName + '</div></div>' : '') +
+        '</div>' +
+      '</div>' +
+
+      '<div style="font-size:12px;color:var(--muted)">After confirming, this show will be marked as <strong>fully scheduled</strong> and removed from your Scheduling queue.</div>' +
+    '</div>' +
+    '<div class="sf-cmp-footer" style="gap:10px">' +
+      '<button class="sf-cmp-btn" id="sc-confirm-modal-cancel">Cancel</button>' +
+      '<button class="sf-cmp-btn sf-cmp-btn-primary" id="sc-confirm-modal-ok">Complete Process</button>' +
+    '</div>';
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  document.getElementById('sc-confirm-modal-cancel').addEventListener('click', function() {
+    overlay.remove();
+  });
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.remove();
+  });
+  document.getElementById('sc-confirm-modal-ok').addEventListener('click', function() {
+    overlay.remove();
+    scDoConfirm(showId);
+    showScPostConfirmPopup(showId);
+  });
+}
+
+function showScPostConfirmPopup(showId) {
+  var s = SHOWS[showId] || {};
+  var overlay = document.createElement('div');
+  overlay.className = 'sf-complete-overlay';
+
+  var modal = document.createElement('div');
+  modal.className = 'sf-complete-modal';
+
+  modal.innerHTML =
+    '<div class="sf-cmp-head">' +
+      '<div class="sf-cmp-icon">&#x2705;</div>' +
+      '<div class="sf-cmp-title">Scheduling Process Complete</div>' +
+      '<div class="sf-cmp-sub">' + (s.name || showId) + '</div>' +
+    '</div>' +
+    '<div class="sf-cmp-body">' +
+      '<div class="sf-cmp-section">The following has been completed:</div>' +
+      '<div class="sf-cmp-step"><div class="sf-cmp-step-num">1</div><div class="sf-cmp-step-text"><strong>All steps locked</strong><br>Regional schedule updated and team roster assigned for job #' + showId + '.</div></div>' +
+      '<div class="sf-cmp-step"><div class="sf-cmp-step-num">2</div><div class="sf-cmp-step-text"><strong>Event is fully scheduled</strong><br>This show has been removed from your Scheduling queue. The event profile has been updated.</div></div>' +
+      '<div class="sf-cmp-note">All steps are locked. To make changes, use the Revise button on the Scheduling page.</div>' +
+    '</div>' +
+    '<div class="sf-cmp-footer">' +
+      '<button class="sf-cmp-btn sf-cmp-btn-primary" id="sc-post-confirm-close">Got it</button>' +
+    '</div>';
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  function scPostConfirmClose() {
+    overlay.remove();
+    scSelId = null;
+    renderScEmptyDetail(true); // show caught-up message
+    renderScList();
+  }
+  document.getElementById('sc-post-confirm-close').addEventListener('click', scPostConfirmClose);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) scPostConfirmClose(); });
+}
+
+function renderScEmptyDetail(caughtUp) {
+  var det = document.getElementById('sc-detail');
+  if (!det) return;
+  if (caughtUp) {
+    det.innerHTML = '<div class="sf-empty"><div class="sf-empty-icon" style="font-size:32px;opacity:1;margin-bottom:10px">&#x2705;</div><div class="sf-empty-msg">All caught up</div><div class="sf-empty-sub">No shows are waiting for scheduling in this scope.</div></div>';
+  } else {
+    det.innerHTML = '<div class="sf-empty"><div class="sf-empty-icon">&#128203;</div><div class="sf-empty-msg">Select a show</div><div class="sf-empty-sub">Choose a show from the left panel to work through its scheduling tasks</div></div>';
+  }
 }
 
 function scUnconfirmScheduling(showId) {
@@ -8250,7 +8384,7 @@ function scUnconfirmScheduling(showId) {
   storageSaveSchedulingPlans();
   storageSaveRoleAssignments();
   renderScList();
-  renderScDetail();
+  renderScDetail(); // re-render in place so user can make edits
 }
 
 function initEvents() {
