@@ -180,7 +180,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .task-row:hover{background:var(--fb-xlt)}
 .phase-advance-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#F0FBF4;border:1px solid rgba(0,166,81,.25);border-radius:8px;margin:8px 0 4px 0;gap:12px}
 .phase-advance-msg{font-size:13px;font-weight:700;color:#00693E;flex:1}
-.btn-phase-advance{background:var(--green);color:#fff;border:none;padding:7px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.btn-phase-advance{background:var(--green);color:#fff;border:none;padding:7px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .btn-phase-advance:hover{opacity:.9}
 .lc-modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,31,95,.5);z-index:2000;align-items:flex-start;justify-content:center;padding-top:80px}
 .lc-modal-overlay.open{display:flex}
@@ -229,9 +229,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .due-done{color:#1A6B35}
 
 /* MODAL */
-/* .modal-bg retired v6.28 — R&H modal now uses .lc-modal-overlay pattern */
-
-/* .modal-box retired v6.28 */
 .modal-title{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--fb);margin-bottom:12px}
 .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mf{display:flex;flex-direction:column;gap:3px}
@@ -239,7 +236,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .mi{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;color:var(--fb);width:100%;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;background:var(--surface)}
 .mi:focus{border-color:var(--mb);background:#fff}
 .modal-actions{display:flex;gap:6px;justify-content:flex-end;grid-column:1/-1;margin-top:4px}
-.m-cancel{font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:700;padding:10px 24px;border-radius:999px;border:1.5px solid var(--border);background:#fff;color:var(--text);cursor:pointer}
+.m-cancel{font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:700;padding:10px 24px;border-radius:999px;border:1.5px solid var(--border);background:#fff;color:var(--fb);cursor:pointer}
 .m-cancel:hover{border-color:var(--fb);color:var(--fb)}
 .m-submit{font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:700;padding:10px 24px;border-radius:999px;border:none;background:var(--fb);color:#fff;cursor:pointer}
 .m-submit:hover{opacity:.85}
@@ -439,9 +436,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .ss-decision-section{padding:10px 12px;border-top:1px solid var(--border-lt);background:var(--fb-xlt)}
 .ss-decision-lbl{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:7px}
 .ss-decision-btns{display:flex;gap:6px;flex-wrap:wrap}
-.ss-btn-agree{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:800;padding:6px 12px;border-radius:7px;border:none;background:var(--green);color:#fff;cursor:pointer;flex:1}
+.ss-btn-agree{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:800;padding:6px 12px;border-radius:8px;border:none;background:var(--green);color:#fff;cursor:pointer;flex:1}
 .ss-btn-agree:hover{opacity:.85}
-.ss-btn-modify{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:800;padding:6px 12px;border-radius:7px;border:1.5px solid rgba(251,71,31,.35);background:rgba(251,71,31,.06);color:var(--orange);cursor:pointer;flex:1}
+.ss-btn-modify{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:800;padding:6px 12px;border-radius:8px;border:1.5px solid rgba(251,71,31,.35);background:rgba(251,71,31,.06);color:var(--orange);cursor:pointer;flex:1}
 .ss-btn-modify:hover{background:rgba(251,71,31,.12)}
 .ss-modify-panel{margin-top:8px;padding:10px;background:var(--white);border:1px solid var(--border);border-radius:8px;display:none}
 .ss-modify-panel.open{display:block}
@@ -455,7 +452,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .ss-reason-lbl{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px}
 .ss-reason-textarea{font-family:'Nunito Sans',sans-serif;font-size:13.5px;padding:7px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;resize:vertical;min-height:60px;background:var(--surface);color:var(--fb)}
 .ss-reason-textarea:focus{border-color:var(--mb);background:#fff}
-.ss-btn-submit-mod{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:800;padding:6px 14px;border-radius:7px;border:none;background:var(--mb);color:#fff;cursor:pointer;margin-top:8px;width:100%}
+.ss-btn-submit-mod{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:800;padding:6px 14px;border-radius:8px;border:none;background:var(--mb);color:#fff;cursor:pointer;margin-top:8px;width:100%}
 .ss-btn-submit-mod:hover{opacity:.85}
 
 
@@ -1089,7 +1086,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="page" id="page-training"><div class="page-hdr"><span class="page-title">Training & Development</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><div class="cs-title">Training & Development</div><div class="cs-sub">NET participant performance, FNext readiness, and training completion tracking.</div></div></div>
   <div class="page" id="page-staffing">
     <div class="page-hdr">
-      <div class="page-title">Staffing &amp; Scheduling</div>
+      <div class="page-title">Staffing</div>
       <div class="page-sub" id="staffing-sub">Active shows today — move-in through clear date</div>
     </div>
     <div class="ss-stats" id="ss-stats-strip"></div>
@@ -2093,6 +2090,7 @@ function showPage(id, el) {
   if (id === 'staffing')    { initStaffing(); }
   if (id === 'kpis')        { initKpis(); }
   if (id === 'events')      { initEvents(); }
+  if (id === 'team')        { initTeam(); }
 }
 
 
@@ -2230,9 +2228,6 @@ function onScopeChanged() {
   if (pid === 'page-events') {
     elRenderShow(); return;
   }
-  if (pid === 'page-kpis') {
-    kpiInitLens(); return;
-  }
   if (pid === 'page-team') {
     initTeam(); return;
   }
@@ -2341,6 +2336,11 @@ function resetWorkspaceState() {
   } else if (!visibleOff.find(function(r){ return r.id === selOffId; })) {
     selOffId = visibleOff[0].id;
   }
+
+  // ── Staffing ──
+  // ssSelId is cleared so the detail panel doesn't show a stale show
+  // from a previous scope. The list re-renders on initStaffing().
+  ssSelId = null;
 
   // ── KPIs ── (scope-aware values recalculate on render; just ensure
   // detail panel refreshes by keeping kpiSelId valid or defaulting)
@@ -3986,9 +3986,9 @@ var ssFilter = "unstaffed";
 var SS_TASKS = [
   {id:"s1", phase:"Leadership Steps", title:"Review show details and prior year history", desc:"Check NSS for prior year staffing, job number, and any notes from previous runs.", links:[{label:"NSS",url:"https://app.smartsheet.com/sheets/2gG6m5j4V639GvH7FjqJWG2VMjW2M7fXjJ9xFPW1"}]},
   {id:"s2", phase:"Leadership Steps", title:"Determine staffing — review ES Staffing Service Model", desc:"Use the calculator below. For events of 50 or fewer booths, the calculator will guide you through a remote eligibility assessment. For 751+ booth shows, a custom plan and rationale are required.", links:[], calc:true, step:"2"},
-  {id:"s5", phase:"Leadership Steps", title:"Add event to ES Regional Schedules and assign staff", desc:"Update the Regional Schedule spreadsheet with this event and assign available staff members.", links:[{label:"Regional Schedules",url:"https://freemanco.sharepoint.com/:x:/r/teams/CustomerExperienceTeam/_layouts/15/Doc.aspx?sourcedoc=%7B4A18F518-B87C-47CE-8CE0-5E9441603823%7D&file=ES%20Regional%20Schedules%20-%20All%20Views.xlsx"}]},
-  {id:"s6", phase:"Leadership Steps", title:"Enter supervisor/lead names in NSS", desc:"Once names are entered in NSS, an auto-alert is sent to assigned persons at the 10-week mark.", links:[{label:"NSS",url:"https://app.smartsheet.com/sheets/2gG6m5j4V639GvH7FjqJWG2VMjW2M7fXjJ9xFPW1"}], nameEntry:true},
-  {id:"s7", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]}
+  {id:"s3", phase:"Leadership Steps", title:"Add event to ES Regional Schedules and assign staff", desc:"Update the Regional Schedule spreadsheet with this event and assign available staff members.", links:[{label:"Regional Schedules",url:"https://freemanco.sharepoint.com/:x:/r/teams/CustomerExperienceTeam/_layouts/15/Doc.aspx?sourcedoc=%7B4A18F518-B87C-47CE-8CE0-5E9441603823%7D&file=ES%20Regional%20Schedules%20-%20All%20Views.xlsx"}]},
+  {id:"s4", phase:"Leadership Steps", title:"Enter supervisor/lead names in NSS", desc:"Once names are entered in NSS, an auto-alert is sent to assigned persons at the 10-week mark.", links:[{label:"NSS",url:"https://app.smartsheet.com/sheets/2gG6m5j4V639GvH7FjqJWG2VMjW2M7fXjJ9xFPW1"}], nameEntry:true},
+  {id:"s5", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]}
 ];
 
 
@@ -4811,11 +4811,11 @@ function renderSsOverrideRow(showId, key, label, val, rec) {
 function renderSsNameEntry(showId, plan) {
   return "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding:10px 0\">" +
     "<div><div style=\"font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px\">Supervisor Name</div>" +
-    "<input style=\"font-family:Arial,sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;background:var(--surface)\" " +
+    "<input style=\"font-family:Arial,sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;outline:none;width:100%;background:var(--surface)\" " +
       "placeholder=\"Enter name...\" value=\"" + (plan.supervisorName || "") + "\" " +
       "data-name-showid=\"" + showId + "\" data-name-field=\"supervisorName\"></div>" +
     "<div><div style=\"font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px\">Lead Name</div>" +
-    "<input style=\"font-family:Arial,sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;background:var(--surface)\" " +
+    "<input style=\"font-family:Arial,sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;outline:none;width:100%;background:var(--surface)\" " +
       "placeholder=\"Enter name...\" value=\"" + (plan.leadName || "") + "\" " +
       "data-name-showid=\"" + showId + "\" data-name-field=\"leadName\"></div>" +
     "</div>";
@@ -5129,7 +5129,7 @@ function kpiChipHtml(kpi, status) {
     label = 'Goal ' + kpi.goal + ' · Below';
     bg = '#FCEBEB'; color = '#A32D2D'; border = '#F09595';
   }
-  return '<span style="display:inline-block;font-size:12px;font-weight:500;padding:2px 8px;border-radius:999px;background:' + bg + ';color:' + color + ';border:0.5px solid ' + border + '">' + label + '</span>';
+  return '<span style="display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:' + bg + ';color:' + color + ';border:0.5px solid ' + border + '">' + label + '</span>';
 }
 
 function kpiBarPct(kpi, val) {
@@ -6802,7 +6802,7 @@ function elRenderShow() {
   // --------------------------------------------------
   // STAFFING & SCHEDULING — unified new panel
   // --------------------------------------------------
-  html += '<div class="el-section-div">Staffing &amp; Scheduling</div>';
+  html += '<div class="el-section-div">Staffing</div>';
 
   var rec = typeof ssCalcRec === 'function' ? ssCalcRec(s) : null;
 
@@ -6812,7 +6812,7 @@ function elRenderShow() {
     var openSlots = ra.slots.filter(function(sl) { return !sl.person; }).length;
     var headerTitle = planConfirmed ? 'Confirmed staffing plan' : 'Proposed staffing plan';
     var headerRight = planConfirmed ? '' :
-      '<a class="el-ss-panel-link" href="#" onclick="goToSsFromEvents(\'' + elSelId + '\');return false;">Open in Staffing &amp; Scheduling ↗</a>';
+      '<a class="el-ss-panel-link" href="#" onclick="goToSsFromEvents(\'' + elSelId + '\');return false;">Open in Staffing ↗</a>';
     var gapBadge = (!planConfirmed && openSlots > 0) ?
       '<span class="el-ss-gap-badge" style="margin-left:10px">' + openSlots + ' slot' + (openSlots>1?'s':'') + ' open</span>' : '';
 
@@ -7037,7 +7037,7 @@ function elRenderShow() {
       var sc = s.showClose || '';
       var cd = s.clearDate || '';
       var t = timing.toLowerCase();
-      // Pre-event calculable dates
+      // Pre-Event calculable dates
       if (t.indexOf('120 days') >= 0) return { date: addDays(mi, -120), grey: addDays(mi, 1) };
       if (t.indexOf('90 days') >= 0)  return { date: addDays(mi, -90),  grey: addDays(mi, 1) };
       if (t.indexOf('60 days') >= 0)  return { date: addDays(mi, -60),  grey: addDays(mi, 1) };
@@ -7053,22 +7053,22 @@ function elRenderShow() {
       if (t.indexOf('as soon as orders') >= 0)     return { date: null, grey: addDays(mi, 1) };
       if (t.indexOf('as soon as freight') >= 0)    return { date: null, grey: addDays(mi, 1) };
       if (t.indexOf('as needed, daily') >= 0)      return { date: null, grey: addDays(mi, 1) };
-      // On-site: grey day after moveInStart
+      // On-Site: grey day after moveInStart
       if (t.indexOf('once team arrives') >= 0)          return { date: mi,   grey: addDays(mi, 1) };
       if (t.indexOf('before exhibitor move-in begins') >= 0) return { date: mi, grey: addDays(mi, 1) };
       if (t.indexOf('once exhibitor move-in begins') >= 0)   return { date: mi, grey: addDays(mi, 1) };
       if (t.indexOf('before exhibitor move-in') >= 0)   return { date: mi, grey: addDays(mi, 1) };
-      // On-site: grey day after showOpen
+      // On-Site: grey day after showOpen
       if (t.indexOf('once show opens') >= 0)        return { date: so, grey: addDays(so, 1) };
       if (t.indexOf('once show is invoiced') >= 0)  return { date: so, grey: addDays(so, 1) };
-      // On-site: grey day after showClose
+      // On-Site: grey day after showClose
       if (t.indexOf('during show days') >= 0)       return { date: sc, grey: addDays(sc, 1) };
-      // On-site: grey day after clearDate
+      // On-Site: grey day after clearDate
       if (t === 'daily')                                        return { date: null, grey: addDays(cd, 1) };
       if (t.indexOf('when stepping away') >= 0)                return { date: null, grey: addDays(cd, 1) };
       if (t.indexOf('during assigned show day') >= 0)          return { date: null, grey: addDays(cd, 1) };
       if (t.indexOf('once exhibitor move-out ends') >= 0)      return { date: cd,   grey: addDays(cd, 1) };
-      // Post-event: grey after showClose + 8 business days
+      // Post-Event: grey after showClose + 8 business days
       if (t.indexOf('8 business days') >= 0) {
         var deadline = addBusinessDays(sc, 8);
         return { date: deadline, grey: addDays(deadline, 1) };
