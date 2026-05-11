@@ -452,6 +452,16 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .sf-reason-lbl{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px}
 .sf-reason-textarea{font-family:'Nunito Sans',sans-serif;font-size:13.5px;padding:7px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;resize:vertical;min-height:60px;background:var(--surface);color:var(--fb)}
 .sf-reason-textarea:focus{border-color:var(--mb);background:#fff}
+/* ── Remote eligibility result block ── */
+.sf-remote-result{border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.sf-remote-result-full{background:rgba(0,189,246,.08);border:2px solid var(--mb)}
+.sf-remote-result-hybrid{background:rgba(255,181,0,.08);border:2px solid var(--gold)}
+.sf-remote-result-onsite{background:rgba(66,187,55,.08);border:2px solid var(--green)}
+.sf-remote-result-badge{display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.sf-remote-result-full .sf-remote-result-badge{background:rgba(0,189,246,.15);color:#005A75;border:1px solid rgba(0,189,246,.4)}
+.sf-remote-result-hybrid .sf-remote-result-badge{background:rgba(255,181,0,.15);color:#7A5200;border:1px solid rgba(255,181,0,.4)}
+.sf-remote-result-onsite .sf-remote-result-badge{background:rgba(66,187,55,.15);color:#1A6B35;border:1px solid rgba(66,187,55,.4)}
+.sf-remote-result-label{font-size:13px;font-weight:700;color:var(--fb);margin-bottom:4px}
 .sf-btn-submit-mod{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:800;padding:6px 14px;border-radius:8px;border:none;background:var(--mb);color:#fff;cursor:pointer;margin-top:8px;width:100%}
 .sf-btn-submit-mod:hover{opacity:.85}
 
@@ -4525,7 +4535,7 @@ function renderSfSmallEventCalc(s, plan) {
   // Result block (only shown after determination)
   if (result) {
     if (result === 'full') {
-      html += '<div class="sf-remote-result ss-remote-result-full">' +
+      html += '<div class="sf-remote-result sf-remote-result-full">' +
         '<div class="sf-remote-result-badge">Fully Remote</div>' +
         '<div class="sf-remote-result-label" style="color:var(--mb)">Remote (Fully Remote) Service Event</div>' +
         '<p style="margin:6px 0 0;font-size:13px">Based on your inputs, this event is eligible for <strong>fully remote</strong> staffing. ' +
@@ -4533,7 +4543,7 @@ function renderSfSmallEventCalc(s, plan) {
         'Follow the Remote Staffing SOP for next steps including exhibitor communications, Delivery coordination, and service plan setup.</p>' +
       '</div>';
     } else if (result === 'hybrid') {
-      html += '<div class="sf-remote-result ss-remote-result-hybrid">' +
+      html += '<div class="sf-remote-result sf-remote-result-hybrid">' +
         '<div class="sf-remote-result-badge" style="background:rgba(255,181,0,.15);color:#a07000;border:1px solid rgba(255,181,0,.4)">Partially On-Site (Hybrid)</div>' +
         '<div class="sf-remote-result-label" style="color:#a07000">Remote (Partially On-Site) Service Event</div>' +
         '<p style="margin:6px 0 0;font-size:13px">Based on your inputs, this event is eligible for <strong>partially on-site (hybrid)</strong> staffing. ' +
