@@ -885,7 +885,11 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="nav-section">Team Operations</div>
   <div class="nav-item" onclick="showPage('staffing',this)">
     <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M2 12h12M4 12V7m4 5V4m4 8V9"/></svg></div>
-    <span class="nav-label">Staffing & Scheduling</span>
+    <span class="nav-label">Staffing</span>
+  </div>
+  <div class="nav-item" onclick="showPage('scheduling',this)">
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M2 4h12M2 8h8M2 12h5"/><circle cx="12" cy="11" r="3"/><path d="M12 10v1.5l1 1"/></svg></div>
+    <span class="nav-label">Scheduling</span>
   </div>
   <div class="nav-item" onclick="showPage('timekeeping',this)">
     <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg></div>
@@ -1107,6 +1111,27 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
           <div class="sf-empty-icon">📅</div>
           <div class="sf-empty-msg">Select a show</div>
           <div class="sf-empty-sub">Choose a show from the left panel to review its staffing plan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page" id="page-scheduling">
+    <div class="page-hdr">
+      <div class="page-title">Scheduling</div>
+      <div class="page-sub" id="sc-sub">Shows ready to schedule — staffing confirmed, scheduling pending</div>
+    </div>
+    <div class="rh-layout" id="sc-layout">
+      <div class="rh-sidebar">
+        <div class="rh-sidebar-hdr">
+          <span class="rh-sidebar-title" id="sc-sidebar-count">Shows to Schedule</span>
+        </div>
+        <div id="sc-show-list" style="overflow-y:auto;max-height:calc(100vh - 300px)"></div>
+      </div>
+      <div class="rh-detail" id="sc-detail">
+        <div class="sf-empty">
+          <div class="sf-empty-icon">📋</div>
+          <div class="sf-empty-msg">Select a show</div>
+          <div class="sf-empty-sub">Choose a show from the left to work through its scheduling tasks</div>
         </div>
       </div>
     </div>
@@ -2088,6 +2113,7 @@ function showPage(id, el) {
   if (id === 'transitions') { initTransitions(); }
   if (id === 'offboarding') { initOffboarding(); }
   if (id === 'staffing')    { initStaffing(); }
+  if (id === 'scheduling')  { initScheduling(); }
   if (id === 'kpis')        { initKpis(); }
   if (id === 'events')      { initEvents(); }
   if (id === 'team')        { initTeam(); }
@@ -2222,6 +2248,9 @@ function onScopeChanged() {
   if (pid === 'page-staffing') {
     sfSelId = null; initStaffing(); return;
   }
+  if (pid === 'page-scheduling') {
+    scSelId = null; initScheduling(); return;
+  }
   if (pid === 'page-kpis') {
     renderKpiSidebar(); renderKpiDetail(); return;
   }
@@ -2341,6 +2370,9 @@ function resetWorkspaceState() {
   // sfSelId is cleared so the detail panel doesn't show a stale show
   // from a previous scope. The list re-renders on initStaffing().
   sfSelId = null;
+
+  // ── Scheduling ──
+  scSelId = null;
 
   // ── KPIs ── (scope-aware values recalculate on render; just ensure
   // detail panel refreshes by keeping kpiSelId valid or defaulting)
@@ -3909,7 +3941,7 @@ function sfFmtDate(str) {
 // Increment STORAGE_VERSION when changing: hires, obRecords, trRecords,
 // offRecords, staffingPlans, or ROLE_ASSIGNMENTS structure.
 // ─────────────────────────────────────────────────────────────────────────────
-var STORAGE_VERSION = 2;
+var STORAGE_VERSION = 3;
 var STORAGE_KEY_PREFIX = 'escc_v';
 
 function storageKey(name) {
@@ -3953,22 +3985,24 @@ function storageWipeStale() {
 function storageLoadAll() {
   // Called once on page load — restores all persisted state
   storageWipeStale();
-  hires        = storageLoad('hires',        []);
-  obRecords    = storageLoad('obRecords',     []);
-  trRecords    = storageLoad('trRecords',     []);
-  offRecords   = storageLoad('offRecords',    []);
-  staffingPlans      = storageLoad('staffingPlans',       {});
-  ROLE_ASSIGNMENTS = storageLoad('roleAssignments', {});
+  hires             = storageLoad('hires',             []);
+  obRecords         = storageLoad('obRecords',          []);
+  trRecords         = storageLoad('trRecords',          []);
+  offRecords        = storageLoad('offRecords',         []);
+  staffingPlans     = storageLoad('staffingPlans',      {});
+  schedulingPlans   = storageLoad('schedulingPlans',    {});
+  ROLE_ASSIGNMENTS  = storageLoad('roleAssignments',    {});
 }
 
 function storageSaveAll() {
   // Call after any user action that modifies state
-  storageSave('hires',            hires);
-  storageSave('obRecords',        obRecords);
-  storageSave('trRecords',        trRecords);
-  storageSave('offRecords',       offRecords);
-  storageSave('staffingPlans',          staffingPlans);
-  storageSave('roleAssignments',  ROLE_ASSIGNMENTS);
+  storageSave('hires',              hires);
+  storageSave('obRecords',          obRecords);
+  storageSave('trRecords',          trRecords);
+  storageSave('offRecords',         offRecords);
+  storageSave('staffingPlans',      staffingPlans);
+  storageSave('schedulingPlans',    schedulingPlans);
+  storageSave('roleAssignments',    ROLE_ASSIGNMENTS);
 }
 
 // Individual save helpers — for targeted saves after specific actions
@@ -3976,19 +4010,28 @@ function storageSaveHires()           { storageSave('hires',           hires); }
 function storageSaveObRecords()       { storageSave('obRecords',        obRecords); }
 function storageSaveTrRecords()       { storageSave('trRecords',        trRecords); }
 function storageSaveOffRecords()      { storageSave('offRecords',       offRecords); }
-function storageSaveStaffingPlans()         { storageSave('staffingPlans',          staffingPlans); }
-function storageSaveRoleAssignments() { storageSave('roleAssignments',  ROLE_ASSIGNMENTS); }
+function storageSaveStaffingPlans()    { storageSave('staffingPlans',      staffingPlans); }
+function storageSaveSchedulingPlans()  { storageSave('schedulingPlans',    schedulingPlans); }
+function storageSaveRoleAssignments()  { storageSave('roleAssignments',    ROLE_ASSIGNMENTS); }
 
 var staffingPlans = {};
 var sfSelId = null;
 var sfFilter = "unstaffed";
 
+var schedulingPlans = {};
+var scSelId = null;
+var scFilter = "unscheduled";
+
+var SCHEDULING_TASKS = [
+  {id:"sc1", phase:"Scheduling Steps", title:"Add event to the ES Regional Schedule", desc:"Update the ES Regional Schedule spreadsheet with this event and identify available team members for scheduling.", links:[{label:"Regional Schedules",url:"https://freemanco.sharepoint.com/:x:/r/teams/CustomerExperienceTeam/_layouts/15/Doc.aspx?sourcedoc=%7B4A18F518-B87C-47CE-8CE0-5E9441603823%7D&file=ES%20Regional%20Schedules%20-%20All%20Views.xlsx"}]},
+  {id:"sc2", phase:"Scheduling Steps", title:"Assign team members to event slots", desc:"Assign identified team members to their roles for this event.", links:[], slotFilling:true}
+];
+
 var STAFFING_TASKS = [
   {id:"s1", phase:"Leadership Steps", title:"Review show details and prior year history", desc:"Check NSS for prior year staffing, job number, and any notes from previous runs.", links:[{label:"NSS",url:"https://app.smartsheet.com/sheets/2gG6m5j4V639GvH7FjqJWG2VMjW2M7fXjJ9xFPW1"}]},
   {id:"s2", phase:"Leadership Steps", title:"Determine staffing — review ES Staffing Service Model", desc:"Use the calculator below. For events of 50 or fewer booths, the calculator will guide you through a remote eligibility assessment. For 751+ booth shows, a custom plan and rationale are required.", links:[], calc:true, step:"2"},
-  {id:"s3", phase:"Leadership Steps", title:"Add event to ES Regional Schedules and assign staff", desc:"Update the Regional Schedule spreadsheet with this event and assign available staff members.", links:[{label:"Regional Schedules",url:"https://freemanco.sharepoint.com/:x:/r/teams/CustomerExperienceTeam/_layouts/15/Doc.aspx?sourcedoc=%7B4A18F518-B87C-47CE-8CE0-5E9441603823%7D&file=ES%20Regional%20Schedules%20-%20All%20Views.xlsx"}]},
-  {id:"s4", phase:"Leadership Steps", title:"Enter supervisor/lead names in NSS", desc:"Once names are entered in NSS, an auto-alert is sent to assigned persons at the 10-week mark.", links:[{label:"NSS",url:"https://app.smartsheet.com/sheets/2gG6m5j4V639GvH7FjqJWG2VMjW2M7fXjJ9xFPW1"}], nameEntry:true},
-  {id:"s5", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]}
+  {id:"s3", phase:"Leadership Steps", title:"Enter the on-site lead / supervisor names", desc:"Enter the on-site lead and supervisor names below. Once entered, an auto-alert is sent to the assigned persons at the 10-week mark.", links:[], nameEntry:true},
+  {id:"s4", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/teams/ExhibitorServices296"}]}
 ];
 
 
@@ -4810,14 +4853,14 @@ function renderSfOverrideRow(showId, key, label, val, rec) {
 
 function renderSfNameEntry(showId, plan) {
   return "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding:10px 0\">" +
-    "<div><div style=\"font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px\">Supervisor Name</div>" +
-    "<input style=\"font-family:Arial,sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;outline:none;width:100%;background:var(--surface)\" " +
-      "placeholder=\"Enter name...\" value=\"" + (plan.supervisorName || "") + "\" " +
-      "data-name-showid=\"" + showId + "\" data-name-field=\"supervisorName\"></div>" +
-    "<div><div style=\"font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px\">Lead Name</div>" +
+    "<div><div style=\"font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px\">On-Site Lead</div>" +
     "<input style=\"font-family:Arial,sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;outline:none;width:100%;background:var(--surface)\" " +
       "placeholder=\"Enter name...\" value=\"" + (plan.leadName || "") + "\" " +
       "data-name-showid=\"" + showId + "\" data-name-field=\"leadName\"></div>" +
+    "<div><div style=\"font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px\">Supervisor (if needed)</div>" +
+    "<input style=\"font-family:Arial,sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;outline:none;width:100%;background:var(--surface)\" " +
+      "placeholder=\"Enter name...\" value=\"" + (plan.supervisorName || "") + "\" " +
+      "data-name-showid=\"" + showId + "\" data-name-field=\"supervisorName\"></div>" +
     "</div>";
 }
 
@@ -7154,7 +7197,7 @@ function elToggleAcc(hdrEl) {
 
 function goToStaffingFromEvents(showId) {
   event.preventDefault();
-  var navItem = document.querySelector('.nav-item[onclick*="staffing"]');
+  var navItem = document.querySelector('.nav-item[onclick*='staffing']');
   showPage('staffing', navItem);
   setTimeout(function() {
     sfSelId = showId;
@@ -7162,6 +7205,347 @@ function goToStaffingFromEvents(showId) {
     renderSfDetail();
   }, 50);
   return false;
+}
+
+function goToSchedulingFromEvents(showId) {
+  event.preventDefault();
+  var navItem = document.querySelector('.nav-item[onclick*='scheduling']');
+  showPage('scheduling', navItem);
+  setTimeout(function() {
+    scSelId = showId;
+    renderScList();
+    renderScDetail();
+  }, 50);
+  return false;
+}
+
+function goToSchedulingFromStaffing(showId) {
+  var navItem = document.querySelector('.nav-item[onclick*='scheduling']');
+  showPage('scheduling', navItem);
+  setTimeout(function() {
+    scSelId = showId;
+    renderScList();
+    renderScDetail();
+  }, 50);
+}
+
+// ── Scheduling init / render ──────────────────────────────────────────────
+
+function initScheduling() {
+  scSelId = null;
+  renderScList();
+  renderScDetail();
+}
+
+function getScScopeShows() {
+  // Shows eligible for scheduling: staffing confirmed, scheduling not yet confirmed
+  var scopeShows = getScopeShows();
+  return scopeShows.filter(function(s) {
+    var sf = staffingPlans[s.job];
+    var sfConfirmed = sf && sf.confirmed;
+    var sc = schedulingPlans[s.job];
+    var scConfirmed = sc && sc.confirmed;
+    return sfConfirmed && !scConfirmed;
+  });
+}
+
+function renderScList() {
+  var list = document.getElementById('sc-show-list');
+  var countEl = document.getElementById('sc-sidebar-count');
+  if (!list) return;
+
+  var shows = getScScopeShows();
+
+  if (countEl) {
+    countEl.textContent = shows.length + ' show' + (shows.length !== 1 ? 's' : '') + ' to schedule';
+  }
+
+  if (!shows.length) {
+    list.innerHTML = '<div style="padding:20px 16px;text-align:center;color:var(--muted);font-size:13px">' +
+      '<div style="font-size:28px;margin-bottom:8px">✅</div>' +
+      '<div style="font-weight:700;margin-bottom:4px">All caught up</div>' +
+      '<div>No shows are waiting for scheduling in this scope.</div>' +
+      '</div>';
+    return;
+  }
+
+  var html = '';
+  shows.forEach(function(s) {
+    var sc = schedulingPlans[s.job] || {};
+    var step1done = sc.step_sc1;
+    var step2done = sc.confirmed;
+    var stepsComplete = [step1done, step2done].filter(Boolean).length;
+    var pct = Math.round((stepsComplete / 2) * 100);
+
+    var isActive = scSelId === s.job;
+    html += '<div class="sf-show-item' + (isActive ? ' active' : '') + '" onclick="scSelectShow('' + s.job + '')">' +
+      '<div class="sf-show-item-name">' + s.name + '</div>' +
+      '<div class="sf-show-item-meta">' + (s.producingBranch || s.region) + ' · ' + (s.moveInStart || 'TBD') + '</div>' +
+      '<div class="sf-prog-bar" style="margin-top:5px"><div class="sf-prog-fill" style="width:' + pct + '%"></div></div>' +
+      '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + stepsComplete + ' of 2 steps complete</div>' +
+    '</div>';
+  });
+  list.innerHTML = html;
+}
+
+function scSelectShow(showId) {
+  scSelId = showId;
+  renderScList();
+  renderScDetail();
+}
+
+function renderScDetail() {
+  var detail = document.getElementById('sc-detail');
+  if (!detail) return;
+
+  if (!scSelId || !SHOWS[scSelId]) {
+    detail.innerHTML = '<div class="sf-empty">' +
+      '<div class="sf-empty-icon">📋</div>' +
+      '<div class="sf-empty-msg">Select a show</div>' +
+      '<div class="sf-empty-sub">Choose a show from the left to work through its scheduling tasks</div>' +
+    '</div>';
+    return;
+  }
+
+  var s = SHOWS[scSelId];
+  var sc = schedulingPlans[scSelId] || {};
+  var ra = ROLE_ASSIGNMENTS[scSelId];
+  var sfPlan = staffingPlans[scSelId] || {};
+
+  // Init ROLE_ASSIGNMENTS if needed (scheduling inherits from staffing)
+  elInitRoleAssignments(scSelId);
+  ra = ROLE_ASSIGNMENTS[scSelId];
+
+  var html = '<div style="padding:20px 24px;max-width:860px">';
+
+  // ── Show header ──
+  html += '<div style="margin-bottom:20px">' +
+    '<div style="font-size:20px;font-weight:800;color:var(--fb);margin-bottom:4px">' + s.name + '</div>' +
+    '<div style="font-size:13px;color:var(--muted)">' +
+      (s.producingBranch || s.region) + ' · ' +
+      (s.facility || s.city) + ', ' + s.city +
+      (s.moveInStart ? ' · Move-in: ' + s.moveInStart : '') +
+    '</div>' +
+  '</div>';
+
+  // ── Task list ──
+  html += '<div class="sf-task-list">';
+
+  SCHEDULING_TASKS.forEach(function(task, idx) {
+    var stepNum = idx + 1;
+    var isDone = task.slotFilling ? (ra && ra.confirmed) : sc['step_' + task.id];
+    var isLocked = false; // no locking — both tasks accessible
+
+    var checkCls = isDone ? 'sf-check sf-check-done' : 'sf-check';
+    var checkInner = isDone
+      ? '<svg viewBox="0 0 12 12" fill="none" width="12" height="12"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '';
+
+    html += '<div class="sf-task-item' + (isDone ? ' sf-task-done' : '') + '">' +
+      '<div class="sf-task-left">' +
+        '<div class="' + checkCls + '" onclick="scToggleStep('' + scSelId + '','' + task.id + '',' + (task.slotFilling ? 'true' : 'false') + ')">' + checkInner + '</div>' +
+        '<div class="sf-task-body">' +
+          '<div class="sf-task-title">' + stepNum + '. ' + task.title + '</div>' +
+          '<div class="sf-task-desc">' + task.desc + '</div>' +
+          (task.links && task.links.length ? '<div class="sf-task-links">' + task.links.map(function(l) {
+            return '<a class="sf-task-link" href="' + l.url + '" target="_blank">' + l.label + '</a>';
+          }).join('') + '</div>' : '') +
+          (task.slotFilling ? renderScSlotFilling(s, ra, sc) : '') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  });
+
+  html += '</div>'; // close sf-task-list
+
+  // ── Confirm scheduling bar ──
+  var allSlotsAssigned = ra && ra.slots && ra.slots.every(function(sl) { return sl.person; });
+  var sc1done = sc.step_sc1;
+  var scConfirmed = ra && ra.confirmed;
+
+  if (!scConfirmed && sc1done && allSlotsAssigned) {
+    html += '<div class="el-confirm-bar" style="margin-top:16px">' +
+      '<span class="el-confirm-msg">All slots assigned and regional schedule updated. Ready to confirm.</span>' +
+      '<button class="el-confirm-btn" onclick="scConfirmScheduling('' + scSelId + '')">Confirm scheduling</button>' +
+    '</div>';
+  } else if (scConfirmed) {
+    html += '<div style="margin-top:16px;background:#EAFAF0;border:1.5px solid #42BB37;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:10px">' +
+      '<span style="font-size:18px">✅</span>' +
+      '<span style="font-size:13px;font-weight:700;color:#1A6B35">Scheduling confirmed — this show is fully scheduled.</span>' +
+    '</div>';
+  }
+
+  html += '</div>'; // close padding wrapper
+  detail.innerHTML = html;
+
+  // Auto-focus name picker if open
+  var np = document.getElementById('sc-np-input');
+  if (np) np.focus();
+}
+
+function renderScSlotFilling(s, ra, sc) {
+  if (!ra || !ra.slots) return '<div style="padding:8px 0;color:var(--muted);font-size:12px">No staffing plan found — complete staffing first.</div>';
+
+  var scConfirmed = ra.confirmed;
+  var pickerState = SC_SLOT_PICKER_STATE;
+
+  // Count role types for numbering
+  var roleTypeCounts = {};
+  ra.slots.forEach(function(sl) { roleTypeCounts[sl.type] = (roleTypeCounts[sl.type] || 0) + 1; });
+  var roleTypeCounters = {};
+
+  var html = '<div class="el-roster" style="margin-top:10px">';
+  ra.slots.forEach(function(slot, idx) {
+    roleTypeCounters[slot.type] = (roleTypeCounters[slot.type] || 0) + 1;
+    var displayLabel = roleTypeCounts[slot.type] > 1
+      ? slot.label + ' ' + roleTypeCounters[slot.type]
+      : slot.label;
+
+    var isPickerOpen = pickerState && pickerState.showId === scSelId && pickerState.slotIdx === idx;
+
+    if (slot.person) {
+      var avColors = [
+        {bg:'#EBF8FF',color:'#005A75'},{bg:'#EAFAF0',color:'#1A6B35'},{bg:'#FFF5D6',color:'#7A5C00'},
+        {bg:'#F3F0FF',color:'#5B3FBF'},{bg:'#FFE4E1',color:'#8B2500'},{bg:'#E0F7FA',color:'#006064'}
+      ];
+      var av = avColors[idx % avColors.length];
+      var initials = elInitials(slot.person);
+      var travelChip = slot.homeBranch ? '<span class="el-slot-travel">Traveling — ' + slot.homeBranch + '</span>' : '';
+      html += '<div class="el-slot">' +
+        '<div class="el-slot-filled">' +
+          '<span class="el-slot-type">' + displayLabel + '</span>' +
+          '<div class="el-slot-person">' +
+            '<div class="el-slot-av" style="background:' + av.bg + ';color:' + av.color + '">' + initials + '</div>' +
+            '<div><div class="el-slot-name">' + slot.person + travelChip + '</div>' +
+            '<div class="el-slot-branch">' + (slot.branch||'') + '</div></div>' +
+          '</div>' +
+          '<div class="el-slot-actions">' +
+            (!scConfirmed ? '<button onclick="scRemoveSlot('' + scSelId + '',' + idx + ')" style="font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">Remove</button>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    } else if (isPickerOpen) {
+      html += '<div class="el-slot" style="border-color:var(--mb)">' +
+        '<div class="el-slot-filled">' +
+          '<span class="el-slot-type">' + displayLabel + '</span>' +
+          '<div class="el-name-picker-wrap">' +
+            '<input id="sc-np-input" class="el-name-picker-input" type="text" placeholder="Search team members..." oninput="scNamePickerSearch(this.value)" onkeydown="if(event.key==='Escape')scCancelPicker()" autofocus />' +
+            '<div id="sc-np-drop" class="el-name-picker-drop"></div>' +
+          '</div>' +
+          '<button onclick="scCancelPicker()" style="font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;margin-left:8px">Cancel</button>' +
+        '</div>' +
+      '</div>';
+    } else {
+      html += '<div class="el-slot">' +
+        '<div class="el-slot-open">' +
+          '<span class="el-slot-type">' + displayLabel + '</span>' +
+          '<span class="el-slot-open-prompt">Assign a team member to this slot</span>' +
+          (!scConfirmed ? '<button class="el-slot-add-btn" onclick="scOpenNamePicker('' + scSelId + '',' + idx + ','' + slot.type + '')">+ Add</button>' : '') +
+        '</div>' +
+      '</div>';
+    }
+  });
+  html += '</div>';
+  return html;
+}
+
+var SC_SLOT_PICKER_STATE = null;
+
+function scOpenNamePicker(showId, slotIdx, slotType) {
+  SC_SLOT_PICKER_STATE = { showId: showId, slotIdx: slotIdx, slotType: slotType };
+  renderScDetail();
+  setTimeout(function() {
+    var inp = document.getElementById('sc-np-input');
+    if (inp) { inp.focus(); scNamePickerSearch(''); }
+  }, 30);
+}
+
+function scCancelPicker() {
+  SC_SLOT_PICKER_STATE = null;
+  renderScDetail();
+}
+
+function scNamePickerSearch(val) {
+  var drop = document.getElementById('sc-np-drop');
+  if (!drop || !SC_SLOT_PICKER_STATE) return;
+  var showId = SC_SLOT_PICKER_STATE.showId;
+  var slotType = SC_SLOT_PICKER_STATE.slotType;
+  var ra = ROLE_ASSIGNMENTS[showId];
+  var alreadyAssigned = ra ? ra.slots.filter(function(sl){ return sl.person; }).map(function(sl){ return sl.person; }) : [];
+
+  var filtered = TEAM_MEMBERS.filter(function(tm) {
+    if (alreadyAssigned.indexOf(tm.name) >= 0) return false;
+    if (elIsEligibleForSupervisory && slotType === 'ees' && !elIsEligibleForSupervisory(tm)) return false;
+    if (!val) return true;
+    return tm.name.toLowerCase().indexOf(val.toLowerCase()) >= 0 ||
+           (tm.branch && tm.branch.toLowerCase().indexOf(val.toLowerCase()) >= 0);
+  }).slice(0, 8);
+
+  if (!filtered.length) {
+    drop.innerHTML = '<div style="padding:10px 12px;color:var(--muted);font-size:12px">No matches found</div>';
+    return;
+  }
+  drop.innerHTML = filtered.map(function(tm) {
+    return '<div class="el-name-picker-item" onclick="scPickPerson('' + showId + '','' + tm.name.replace(/'/g,"\'") + '','' + (tm.branch||'') + '')">' +
+      '<div class="el-name-picker-name">' + tm.name + '</div>' +
+      '<div class="el-name-picker-meta">' + (tm.title||'') + ' · ' + (tm.branch||'') + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function scPickPerson(showId, name, branch) {
+  if (!SC_SLOT_PICKER_STATE) return;
+  var slotIdx = SC_SLOT_PICKER_STATE.slotIdx;
+  var ra = ROLE_ASSIGNMENTS[showId];
+  if (!ra || !ra.slots[slotIdx]) return;
+  var s = SHOWS[showId];
+  var showBranch = s ? (s.producingBranch || s.region || '') : '';
+  var personBranch = branch || '';
+  var normalize = function(b) { return b.replace(/^\d+\s+/, ''); };
+  ra.slots[slotIdx].person = name;
+  ra.slots[slotIdx].branch = branch;
+  ra.slots[slotIdx].homeBranch = (normalize(personBranch) !== normalize(showBranch)) ? branch : null;
+  SC_SLOT_PICKER_STATE = null;
+  storageSaveRoleAssignments();
+  renderScList();
+  renderScDetail();
+}
+
+function scRemoveSlot(showId, slotIdx) {
+  var ra = ROLE_ASSIGNMENTS[showId];
+  if (!ra || !ra.slots[slotIdx]) return;
+  ra.slots[slotIdx].person = null;
+  ra.slots[slotIdx].branch = null;
+  ra.slots[slotIdx].homeBranch = null;
+  storageSaveRoleAssignments();
+  renderScList();
+  renderScDetail();
+}
+
+function scToggleStep(showId, stepId, isSlotFilling) {
+  if (isSlotFilling) return; // slot filling confirmed via scConfirmScheduling
+  if (!schedulingPlans[showId]) schedulingPlans[showId] = {};
+  schedulingPlans[showId]['step_' + stepId] = !schedulingPlans[showId]['step_' + stepId];
+  storageSaveSchedulingPlans();
+  renderScList();
+  renderScDetail();
+}
+
+function scConfirmScheduling(showId) {
+  var ra = ROLE_ASSIGNMENTS[showId];
+  if (!ra) return;
+  var allFilled = ra.slots.every(function(sl) { return sl.person; });
+  if (!allFilled) {
+    alert('Please assign all slots before confirming scheduling.');
+    return;
+  }
+  if (!schedulingPlans[showId]) schedulingPlans[showId] = {};
+  schedulingPlans[showId].confirmed = true;
+  ra.confirmed = true;
+  storageSaveSchedulingPlans();
+  storageSaveRoleAssignments();
+  renderScList();
+  renderScDetail();
 }
 
 function initEvents() {
