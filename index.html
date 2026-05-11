@@ -7259,9 +7259,7 @@ function elRenderShow() {
   // Circle: show logo > branch logo > null (no fallback image — graceful no-circle)
   var elLogoSrc = elGetShowLogo(elSelId);
   var elCircleHtml = elLogoSrc
-    ? '<div style="width:136px;height:136px;min-width:136px;min-height:136px;border-radius:50%;flex-shrink:0;overflow:hidden;display:block">' +
-        '<img src="' + elLogoSrc + '" alt="' + s.name + '" style="width:136px;height:136px;border-radius:50%;display:block;object-fit:cover" />' +
-      '</div>'
+    ? '<img src="' + elLogoSrc + '" alt="' + s.name + '" style="width:136px;height:136px;min-width:136px;min-height:136px;border-radius:50%;flex-shrink:0;display:block;object-fit:cover" />'
     : '<div style="width:136px;height:136px;min-width:136px;min-height:136px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--fb);color:#fff;font-size:20px;font-weight:800;letter-spacing:-.02em">' +
         (s.producingBranch || s.region || 'ES').replace(/^\d+\s*-\s*/, '').slice(0, 2).toUpperCase() +
       '</div>';
