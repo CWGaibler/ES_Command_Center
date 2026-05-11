@@ -5175,15 +5175,22 @@ function showSfConfirmModal(showId) {
   var leadName  = (leadInput ? leadInput.value.trim() : '') || plan.leadName || '';
   var supName   = (supInput  ? supInput.value.trim()  : '') || plan.supervisorName || '';
 
-  // Build staffing summary rows
+  // Build staffing summary rows using correct sfCalcRec field names (cf/br/as/sv)
+  // and applying any plan overrides on top.
   var summaryRows = '';
   if (rec) {
+    var ov = plan.overrides || {};
+    var cf  = ov.cf  != null ? ov.cf  : rec.cf;
+    var br  = ov.br  != null ? ov.br  : rec.br;
+    var as_ = ov.as  != null ? ov.as  : rec.as;
+    var sv  = ov.sv  != null ? ov.sv  : rec.sv;
+    var fr  = ov.fr  != null ? ov.fr  : (rec.specialty || 0);
     var roles = [
-      {label: 'Customer-Facing Roles', val: rec.customerFacing},
-      {label: 'Back Room Roles',       val: rec.backRoom},
-      {label: 'Additional Support',    val: rec.additionalSupport},
-      {label: 'Supervisory Roles',     val: rec.supervisory},
-      {label: 'Freight / Storage',     val: rec.specialty}
+      {label: 'Customer-Facing Roles', val: cf},
+      {label: 'Back Room Roles',       val: br},
+      {label: 'Additional Support',    val: as_},
+      {label: 'Supervisory Roles',     val: sv},
+      {label: 'Freight / Storage',     val: fr}
     ];
     roles.forEach(function(r) {
       if (r.val > 0) {
@@ -5193,7 +5200,7 @@ function showSfConfirmModal(showId) {
         '</div>';
       }
     });
-    var total = (rec.customerFacing||0) + (rec.backRoom||0) + (rec.additionalSupport||0) + (rec.supervisory||0) + (rec.specialty||0);
+    var total = cf + br + as_ + sv + fr;
     summaryRows += '<div style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;margin-top:2px">' +
       '<span style="font-weight:800;color:var(--fb)">Total Recommended Staff</span>' +
       '<span style="font-weight:800;color:var(--fb)">' + total + '</span>' +
