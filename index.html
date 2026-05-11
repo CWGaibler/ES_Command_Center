@@ -3952,7 +3952,7 @@ function sfFmtDate(str) {
 // Increment STORAGE_VERSION when changing: hires, obRecords, trRecords,
 // offRecords, staffingPlans, or ROLE_ASSIGNMENTS structure.
 // ─────────────────────────────────────────────────────────────────────────────
-var STORAGE_VERSION = 3;
+var STORAGE_VERSION = 4;
 var STORAGE_KEY_PREFIX = 'escc_v';
 
 function storageKey(name) {
@@ -4369,11 +4369,7 @@ function renderSfDetail() {
       chkLocked = true;
     }
     if (t.id === 's3' && !chkLocked && !checked) {
-      var leadVal = (function() {
-        var inp = document.querySelector('[data-name-showid="' + sfSelId + '"][data-name-field="leadName"]');
-        return inp ? inp.value.trim() : (plan.leadName || '');
-      })();
-      if (!leadVal) chkLocked = true;
+      if (!(plan.leadName && plan.leadName.trim())) chkLocked = true;
     }
     var rowCls = locked ? " step-locked" : "";
     var chkCls = "task-chk" + (checked ? " checked" : "") + (chkLocked ? " locked" : "");
@@ -4396,16 +4392,12 @@ function renderSfDetail() {
 
   // Confirm bar
   // Read current name field values (they may not be saved to plan yet)
-  var leadInput = document.querySelector('[data-name-showid="' + sfSelId + '"][data-name-field="leadName"]');
-  var supervisorInput = document.querySelector('[data-name-showid="' + sfSelId + '"][data-name-field="supervisorName"]');
-  var currentLeadName = leadInput ? leadInput.value.trim() : (plan.leadName || '');
-  var currentSupervisorName = supervisorInput ? supervisorInput.value.trim() : (plan.supervisorName || '');
   var allTasksChecked = STAFFING_TASKS.every(function(t) {
-    if (t.nameEntry) return true; // name entry task gate is handled by leadName check below
+    if (t.nameEntry) return true;
     return plan.checked.indexOf(t.id) >= 0;
   });
   var calcConfirmed = (plan.checked.indexOf('s2') >= 0) || (plan.serviceModel && plan.serviceModel !== '');
-  var leadFilled = currentLeadName.length > 0;
+  var leadFilled = !!(plan.leadName && plan.leadName.trim());
   var allDone = allTasksChecked && calcConfirmed && leadFilled;
   if (confirmed) {
     html += "<div class=\"sf-confirm-bar\">" +
@@ -4416,7 +4408,7 @@ function renderSfDetail() {
     var pendingMsg = allDone
       ? "All steps complete \u2014 ready to confirm"
       : (!calcConfirmed ? "Complete step 2 to determine your staffing plan" :
-         !leadFilled ? "Enter the on-site lead name in step 3 to continue" :
+         !leadFilled ? "Select the on-site lead in step 3 to continue" :
          "Complete all steps above to confirm this plan");
     var pendingSub = allDone
       ? "Completing this process will lock all four steps and move this show to your Scheduling queue."
@@ -4428,6 +4420,9 @@ function renderSfDetail() {
   }
 
   det.innerHTML = html;
+
+  // Attach step 3 picker handlers after innerHTML is set
+  sfAttachNamePickerHandlers(sfSelId);
 
   // Attach event handlers via delegation on det
   det.onclick = function(e) {
@@ -4565,30 +4560,10 @@ function renderSfDetail() {
     }
   };
 
-  // Attach input handlers for override fields and mod inputs
+  // Attach input handlers for override fields only (name fields now use picker, not text input)
   det.oninput = function(e) {
     var inp = e.target;
     if (inp.dataset.overrideKey) updateSfOverride(inp.dataset.overrideShowid, inp.dataset.overrideKey, inp.value);
-    if (inp.dataset.nameField) {
-      updateSfName(inp.dataset.nameShowid, inp.dataset.nameField, inp.value);
-      // Re-render when lead name changes so step 3 checkbox lock state updates live.
-      // Preserve focus by only re-rendering if the s3 checkbox lock state would change.
-      if (inp.dataset.nameField === 'leadName') {
-        var sid = inp.dataset.nameShowid;
-        var pl = staffingPlans[sid] || {};
-        var s3checked = pl.checked && pl.checked.indexOf('s3') >= 0;
-        if (!s3checked) {
-          renderSfDetail();
-          // Restore focus to the lead input after re-render
-          var newInp = document.querySelector('[data-name-showid="' + sid + '"][data-name-field="leadName"]');
-          if (newInp) {
-            var len = newInp.value.length;
-            newInp.focus();
-            newInp.setSelectionRange(len, len);
-          }
-        }
-      }
-    }
   };
 }
 
@@ -5055,16 +5030,161 @@ function renderSfOverrideRow(showId, key, label, val, rec) {
 }
 
 function renderSfNameEntry(showId, plan) {
-  return "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding:10px 0\">" +
-    "<div><div style=\"font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px\">On-Site Lead</div>" +
-    "<input style=\"font-family:Arial,sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;outline:none;width:100%;background:var(--surface)\" " +
-      "placeholder=\"Enter name...\" value=\"" + (plan.leadName || "") + "\" " +
-      "data-name-showid=\"" + showId + "\" data-name-field=\"leadName\"></div>" +
-    "<div><div style=\"font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px\">Supervisor (if needed)</div>" +
-    "<input style=\"font-family:Arial,sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;outline:none;width:100%;background:var(--surface)\" " +
-      "placeholder=\"Enter name...\" value=\"" + (plan.supervisorName || "") + "\" " +
-      "data-name-showid=\"" + showId + "\" data-name-field=\"supervisorName\"></div>" +
-    "</div>";
+  // Picker-based name entry for step 3. Returns an HTML string with two picker rows.
+  // Lead: any employee, required. Supervisor: title-restricted, optional, cannot match lead.
+  var leadName = plan.leadName || '';
+  var supName  = plan.supervisorName || '';
+  var sfPickerState = window._sfPickerState || {};
+  var leadPickerOpen = sfPickerState.showId === showId && sfPickerState.field === 'leadName';
+  var supPickerOpen  = sfPickerState.showId === showId && sfPickerState.field === 'supervisorName';
+
+  function pickerRow(field, label, currentName, isOpen, required, subLabel) {
+    var filledHtml = '';
+    if (currentName) {
+      filledHtml = '<div style="display:flex;align-items:center;gap:7px;padding:5px 8px;border:1.5px solid var(--green);border-radius:8px;background:#EAFAF0;cursor:pointer" data-sf-picker-open="' + field + '" data-sf-picker-showid="' + showId + '">' +
+        '<span style="font-size:12px;font-weight:800;color:#1A6B35;flex:1">' + currentName + '</span>' +
+        '<span style="font-size:11px;font-weight:700;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:999px;padding:1px 7px;cursor:pointer" data-sf-picker-clear="' + field + '" data-sf-picker-showid="' + showId + '">&times; Clear</span>' +
+      '</div>';
+    } else if (isOpen) {
+      filledHtml = '<div style="position:relative">' +
+        '<input id="sf-picker-inp-' + field + '-' + showId + '" style="font-family:var(--ff,sans-serif);font-size:12px;font-weight:700;padding:5px 8px;border:1.5px solid var(--mb);border-radius:8px;outline:none;width:100%" placeholder="Search by name or branch..." data-sf-picker-inp="' + field + '" data-sf-picker-showid="' + showId + '" autocomplete="off">' +
+        '<div id="sf-picker-drop-' + field + '-' + showId + '" style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--mb);border-top:none;border-radius:0 0 8px 8px;z-index:9999;max-height:160px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,31,95,.15)"></div>' +
+        '<div style="margin-top:4px"><span style="font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;text-decoration:underline" data-sf-picker-cancel="' + field + '" data-sf-picker-showid="' + showId + '">Cancel</span></div>' +
+      '</div>';
+    } else {
+      filledHtml = '<div style="padding:5px 8px;border:1.5px dashed var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer" data-sf-picker-open="' + field + '" data-sf-picker-showid="' + showId + '">' +
+        (required ? '<span style="color:var(--orange);margin-right:3px">*</span>' : '') + 'Select a team member…' +
+      '</div>';
+    }
+    return '<div><div style="font-size:9.6px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:3px">' + label + (subLabel ? '<span style="font-weight:400;text-transform:none;font-size:9.6px"> (' + subLabel + ')</span>' : '') + '</div>' + filledHtml + '</div>';
+  }
+
+  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding:10px 0">' +
+    pickerRow('leadName',      'On-Site Lead',         leadName, leadPickerOpen, true,  'required') +
+    pickerRow('supervisorName','Supervisor (if needed)', supName, supPickerOpen, false, 'supervisor-eligible titles only') +
+  '</div>';
+}
+
+// Called once after renderSfDetail sets innerHTML — attaches picker interactivity for step 3.
+function sfAttachNamePickerHandlers(showId) {
+  var det = document.getElementById('sf-detail');
+  if (!det) return;
+
+  // Delegated click handler for open/clear/cancel
+  det.addEventListener('click', function sfPickerClick(e) {
+    // Open picker
+    var openEl = e.target.closest('[data-sf-picker-open]');
+    if (openEl) {
+      var field = openEl.getAttribute('data-sf-picker-open');
+      var sid = openEl.getAttribute('data-sf-picker-showid');
+      if (sid !== showId) return;
+      window._sfPickerState = { showId: sid, field: field, query: '' };
+      renderSfDetail();
+      setTimeout(function() {
+        var inp = document.getElementById('sf-picker-inp-' + field + '-' + sid);
+        if (inp) { inp.focus(); sfPopulateDrop(field, sid, ''); }
+      }, 20);
+      return;
+    }
+    // Clear selection
+    var clearEl = e.target.closest('[data-sf-picker-clear]');
+    if (clearEl) {
+      e.stopPropagation();
+      var field2 = clearEl.getAttribute('data-sf-picker-clear');
+      var sid2 = clearEl.getAttribute('data-sf-picker-showid');
+      if (sid2 !== showId) return;
+      if (!staffingPlans[sid2]) staffingPlans[sid2] = {checked:[], overrides:{}, supervisorName:'', leadName:'', confirmed:false};
+      staffingPlans[sid2][field2] = '';
+      // If clearing lead and s3 is checked, uncheck it
+      if (field2 === 'leadName') {
+        var ci = staffingPlans[sid2].checked.indexOf('s3');
+        if (ci >= 0) staffingPlans[sid2].checked.splice(ci, 1);
+      }
+      storageSaveStaffingPlans();
+      window._sfPickerState = null;
+      renderSfDetail();
+      return;
+    }
+    // Cancel picker
+    var cancelEl = e.target.closest('[data-sf-picker-cancel]');
+    if (cancelEl) {
+      window._sfPickerState = null;
+      renderSfDetail();
+      return;
+    }
+    // Pick a person from dropdown
+    var pickEl = e.target.closest('[data-sf-pick]');
+    if (pickEl) {
+      var field3 = pickEl.getAttribute('data-sf-pick-field');
+      var sid3 = pickEl.getAttribute('data-sf-pick-showid');
+      var name3 = pickEl.getAttribute('data-sf-pick');
+      if (sid3 !== showId) return;
+      if (!staffingPlans[sid3]) staffingPlans[sid3] = {checked:[], overrides:{}, supervisorName:'', leadName:'', confirmed:false};
+      staffingPlans[sid3][field3] = name3;
+      storageSaveStaffingPlans();
+      window._sfPickerState = null;
+      renderSfDetail();
+      // Restore focus after re-render so step 3 checkbox gate updates
+      return;
+    }
+  }, { once: true });
+
+  // Input handler for search
+  det.addEventListener('input', function sfPickerInput(e) {
+    var inp = e.target;
+    var field = inp.getAttribute('data-sf-picker-inp');
+    var sid = inp.getAttribute('data-sf-picker-showid');
+    if (!field || !sid || sid !== showId) return;
+    if (window._sfPickerState) window._sfPickerState.query = inp.value;
+    sfPopulateDrop(field, sid, inp.value);
+  }, { once: true });
+}
+
+function sfIsSupervisorEligible(member) {
+  if (!member || !member.title) return false;
+  var t = member.title.trim();
+  return SF_SUPERVISOR_TITLES.indexOf(t) >= 0;
+}
+
+function sfPopulateDrop(field, showId, query) {
+  var drop = document.getElementById('sf-picker-drop-' + field + '-' + showId);
+  if (!drop) return;
+  var plan = staffingPlans[showId] || {};
+  var leadName = plan.leadName || '';
+  var supName  = plan.supervisorName || '';
+  var q = query.toLowerCase();
+
+  var filtered = TEAM_MEMBERS.filter(function(tm) {
+    // Supervisor field: title restriction + cannot match lead
+    if (field === 'supervisorName') {
+      if (!sfIsSupervisorEligible(tm)) return false;
+      if (leadName && tm.name === leadName) return false;
+    }
+    // Lead field: cannot match already-selected supervisor
+    if (field === 'leadName') {
+      if (supName && tm.name === supName) return false;
+    }
+    if (!q) return true;
+    return tm.name.toLowerCase().indexOf(q) >= 0 || (tm.branch && tm.branch.toLowerCase().indexOf(q) >= 0);
+  }).slice(0, 8);
+
+  drop.innerHTML = '';
+  if (!filtered.length) {
+    drop.innerHTML = '<div style="padding:10px 12px;color:var(--muted);font-size:12px">No matches found</div>';
+    return;
+  }
+  filtered.forEach(function(tm) {
+    var item = document.createElement('div');
+    item.style.cssText = 'padding:7px 10px;cursor:pointer;border-bottom:.5px solid var(--border-lt);font-size:13px';
+    item.setAttribute('data-sf-pick', tm.name);
+    item.setAttribute('data-sf-pick-field', field);
+    item.setAttribute('data-sf-pick-showid', showId);
+    item.innerHTML = '<div style="font-weight:700;color:var(--fb)">' + tm.name + '</div>' +
+      '<div style="font-size:11.5px;color:var(--muted)">' + (tm.title || '') + ' · ' + (tm.branch || '') + '</div>';
+    item.addEventListener('mouseenter', function() { item.style.background = 'var(--fb-xlt)'; });
+    item.addEventListener('mouseleave', function() { item.style.background = ''; });
+    drop.appendChild(item);
+  });
 }
 
 function toggleSsPhase(id) {
@@ -5103,19 +5223,6 @@ function toggleSsCheck(showId, taskId) {
   else plan.checked.push(taskId);
   storageSaveStaffingPlans();
 
-  // If all steps now checked, auto-confirm and show popup
-  // Read current name field values (they may not be saved to plan yet)
-  var leadInput = document.querySelector('[data-name-showid="' + sfSelId + '"][data-name-field="leadName"]');
-  var supervisorInput = document.querySelector('[data-name-showid="' + sfSelId + '"][data-name-field="supervisorName"]');
-  var currentLeadName = leadInput ? leadInput.value.trim() : (plan.leadName || '');
-  var currentSupervisorName = supervisorInput ? supervisorInput.value.trim() : (plan.supervisorName || '');
-  var allTasksChecked = STAFFING_TASKS.every(function(t) {
-    if (t.nameEntry) return true; // name entry task gate is handled by leadName check below
-    return plan.checked.indexOf(t.id) >= 0;
-  });
-  var calcConfirmed = (plan.checked.indexOf('s2') >= 0) || (plan.serviceModel && plan.serviceModel !== '');
-  var leadFilled = currentLeadName.length > 0;
-  var allDone = allTasksChecked && calcConfirmed && leadFilled;
   renderSfDetail();
   renderSfList();
   renderSfStats();
@@ -5158,11 +5265,7 @@ function saveSfCalcDecision(showId) {
 
 function confirmSf(showId) {
   if (!staffingPlans[showId]) return;
-  // Read current name field values before confirming
-  var leadInput = document.querySelector('[data-name-showid="' + showId + '"][data-name-field="leadName"]');
-  var supInput  = document.querySelector('[data-name-showid="' + showId + '"][data-name-field="supervisorName"]');
-  if (leadInput) staffingPlans[showId].leadName = leadInput.value.trim();
-  if (supInput)  staffingPlans[showId].supervisorName = supInput.value.trim();
+  // Names already saved to plan by picker — no DOM read needed
   staffingPlans[showId].confirmed = true;
   storageSaveStaffingPlans();
   // Clear selection so the detail panel closes and user lands on staffing home
@@ -5183,11 +5286,9 @@ function showSfConfirmModal(showId) {
   var plan = staffingPlans[showId] || {};
   var rec = typeof sfCalcRec === 'function' ? sfCalcRec(s) : null;
 
-  // Read current name field values
-  var leadInput = document.querySelector('[data-name-showid="' + showId + '"][data-name-field="leadName"]');
-  var supInput  = document.querySelector('[data-name-showid="' + showId + '"][data-name-field="supervisorName"]');
-  var leadName  = (leadInput ? leadInput.value.trim() : '') || plan.leadName || '';
-  var supName   = (supInput  ? supInput.value.trim()  : '') || plan.supervisorName || '';
+  // Names are stored directly in plan by picker
+  var leadName = plan.leadName || '';
+  var supName  = plan.supervisorName || '';
 
   // Build staffing summary rows using correct sfCalcRec field names (cf/br/as/sv)
   // and applying any plan overrides on top.
@@ -6803,12 +6904,14 @@ function elInitRoleAssignments(showId) {
 var EL_SLOT_PICKER_STATE = {}; // { showId, slotIdx, slotType } when picker open
 
 var EL_SUPERVISORY_TITLES = [
-  'Event Experience Supervisor',
-  'Sr. Event Experience Supervisor',
-  'Manager',
-  'Director',
-  'Regional Director'
+  'Exhibitor Services Event Experience Supervisor',
+  'Exhibitor Services Sr Event Experience Supervisor',
+  'Manager Exhibitor Services',
+  'Director Exhibitor Services',
+  'Regional Director Exhibitor Services',
+  'Sr Director Exhibitor Services'
 ];
+var SF_SUPERVISOR_TITLES = EL_SUPERVISORY_TITLES;
 
 function elIsEligibleForSupervisory(member) {
   if (!member || !member.title) return false;
@@ -7679,10 +7782,18 @@ function renderScDetail() {
   var allDone = sc1done && allFilled;
 
   // ── DETAIL HEADER — identical structure to staffing ──
+  var sfPlan = staffingPlans[scSelId] || {};
+  var sfLead = sfPlan.leadName || '';
+  var sfSup  = sfPlan.supervisorName || '';
+  var subLineExtra = '';
+  if (sfLead) {
+    subLineExtra = ' | On-Site Lead: ' + sfLead;
+    if (sfSup) subLineExtra += ' \u2013 Supervisor: ' + sfSup;
+  }
   var html = '<div class="det-hdr">' +
     '<div><div class="det-name-row"><span class="det-name">' + s.name + '</span><span class="det-name-sep">|</span><span class="det-job-num">Job #' + scSelId + '</span></div>' +
     '<div style="margin-top:5px"><a class="tlink" href="#" onclick="goToEventLens(\'' + scSelId + '\');return false;">&#128203; View full event profile &#8599;</a></div>' +
-    '<div class="det-sub">' + s.city + ' &middot; ' + (s.facility || '') + ' &middot; ' + sfFmtDate(s.showOpen) + (s.showClose && s.showClose !== s.showOpen ? ' &ndash; ' + sfFmtDate(s.showClose) : '') + '</div>' +
+    '<div class="det-sub">' + s.city + ' &middot; ' + (s.facility || '') + ' &middot; ' + sfFmtDate(s.showOpen) + (s.showClose && s.showClose !== s.showOpen ? ' &ndash; ' + sfFmtDate(s.showClose) : '') + subLineExtra + '</div>' +
     '<div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">' +
       '<span class="chip chip-ghost">' + dashRegion + '</span>' +
       '<span class="chip chip-ghost">' + rec.booths + ' booths</span>' +
@@ -7723,22 +7834,36 @@ function renderScDetail() {
   html += '</div>'; // close det-scroll
 
   // ── CONFIRM BAR — identical pattern to staffing ──
+  var scPlan = schedulingPlans[scSelId] || {};
+  var leadError = scPlan._leadError || '';
   if (scConfirmed) {
     html += '<div class="sf-confirm-bar">' +
       '<div class="sf-confirm-msg">&#x2713; Scheduling process complete &mdash; event is fully scheduled<div class="sub">All steps are locked. Use Revise to make changes.</div></div>' +
       '<button class="m-cancel" data-sc-action="unconfirm" data-sc-showid="' + scSelId + '">Revise</button>' +
       '</div>';
   } else {
-    var pendingMsg = allDone ? 'All steps complete &mdash; ready to confirm' :
-      (!sc1done ? 'Complete step 1 to unlock slot assignment' :
-       !allFilled ? 'Assign all team member slots to continue' : 'Complete all steps above to confirm');
-    var pendingSub = allDone ?
-      'Completing this process will lock both steps and mark this show as fully scheduled.' :
-      'Both steps must be complete before you can confirm.';
-    html += '<div class="sf-confirm-bar pending">' +
-      '<div class="sf-confirm-msg">' + pendingMsg + '<div class="sub">' + pendingSub + '</div></div>' +
-      '<button class="btn-confirm" data-sc-action="confirm" data-sc-showid="' + scSelId + '"' + (allDone ? '' : ' disabled style="opacity:.45;cursor:not-allowed"') + '>Complete Process</button>' +
-      '</div>';
+    // Clear lead error if they've now assigned the required lead
+    if (leadError && ra && ra.slots) {
+      var nowAssigned = ra.slots.map(function(sl){return sl.person||'';});
+      if (nowAssigned.indexOf(leadError) >= 0) { leadError = ''; if(schedulingPlans[scSelId]) delete schedulingPlans[scSelId]._leadError; }
+    }
+    if (leadError) {
+      html += '<div class="sf-confirm-bar" style="background:#FFEDE7;border-top-color:rgba(251,71,31,.2)">' +
+        '<div class="sf-confirm-msg" style="color:var(--orange)">&#9888; The on-site lead ' + leadError + ' must be assigned to one of the event staffing positions.<div class="sub" style="color:var(--fb)">Assign ' + leadError + ' to a slot above, then click Complete Process.</div></div>' +
+        '<button class="btn-confirm" data-sc-action="confirm" data-sc-showid="' + scSelId + '" disabled style="opacity:.45;cursor:not-allowed">Complete Process</button>' +
+        '</div>';
+    } else {
+      var pendingMsg = allDone ? 'All steps complete &mdash; ready to confirm' :
+        (!sc1done ? 'Complete step 1 to unlock slot assignment' :
+         !allFilled ? 'Assign all team member slots to continue' : 'Complete all steps above to confirm');
+      var pendingSub = allDone ?
+        'Completing this process will lock both steps and mark this show as fully scheduled.' :
+        'Both steps must be complete before you can confirm.';
+      html += '<div class="sf-confirm-bar pending">' +
+        '<div class="sf-confirm-msg">' + pendingMsg + '<div class="sub">' + pendingSub + '</div></div>' +
+        '<button class="btn-confirm" data-sc-action="confirm" data-sc-showid="' + scSelId + '"' + (allDone ? '' : ' disabled style="opacity:.45;cursor:not-allowed"') + '>Complete Process</button>' +
+        '</div>';
+    }
   }
 
   det.innerHTML = html;
@@ -8027,12 +8152,25 @@ function scConfirmScheduling(showId) {
   var ra = ROLE_ASSIGNMENTS[showId];
   if (!ra) return;
   var sc = schedulingPlans[showId] || {};
-  if (!sc.step_sc1) {
-    return;
+  if (!sc.step_sc1) return;
+  if (!ra.slots.every(function(sl) { return sl.person; })) return;
+
+  // Validate: on-site lead from staffing must be assigned to one of the slots
+  var sfPlan = staffingPlans[showId] || {};
+  var requiredLead = sfPlan.leadName ? sfPlan.leadName.trim() : '';
+  if (requiredLead) {
+    var assignedNames = ra.slots.map(function(sl) { return sl.person || ''; });
+    if (assignedNames.indexOf(requiredLead) < 0) {
+      // Show inline error — store on schedulingPlans and re-render
+      if (!schedulingPlans[showId]) schedulingPlans[showId] = {};
+      schedulingPlans[showId]._leadError = requiredLead;
+      renderScDetail();
+      return;
+    }
   }
-  if (!ra.slots.every(function(sl) { return sl.person; })) {
-    return;
-  }
+  // Clear any previous error
+  if (schedulingPlans[showId]) delete schedulingPlans[showId]._leadError;
+
   if (!schedulingPlans[showId]) schedulingPlans[showId] = {};
   schedulingPlans[showId].confirmed = true;
   ra.confirmed = true;
