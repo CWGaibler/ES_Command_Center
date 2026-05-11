@@ -6782,10 +6782,6 @@ function elConfirmPlan(showId) {
 
 function elInitRoleAssignments(showId) {
   if (ROLE_ASSIGNMENTS[showId]) {
-    // Already initialized — sync confirmed state from staffingPlans if confirmed in S&S
-    if (staffingPlans[showId] && staffingPlans[showId].confirmed && !ROLE_ASSIGNMENTS[showId].confirmed) {
-      ROLE_ASSIGNMENTS[showId].confirmed = true;
-    }
     return;
   }
   var show = SHOWS[showId];
@@ -6793,17 +6789,15 @@ function elInitRoleAssignments(showId) {
   var rec = typeof sfCalcRec === 'function' ? sfCalcRec(show) : null;
   if (!rec) return;
   var slots = [];
-  var alreadyConfirmed = !!(staffingPlans[showId] && staffingPlans[showId].confirmed);
   var roleLabels = {cf:'Customer-Facing',br:'Back room',as:'Additional support',sv:'Supervisory',fr:'Freight / storage desk'};
   ['cf','br','as','sv','fr'].forEach(function(role) {
     var count = rec[role] || 0;
-    // For 'fr', sfCalcRec doesn't always return it — check
     if (role === 'fr') count = rec.fr || 0;
     for (var i = 0; i < count; i++) {
       slots.push({ type: role, label: roleLabels[role], person: null, branch: null, homeBranch: null });
     }
   });
-  ROLE_ASSIGNMENTS[showId] = { slots: slots, confirmed: alreadyConfirmed };
+  ROLE_ASSIGNMENTS[showId] = { slots: slots, confirmed: false };
 }
 
 var EL_SLOT_PICKER_STATE = {}; // { showId, slotIdx, slotType } when picker open
@@ -7587,14 +7581,14 @@ function renderScList() {
 
   var shows = getScScopeShows();
   if (countEl) {
-    countEl.textContent = shows.length + ' show' + (shows.length !== 1 ? 's' : '') + ' to schedule';
+    countEl.textContent = shows.length + ' Show' + (shows.length !== 1 ? 's' : '') + ' to Schedule';
   }
 
   list.innerHTML = '';
 
   if (!shows.length) {
     var empty = document.createElement('div');
-    empty.style.cssText = 'padding:20px 16px;text-align:center;color:var(--muted);font-size:13px';
+    empty.style.cssText = 'padding:20px;text-align:center;color:var(--muted);font-size:12px';
     empty.innerHTML = '<div style="font-size:28px;margin-bottom:8px">&#x2705;</div><div style="font-weight:700;margin-bottom:4px">All caught up</div><div>No shows are waiting for scheduling in this scope.</div>';
     list.appendChild(empty);
     return;
@@ -7603,41 +7597,57 @@ function renderScList() {
   shows.forEach(function(s) {
     var sc = schedulingPlans[s.id] || {};
     var ra = ROLE_ASSIGNMENTS[s.id];
-    var step1done = sc.step_sc1;
-    var step2done = ra && ra.confirmed;
-    var stepsComplete = (step1done ? 1 : 0) + (step2done ? 1 : 0);
-    var pct = Math.round((stepsComplete / 2) * 100);
+    var scConfirmed = ra && ra.confirmed;
+    var dashRegion = CALC_REGION_MAP[s.region] || s.region;
+    var rec = sfCalcRec(s);
 
     var item = document.createElement('div');
-    item.className = 'sf-show-item' + (scSelId === s.id ? ' active' : '');
+    item.className = 'sf-show-item' + (scSelId === s.id ? ' sel' : '');
     (function(id) {
       item.addEventListener('click', function() { scSelectShow(id); });
     })(s.id);
 
-    var nameDiv = document.createElement('div');
-    nameDiv.className = 'sf-show-item-name';
-    nameDiv.textContent = s.name;
+    // Name + job number row — identical to staffing
+    var nameRow = document.createElement('div');
+    nameRow.className = 'sf-show-name-row';
+    var nameSpan = document.createElement('span');
+    nameSpan.className = 'sf-show-name';
+    nameSpan.textContent = s.name;
+    var sepSpan = document.createElement('span');
+    sepSpan.className = 'sf-show-job-sep';
+    sepSpan.textContent = '|';
+    var jobSpan = document.createElement('span');
+    jobSpan.className = 'sf-show-job';
+    jobSpan.style.cssText = 'cursor:pointer';
+    jobSpan.textContent = 'Job #' + s.id;
+    (function(sid) {
+      jobSpan.addEventListener('click', function(e) { e.stopPropagation(); goToEventLens(sid); });
+    })(s.id);
+    nameRow.appendChild(nameSpan);
+    nameRow.appendChild(sepSpan);
+    nameRow.appendChild(jobSpan);
 
+    // Meta line — city · date · booths — identical to staffing
     var metaDiv = document.createElement('div');
-    metaDiv.className = 'sf-show-item-meta';
-    metaDiv.textContent = (s.producingBranch || s.region) + ' · ' + (s.moveInStart || 'TBD');
+    metaDiv.className = 'sf-show-meta';
+    metaDiv.textContent = s.city + ' \u00b7 ' + sfFmtDate(s.showOpen) + ' \u00b7 ' + rec.booths + ' booths';
 
-    var bar = document.createElement('div');
-    bar.className = 'sf-prog-bar';
-    bar.style.marginTop = '5px';
-    var fill = document.createElement('div');
-    fill.className = 'sf-prog-fill';
-    fill.style.width = pct + '%';
-    bar.appendChild(fill);
+    // Tags row — badge + region chip — identical to staffing
+    var tagsDiv = document.createElement('div');
+    tagsDiv.className = 'sf-show-tags';
+    var badge = document.createElement('span');
+    badge.className = scConfirmed ? 'sf-badge ss-badge-confirmed' : 'sf-badge ss-badge-unstaffed';
+    badge.textContent = scConfirmed ? '\u2713 Scheduled' : 'Needs Scheduling';
+    var regionChip = document.createElement('span');
+    regionChip.className = 'chip chip-ghost';
+    regionChip.style.fontSize = '12px';
+    regionChip.textContent = dashRegion;
+    tagsDiv.appendChild(badge);
+    tagsDiv.appendChild(regionChip);
 
-    var stepLbl = document.createElement('div');
-    stepLbl.style.cssText = 'font-size:10px;color:var(--muted);margin-top:2px';
-    stepLbl.textContent = stepsComplete + ' of 2 steps complete';
-
-    item.appendChild(nameDiv);
+    item.appendChild(nameRow);
     item.appendChild(metaDiv);
-    item.appendChild(bar);
-    item.appendChild(stepLbl);
+    item.appendChild(tagsDiv);
     list.appendChild(item);
   });
 }
@@ -7649,128 +7659,119 @@ function scSelectShow(showId) {
 }
 
 function renderScDetail() {
-  var detail = document.getElementById('sc-detail');
-  if (!detail) return;
+  var det = document.getElementById('sc-detail');
+  if (!det) return;
 
   if (!scSelId || !SHOWS[scSelId]) {
-    detail.innerHTML = '<div class="sf-empty"><div class="sf-empty-icon">&#128203;</div><div class="sf-empty-msg">Select a show</div><div class="sf-empty-sub">Choose a show from the left to work through its scheduling tasks</div></div>';
+    det.innerHTML = '<div class="sf-empty"><div class="sf-empty-icon">&#128203;</div><div class="sf-empty-msg">Select a show</div><div class="sf-empty-sub">Choose a show from the left panel to work through its scheduling tasks</div></div>';
     return;
   }
 
   var s = SHOWS[scSelId];
   var sc = schedulingPlans[scSelId] || {};
-
   elInitRoleAssignments(scSelId);
   var ra = ROLE_ASSIGNMENTS[scSelId];
-
-  var wrapper = document.createElement('div');
-  wrapper.style.cssText = 'padding:20px 24px;max-width:860px';
-
-  // Header
-  var hdr = document.createElement('div');
-  hdr.style.marginBottom = '20px';
-  hdr.innerHTML =
-    '<div style="font-size:20px;font-weight:800;color:var(--fb);margin-bottom:4px">' + s.name + '</div>' +
-    '<div style="font-size:13px;color:var(--muted)">' +
-      (s.producingBranch || s.region) + ' · ' + (s.facility || s.city) + ', ' + s.city +
-      (s.moveInStart ? ' · Move-in: ' + s.moveInStart : '') +
-    '</div>';
-  wrapper.appendChild(hdr);
-
-  // Task list
-  var taskList = document.createElement('div');
-  taskList.className = 'sf-task-list';
-
-  SCHEDULING_TASKS.forEach(function(task, tIdx) {
-    var isDone = task.slotFilling ? (ra && ra.confirmed) : sc['step_' + task.id];
-
-    var taskItem = document.createElement('div');
-    taskItem.className = 'sf-task-item' + (isDone ? ' sf-task-done' : '');
-
-    var taskLeft = document.createElement('div');
-    taskLeft.className = 'sf-task-left';
-
-    var checkEl = document.createElement('div');
-    checkEl.className = isDone ? 'sf-check sf-check-done' : 'sf-check';
-    if (isDone) {
-      checkEl.innerHTML = '<svg viewBox="0 0 12 12" fill="none" width="12" height="12"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    }
-    if (!task.slotFilling) {
-      (function(tid) {
-        checkEl.addEventListener('click', function() { scToggleStep(scSelId, tid); });
-      })(task.id);
-    }
-
-    var taskBody = document.createElement('div');
-    taskBody.className = 'sf-task-body';
-
-    var titleEl = document.createElement('div');
-    titleEl.className = 'sf-task-title';
-    titleEl.textContent = (tIdx + 1) + '. ' + task.title;
-
-    var descEl = document.createElement('div');
-    descEl.className = 'sf-task-desc';
-    descEl.textContent = task.desc;
-
-    taskBody.appendChild(titleEl);
-    taskBody.appendChild(descEl);
-
-    if (task.links && task.links.length) {
-      var linksDiv = document.createElement('div');
-      linksDiv.className = 'sf-task-links';
-      task.links.forEach(function(lnk) {
-        var a = document.createElement('a');
-        a.className = 'sf-task-link';
-        a.href = lnk.url;
-        a.target = '_blank';
-        a.textContent = lnk.label;
-        linksDiv.appendChild(a);
-      });
-      taskBody.appendChild(linksDiv);
-    }
-
-    if (task.slotFilling) {
-      var slotWrap = document.createElement('div');
-      slotWrap.style.marginTop = '10px';
-      scBuildSlotFilling(slotWrap, s, ra, sc);
-      taskBody.appendChild(slotWrap);
-    }
-
-    taskLeft.appendChild(checkEl);
-    taskLeft.appendChild(taskBody);
-    taskItem.appendChild(taskLeft);
-    taskList.appendChild(taskItem);
-  });
-
-  wrapper.appendChild(taskList);
-
-  // Confirm / confirmed bar
-  var allFilled = ra && ra.slots && ra.slots.every(function(sl) { return sl.person; });
-  var sc1done = sc.step_sc1;
+  var dashRegion = CALC_REGION_MAP[s.region] || s.region;
+  var rec = sfCalcRec(s);
   var scConfirmed = ra && ra.confirmed;
+  var sc1done = sc.step_sc1;
+  var allFilled = ra && ra.slots && ra.slots.every(function(sl) { return sl.person; });
+  var allDone = sc1done && allFilled;
 
-  if (!scConfirmed && sc1done && allFilled) {
-    var confirmBar = document.createElement('div');
-    confirmBar.className = 'el-confirm-bar';
-    confirmBar.style.marginTop = '16px';
-    var msg = document.createElement('span');
-    msg.className = 'el-confirm-msg';
-    msg.textContent = 'All slots assigned and regional schedule updated. Ready to confirm.';
-    var btn = document.createElement('button');
-    btn.className = 'el-confirm-btn';
-    btn.textContent = 'Confirm scheduling';
-    (function(sid) {
-      btn.addEventListener('click', function() { scConfirmScheduling(sid); });
-    })(scSelId);
-    confirmBar.appendChild(msg);
-    confirmBar.appendChild(btn);
-    wrapper.appendChild(confirmBar);
-  } else if (scConfirmed) {
-    var doneBar = document.createElement('div');
-    doneBar.style.cssText = 'margin-top:16px;background:#EAFAF0;border:1.5px solid #42BB37;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:10px';
-    doneBar.innerHTML = '<span style="font-size:18px">&#x2705;</span><span style="font-size:13px;font-weight:700;color:#1A6B35">Scheduling confirmed — this show is fully scheduled.</span>';
-    wrapper.appendChild(doneBar);
+  // ── DETAIL HEADER — identical structure to staffing ──
+  var html = '<div class="det-hdr">' +
+    '<div><div class="det-name-row"><span class="det-name">' + s.name + '</span><span class="det-name-sep">|</span><span class="det-job-num">Job #' + scSelId + '</span></div>' +
+    '<div style="margin-top:5px"><a class="tlink" href="#" onclick="goToEventLens(\'' + scSelId + '\');return false;">&#128203; View full event profile &#8599;</a></div>' +
+    '<div class="det-sub">' + s.city + ' &middot; ' + (s.facility || '') + ' &middot; ' + sfFmtDate(s.showOpen) + (s.showClose && s.showClose !== s.showOpen ? ' &ndash; ' + sfFmtDate(s.showClose) : '') + '</div>' +
+    '<div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">' +
+      '<span class="chip chip-ghost">' + dashRegion + '</span>' +
+      '<span class="chip chip-ghost">' + rec.booths + ' booths</span>' +
+      '<span class="chip chip-ghost">' + sfFmt(rec.revenue) + ' revenue</span>' +
+    '</div></div>' +
+    '<div>' + (scConfirmed ? '<span class="chip chip-green">&#x2713; Scheduling Confirmed</span>' : '<span class="chip chip-amber">Needs Scheduling</span>') + '</div>' +
+    '</div>';
+
+  html += '<div class="det-scroll" style="max-height:calc(100vh - 300px);overflow-y:auto;padding-top:8px">';
+
+  // ── TASK 1 — Add to ES Regional Schedule ──
+  var t1chkCls = 'task-chk' + (sc1done ? ' checked' : '') + (scConfirmed ? ' locked' : '');
+  html += '<div class="task-row">' +
+    '<div class="' + t1chkCls + '"' + (!scConfirmed ? ' data-sc-task="sc1" data-sc-showid="' + scSelId + '"' : '') + '>' +
+      '<span class="chk-mark">&#x2713;</span>' +
+    '</div>' +
+    '<div class="task-body">' +
+      '<div class="task-title' + (sc1done ? ' done' : '') + '">1. Add event to the ES Regional Schedule</div>' +
+      '<div class="task-desc">Update the ES Regional Schedule spreadsheet with this event and identify available team members for scheduling.</div>' +
+      (!scConfirmed ? '<div class="task-links"><a class="tlink" href="' + SCHEDULING_TASKS[0].links[0].url + '" target="_blank">Regional Schedules</a></div>' : '') +
+    '</div>' +
+    '</div>';
+
+  // ── TASK 2 — Assign team members (locked until sc1 done) ──
+  var t2locked = !sc1done && !scConfirmed;
+  var t2chkCls = 'task-chk readonly' + (allFilled ? ' checked' : '') + (t2locked ? ' locked' : '');
+  html += '<div class="task-row' + (t2locked ? ' step-locked' : '') + '">' +
+    '<div class="' + t2chkCls + '">' +
+      '<span class="chk-mark">&#x2713;</span>' +
+    '</div>' +
+    '<div class="task-body">' +
+      '<div class="task-title' + (allFilled ? ' done' : '') + '"' + (t2locked ? ' style="opacity:.35"' : '') + '>2. Assign team members to event slots</div>' +
+      '<div class="task-desc"' + (t2locked ? ' style="opacity:.5"' : '') + '>Assign identified team members to their roles for this event. All slots must be filled to confirm scheduling.</div>' +
+      (t2locked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
+    '</div>' +
+    '</div>';
+
+  html += '</div>'; // close det-scroll
+
+  // ── CONFIRM BAR — identical pattern to staffing ──
+  if (scConfirmed) {
+    html += '<div class="sf-confirm-bar">' +
+      '<div class="sf-confirm-msg">&#x2713; Scheduling process complete &mdash; event is fully scheduled<div class="sub">All steps are locked. Use Revise to make changes.</div></div>' +
+      '<button class="m-cancel" data-sc-action="unconfirm" data-sc-showid="' + scSelId + '">Revise</button>' +
+      '</div>';
+  } else {
+    var pendingMsg = allDone ? 'All steps complete &mdash; ready to confirm' :
+      (!sc1done ? 'Complete step 1 to unlock slot assignment' :
+       !allFilled ? 'Assign all team member slots to continue' : 'Complete all steps above to confirm');
+    var pendingSub = allDone ?
+      'Completing this process will lock both steps and mark this show as fully scheduled.' :
+      'Both steps must be complete before you can confirm.';
+    html += '<div class="sf-confirm-bar pending">' +
+      '<div class="sf-confirm-msg">' + pendingMsg + '<div class="sub">' + pendingSub + '</div></div>' +
+      '<button class="btn-confirm" data-sc-action="confirm" data-sc-showid="' + scSelId + '"' + (allDone ? '' : ' disabled style="opacity:.45;cursor:not-allowed"') + '>Complete Process</button>' +
+      '</div>';
   }
+
+  det.innerHTML = html;
+
+  // ── SLOT FILLING — injected after det-scroll renders ──
+  if (sc1done && ra && ra.slots) {
+    var scrollEl = det.querySelector('.det-scroll');
+    if (scrollEl) {
+      var slotContainer = document.createElement('div');
+      slotContainer.style.cssText = 'border-top:1px solid var(--border-lt);padding:10px 16px 14px;background:rgba(0,31,95,.02)';
+      scBuildSlotFilling(slotContainer, s, ra, sc);
+      scrollEl.appendChild(slotContainer);
+    }
+  }
+
+  // ── EVENT DELEGATION ──
+  det.onclick = function(e) {
+    // Task 1 checkbox
+    var chk = e.target.closest('.task-chk[data-sc-task]');
+    if (chk) {
+      scToggleStep(chk.getAttribute('data-sc-showid'), chk.getAttribute('data-sc-task'));
+      return;
+    }
+    // Confirm / unconfirm
+    var btn = e.target.closest('[data-sc-action]');
+    if (btn) {
+      var action = btn.getAttribute('data-sc-action');
+      var sid = btn.getAttribute('data-sc-showid');
+      if (action === 'confirm') scConfirmScheduling(sid);
+      else if (action === 'unconfirm') scUnconfirmScheduling(sid);
+      return;
+    }
+  };
 
   detail.innerHTML = '';
   detail.appendChild(wrapper);
@@ -8025,13 +8026,26 @@ function scToggleStep(showId, stepId) {
 function scConfirmScheduling(showId) {
   var ra = ROLE_ASSIGNMENTS[showId];
   if (!ra) return;
+  var sc = schedulingPlans[showId] || {};
+  if (!sc.step_sc1) {
+    return;
+  }
   if (!ra.slots.every(function(sl) { return sl.person; })) {
-    alert('Please assign all slots before confirming scheduling.');
     return;
   }
   if (!schedulingPlans[showId]) schedulingPlans[showId] = {};
   schedulingPlans[showId].confirmed = true;
   ra.confirmed = true;
+  storageSaveSchedulingPlans();
+  storageSaveRoleAssignments();
+  renderScList();
+  renderScDetail();
+}
+
+function scUnconfirmScheduling(showId) {
+  if (schedulingPlans[showId]) schedulingPlans[showId].confirmed = false;
+  var ra = ROLE_ASSIGNMENTS[showId];
+  if (ra) ra.confirmed = false;
   storageSaveSchedulingPlans();
   storageSaveRoleAssignments();
   renderScList();
