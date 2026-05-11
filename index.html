@@ -7197,7 +7197,7 @@ function elToggleAcc(hdrEl) {
 
 function goToStaffingFromEvents(showId) {
   event.preventDefault();
-  var navItem = document.querySelector('.nav-item[onclick*='staffing']');
+  var navItem = document.querySelector('.nav-item[onclick*="staffing"]');
   showPage('staffing', navItem);
   setTimeout(function() {
     sfSelId = showId;
@@ -7209,7 +7209,7 @@ function goToStaffingFromEvents(showId) {
 
 function goToSchedulingFromEvents(showId) {
   event.preventDefault();
-  var navItem = document.querySelector('.nav-item[onclick*='scheduling']');
+  var navItem = document.querySelector('.nav-item[onclick*="scheduling"]');
   showPage('scheduling', navItem);
   setTimeout(function() {
     scSelId = showId;
@@ -7220,7 +7220,7 @@ function goToSchedulingFromEvents(showId) {
 }
 
 function goToSchedulingFromStaffing(showId) {
-  var navItem = document.querySelector('.nav-item[onclick*='scheduling']');
+  var navItem = document.querySelector('.nav-item[onclick*="scheduling"]');
   showPage('scheduling', navItem);
   setTimeout(function() {
     scSelId = showId;
