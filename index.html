@@ -4848,12 +4848,12 @@ function renderSfCalcInline(s, rec, plan, stepNum) {
   // Build indicator pills
   var pills = "";
   var plat = s.freemanPlatform || "Freeman Now";
-  pills += "<span class=\"sf-pill ss-pill-blue\">" + plat + "</span>";
-  if (s.freemanAV === "Yes") pills += "<span class=\"sf-pill ss-pill-pink\">AV</span>";
-  if (s.freemanElectricalOnly) pills += "<span class=\"sf-pill ss-pill-gold\">Electrical Only</span>";
-  else if (s.freemanElectrical === "TRUE" || s.freemanElectrical === "True" || s.freemanElectrical === "true") pills += "<span class=\"sf-pill ss-pill-gold\">Electrical</span>";
-  if (s.fte === "Y") pills += "<span class=\"sf-pill ss-pill-green\">FTE</span>";
-  if (!s.freemanElectricalOnly && s.perLbMH === "N") pills += "<span class=\"sf-pill ss-pill-orange\">Non-Standard M/H</span>";
+  pills += "<span class=\"sf-pill sf-pill-blue\">" + plat + "</span>";
+  if (s.freemanAV === "Yes") pills += "<span class=\"sf-pill sf-pill-pink\">AV</span>";
+  if (s.freemanElectricalOnly) pills += "<span class=\"sf-pill sf-pill-gold\">Electrical Only</span>";
+  else if (s.freemanElectrical === "TRUE" || s.freemanElectrical === "True" || s.freemanElectrical === "true") pills += "<span class=\"sf-pill sf-pill-gold\">Electrical</span>";
+  if (s.fte === "Y") pills += "<span class=\"sf-pill sf-pill-green\">FTE</span>";
+  if (!s.freemanElectricalOnly && s.perLbMH === "N") pills += "<span class=\"sf-pill sf-pill-orange\">Non-Standard M/H</span>";
 
   // Data cards — booth driving logic
   var ab = sfActiveBooths(s), ar = sfActiveRevenue(s);
