@@ -4694,12 +4694,13 @@ function renderSfSmallEventCalc(s, plan) {
     html += '<button class="sf-collapsible-btn" data-collapsible="re-consider-' + uid + '">⚡ Consider These Before Finalizing <span class="sf-chev">▼</span></button>' +
       '<div class="sf-collapsible-body" id="sf-re-consider-' + uid + '">' + qHtml + '</div>';
 
-    // Your Staffing Decision — agree/modify pattern matching normal flow
-    var s2DoneRe = plan && plan.checked && plan.checked.indexOf('s2') >= 0;
-    if (!s2DoneRe) {
+    // Your Staffing Decision — show "Plan set" as soon as serviceModel is saved
+    // (i.e. after agree/submit), before the user checks the s2 checkbox.
+    var calcDecisionMadeRe = plan && plan.serviceModel && plan.serviceModel !== '';
+    var modelLabels = {full: 'Fully Remote', hybrid: 'Hybrid (Partially On-Site)', onsite: 'On-Site'};
+    if (!calcDecisionMadeRe) {
       var isModifying = plan.remoteModifying || false;
       var savedModResult = plan.remoteModResult || result;
-      var modelLabels = {full: 'Fully Remote', hybrid: 'Hybrid (Partially On-Site)', onsite: 'On-Site'};
 
       // Service model selector buttons for modify panel
       var modelBtns = ['full','hybrid','onsite'].map(function(key) {
@@ -4792,7 +4793,7 @@ function renderSfCustomPlanCalc(s, rec, plan) {
       'but this show requires your review and a custom plan rationale. Adjust any roles as needed, then submit.' +
     '</div>';
 
-  var s2DoneCustom = plan && plan.checked && plan.checked.indexOf('s2') >= 0;
+  var s2DoneCustom = plan && plan.serviceModel && plan.serviceModel !== '';
   if (s2DoneCustom) {
     html += '<div class="sf-decision-section">' +
       '<div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px">✓ Custom plan set and ready for final confirmation.</div>' +
@@ -4946,11 +4947,12 @@ function renderSfCalcInline(s, rec, plan, stepNum) {
 
   // Unique IDs for this show's interactive elements
   var uid = s.id || sfSelId;
-  var s2Done = plan && plan.checked && plan.checked.indexOf('s2') >= 0;
+  var calcDecisionMade = plan && plan.serviceModel && plan.serviceModel !== '';
 
-  // Decision section — if step 2 decision saved, show locked state
+  // Decision section — show "Plan set" as soon as the user clicks agree/submit,
+  // before they check the s2 checkbox. The checkbox is their deliberate acknowledgment.
   var decisionHtml;
-  if (s2Done) {
+  if (calcDecisionMade) {
     decisionHtml = "<div class=\"sf-decision-section\">" +
       "<div class=\"sf-decision-lbl\">Your Staffing Decision</div>" +
       "<div style=\"font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px\">✓ Plan set — you agreed with this model recommendation.</div>" +
