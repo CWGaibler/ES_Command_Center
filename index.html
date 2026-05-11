@@ -4269,10 +4269,15 @@ function renderSfList() {
     nameRow.appendChild(sepDiv);
     nameRow.appendChild(jobDiv);
 
-    // Show meta
+    // Show meta — line 1: facility · Move-in date – Clear date
     var metaDiv = document.createElement("div");
     metaDiv.className = "sf-show-meta";
-    metaDiv.textContent = s.city + " · " + sfFmtDate(s.showOpen) + " · " + rec.booths + " booths";
+    metaDiv.textContent = (s.facility || s.city) + " · Move-in " + sfFmtDate(s.moveInStart) + " – Clear " + sfFmtDate(s.clearDate);
+
+    // Show meta — line 2: producing branch · booths
+    var metaDiv2 = document.createElement("div");
+    metaDiv2.className = "sf-show-meta";
+    metaDiv2.textContent = (s.producingBranch || s.region) + " · " + rec.booths + " booths";
 
     // Tags row
     var tagsDiv = document.createElement("div");
@@ -4286,12 +4291,21 @@ function renderSfList() {
     regionChip.className = "chip chip-ghost";
     regionChip.style.fontSize = "12px";
     regionChip.textContent = dashRegion;
+    var sfPlatformChip = document.createElement("span");
+    sfPlatformChip.className = "chip";
+    var sfIsNext = s.freemanPlatform === "Freeman Next";
+    sfPlatformChip.style.cssText = sfIsNext
+      ? "background:#CBF0FC;color:#005A75;border:1.5px solid #7DD9F3;font-size:12px;font-weight:700"
+      : "background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;font-size:12px;font-weight:700";
+    sfPlatformChip.textContent = s.freemanPlatform || "";
 
     tagsDiv.appendChild(badge);
     tagsDiv.appendChild(regionChip);
+    if (s.freemanPlatform) tagsDiv.appendChild(sfPlatformChip);
 
     item.appendChild(nameRow);
     item.appendChild(metaDiv);
+    item.appendChild(metaDiv2);
     item.appendChild(tagsDiv);
     list.appendChild(item);
   });
@@ -7767,10 +7781,15 @@ function renderScList() {
     nameRow.appendChild(sepSpan);
     nameRow.appendChild(jobSpan);
 
-    // Meta line — city · date · booths — identical to staffing
+    // Meta line 1 — facility · Move-in date – Clear date
     var metaDiv = document.createElement('div');
     metaDiv.className = 'sf-show-meta';
-    metaDiv.textContent = s.city + ' \u00b7 ' + sfFmtDate(s.showOpen) + ' \u00b7 ' + rec.booths + ' booths';
+    metaDiv.textContent = (s.facility || s.city) + ' \u00b7 Move-in ' + sfFmtDate(s.moveInStart) + ' \u2013 Clear ' + sfFmtDate(s.clearDate);
+
+    // Meta line 2 — producing branch · booths
+    var metaDiv2 = document.createElement('div');
+    metaDiv2.className = 'sf-show-meta';
+    metaDiv2.textContent = (s.producingBranch || s.region) + ' \u00b7 ' + rec.booths + ' booths';
 
     // Tags row — badge + region chip — identical to staffing
     var tagsDiv = document.createElement('div');
@@ -7782,11 +7801,20 @@ function renderScList() {
     regionChip.className = 'chip chip-ghost';
     regionChip.style.fontSize = '12px';
     regionChip.textContent = dashRegion;
+    var scPlatformChip = document.createElement('span');
+    scPlatformChip.className = 'chip';
+    var scIsNext = s.freemanPlatform === 'Freeman Next';
+    scPlatformChip.style.cssText = scIsNext
+      ? 'background:#CBF0FC;color:#005A75;border:1.5px solid #7DD9F3;font-size:12px;font-weight:700'
+      : 'background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;font-size:12px;font-weight:700';
+    scPlatformChip.textContent = s.freemanPlatform || '';
     tagsDiv.appendChild(badge);
     tagsDiv.appendChild(regionChip);
+    if (s.freemanPlatform) tagsDiv.appendChild(scPlatformChip);
 
     item.appendChild(nameRow);
     item.appendChild(metaDiv);
+    item.appendChild(metaDiv2);
     item.appendChild(tagsDiv);
     list.appendChild(item);
   });
