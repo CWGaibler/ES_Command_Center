@@ -1129,7 +1129,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       </div>
       <div class="rh-detail" id="sc-detail">
         <div class="sf-empty">
-          <div class="sf-empty-icon">📋</div>
+          <div class="sf-empty-icon">&#128203;</div>
           <div class="sf-empty-msg">Select a show</div>
           <div class="sf-empty-sub">Choose a show from the left to work through its scheduling tasks</div>
         </div>
@@ -4020,7 +4020,6 @@ var sfFilter = "unstaffed";
 
 var schedulingPlans = {};
 var scSelId = null;
-var scFilter = "unscheduled";
 
 var SCHEDULING_TASKS = [
   {id:"sc1", phase:"Scheduling Steps", title:"Add event to the ES Regional Schedule", desc:"Update the ES Regional Schedule spreadsheet with this event and identify available team members for scheduling.", links:[{label:"Regional Schedules",url:"https://freemanco.sharepoint.com/:x:/r/teams/CustomerExperienceTeam/_layouts/15/Doc.aspx?sourcedoc=%7B4A18F518-B87C-47CE-8CE0-5E9441603823%7D&file=ES%20Regional%20Schedules%20-%20All%20Views.xlsx"}]},
@@ -7229,7 +7228,7 @@ function goToSchedulingFromStaffing(showId) {
   }, 50);
 }
 
-// ── Scheduling init / render ──────────────────────────────────────────────
+// ── Scheduling workspace functions ───────────────────────────────────────
 
 function initScheduling() {
   scSelId = null;
@@ -7238,13 +7237,10 @@ function initScheduling() {
 }
 
 function getScScopeShows() {
-  // Shows eligible for scheduling: staffing confirmed, scheduling not yet confirmed
   var scopeShows = getScopeShows();
   return scopeShows.filter(function(s) {
-    var sf = staffingPlans[s.job];
-    var sfConfirmed = sf && sf.confirmed;
-    var sc = schedulingPlans[s.job];
-    var scConfirmed = sc && sc.confirmed;
+    var sfConfirmed = staffingPlans[s.job] && staffingPlans[s.job].confirmed;
+    var scConfirmed = ROLE_ASSIGNMENTS[s.job] && ROLE_ASSIGNMENTS[s.job].confirmed;
     return sfConfirmed && !scConfirmed;
   });
 }
@@ -7255,37 +7251,60 @@ function renderScList() {
   if (!list) return;
 
   var shows = getScScopeShows();
-
   if (countEl) {
     countEl.textContent = shows.length + ' show' + (shows.length !== 1 ? 's' : '') + ' to schedule';
   }
 
+  list.innerHTML = '';
+
   if (!shows.length) {
-    list.innerHTML = '<div style="padding:20px 16px;text-align:center;color:var(--muted);font-size:13px">' +
-      '<div style="font-size:28px;margin-bottom:8px">✅</div>' +
-      '<div style="font-weight:700;margin-bottom:4px">All caught up</div>' +
-      '<div>No shows are waiting for scheduling in this scope.</div>' +
-      '</div>';
+    var empty = document.createElement('div');
+    empty.style.cssText = 'padding:20px 16px;text-align:center;color:var(--muted);font-size:13px';
+    empty.innerHTML = '<div style="font-size:28px;margin-bottom:8px">&#x2705;</div><div style="font-weight:700;margin-bottom:4px">All caught up</div><div>No shows are waiting for scheduling in this scope.</div>';
+    list.appendChild(empty);
     return;
   }
 
-  var html = '';
   shows.forEach(function(s) {
     var sc = schedulingPlans[s.job] || {};
+    var ra = ROLE_ASSIGNMENTS[s.job];
     var step1done = sc.step_sc1;
-    var step2done = sc.confirmed;
-    var stepsComplete = [step1done, step2done].filter(Boolean).length;
+    var step2done = ra && ra.confirmed;
+    var stepsComplete = (step1done ? 1 : 0) + (step2done ? 1 : 0);
     var pct = Math.round((stepsComplete / 2) * 100);
 
-    var isActive = scSelId === s.job;
-    html += '<div class="sf-show-item' + (isActive ? ' active' : '') + '" onclick="scSelectShow('' + s.job + '')">' +
-      '<div class="sf-show-item-name">' + s.name + '</div>' +
-      '<div class="sf-show-item-meta">' + (s.producingBranch || s.region) + ' · ' + (s.moveInStart || 'TBD') + '</div>' +
-      '<div class="sf-prog-bar" style="margin-top:5px"><div class="sf-prog-fill" style="width:' + pct + '%"></div></div>' +
-      '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + stepsComplete + ' of 2 steps complete</div>' +
-    '</div>';
+    var item = document.createElement('div');
+    item.className = 'sf-show-item' + (scSelId === s.job ? ' active' : '');
+    (function(id) {
+      item.addEventListener('click', function() { scSelectShow(id); });
+    })(s.job);
+
+    var nameDiv = document.createElement('div');
+    nameDiv.className = 'sf-show-item-name';
+    nameDiv.textContent = s.name;
+
+    var metaDiv = document.createElement('div');
+    metaDiv.className = 'sf-show-item-meta';
+    metaDiv.textContent = (s.producingBranch || s.region) + ' · ' + (s.moveInStart || 'TBD');
+
+    var bar = document.createElement('div');
+    bar.className = 'sf-prog-bar';
+    bar.style.marginTop = '5px';
+    var fill = document.createElement('div');
+    fill.className = 'sf-prog-fill';
+    fill.style.width = pct + '%';
+    bar.appendChild(fill);
+
+    var stepLbl = document.createElement('div');
+    stepLbl.style.cssText = 'font-size:10px;color:var(--muted);margin-top:2px';
+    stepLbl.textContent = stepsComplete + ' of 2 steps complete';
+
+    item.appendChild(nameDiv);
+    item.appendChild(metaDiv);
+    item.appendChild(bar);
+    item.appendChild(stepLbl);
+    list.appendChild(item);
   });
-  list.innerHTML = html;
 }
 
 function scSelectShow(showId) {
@@ -7299,160 +7318,292 @@ function renderScDetail() {
   if (!detail) return;
 
   if (!scSelId || !SHOWS[scSelId]) {
-    detail.innerHTML = '<div class="sf-empty">' +
-      '<div class="sf-empty-icon">📋</div>' +
-      '<div class="sf-empty-msg">Select a show</div>' +
-      '<div class="sf-empty-sub">Choose a show from the left to work through its scheduling tasks</div>' +
-    '</div>';
+    detail.innerHTML = '<div class="sf-empty"><div class="sf-empty-icon">&#128203;</div><div class="sf-empty-msg">Select a show</div><div class="sf-empty-sub">Choose a show from the left to work through its scheduling tasks</div></div>';
     return;
   }
 
   var s = SHOWS[scSelId];
   var sc = schedulingPlans[scSelId] || {};
-  var ra = ROLE_ASSIGNMENTS[scSelId];
-  var sfPlan = staffingPlans[scSelId] || {};
 
-  // Init ROLE_ASSIGNMENTS if needed (scheduling inherits from staffing)
   elInitRoleAssignments(scSelId);
-  ra = ROLE_ASSIGNMENTS[scSelId];
+  var ra = ROLE_ASSIGNMENTS[scSelId];
 
-  var html = '<div style="padding:20px 24px;max-width:860px">';
+  var wrapper = document.createElement('div');
+  wrapper.style.cssText = 'padding:20px 24px;max-width:860px';
 
-  // ── Show header ──
-  html += '<div style="margin-bottom:20px">' +
+  // Header
+  var hdr = document.createElement('div');
+  hdr.style.marginBottom = '20px';
+  hdr.innerHTML =
     '<div style="font-size:20px;font-weight:800;color:var(--fb);margin-bottom:4px">' + s.name + '</div>' +
     '<div style="font-size:13px;color:var(--muted)">' +
-      (s.producingBranch || s.region) + ' · ' +
-      (s.facility || s.city) + ', ' + s.city +
+      (s.producingBranch || s.region) + ' · ' + (s.facility || s.city) + ', ' + s.city +
       (s.moveInStart ? ' · Move-in: ' + s.moveInStart : '') +
-    '</div>' +
-  '</div>';
-
-  // ── Task list ──
-  html += '<div class="sf-task-list">';
-
-  SCHEDULING_TASKS.forEach(function(task, idx) {
-    var stepNum = idx + 1;
-    var isDone = task.slotFilling ? (ra && ra.confirmed) : sc['step_' + task.id];
-    var isLocked = false; // no locking — both tasks accessible
-
-    var checkCls = isDone ? 'sf-check sf-check-done' : 'sf-check';
-    var checkInner = isDone
-      ? '<svg viewBox="0 0 12 12" fill="none" width="12" height="12"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-      : '';
-
-    html += '<div class="sf-task-item' + (isDone ? ' sf-task-done' : '') + '">' +
-      '<div class="sf-task-left">' +
-        '<div class="' + checkCls + '" onclick="scToggleStep('' + scSelId + '','' + task.id + '',' + (task.slotFilling ? 'true' : 'false') + ')">' + checkInner + '</div>' +
-        '<div class="sf-task-body">' +
-          '<div class="sf-task-title">' + stepNum + '. ' + task.title + '</div>' +
-          '<div class="sf-task-desc">' + task.desc + '</div>' +
-          (task.links && task.links.length ? '<div class="sf-task-links">' + task.links.map(function(l) {
-            return '<a class="sf-task-link" href="' + l.url + '" target="_blank">' + l.label + '</a>';
-          }).join('') + '</div>' : '') +
-          (task.slotFilling ? renderScSlotFilling(s, ra, sc) : '') +
-        '</div>' +
-      '</div>' +
     '</div>';
+  wrapper.appendChild(hdr);
+
+  // Task list
+  var taskList = document.createElement('div');
+  taskList.className = 'sf-task-list';
+
+  SCHEDULING_TASKS.forEach(function(task, tIdx) {
+    var isDone = task.slotFilling ? (ra && ra.confirmed) : sc['step_' + task.id];
+
+    var taskItem = document.createElement('div');
+    taskItem.className = 'sf-task-item' + (isDone ? ' sf-task-done' : '');
+
+    var taskLeft = document.createElement('div');
+    taskLeft.className = 'sf-task-left';
+
+    var checkEl = document.createElement('div');
+    checkEl.className = isDone ? 'sf-check sf-check-done' : 'sf-check';
+    if (isDone) {
+      checkEl.innerHTML = '<svg viewBox="0 0 12 12" fill="none" width="12" height="12"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    }
+    if (!task.slotFilling) {
+      (function(tid) {
+        checkEl.addEventListener('click', function() { scToggleStep(scSelId, tid); });
+      })(task.id);
+    }
+
+    var taskBody = document.createElement('div');
+    taskBody.className = 'sf-task-body';
+
+    var titleEl = document.createElement('div');
+    titleEl.className = 'sf-task-title';
+    titleEl.textContent = (tIdx + 1) + '. ' + task.title;
+
+    var descEl = document.createElement('div');
+    descEl.className = 'sf-task-desc';
+    descEl.textContent = task.desc;
+
+    taskBody.appendChild(titleEl);
+    taskBody.appendChild(descEl);
+
+    if (task.links && task.links.length) {
+      var linksDiv = document.createElement('div');
+      linksDiv.className = 'sf-task-links';
+      task.links.forEach(function(lnk) {
+        var a = document.createElement('a');
+        a.className = 'sf-task-link';
+        a.href = lnk.url;
+        a.target = '_blank';
+        a.textContent = lnk.label;
+        linksDiv.appendChild(a);
+      });
+      taskBody.appendChild(linksDiv);
+    }
+
+    if (task.slotFilling) {
+      var slotWrap = document.createElement('div');
+      slotWrap.style.marginTop = '10px';
+      scBuildSlotFilling(slotWrap, s, ra, sc);
+      taskBody.appendChild(slotWrap);
+    }
+
+    taskLeft.appendChild(checkEl);
+    taskLeft.appendChild(taskBody);
+    taskItem.appendChild(taskLeft);
+    taskList.appendChild(taskItem);
   });
 
-  html += '</div>'; // close sf-task-list
+  wrapper.appendChild(taskList);
 
-  // ── Confirm scheduling bar ──
-  var allSlotsAssigned = ra && ra.slots && ra.slots.every(function(sl) { return sl.person; });
+  // Confirm / confirmed bar
+  var allFilled = ra && ra.slots && ra.slots.every(function(sl) { return sl.person; });
   var sc1done = sc.step_sc1;
   var scConfirmed = ra && ra.confirmed;
 
-  if (!scConfirmed && sc1done && allSlotsAssigned) {
-    html += '<div class="el-confirm-bar" style="margin-top:16px">' +
-      '<span class="el-confirm-msg">All slots assigned and regional schedule updated. Ready to confirm.</span>' +
-      '<button class="el-confirm-btn" onclick="scConfirmScheduling('' + scSelId + '')">Confirm scheduling</button>' +
-    '</div>';
+  if (!scConfirmed && sc1done && allFilled) {
+    var confirmBar = document.createElement('div');
+    confirmBar.className = 'el-confirm-bar';
+    confirmBar.style.marginTop = '16px';
+    var msg = document.createElement('span');
+    msg.className = 'el-confirm-msg';
+    msg.textContent = 'All slots assigned and regional schedule updated. Ready to confirm.';
+    var btn = document.createElement('button');
+    btn.className = 'el-confirm-btn';
+    btn.textContent = 'Confirm scheduling';
+    (function(sid) {
+      btn.addEventListener('click', function() { scConfirmScheduling(sid); });
+    })(scSelId);
+    confirmBar.appendChild(msg);
+    confirmBar.appendChild(btn);
+    wrapper.appendChild(confirmBar);
   } else if (scConfirmed) {
-    html += '<div style="margin-top:16px;background:#EAFAF0;border:1.5px solid #42BB37;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:10px">' +
-      '<span style="font-size:18px">✅</span>' +
-      '<span style="font-size:13px;font-weight:700;color:#1A6B35">Scheduling confirmed — this show is fully scheduled.</span>' +
-    '</div>';
+    var doneBar = document.createElement('div');
+    doneBar.style.cssText = 'margin-top:16px;background:#EAFAF0;border:1.5px solid #42BB37;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:10px';
+    doneBar.innerHTML = '<span style="font-size:18px">&#x2705;</span><span style="font-size:13px;font-weight:700;color:#1A6B35">Scheduling confirmed — this show is fully scheduled.</span>';
+    wrapper.appendChild(doneBar);
   }
 
-  html += '</div>'; // close padding wrapper
-  detail.innerHTML = html;
+  detail.innerHTML = '';
+  detail.appendChild(wrapper);
 
-  // Auto-focus name picker if open
   var np = document.getElementById('sc-np-input');
-  if (np) np.focus();
+  if (np) { np.focus(); scNamePickerSearch(''); }
 }
 
-function renderScSlotFilling(s, ra, sc) {
-  if (!ra || !ra.slots) return '<div style="padding:8px 0;color:var(--muted);font-size:12px">No staffing plan found — complete staffing first.</div>';
+// Build slot filling UI directly into a container element — no innerHTML string building
+var SC_PICKER = null;
+
+function scBuildSlotFilling(container, s, ra, sc) {
+  if (!ra || !ra.slots) {
+    var noplan = document.createElement('div');
+    noplan.style.cssText = 'padding:8px 0;color:var(--muted);font-size:12px';
+    noplan.textContent = 'No staffing plan found — complete staffing first.';
+    container.appendChild(noplan);
+    return;
+  }
 
   var scConfirmed = ra.confirmed;
-  var pickerState = SC_SLOT_PICKER_STATE;
+  var avColors = [
+    {bg:'#EBF8FF',color:'#005A75'},{bg:'#EAFAF0',color:'#1A6B35'},{bg:'#FFF5D6',color:'#7A5C00'},
+    {bg:'#F3F0FF',color:'#5B3FBF'},{bg:'#FFE4E1',color:'#8B2500'},{bg:'#E0F7FA',color:'#006064'}
+  ];
 
-  // Count role types for numbering
   var roleTypeCounts = {};
-  ra.slots.forEach(function(sl) { roleTypeCounts[sl.type] = (roleTypeCounts[sl.type] || 0) + 1; });
+  ra.slots.forEach(function(sl) { roleTypeCounts[sl.type] = (roleTypeCounts[sl.type]||0) + 1; });
   var roleTypeCounters = {};
 
-  var html = '<div class="el-roster" style="margin-top:10px">';
-  ra.slots.forEach(function(slot, idx) {
-    roleTypeCounters[slot.type] = (roleTypeCounters[slot.type] || 0) + 1;
-    var displayLabel = roleTypeCounts[slot.type] > 1
-      ? slot.label + ' ' + roleTypeCounters[slot.type]
-      : slot.label;
+  var roster = document.createElement('div');
+  roster.className = 'el-roster';
 
-    var isPickerOpen = pickerState && pickerState.showId === scSelId && pickerState.slotIdx === idx;
+  ra.slots.forEach(function(slot, idx) {
+    roleTypeCounters[slot.type] = (roleTypeCounters[slot.type]||0) + 1;
+    var label = roleTypeCounts[slot.type] > 1 ? slot.label + ' ' + roleTypeCounters[slot.type] : slot.label;
+    var isPickerOpen = SC_PICKER && SC_PICKER.showId === scSelId && SC_PICKER.slotIdx === idx;
+
+    var slotDiv = document.createElement('div');
+    slotDiv.className = 'el-slot';
 
     if (slot.person) {
-      var avColors = [
-        {bg:'#EBF8FF',color:'#005A75'},{bg:'#EAFAF0',color:'#1A6B35'},{bg:'#FFF5D6',color:'#7A5C00'},
-        {bg:'#F3F0FF',color:'#5B3FBF'},{bg:'#FFE4E1',color:'#8B2500'},{bg:'#E0F7FA',color:'#006064'}
-      ];
       var av = avColors[idx % avColors.length];
-      var initials = elInitials(slot.person);
-      var travelChip = slot.homeBranch ? '<span class="el-slot-travel">Traveling — ' + slot.homeBranch + '</span>' : '';
-      html += '<div class="el-slot">' +
-        '<div class="el-slot-filled">' +
-          '<span class="el-slot-type">' + displayLabel + '</span>' +
-          '<div class="el-slot-person">' +
-            '<div class="el-slot-av" style="background:' + av.bg + ';color:' + av.color + '">' + initials + '</div>' +
-            '<div><div class="el-slot-name">' + slot.person + travelChip + '</div>' +
-            '<div class="el-slot-branch">' + (slot.branch||'') + '</div></div>' +
-          '</div>' +
-          '<div class="el-slot-actions">' +
-            (!scConfirmed ? '<button onclick="scRemoveSlot('' + scSelId + '',' + idx + ')" style="font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">Remove</button>' : '') +
-          '</div>' +
-        '</div>' +
-      '</div>';
+      var filled = document.createElement('div');
+      filled.className = 'el-slot-filled';
+
+      var typeSpan = document.createElement('span');
+      typeSpan.className = 'el-slot-type';
+      typeSpan.textContent = label;
+
+      var personDiv = document.createElement('div');
+      personDiv.className = 'el-slot-person';
+
+      var avDiv = document.createElement('div');
+      avDiv.className = 'el-slot-av';
+      avDiv.style.background = av.bg;
+      avDiv.style.color = av.color;
+      avDiv.textContent = elInitials(slot.person);
+
+      var infoDiv = document.createElement('div');
+      var nameDiv = document.createElement('div');
+      nameDiv.className = 'el-slot-name';
+      nameDiv.textContent = slot.person;
+      if (slot.homeBranch) {
+        var travel = document.createElement('span');
+        travel.className = 'el-slot-travel';
+        travel.textContent = 'Traveling — ' + slot.homeBranch;
+        nameDiv.appendChild(travel);
+      }
+      var branchDiv = document.createElement('div');
+      branchDiv.className = 'el-slot-branch';
+      branchDiv.textContent = slot.branch || '';
+      infoDiv.appendChild(nameDiv);
+      infoDiv.appendChild(branchDiv);
+      personDiv.appendChild(avDiv);
+      personDiv.appendChild(infoDiv);
+
+      var actionsDiv = document.createElement('div');
+      actionsDiv.className = 'el-slot-actions';
+      if (!scConfirmed) {
+        var removeBtn = document.createElement('button');
+        removeBtn.className = 'sf-task-link';
+        removeBtn.style.cssText = 'cursor:pointer;border:1.5px solid var(--border);background:transparent;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;color:var(--muted)';
+        removeBtn.textContent = 'Remove';
+        (function(sid, si) {
+          removeBtn.addEventListener('click', function() { scRemoveSlot(sid, si); });
+        })(scSelId, idx);
+        actionsDiv.appendChild(removeBtn);
+      }
+
+      filled.appendChild(typeSpan);
+      filled.appendChild(personDiv);
+      filled.appendChild(actionsDiv);
+      slotDiv.appendChild(filled);
+
     } else if (isPickerOpen) {
-      html += '<div class="el-slot" style="border-color:var(--mb)">' +
-        '<div class="el-slot-filled">' +
-          '<span class="el-slot-type">' + displayLabel + '</span>' +
-          '<div class="el-name-picker-wrap">' +
-            '<input id="sc-np-input" class="el-name-picker-input" type="text" placeholder="Search team members..." oninput="scNamePickerSearch(this.value)" onkeydown="if(event.key==='Escape')scCancelPicker()" autofocus />' +
-            '<div id="sc-np-drop" class="el-name-picker-drop"></div>' +
-          '</div>' +
-          '<button onclick="scCancelPicker()" style="font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;margin-left:8px">Cancel</button>' +
-        '</div>' +
-      '</div>';
+      slotDiv.style.borderColor = 'var(--mb)';
+      var pickerWrap = document.createElement('div');
+      pickerWrap.className = 'el-slot-filled';
+
+      var typeSpan2 = document.createElement('span');
+      typeSpan2.className = 'el-slot-type';
+      typeSpan2.textContent = label;
+
+      var inputWrap = document.createElement('div');
+      inputWrap.className = 'el-name-picker-wrap';
+
+      var inp = document.createElement('input');
+      inp.id = 'sc-np-input';
+      inp.className = 'el-name-picker-input';
+      inp.type = 'text';
+      inp.placeholder = 'Search team members...';
+      inp.addEventListener('input', function() { scNamePickerSearch(this.value); });
+      inp.addEventListener('keydown', function(e) { if (e.key === 'Escape') scCancelPicker(); });
+
+      var drop = document.createElement('div');
+      drop.id = 'sc-np-drop';
+      drop.className = 'el-name-picker-drop';
+
+      inputWrap.appendChild(inp);
+      inputWrap.appendChild(drop);
+
+      var cancelBtn = document.createElement('button');
+      cancelBtn.className = 'sf-task-link';
+      cancelBtn.style.cssText = 'cursor:pointer;border:1.5px solid var(--border);background:transparent;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--muted);margin-left:8px';
+      cancelBtn.textContent = 'Cancel';
+      cancelBtn.addEventListener('click', scCancelPicker);
+
+      pickerWrap.appendChild(typeSpan2);
+      pickerWrap.appendChild(inputWrap);
+      pickerWrap.appendChild(cancelBtn);
+      slotDiv.appendChild(pickerWrap);
+
     } else {
-      html += '<div class="el-slot">' +
-        '<div class="el-slot-open">' +
-          '<span class="el-slot-type">' + displayLabel + '</span>' +
-          '<span class="el-slot-open-prompt">Assign a team member to this slot</span>' +
-          (!scConfirmed ? '<button class="el-slot-add-btn" onclick="scOpenNamePicker('' + scSelId + '',' + idx + ','' + slot.type + '')">+ Add</button>' : '') +
-        '</div>' +
-      '</div>';
+      var openDiv = document.createElement('div');
+      openDiv.className = 'el-slot-open';
+
+      var typeSpan3 = document.createElement('span');
+      typeSpan3.className = 'el-slot-type';
+      typeSpan3.textContent = label;
+
+      var prompt = document.createElement('span');
+      prompt.className = 'el-slot-open-prompt';
+      prompt.textContent = 'Assign a team member to this slot';
+
+      openDiv.appendChild(typeSpan3);
+      openDiv.appendChild(prompt);
+
+      if (!scConfirmed) {
+        var addBtn = document.createElement('button');
+        addBtn.className = 'el-slot-add-btn';
+        addBtn.textContent = '+ Add';
+        (function(sid, si, stype) {
+          addBtn.addEventListener('click', function() { scOpenNamePicker(sid, si, stype); });
+        })(scSelId, idx, slot.type);
+        openDiv.appendChild(addBtn);
+      }
+      slotDiv.appendChild(openDiv);
     }
+
+    roster.appendChild(slotDiv);
   });
-  html += '</div>';
-  return html;
+
+  container.appendChild(roster);
 }
 
-var SC_SLOT_PICKER_STATE = null;
-
 function scOpenNamePicker(showId, slotIdx, slotType) {
-  SC_SLOT_PICKER_STATE = { showId: showId, slotIdx: slotIdx, slotType: slotType };
+  SC_PICKER = { showId: showId, slotIdx: slotIdx, slotType: slotType };
   renderScDetail();
   setTimeout(function() {
     var inp = document.getElementById('sc-np-input');
@@ -7461,51 +7612,57 @@ function scOpenNamePicker(showId, slotIdx, slotType) {
 }
 
 function scCancelPicker() {
-  SC_SLOT_PICKER_STATE = null;
+  SC_PICKER = null;
   renderScDetail();
 }
 
 function scNamePickerSearch(val) {
   var drop = document.getElementById('sc-np-drop');
-  if (!drop || !SC_SLOT_PICKER_STATE) return;
-  var showId = SC_SLOT_PICKER_STATE.showId;
-  var slotType = SC_SLOT_PICKER_STATE.slotType;
+  if (!drop || !SC_PICKER) return;
+  var showId = SC_PICKER.showId;
+  var slotType = SC_PICKER.slotType;
   var ra = ROLE_ASSIGNMENTS[showId];
-  var alreadyAssigned = ra ? ra.slots.filter(function(sl){ return sl.person; }).map(function(sl){ return sl.person; }) : [];
+  var assigned = ra ? ra.slots.filter(function(sl) { return sl.person; }).map(function(sl) { return sl.person; }) : [];
 
   var filtered = TEAM_MEMBERS.filter(function(tm) {
-    if (alreadyAssigned.indexOf(tm.name) >= 0) return false;
-    if (elIsEligibleForSupervisory && slotType === 'ees' && !elIsEligibleForSupervisory(tm)) return false;
+    if (assigned.indexOf(tm.name) >= 0) return false;
+    if (slotType === 'ees' && typeof elIsEligibleForSupervisory === 'function' && !elIsEligibleForSupervisory(tm)) return false;
     if (!val) return true;
     return tm.name.toLowerCase().indexOf(val.toLowerCase()) >= 0 ||
            (tm.branch && tm.branch.toLowerCase().indexOf(val.toLowerCase()) >= 0);
   }).slice(0, 8);
 
+  drop.innerHTML = '';
   if (!filtered.length) {
-    drop.innerHTML = '<div style="padding:10px 12px;color:var(--muted);font-size:12px">No matches found</div>';
+    var noMatch = document.createElement('div');
+    noMatch.style.cssText = 'padding:10px 12px;color:var(--muted);font-size:12px';
+    noMatch.textContent = 'No matches found';
+    drop.appendChild(noMatch);
     return;
   }
-  drop.innerHTML = filtered.map(function(tm) {
-    return '<div class="el-name-picker-item" onclick="scPickPerson('' + showId + '','' + tm.name.replace(/'/g,"\'") + '','' + (tm.branch||'') + '')">' +
-      '<div class="el-name-picker-name">' + tm.name + '</div>' +
-      '<div class="el-name-picker-meta">' + (tm.title||'') + ' · ' + (tm.branch||'') + '</div>' +
-    '</div>';
-  }).join('');
+  filtered.forEach(function(tm) {
+    var item = document.createElement('div');
+    item.className = 'el-name-picker-item';
+    item.innerHTML = '<div class="el-name-picker-name">' + tm.name + '</div><div class="el-name-picker-meta">' + (tm.title||'') + ' · ' + (tm.branch||'') + '</div>';
+    (function(t) {
+      item.addEventListener('click', function() { scPickPerson(showId, t.name, t.branch||''); });
+    })(tm);
+    drop.appendChild(item);
+  });
 }
 
 function scPickPerson(showId, name, branch) {
-  if (!SC_SLOT_PICKER_STATE) return;
-  var slotIdx = SC_SLOT_PICKER_STATE.slotIdx;
+  if (!SC_PICKER) return;
+  var slotIdx = SC_PICKER.slotIdx;
   var ra = ROLE_ASSIGNMENTS[showId];
   if (!ra || !ra.slots[slotIdx]) return;
   var s = SHOWS[showId];
   var showBranch = s ? (s.producingBranch || s.region || '') : '';
-  var personBranch = branch || '';
-  var normalize = function(b) { return b.replace(/^\d+\s+/, ''); };
+  var norm = function(b) { return b.replace(/^\d+\s+- /, '').replace(/^\d+\s+/, ''); };
   ra.slots[slotIdx].person = name;
   ra.slots[slotIdx].branch = branch;
-  ra.slots[slotIdx].homeBranch = (normalize(personBranch) !== normalize(showBranch)) ? branch : null;
-  SC_SLOT_PICKER_STATE = null;
+  ra.slots[slotIdx].homeBranch = (norm(branch) !== norm(showBranch)) ? branch : null;
+  SC_PICKER = null;
   storageSaveRoleAssignments();
   renderScList();
   renderScDetail();
@@ -7522,8 +7679,7 @@ function scRemoveSlot(showId, slotIdx) {
   renderScDetail();
 }
 
-function scToggleStep(showId, stepId, isSlotFilling) {
-  if (isSlotFilling) return; // slot filling confirmed via scConfirmScheduling
+function scToggleStep(showId, stepId) {
   if (!schedulingPlans[showId]) schedulingPlans[showId] = {};
   schedulingPlans[showId]['step_' + stepId] = !schedulingPlans[showId]['step_' + stepId];
   storageSaveSchedulingPlans();
@@ -7534,8 +7690,7 @@ function scToggleStep(showId, stepId, isSlotFilling) {
 function scConfirmScheduling(showId) {
   var ra = ROLE_ASSIGNMENTS[showId];
   if (!ra) return;
-  var allFilled = ra.slots.every(function(sl) { return sl.person; });
-  if (!allFilled) {
+  if (!ra.slots.every(function(sl) { return sl.person; })) {
     alert('Please assign all slots before confirming scheduling.');
     return;
   }
