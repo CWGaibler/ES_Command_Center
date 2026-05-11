@@ -8151,6 +8151,7 @@ function scNamePickerSearch(val) {
     noMatch.style.cssText = 'padding:10px 12px;color:var(--muted);font-size:12px';
     noMatch.textContent = 'No matches found';
     drop.appendChild(noMatch);
+    drop.classList.add('open');
     return;
   }
   filtered.forEach(function(tm) {
@@ -8162,6 +8163,7 @@ function scNamePickerSearch(val) {
     })(tm);
     drop.appendChild(item);
   });
+  drop.classList.add('open');
 }
 
 function scPickPerson(showId, name, branch) {
