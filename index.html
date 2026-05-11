@@ -453,7 +453,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .sf-reason-textarea{font-family:'Nunito Sans',sans-serif;font-size:13.5px;padding:7px 8px;border:1.5px solid var(--border);border-radius:6px;outline:none;width:100%;resize:vertical;min-height:60px;background:var(--surface);color:var(--fb)}
 .sf-reason-textarea:focus{border-color:var(--mb);background:#fff}
 /* ── Remote eligibility result block ── */
-.sf-remote-result{border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.sf-remote-result{border-radius:10px;padding:16px 18px;margin:0 16px 14px}
 .sf-remote-result-full{background:rgba(0,189,246,.08);border:2px solid var(--mb)}
 .sf-remote-result-hybrid{background:rgba(255,181,0,.08);border:2px solid var(--gold)}
 .sf-remote-result-onsite{background:rgba(66,187,55,.08);border:2px solid var(--green)}
@@ -4821,7 +4821,7 @@ function renderSfCustomPlanCalc(s, rec, plan) {
   var st = document.createElement('style');
   st.id = 'sf-remote-styles';
   st.textContent = [
-    '.sf-remote-result{border-radius:10px;padding:16px 18px;margin-bottom:14px}',
+    '.sf-remote-result{border-radius:10px;padding:16px 18px;margin:0 16px 14px}',
     '.sf-remote-result-full{background:rgba(0,189,246,.08);border:2px solid var(--mb)}',
     '.sf-remote-result-hybrid{background:rgba(255,181,0,.08);border:2px solid #ffb500}',
     '.sf-remote-result-badge{display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;background:rgba(0,189,246,.12);color:var(--mb);border:1px solid rgba(0,189,246,.35)}'
