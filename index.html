@@ -5070,14 +5070,6 @@ function toggleSsCheck(showId, taskId) {
   var calcConfirmed = (plan.checked.indexOf('s2') >= 0) || (plan.serviceModel && plan.serviceModel !== '');
   var leadFilled = currentLeadName.length > 0;
   var allDone = allTasksChecked && calcConfirmed && leadFilled;
-  if (allDone && !plan.confirmed) {
-    renderSfDetail();
-    renderSfList();
-    renderSfStats();
-    showSfConfirmModal(showId);
-    return;
-  }
-
   renderSfDetail();
   renderSfList();
   renderSfStats();
