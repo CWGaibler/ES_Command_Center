@@ -4623,7 +4623,7 @@ function renderSfSmallEventCalc(s, plan) {
     '<div class="sf-calc-show-hdr">' +
       '<div class="sf-calc-job-line">Job <span>#' + uid + '</span> &nbsp;·&nbsp; <span style="color:var(--mb)">' + (s.currentBooths || s.projectedBooths || 0) + ' booths — Small Event</span></div>' +
     '</div>' +
-    '<div style="background:rgba(0,189,246,.07);border:1px solid rgba(0,189,246,.25);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--fb);line-height:1.5">' +
+    '<div style="background:rgba(0,189,246,.07);border:1px solid rgba(0,189,246,.25);border-radius:8px;padding:12px 16px;margin:0 16px 16px;font-size:13px;color:var(--fb);line-height:1.5">' +
       'This show has <strong>' + (s.currentBooths || s.projectedBooths || 0) + ' booths</strong>, which puts it in the small event category (≤&nbsp;50&nbsp;booths). ' +
       'Before determining headcount, we need to assess whether this event should be staffed <strong>fully remote</strong>, <strong>hybrid</strong>, or <strong>on-site</strong>.' +
     '</div>';
@@ -4785,7 +4785,7 @@ function renderSfCustomPlanCalc(s, rec, plan) {
     '<div class="sf-calc-show-hdr">' +
       '<div class="sf-calc-job-line">Job <span>#' + uid + '</span> &nbsp;·&nbsp; <span style="color:var(--orange)">' + (s.currentBooths || s.projectedBooths || 0) + ' booths — Exceeds Model Ceiling</span></div>' +
     '</div>' +
-    '<div style="background:rgba(251,71,31,.06);border:1px solid rgba(251,71,31,.25);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--fb);line-height:1.5">' +
+    '<div style="background:rgba(251,71,31,.06);border:1px solid rgba(251,71,31,.25);border-radius:8px;padding:12px 16px;margin:0 16px 16px;font-size:13px;color:var(--fb);line-height:1.5">' +
       'This show has <strong>' + (s.currentBooths || s.projectedBooths || 0) + ' booths</strong>, which exceeds the 750-booth model ceiling. ' +
       'The ES Staffing Model has provided a <strong>suggested starting plan</strong> below based on the 701–750 range and revenue — ' +
       'but this show requires your review and a custom plan rationale. Adjust any roles as needed, then submit.' +
