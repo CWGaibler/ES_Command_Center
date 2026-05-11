@@ -4115,8 +4115,45 @@ function getScopeShows() {
 }
 
 
+function getAllScopeShows() {
+  // Identical scope logic to getScopeShows but with NO date filter.
+  // Used by Staffing page so all unconfirmed shows appear regardless of date.
+  var activePill = document.querySelector(".scope-pill.active");
+  var scopeRaw   = activePill ? (activePill.getAttribute("data-scope") || "enterprise") : "enterprise";
+  var scope      = scopeRaw.toLowerCase();
+  var regionEl   = document.getElementById("region-select");
+  var branchEl   = document.getElementById("branch-select");
+  var pillRegion = regionEl ? regionEl.value : "";
+  var pillBranch = branchEl ? branchEl.value : "";
+
+  var allShows = Object.keys(SHOWS).map(function(k) {
+    var s = SHOWS[k]; s.id = k; return s;
+  });
+
+  return allShows.filter(function(s) {
+    if (s.freemanElectricalOnly) return false;
+    if (s.fte === "N") return false;
+    if (!s.moveInStart || !s.clearDate) return false;
+    if (scope === "enterprise") {
+      return s.producingBranch !== "Off-Site" && s.producingBranch !== "High-Touch Accounts";
+    }
+    if (scope === "region") {
+      if (!pillRegion || pillRegion === "Off-Site") return false;
+      var dashRegion = CALC_REGION_MAP[s.region] || s.region;
+      return dashRegion === pillRegion;
+    }
+    if (scope === "branch") {
+      if (!pillBranch || pillBranch === "Off-Site" || pillBranch === "High-Touch Accounts") return false;
+      var norm = function(b) { return (b||'').replace(/^\d+\s*-\s*/, '').trim(); };
+      return norm(s.producingBranch) === pillBranch;
+    }
+    return false;
+  });
+}
+
 function getFilteredShows() {
-  var shows = getScopeShows();
+  // Use getAllScopeShows (no date filter) — per filter contract: all unconfirmed shows appear
+  var shows = getAllScopeShows();
   shows.sort(function(a, b) { return new Date(a.showOpen) - new Date(b.showOpen); });
   if (sfFilter === "unstaffed") return shows.filter(function(s) { return !staffingPlans[s.id] || !staffingPlans[s.id].confirmed; });
   if (sfFilter === "confirmed") return shows.filter(function(s) { return staffingPlans[s.id] && staffingPlans[s.id].confirmed; });
