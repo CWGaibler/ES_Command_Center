@@ -4037,7 +4037,7 @@ var SCHEDULING_TASKS = [
 ];
 
 var STAFFING_TASKS = [
-  {id:"s1", phase:"Leadership Steps", title:"Review show details and prior year history", desc:"Check NSS for prior year staffing, job number, and any notes from previous runs.", links:[{label:"NSS",url:"https://app.smartsheet.com/sheets/2gG6m5j4V639GvH7FjqJWG2VMjW2M7fXjJ9xFPW1"}]},
+  {id:"s1", phase:"Leadership Steps", title:"Review event's prior year history", desc:"Research details captured about the event on the prior year's ‘Event’ page, including the staffing plan, information captured in the ES post-event survey, the exhibitor post-event survey results, and anything shared within the “Show Information” folder.", links:[]},
   {id:"s2", phase:"Leadership Steps", title:"Determine staffing — review ES Staffing Service Model", desc:"Use the calculator below. For events of 50 or fewer booths, the calculator will guide you through a remote eligibility assessment. For 751+ booth shows, a custom plan and rationale are required.", links:[], calc:true, step:"2"},
   {id:"s3", phase:"Leadership Steps", title:"Enter the on-site lead / supervisor names", desc:"Enter the on-site lead and supervisor names below. Once entered, an auto-alert is sent to the assigned persons at the 10-week mark.", links:[], nameEntry:true},
   {id:"s4", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/:x:/r/teams/ExhibitorServices296-Managersandabove/Shared%20Documents/Managers%20%20and%20above/Schedule/Travel%20Needs%20by%20Region%20v2.xlsx?d=wd8b7942c4b4f403c9fcf63ab63bbe3ad&csf=1&web=1&e=cnh0P6"}]}
@@ -4359,7 +4359,7 @@ function renderSfDetail() {
       "<div class=\"task-body\">" +
         "<div class=\"task-title" + (checked ? " done" : "") + (locked ? " style=\"opacity:.35\"" : "") + "\">" + (idx + 1) + ". " + t.title + "</div>" +
         "<div class=\"task-desc\"" + (locked ? " style=\"opacity:.5\"" : "") + ">" + t.desc + "</div>" +
-        (!locked && t.links && t.links.length ? "<div class=\"task-links\">" + t.links.map(function(l){ return "<a class=\"tlink\" href=\"" + l.url + "\" target=\"_blank\">" + l.label + "</a>"; }).join("") + "</div>" : "") +
+        (!locked ? (function(){var linksHtml = (t.links && t.links.length ? t.links.map(function(l){ return "<a class=\"tlink\" href=\"" + l.url + "\" target=\"_blank\">" + l.label + "</a>"; }).join("") : "");if(t.id === "s1" && s.pyJobNumber && s.pyJobNumber !== "N/A" && s.pyJobNumber !== "") {linksHtml += "<a class=\"tlink\" href=\"#\" onclick=\"goToEventLens('" + s.pyJobNumber + "');return false;\">Prior Year Event &#8599;</a>";}return linksHtml ? "<div class=\"task-links\">" + linksHtml + "</div>" : "";})() : "") +
         (!locked && t.calc ? renderSfCalcInline(s, rec, plan, t.step) : "") +
         (!locked && t.nameEntry ? renderSfNameEntry(sfSelId, plan) : "") +
       "</div>" +
