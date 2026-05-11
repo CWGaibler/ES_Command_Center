@@ -7169,7 +7169,7 @@ function elRenderShow() {
   var el = document.getElementById('el-content');
   if (!el) return;
   if (!elSelId || !SHOWS[elSelId]) {
-    el.innerHTML = '<div class="el-empty"><div class="el-empty-icon">&#128197;</div><div class="el-empty-msg">Select a show to view its event profile</div><div class="el-empty-sub">Search by show name or job number above, or click any show in Active Events</div></div>';
+    el.innerHTML = '<div class="el-empty"><div class="el-empty-icon">&#128197;</div><div class="el-empty-msg">Select a show to view its event profile</div><div class="el-empty-sub">Search by show name or job number above, or click any show in Active Events.</div></div>';
     return;
   }
   var s = SHOWS[elSelId];
@@ -7319,121 +7319,202 @@ function elRenderShow() {
   '</div>';
 
   // --------------------------------------------------
-  // STAFFING & SCHEDULING — unified new panel
   // --------------------------------------------------
-  html += '<div class="el-section-div">Staffing</div>';
-
+  // STAFFING STATUS — read-only
+  // --------------------------------------------------
   var rec = typeof sfCalcRec === 'function' ? sfCalcRec(s) : null;
+  var sfPlanData = staffingPlans[elSelId] || {};
+  var sfConfirmed = sfPlanData.confirmed === true;
+  var sfStarted = sfPlanData.checked && sfPlanData.checked.length > 0;
 
-  if (!ra || !rec) {
-    html += '<div class="el-ss-panel"><div class="el-ss-panel-hdr"><span class="el-ss-panel-title">Staffing plan</span><span style="font-size:13px;color:var(--muted)">Staffing data not available for this show</span></div></div>';
-  } else {
-    var openSlots = ra.slots.filter(function(sl) { return !sl.person; }).length;
-    var headerTitle = planConfirmed ? 'Confirmed staffing plan' : 'Proposed staffing plan';
-    var headerRight = planConfirmed ? '' :
-      '<a class="el-ss-panel-link" href="#" onclick="goToStaffingFromEvents(\'' + elSelId + '\');return false;">Open in Staffing ↗</a>';
-    var gapBadge = (!planConfirmed && openSlots > 0) ?
-      '<span class="el-ss-gap-badge" style="margin-left:10px">' + openSlots + ' slot' + (openSlots>1?'s':'') + ' open</span>' : '';
+  html += '<div class="el-section-div">Staffing</div>';
+  html += '<div class="el-card" style="margin-bottom:14px;padding:0;overflow:hidden">';
 
-    html += '<div class="el-ss-panel">' +
-      '<div class="el-ss-panel-hdr">' +
-        '<span class="el-ss-panel-title">' + headerTitle + gapBadge + '</span>' +
-        headerRight +
-      '</div>';
+  if (sfConfirmed && rec) {
+    var ov = sfPlanData.overrides || {};
+    var rCf = ov.cf != null ? ov.cf : rec.cf;
+    var rBr = ov.br != null ? ov.br : rec.br;
+    var rAs = ov.as != null ? ov.as : rec.as;
+    var rSv = ov.sv != null ? ov.sv : rec.sv;
+    var rFr = ov.fr != null ? ov.fr : (rec.specialty || 0);
+    var sfLead = sfPlanData.leadName || '\u2014';
+    var sfSup  = sfPlanData.supervisorName || '';
 
-    // Context strip
-    var onSiteLead = s.lead || '—';
-    var supervisor = (s.supervisor && s.supervisor !== 'No Supervisor') ? s.supervisor : '—';
-    var offsiteLead = (s.offsitePrep && s.offsitePrep !== 'Branch') ? s.offsitePrep : 'Not yet assigned';
-    html += '<div class="el-context-strip">' +
-      '<span>On-Site Lead: <strong>' + onSiteLead + '</strong></span>' +
-      '<span>Supervisor: <strong>' + supervisor + '</strong></span>' +
-      '<span>Off-Site lead: <strong>' + offsiteLead + '</strong></span>' +
+    html += '<div style="padding:12px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:center;justify-content:space-between">' +
+      '<span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Staffing Plan</span>' +
+      '<span class="chip chip-green">&#x2713; Confirmed</span>' +
     '</div>';
 
-    // Roster slots — build numbered labels for duplicate role types
-    var pickerState = EL_SLOT_PICKER_STATE;
-
-    // Count occurrences of each role type to determine if numbering is needed
-    var roleTypeCounts = {};
-    ra.slots.forEach(function(sl) {
-      roleTypeCounts[sl.type] = (roleTypeCounts[sl.type] || 0) + 1;
-    });
-    // Track counter per type for sequential numbering
-    var roleTypeCounters = {};
-
-    html += '<div class="el-roster">';
-    ra.slots.forEach(function(slot, idx) {
-      // Build the display label — numbered only when 2+ of same type
-      roleTypeCounters[slot.type] = (roleTypeCounters[slot.type] || 0) + 1;
-      var displayLabel = roleTypeCounts[slot.type] > 1
-        ? slot.label + ' ' + roleTypeCounters[slot.type]
-        : slot.label;
-
-      var isPickerOpen = pickerState && pickerState.showId === elSelId && pickerState.slotIdx === idx;
-      if (slot.person) {
-        // Filled slot
-        var avColors = [
-          {bg:'#EBF8FF',color:'#005A75'},{bg:'#EAFAF0',color:'#1A6B35'},{bg:'#FFF5D6',color:'#7A5C00'},
-          {bg:'#F3F0FF',color:'#5B3FBF'},{bg:'#FFE4E1',color:'#8B2500'},{bg:'#E0F7FA',color:'#006064'}
-        ];
-        var av = avColors[idx % avColors.length];
-        var initials = elInitials(slot.person);
-        var travelChip = slot.homeBranch ? '<span class="el-slot-travel">Traveling — ' + slot.homeBranch + '</span>' : '';
-        html += '<div class="el-slot">' +
-          '<div class="el-slot-filled">' +
-            '<span class="el-slot-type">' + displayLabel + '</span>' +
-            '<div class="el-slot-person">' +
-              '<div class="el-slot-av" style="background:' + av.bg + ';color:' + av.color + '">' + initials + '</div>' +
-              '<div><div class="el-slot-name">' + slot.person + travelChip + '</div>' +
-              '<div class="el-slot-branch">' + (slot.branch||'') + '</div></div>' +
-            '</div>' +
-            '<div class="el-slot-actions">' +
-              '<a class="el-slot-tl-link" href="#" onclick="tlSelectPerson(\'' + slot.person.replace(/'/g,"\\'") + '\');showPage(\'team\');return false;">View in Team Lens ↗</a>' +
-              (!planConfirmed ? '<button onclick="elRemoveSlot(\'' + elSelId + '\',' + idx + ')" style="font-family:\'Nunito Sans\',sans-serif;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;margin-left:8px">Remove</button>' : '') +
-            '</div>' +
-          '</div>' +
-        '</div>';
-      } else if (isPickerOpen) {
-        // Picker open for this slot
-        html += '<div class="el-slot" style="border-color:var(--mb)">' +
-          '<div class="el-slot-filled">' +
-            '<span class="el-slot-type">' + displayLabel + '</span>' +
-            '<div class="el-name-picker-wrap">' +
-              '<input id="el-np-input" class="el-name-picker-input" type="text" placeholder="Search team members..." oninput="elNamePickerSearch(this.value)" onkeydown="if(event.key===\'Escape\')elCancelPicker()" autofocus />' +
-              '<div id="el-np-drop" class="el-name-picker-drop"></div>' +
-            '</div>' +
-            '<button onclick="elCancelPicker()" style="font-family:\'Nunito Sans\',sans-serif;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;margin-left:8px">Cancel</button>' +
-          '</div>' +
-        '</div>';
-      } else {
-        // Open slot
-        html += '<div class="el-slot">' +
-          '<div class="el-slot-open">' +
-            '<span class="el-slot-type">' + displayLabel + '</span>' +
-            '<span class="el-slot-open-prompt">Assign a team member to this slot</span>' +
-            (!planConfirmed ? '<button class="el-slot-add-btn" onclick="elOpenNamePicker(\'' + elSelId + '\',' + idx + ',\'' + slot.type + '\')">+ Add</button>' : '') +
-          '</div>' +
+    var roleRowsHtml = '';
+    var roleDefs = [
+      {label:'Customer-Facing', val:rCf},
+      {label:'Back Room',       val:rBr},
+      {label:'Additional Support', val:rAs},
+      {label:'Supervisory',     val:rSv},
+      {label:'Freight / Storage', val:rFr}
+    ];
+    roleDefs.forEach(function(r) {
+      if (r.val > 0) {
+        roleRowsHtml += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
+          '<span style="color:var(--muted)">' + r.label + '</span>' +
+          '<span style="font-weight:700;color:var(--fb)">' + r.val + '</span>' +
         '</div>';
       }
     });
-    html += '</div>'; // close el-roster
+    var sfTotal = rCf + rBr + rAs + rSv + rFr;
+    roleRowsHtml += '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">' +
+      '<span style="font-weight:800;color:var(--fb)">Total Staff</span>' +
+      '<span style="font-weight:800;color:var(--fb)">' + sfTotal + '</span>' +
+    '</div>';
+    html += '<div style="padding:10px 16px;border-bottom:1px solid var(--border-lt)">' + roleRowsHtml + '</div>';
 
-    // Confirm bar (only when proposed)
-    if (!planConfirmed) {
-      html += '<div class="el-confirm-bar">' +
-        '<span class="el-confirm-msg">When ready, confirm assignments to lock this plan.</span>' +
-        '<button class="el-confirm-btn" onclick="elConfirmPlan(\'' + elSelId + '\')">Confirm assignments</button>' +
+    html += '<div style="padding:10px 16px;display:flex;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--border-lt)">';
+    if (sfPlanData.serviceModel) {
+      html += '<div><div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px">Service Model</div>' +
+        '<div style="font-size:13px;font-weight:700;color:var(--fb)">' + sfPlanData.serviceModel + '</div></div>';
+    }
+    html += '<div><div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px">On-Site Lead</div>' +
+      '<div style="font-size:13px;font-weight:700;color:var(--fb)">' + sfLead + '</div></div>';
+    if (sfSup) {
+      html += '<div><div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px">Supervisor</div>' +
+        '<div style="font-size:13px;font-weight:700;color:var(--fb)">' + sfSup + '</div></div>';
+    }
+    html += '</div>';
+
+  } else {
+    html += '<div style="padding:12px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:center;justify-content:space-between">' +
+      '<span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Staffing Plan</span>' +
+      '<span class="chip chip-amber">Needs Staffing</span>' +
+    '</div>';
+
+    if (!sfStarted) {
+      html += '<div style="padding:14px 16px;border-bottom:1px solid var(--border-lt);font-size:13px;color:var(--muted)">No staffing plan has been submitted for this event yet.</div>';
+    } else {
+      var sfStepDefs = [
+        {id:'s1', label:'Review prior year history'},
+        {id:'s2', label:'Determine staffing plan'},
+        {id:'s3', label:'Enter on-site lead / supervisor'},
+        {id:'s4', label:'Travel review'}
+      ];
+      html += '<div style="padding:10px 16px;border-bottom:1px solid var(--border-lt)">';
+      sfStepDefs.forEach(function(step) {
+        var done = sfPlanData.checked && sfPlanData.checked.indexOf(step.id) >= 0;
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
+          '<div style="width:17px;height:17px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;' +
+            (done ? 'background:var(--green);border:2px solid var(--green)' : 'background:transparent;border:2px solid var(--border)') + '">' +
+            (done ? '<span style="color:#fff;font-size:11px;font-weight:800">&#x2713;</span>' : '') +
+          '</div>' +
+          '<span style="color:' + (done ? 'var(--muted)' : 'var(--fb)') + ';' + (done ? 'text-decoration:line-through' : '') + '">' + step.label + '</span>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+    html += '<div style="padding:10px 16px">' +
+      '<a href="#" onclick="goToStaffingFromEvents(\'' + elSelId + '\');return false;" style="font-size:13px;font-weight:700;color:var(--mb);text-decoration:none">' +
+        (sfStarted ? 'Continue in Staffing &#8599;' : 'Go to Staffing &#8599;') +
+      '</a>' +
+    '</div>';
+  }
+  html += '</div>';
+
+  // --------------------------------------------------
+  // SCHEDULING STATUS — read-only
+  // --------------------------------------------------
+  var scPlanData = schedulingPlans[elSelId] || {};
+  var scConfirmedFlag = ROLE_ASSIGNMENTS[elSelId] && ROLE_ASSIGNMENTS[elSelId].confirmed;
+  var scStep1Done = scPlanData.step_sc1 === true;
+  var scRA = ROLE_ASSIGNMENTS[elSelId];
+  var scAllFilled = scRA && scRA.slots && scRA.slots.every(function(sl){ return sl.person; });
+  var scStarted = scStep1Done || !!scAllFilled;
+
+  html += '<div class="el-section-div">Scheduling</div>';
+  html += '<div class="el-card" style="margin-bottom:14px;padding:0;overflow:hidden">';
+
+  if (!sfConfirmed) {
+    html += '<div style="padding:12px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:center;justify-content:space-between">' +
+      '<span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Scheduling</span>' +
+      '<span class="chip chip-ghost">Not Yet Available</span>' +
+    '</div>' +
+    '<div style="padding:14px 16px;border-bottom:1px solid var(--border-lt);font-size:13px;color:var(--muted)">Scheduling is not available until the staffing plan has been confirmed.</div>' +
+    '<div style="padding:10px 16px">' +
+      '<a href="#" onclick="goToStaffingFromEvents(\'' + elSelId + '\');return false;" style="font-size:13px;font-weight:700;color:var(--mb);text-decoration:none">Complete Staffing first &#8599;</a>' +
+    '</div>';
+
+  } else if (scConfirmedFlag) {
+    html += '<div style="padding:12px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:center;justify-content:space-between">' +
+      '<span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Scheduling</span>' +
+      '<span class="chip chip-green">&#x2713; Confirmed</span>' +
+    '</div>';
+
+    if (scRA && scRA.slots && scRA.slots.length) {
+      html += '<div style="padding:10px 16px;border-bottom:1px solid var(--border-lt)">';
+      var scTypeCounts = {};
+      scRA.slots.forEach(function(sl){ scTypeCounts[sl.type] = (scTypeCounts[sl.type]||0)+1; });
+      var scTypeCounters = {};
+      var scRoleLabels = {cf:'Customer-Facing',br:'Back Room',as:'Additional Support',sv:'Supervisory',fr:'Freight / Storage'};
+      var scAvColors = [{bg:'#EBF8FF',color:'#005A75'},{bg:'#EAFAF0',color:'#1A6B35'},{bg:'#FFF5D6',color:'#7A5C00'},{bg:'#F3F0FF',color:'#5B3FBF'},{bg:'#FFE4E1',color:'#8B2500'},{bg:'#E0F7FA',color:'#006064'}];
+      scRA.slots.forEach(function(sl, idx) {
+        scTypeCounters[sl.type] = (scTypeCounters[sl.type]||0)+1;
+        var slLabel = scTypeCounts[sl.type] > 1 ? (scRoleLabels[sl.type]||sl.type)+' '+scTypeCounters[sl.type] : (scRoleLabels[sl.type]||sl.type);
+        var av = scAvColors[idx % scAvColors.length];
+        var initials2 = sl.person ? elInitials(sl.person) : '?';
+        var travelChip2 = sl.homeBranch ? '<span class="el-slot-travel">Traveling \u2014 '+sl.homeBranch+'</span>' : '';
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
+          '<span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);width:170px;flex-shrink:0">' + slLabel + '</span>' +
+          '<div style="width:26px;height:26px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:'+av.bg+';color:'+av.color+'">' + initials2 + '</div>' +
+          '<div><div style="font-weight:700;color:var(--fb)">' + (sl.person||'\u2014') + travelChip2 + '</div>' +
+          '<div style="font-size:12px;color:var(--muted)">' + (sl.branch||'') + '</div></div>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+    var scLead = sfPlanData.leadName || '';
+    var scSup  = sfPlanData.supervisorName || '';
+    if (scLead) {
+      html += '<div style="padding:10px 16px;display:flex;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--border-lt)">' +
+        '<div><div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px">On-Site Lead</div>' +
+        '<div style="font-size:13px;font-weight:700;color:var(--fb)">' + scLead + '</div></div>' +
+        (scSup ? '<div><div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px">Supervisor</div><div style="font-size:13px;font-weight:700;color:var(--fb)">' + scSup + '</div></div>' : '') +
       '</div>';
     }
 
-    html += '</div>'; // close el-ss-panel
+  } else {
+    html += '<div style="padding:12px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:center;justify-content:space-between">' +
+      '<span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Scheduling</span>' +
+      '<span class="chip chip-amber">Needs Scheduling</span>' +
+    '</div>';
+
+    if (!scStarted) {
+      html += '<div style="padding:14px 16px;border-bottom:1px solid var(--border-lt);font-size:13px;color:var(--muted)">The scheduling process has not been started for this event.</div>';
+    } else {
+      var scStepDefs = [
+        {done: scStep1Done,   label:'Add event to ES Regional Schedule'},
+        {done: !!scAllFilled, label:'Assign team members to event slots'}
+      ];
+      html += '<div style="padding:10px 16px;border-bottom:1px solid var(--border-lt)">';
+      scStepDefs.forEach(function(step) {
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
+          '<div style="width:17px;height:17px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;' +
+            (step.done ? 'background:var(--green);border:2px solid var(--green)' : 'background:transparent;border:2px solid var(--border)') + '">' +
+            (step.done ? '<span style="color:#fff;font-size:11px;font-weight:800">&#x2713;</span>' : '') +
+          '</div>' +
+          '<span style="color:' + (step.done ? 'var(--muted)' : 'var(--fb)') + ';' + (step.done ? 'text-decoration:line-through' : '') + '">' + step.label + '</span>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+    html += '<div style="padding:10px 16px">' +
+      '<a href="#" onclick="goToSchedulingFromEvents(\'' + elSelId + '\');return false;" style="font-size:13px;font-weight:700;color:var(--mb);text-decoration:none">' +
+        (scStarted ? 'Continue in Scheduling &#8599;' : 'Go to Scheduling &#8599;') +
+      '</a>' +
+    '</div>';
   }
+  html += '</div>';
 
   // --------------------------------------------------
-  // TEAM OPERATIONS — three-accordion section
+  // EVENT OPERATIONS (formerly Team Operations) — three-accordion section
   // --------------------------------------------------
-  html += '<div class="el-section-div" style="margin-top:14px">Team Operations</div>';
+  html += '<div class="el-section-div" style="margin-top:14px">Event Operations</div>';
 
   var activePhase = elGetActivePhase(s);
   var accDefs = [
