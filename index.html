@@ -4229,7 +4229,7 @@ function renderSfList() {
   var countEl = document.getElementById("sf-sidebar-count");
   if (!list) return;
   var shows = getFilteredShows();
-  if (countEl) countEl.textContent = shows.length + " Show" + (shows.length !== 1 ? "s" : "");
+  if (countEl) countEl.textContent = shows.length + " Show" + (shows.length !== 1 ? "s" : "") + " to Staff";
 
   // Clear the list
   list.innerHTML = "";
