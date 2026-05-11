@@ -4370,15 +4370,34 @@ function renderSfDetail() {
   html += "</div>"; // close det-scroll
 
   // Confirm bar
-  var allDone = STAFFING_TASKS.every(function(t){ return plan.checked.indexOf(t.id) >= 0; });
+  // Read current name field values (they may not be saved to plan yet)
+  var leadInput = document.querySelector('[data-name-showid="' + sfSelId + '"][data-name-field="leadName"]');
+  var supervisorInput = document.querySelector('[data-name-showid="' + sfSelId + '"][data-name-field="supervisorName"]');
+  var currentLeadName = leadInput ? leadInput.value.trim() : (plan.leadName || '');
+  var currentSupervisorName = supervisorInput ? supervisorInput.value.trim() : (plan.supervisorName || '');
+  var allTasksChecked = STAFFING_TASKS.every(function(t) {
+    if (t.nameEntry) return true; // name entry task gate is handled by leadName check below
+    return plan.checked.indexOf(t.id) >= 0;
+  });
+  var calcConfirmed = plan.confirmed || (plan.checked.indexOf('s2') >= 0) || (plan.serviceModel && plan.serviceModel !== '');
+  var leadFilled = currentLeadName.length > 0;
+  var allDone = allTasksChecked && calcConfirmed && leadFilled;
   if (confirmed) {
     html += "<div class=\"sf-confirm-bar\">" +
-      "<div class=\"sf-confirm-msg\">\u2713 Staffing plan confirmed<div class=\"sub\">Plan locked. Click Edit Plan to reopen.</div></div>" +
+      "<div class=\"sf-confirm-msg\">\u2713 Staffing plan confirmed \u2014 data pushed to NSS<div class=\"sub\">This show has moved to your Scheduling queue.</div></div>" +
       "<button class=\"m-cancel\" data-action-ss=\"unconfirm\" data-showid=\"" + sfSelId + "\">Edit Plan</button>" +
       "</div>";
   } else {
+    var pendingMsg = allDone
+      ? "All steps complete \u2014 ready to confirm"
+      : (!calcConfirmed ? "Complete step 2 to determine your staffing plan" :
+         !leadFilled ? "Enter the on-site lead name in step 3 to continue" :
+         "Complete all steps above to confirm this plan");
+    var pendingSub = allDone
+      ? "Confirming will lock this plan, push staffing data to NSS, and move this show to Scheduling."
+      : "All four steps must be complete before you can confirm.";
     html += "<div class=\"sf-confirm-bar pending\">" +
-      "<div class=\"sf-confirm-msg\">" + (allDone ? "All steps complete \u2014 ready to confirm" : "Complete all steps above to confirm this plan") + "<div class=\"sub\">Confirming locks the plan and moves this show to Confirmed.</div></div>" +
+      "<div class=\"sf-confirm-msg\">" + pendingMsg + "<div class=\"sub\">" + pendingSub + "</div></div>" +
       "<button class=\"btn-confirm\" data-action-ss=\"confirm\" data-showid=\"" + sfSelId + "\"" + (allDone ? "" : " disabled style=\"opacity:.45;cursor:not-allowed\"") + ">Confirm Plan</button>" +
       "</div>";
   }
@@ -4950,7 +4969,18 @@ function toggleSsCheck(showId, taskId) {
   storageSaveStaffingPlans();
 
   // If all steps now checked, auto-confirm and show popup
-  var allDone = STAFFING_TASKS.every(function(t){ return plan.checked.indexOf(t.id) >= 0; });
+  // Read current name field values (they may not be saved to plan yet)
+  var leadInput = document.querySelector('[data-name-showid="' + sfSelId + '"][data-name-field="leadName"]');
+  var supervisorInput = document.querySelector('[data-name-showid="' + sfSelId + '"][data-name-field="supervisorName"]');
+  var currentLeadName = leadInput ? leadInput.value.trim() : (plan.leadName || '');
+  var currentSupervisorName = supervisorInput ? supervisorInput.value.trim() : (plan.supervisorName || '');
+  var allTasksChecked = STAFFING_TASKS.every(function(t) {
+    if (t.nameEntry) return true; // name entry task gate is handled by leadName check below
+    return plan.checked.indexOf(t.id) >= 0;
+  });
+  var calcConfirmed = plan.confirmed || (plan.checked.indexOf('s2') >= 0) || (plan.serviceModel && plan.serviceModel !== '');
+  var leadFilled = currentLeadName.length > 0;
+  var allDone = allTasksChecked && calcConfirmed && leadFilled;
   if (allDone && !plan.confirmed) {
     plan.confirmed = true;
     renderSfDetail();
@@ -4965,51 +4995,6 @@ function toggleSsCheck(showId, taskId) {
   renderSfStats();
 }
 
-function showSsCompletePopup(showId) {
-  var s = SHOWS[showId] || {};
-  var overlay = document.createElement("div");
-  overlay.className = "sf-complete-overlay";
-  overlay.id = "sf-complete-overlay";
-  overlay.innerHTML =
-    "<div class=\"sf-complete-modal\">" +
-      "<div class=\"sf-cmp-head\">" +
-        "<div class=\"sf-cmp-icon\">\u2705</div>" +
-        "<div class=\"sf-cmp-title\">Staffing Steps Complete!</div>" +
-        "<div class=\"sf-cmp-sub\">" + (s.name || showId) + "</div>" +
-      "</div>" +
-      "<div class=\"sf-cmp-body\">" +
-        "<div class=\"sf-cmp-section\">Your responsibilities are done. Here\u2019s what happens next:</div>" +
-        "<div class=\"sf-cmp-step\">" +
-          "<div class=\"sf-cmp-step-num\">1</div>" +
-          "<div class=\"sf-cmp-step-text\"><strong>Supervisor / Lead notification sent</strong><br>Your assigned supervisor and/or lead received an automatic alert from NSS at the 10-week mark. They know what to do.</div>" +
-        "</div>" +
-        "<div class=\"sf-cmp-step\">" +
-          "<div class=\"sf-cmp-step-num\">2</div>" +
-          "<div class=\"sf-cmp-step-text\"><strong>They will review the staffing plan</strong><br>Your supervisor or lead will review the recommended headcount in NSS and discuss any changes with you as needed.</div>" +
-        "</div>" +
-        "<div class=\"sf-cmp-step\">" +
-          "<div class=\"sf-cmp-step-num\">3</div>" +
-          "<div class=\"sf-cmp-step-text\"><strong>They will communicate the plan to Growth</strong><br>Your supervisor or lead will reach out in writing to the primary Growth contact for this event to confirm the staffing plan and share ES contact names.</div>" +
-        "</div>" +
-        "<div class=\"sf-cmp-note\">You don\u2019t need to follow up on these steps \u2014 your team has been notified and knows their responsibilities. This show has moved to your <strong>Confirmed</strong> list.</div>" +
-      "</div>" +
-      "<div class=\"sf-cmp-footer\">" +
-        "<button class=\"sf-cmp-btn ss-cmp-btn-primary\" id=\"sf-cmp-close-btn\">Got it \u2014 back to Confirmed</button>" +
-      "</div>" +
-    "</div>";
-  document.body.appendChild(overlay);
-  document.getElementById("sf-cmp-close-btn").onclick = function() {
-    overlay.remove();
-    // Switch filter to confirmed and deselect show
-    sfFilter = "confirmed";
-    document.querySelectorAll(".sf-filter-btn").forEach(function(b) { b.classList.remove("active"); });
-    document.querySelectorAll(".sf-filter-btn").forEach(function(b) { if (b.textContent.trim() === "Confirmed") b.classList.add("active"); });
-    sfSelId = null;
-    renderSfList();
-    renderSfEmptyDetail();
-  };
-  overlay.onclick = function(e) { if (e.target === overlay) { overlay.remove(); } };
-}
 
 function updateSfOverride(showId, key, val) {
   if (!staffingPlans[showId]) staffingPlans[showId] = {checked:[], overrides:{}, supervisorName:"", leadName:"", confirmed:false};
@@ -5033,6 +5018,11 @@ function updateSfName(showId, field, val) {
 
 function confirmSf(showId) {
   if (!staffingPlans[showId]) return;
+  // Read current name field values before confirming
+  var leadInput = document.querySelector('[data-name-showid="' + showId + '"][data-name-field="leadName"]');
+  var supInput  = document.querySelector('[data-name-showid="' + showId + '"][data-name-field="supervisorName"]');
+  if (leadInput) staffingPlans[showId].leadName = leadInput.value.trim();
+  if (supInput)  staffingPlans[showId].supervisorName = supInput.value.trim();
   staffingPlans[showId].confirmed = true;
   storageSaveStaffingPlans();
   sfSelId = showId;
@@ -5042,8 +5032,141 @@ function confirmSf(showId) {
 }
 
 function confirmSfWithPopup(showId) {
-  confirmSf(showId);
-  showSsCompletePopup(showId);
+  showSfConfirmModal(showId);
+}
+
+function showSfConfirmModal(showId) {
+  var s = SHOWS[showId] || {};
+  var plan = staffingPlans[showId] || {};
+  var rec = typeof sfCalcRec === 'function' ? sfCalcRec(s) : null;
+
+  // Read current name field values
+  var leadInput = document.querySelector('[data-name-showid="' + showId + '"][data-name-field="leadName"]');
+  var supInput  = document.querySelector('[data-name-showid="' + showId + '"][data-name-field="supervisorName"]');
+  var leadName  = (leadInput ? leadInput.value.trim() : '') || plan.leadName || '';
+  var supName   = (supInput  ? supInput.value.trim()  : '') || plan.supervisorName || '';
+
+  // Build staffing summary rows
+  var summaryRows = '';
+  if (rec) {
+    var roles = [
+      {label: 'Customer-Facing Roles', val: rec.customerFacing},
+      {label: 'Back Room Roles',       val: rec.backRoom},
+      {label: 'Additional Support',    val: rec.additionalSupport},
+      {label: 'Supervisory Roles',     val: rec.supervisory},
+      {label: 'Freight / Storage',     val: rec.specialty}
+    ];
+    roles.forEach(function(r) {
+      if (r.val > 0) {
+        summaryRows += '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
+          '<span style="color:var(--muted)">' + r.label + '</span>' +
+          '<span style="font-weight:700;color:var(--fb)">' + r.val + '</span>' +
+        '</div>';
+      }
+    });
+    var total = (rec.customerFacing||0) + (rec.backRoom||0) + (rec.additionalSupport||0) + (rec.supervisory||0) + (rec.specialty||0);
+    summaryRows += '<div style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;margin-top:2px">' +
+      '<span style="font-weight:800;color:var(--fb)">Total Recommended Staff</span>' +
+      '<span style="font-weight:800;color:var(--fb)">' + total + '</span>' +
+    '</div>';
+  }
+
+  var overlay = document.createElement('div');
+  overlay.className = 'sf-complete-overlay';
+  overlay.id = 'sf-confirm-modal-overlay';
+
+  var modal = document.createElement('div');
+  modal.className = 'sf-complete-modal';
+  modal.style.maxWidth = '520px';
+
+  modal.innerHTML =
+    '<div class="sf-cmp-head">' +
+      '<div class="sf-cmp-icon">📋</div>' +
+      '<div class="sf-cmp-title">Confirm Staffing Plan</div>' +
+      '<div class="sf-cmp-sub">' + (s.name || showId) + ' &nbsp;·&nbsp; Job #' + showId + '</div>' +
+    '</div>' +
+    '<div class="sf-cmp-body">' +
+      '<div class="sf-cmp-section" style="font-size:13px;color:var(--muted);margin-bottom:12px">Review the details below. Confirming will lock this plan and push the following to NSS.</div>' +
+
+      // Staffing numbers
+      '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:14px">' +
+        '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Staffing Recommendation</div>' +
+        summaryRows +
+        (plan.serviceModel ? '<div style="font-size:12px;color:var(--muted);margin-top:8px;padding-top:6px;border-top:1px solid var(--border-lt)">Service model: <strong style="color:var(--fb)">' + plan.serviceModel + '</strong></div>' : '') +
+      '</div>' +
+
+      // Names
+      '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:14px">' +
+        '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Staff Assignment</div>' +
+        '<div style="display:flex;gap:24px;font-size:13px">' +
+          '<div><div style="color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:2px">On-Site Lead</div><div style="font-weight:700;color:var(--fb)">' + (leadName || '—') + '</div></div>' +
+          (supName ? '<div><div style="color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:2px">Supervisor</div><div style="font-weight:700;color:var(--fb)">' + supName + '</div></div>' : '') +
+        '</div>' +
+      '</div>' +
+
+      // NSS push statement
+      '<div style="background:#EBF8FF;border:1px solid rgba(0,189,246,.3);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:var(--fb)">' +
+        '<strong>This will push to NSS:</strong> Staffing headcount, service model, on-site lead' + (supName ? ', and supervisor name' : '') + ' will be written to the National Show Schedule for job #' + showId + '.' +
+      '</div>' +
+
+      // What happens next
+      '<div style="font-size:12px;color:var(--muted)">After confirming, this show will move to the <strong>Scheduling</strong> queue for staff assignment.</div>' +
+    '</div>' +
+    '<div class="sf-cmp-footer" style="gap:10px">' +
+      '<button class="sf-cmp-btn" id="sf-confirm-modal-cancel">Cancel</button>' +
+      '<button class="sf-cmp-btn sf-cmp-btn-primary" id="sf-confirm-modal-ok">Confirm Plan</button>' +
+    '</div>';
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  document.getElementById('sf-confirm-modal-cancel').addEventListener('click', function() {
+    overlay.remove();
+  });
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.remove();
+  });
+  document.getElementById('sf-confirm-modal-ok').addEventListener('click', function() {
+    overlay.remove();
+    confirmSf(showId);
+    showSfPostConfirmPopup(showId);
+  });
+}
+
+function showSfPostConfirmPopup(showId) {
+  var s = SHOWS[showId] || {};
+  var plan = staffingPlans[showId] || {};
+  var overlay = document.createElement('div');
+  overlay.className = 'sf-complete-overlay';
+
+  var modal = document.createElement('div');
+  modal.className = 'sf-complete-modal';
+
+  modal.innerHTML =
+    '<div class="sf-cmp-head">' +
+      '<div class="sf-cmp-icon">&#x2705;</div>' +
+      '<div class="sf-cmp-title">Staffing Plan Confirmed</div>' +
+      '<div class="sf-cmp-sub">' + (s.name || showId) + '</div>' +
+    '</div>' +
+    '<div class="sf-cmp-body">' +
+      '<div class="sf-cmp-section">The following has been completed:</div>' +
+      '<div class="sf-cmp-step"><div class="sf-cmp-step-num">1</div><div class="sf-cmp-step-text"><strong>Staffing data pushed to NSS</strong><br>Headcount, service model, on-site lead' + (plan.supervisorName ? ', and supervisor name have' : ' has') + ' been written to the National Show Schedule.</div></div>' +
+      '<div class="sf-cmp-step"><div class="sf-cmp-step-num">2</div><div class="sf-cmp-step-text"><strong>Show moved to Scheduling</strong><br>This show now appears in your Scheduling queue. The next step is to assign specific team members to their event roles.</div></div>' +
+      '<div class="sf-cmp-note">Your staffing plan is locked. To make changes, use Edit Plan on the Staffing page.</div>' +
+    '</div>' +
+    '<div class="sf-cmp-footer">' +
+      '<button class="sf-cmp-btn sf-cmp-btn-primary" id="sf-post-confirm-close">Got it</button>' +
+    '</div>';
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  document.getElementById('sf-post-confirm-close').addEventListener('click', function() {
+    overlay.remove();
+  });
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.remove();
+  });
 }
 
 function unconfirmSs(showId) {
