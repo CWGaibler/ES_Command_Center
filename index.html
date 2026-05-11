@@ -4432,6 +4432,67 @@ function renderSfDetail() {
       return;
     }
 
+    // Small event: I Agree With This Plan
+    var reAgreeBtn = e.target.closest('[data-re-agree]');
+    if (reAgreeBtn) {
+      var reUid = reAgreeBtn.getAttribute('data-re-agree');
+      if (!staffingPlans[reUid]) staffingPlans[reUid] = {checked:[], overrides:{}, confirmed:false};
+      staffingPlans[reUid].remoteModifying = false;
+      staffingPlans[reUid].remoteModResult = staffingPlans[reUid].remoteResult; // agree = keep recommendation
+      storageSaveStaffingPlans();
+      sfSmallEventConfirm(reUid);
+      return;
+    }
+
+    // Small event: I Need to Modify This Plan
+    var reModifyBtn = e.target.closest('[data-re-modify]');
+    if (reModifyBtn) {
+      var reUid = reModifyBtn.getAttribute('data-re-modify');
+      if (!staffingPlans[reUid]) staffingPlans[reUid] = {checked:[], overrides:{}, confirmed:false};
+      staffingPlans[reUid].remoteModifying = true;
+      storageSaveStaffingPlans();
+      var panel = document.getElementById('sf-re-modify-' + reUid);
+      if (panel) panel.classList.add('open');
+      return;
+    }
+
+    // Small event: service model selector button
+    var reModelBtn = e.target.closest('[data-re-model-select]');
+    if (reModelBtn) {
+      var reUid = reModelBtn.getAttribute('data-re-uid');
+      var reKey = reModelBtn.getAttribute('data-re-model-select');
+      if (!staffingPlans[reUid]) staffingPlans[reUid] = {checked:[], overrides:{}, confirmed:false};
+      staffingPlans[reUid].remoteModResult = reKey;
+      // Update serviceModel
+      var modelMap = {full:'Remote (Fully Remote) Service Event', hybrid:'Remote (Partially On-Site) Service Event', onsite:'On-Site Service Event'};
+      staffingPlans[reUid].serviceModel = modelMap[reKey];
+      if (SHOWS[reUid]) SHOWS[reUid].serviceModel = modelMap[reKey];
+      storageSaveStaffingPlans();
+      // Re-render just the buttons to show active state
+      renderSfDetail();
+      return;
+    }
+
+    // Small event: Submit Modified Plan
+    var reSubmitBtn = e.target.closest('[data-re-submit]');
+    if (reSubmitBtn) {
+      var reUid = reSubmitBtn.getAttribute('data-re-submit');
+      var reasonEl = document.getElementById('sf-re-reason-' + reUid);
+      var reason = reasonEl ? reasonEl.value.trim() : '';
+      if (!reason) {
+        reasonEl.style.borderColor = 'var(--orange)';
+        reasonEl.placeholder = 'Please explain why you are modifying the recommended approach...';
+        reasonEl.focus();
+        return;
+      }
+      if (!staffingPlans[reUid]) staffingPlans[reUid] = {checked:[], overrides:{}, confirmed:false};
+      staffingPlans[reUid].remoteReason = reason;
+      staffingPlans[reUid].remoteModifying = false;
+      storageSaveStaffingPlans();
+      sfSmallEventConfirm(reUid);
+      return;
+    }
+
     // Full calculator: I Agree With This Plan
     var agreeBtn = e.target.closest("[data-calc-agree]");
     if (agreeBtn) {
@@ -4530,12 +4591,19 @@ function sfSmallEventDetermineAndRender(showId) {
 }
 
 function sfSmallEventConfirm(showId) {
-  var notesEl = document.getElementById('sf-re-notes-' + showId);
-  var notes   = notesEl ? notesEl.value.trim() : '';
   if (!staffingPlans[showId]) staffingPlans[showId] = {checked:[], overrides:{}, confirmed:false};
-  staffingPlans[showId].remoteNotes = notes;
+  // Use the selected/modified result as the final service model
+  var finalResult = staffingPlans[showId].remoteModResult || staffingPlans[showId].remoteResult;
+  var modelMap = {full:'Remote (Fully Remote) Service Event', hybrid:'Remote (Partially On-Site) Service Event', onsite:'On-Site Service Event'};
+  if (finalResult && modelMap[finalResult]) {
+    staffingPlans[showId].serviceModel = modelMap[finalResult];
+    if (SHOWS[showId]) SHOWS[showId].serviceModel = modelMap[finalResult];
+  }
+  // Mark s2 as checked if not already
+  if (staffingPlans[showId].checked.indexOf('s2') < 0) {
+    staffingPlans[showId].checked.push('s2');
+  }
   storageSaveStaffingPlans();
-  // Mark step 2 checked and confirm overall
   confirmSf(showId);
 }
 
@@ -4625,19 +4693,44 @@ function renderSfSmallEventCalc(s, plan) {
     html += '<button class="sf-collapsible-btn" data-collapsible="re-consider-' + uid + '">⚡ Consider These Before Finalizing <span class="sf-chev">▼</span></button>' +
       '<div class="sf-collapsible-body" id="sf-re-consider-' + uid + '">' + qHtml + '</div>';
 
-    // Notes + confirm — result card always visible; confirm button hidden once confirmed
+    // Your Staffing Decision — agree/modify pattern matching normal flow
     if (!plan.confirmed) {
+      var isModifying = plan.remoteModifying || false;
+      var savedModResult = plan.remoteModResult || result;
+      var modelLabels = {full: 'Fully Remote', hybrid: 'Hybrid (Partially On-Site)', onsite: 'On-Site'};
+
+      // Service model selector buttons for modify panel
+      var modelBtns = ['full','hybrid','onsite'].map(function(key) {
+        var active = savedModResult === key ? ' style="background:var(--fb);color:#fff;border-color:var(--fb)"' : '';
+        return '<button class="sf-btn-modify" style="flex:1;font-size:12px;font-weight:700;padding:6px 10px"' +
+          ' data-re-model-select="' + key + '" data-re-uid="' + uid + '"' + active + '>' +
+          modelLabels[key] + '</button>';
+      }).join('');
+
       html += '<div class="sf-decision-section">' +
-        '<div class="sf-decision-lbl">Notes / Rationale (optional)</div>' +
-        '<textarea class="sf-reason-textarea" id="sf-re-notes-' + uid + '" placeholder="Add any notes about this staffing approach, grey city considerations, staff availability, or other factors that informed your decision.">' + (plan.remoteNotes || '') + '</textarea>' +
-        '<div class="sf-decision-btns" style="margin-top:10px">' +
-          '<button class="sf-btn-agree" onclick="sfSmallEventConfirm(\'' + uid + '\')">✓ Confirm This Staffing Approach</button>' +
+        '<div class="sf-decision-lbl">Your Staffing Decision</div>' +
+        '<div class="sf-decision-btns">' +
+          '<button class="sf-btn-agree" data-re-agree="' + uid + '">✓ I Agree With This Plan</button>' +
+          '<button class="sf-btn-modify" data-re-modify="' + uid + '">⊘ I Need to Modify This Plan</button>' +
+        '</div>' +
+        '<div class="sf-modify-panel' + (isModifying ? ' open' : '') + '" id="sf-re-modify-' + uid + '">' +
+          '<div class="sf-modify-hdr">Document Your Modification</div>' +
+          '<div class="sf-decision-lbl" style="font-size:11px;margin-bottom:6px">Select the correct staffing approach</div>' +
+          '<div class="sf-decision-btns" style="margin-bottom:14px">' + modelBtns + '</div>' +
+          '<div class="sf-decision-lbl" style="font-size:11px">Reason for Modification</div>' +
+          '<textarea class="sf-reason-textarea" id="sf-re-reason-' + uid + '" placeholder="Explain why you are modifying the recommended approach...">' + (plan.remoteReason || '') + '</textarea>' +
+          '<button class="sf-btn-submit-mod" data-re-submit="' + uid + '" style="margin-top:10px;width:100%">Submit Modified Plan →</button>' +
         '</div>' +
       '</div>';
     } else {
       var resultLabel = result === 'full' ? 'Fully Remote' : result === 'onsite' ? 'On-Site' : 'Hybrid (Partially On-Site)';
+      var wasModified = plan.remoteModResult && plan.remoteModResult !== plan.remoteResult;
       html += '<div class="sf-decision-section">' +
-        '<div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px">✓ Staffing approach confirmed — ' + resultLabel + '.</div>' +
+        '<div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px">' +
+          (wasModified
+            ? '✓ Plan confirmed — ' + modelLabels[plan.remoteModResult] + ' <span style="font-weight:400;color:var(--muted)">(modified from ' + modelLabels[result] + ')</span>'
+            : '✓ Plan confirmed — ' + resultLabel + ' — you agreed with this recommendation.') +
+        '</div>' +
       '</div>';
     }
   }
