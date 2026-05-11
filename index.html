@@ -4352,9 +4352,17 @@ function renderSfDetail() {
     }
     // Step 2 checkbox has an extra gate: the calculator decision (service model) must be
     // set before the checkbox can be clicked — but the calculator itself always shows.
+    // Step 3 checkbox has an extra gate: the on-site lead name must be filled in first.
     var chkLocked = locked;
     if (t.id === 's2' && !chkLocked && !checked && !(plan.serviceModel && plan.serviceModel !== '')) {
       chkLocked = true;
+    }
+    if (t.id === 's3' && !chkLocked && !checked) {
+      var leadVal = (function() {
+        var inp = document.querySelector('[data-name-showid="' + sfSelId + '"][data-name-field="leadName"]');
+        return inp ? inp.value.trim() : (plan.leadName || '');
+      })();
+      if (!leadVal) chkLocked = true;
     }
     var rowCls = locked ? " step-locked" : "";
     var chkCls = "task-chk" + (checked ? " checked" : "") + (chkLocked ? " locked" : "");
@@ -4550,7 +4558,26 @@ function renderSfDetail() {
   det.oninput = function(e) {
     var inp = e.target;
     if (inp.dataset.overrideKey) updateSfOverride(inp.dataset.overrideShowid, inp.dataset.overrideKey, inp.value);
-    if (inp.dataset.nameField) updateSfName(inp.dataset.nameShowid, inp.dataset.nameField, inp.value);
+    if (inp.dataset.nameField) {
+      updateSfName(inp.dataset.nameShowid, inp.dataset.nameField, inp.value);
+      // Re-render when lead name changes so step 3 checkbox lock state updates live.
+      // Preserve focus by only re-rendering if the s3 checkbox lock state would change.
+      if (inp.dataset.nameField === 'leadName') {
+        var sid = inp.dataset.nameShowid;
+        var pl = staffingPlans[sid] || {};
+        var s3checked = pl.checked && pl.checked.indexOf('s3') >= 0;
+        if (!s3checked) {
+          renderSfDetail();
+          // Restore focus to the lead input after re-render
+          var newInp = document.querySelector('[data-name-showid="' + sid + '"][data-name-field="leadName"]');
+          if (newInp) {
+            var len = newInp.value.length;
+            newInp.focus();
+            newInp.setSelectionRange(len, len);
+          }
+        }
+      }
+    }
   };
 }
 
