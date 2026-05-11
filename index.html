@@ -7290,7 +7290,7 @@ function getScScopeShows() {
   var scopeShows = getScopeShows();
   return scopeShows.filter(function(s) {
     var sfConfirmed = staffingPlans[s.job] && staffingPlans[s.job].confirmed;
-    var scConfirmed = ROLE_ASSIGNMENTS[s.job] && ROLE_ASSIGNMENTS[s.job].confirmed;
+    var scConfirmed = ROLE_ASSIGNMENTS[s.id] && ROLE_ASSIGNMENTS[s.id].confirmed;
     return sfConfirmed && !scConfirmed;
   });
 }
@@ -7316,18 +7316,18 @@ function renderScList() {
   }
 
   shows.forEach(function(s) {
-    var sc = schedulingPlans[s.job] || {};
-    var ra = ROLE_ASSIGNMENTS[s.job];
+    var sc = schedulingPlans[s.id] || {};
+    var ra = ROLE_ASSIGNMENTS[s.id];
     var step1done = sc.step_sc1;
     var step2done = ra && ra.confirmed;
     var stepsComplete = (step1done ? 1 : 0) + (step2done ? 1 : 0);
     var pct = Math.round((stepsComplete / 2) * 100);
 
     var item = document.createElement('div');
-    item.className = 'sf-show-item' + (scSelId === s.job ? ' active' : '');
+    item.className = 'sf-show-item' + (scSelId === s.id ? ' active' : '');
     (function(id) {
       item.addEventListener('click', function() { scSelectShow(id); });
-    })(s.job);
+    })(s.id);
 
     var nameDiv = document.createElement('div');
     nameDiv.className = 'sf-show-item-name';
