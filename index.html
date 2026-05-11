@@ -583,7 +583,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .el-empty-icon{font-size:32px;margin-bottom:12px}
 .el-empty-msg{font-size:15px;font-weight:800;color:var(--fb);margin-bottom:6px}
 .el-empty-sub{font-size:13px;color:var(--muted)}
-.el-id-card{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden}.el-id-card-bar{height:4px;background:#00BDF6;border-radius:10px 10px 0 0}.el-id-card-body{padding:22px 24px}.el-id-card-chips{padding:0 22px 14px;display:flex;flex-wrap:wrap;gap:4px}.el-show-title{font-size:21.6px;font-weight:800;color:var(--fb);margin-bottom:2px}
+.el-id-card{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:14px}.el-id-card-bar{height:4px;background:#00BDF6;border-radius:10px 10px 0 0}.el-id-card-body{padding:22px 24px}.el-id-card-chips{padding:0 22px 14px;display:flex;flex-wrap:wrap;gap:4px}.el-show-title{font-size:21.6px;font-weight:800;color:var(--fb);margin-bottom:2px}
 .el-show-meta{font-size:13.5px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px}
 .el-show-meta span{display:flex;align-items:center;gap:4px}
 .el-flags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
@@ -7277,7 +7277,7 @@ function elRenderShow() {
         '</div>' +
       '</div>' +
     '</div>' +
-    (flagsHtml ? '<div class="el-id-card-chips">' + flagsHtml + '</div>' : '') +
+    (flagsHtml ? '<div class="el-id-card-chips" style="padding-bottom:14px">' + flagsHtml + '</div>' : '<div style="padding-bottom:6px"></div>') +
   '</div>';
 
   // --------------------------------------------------
