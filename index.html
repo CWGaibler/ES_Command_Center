@@ -4350,15 +4350,16 @@ function renderSfDetail() {
         if (plan.checked.indexOf(STAFFING_TASKS[i].id) < 0) { locked = true; break; }
       }
     }
-    // Step 2 (s2) has an extra gate: the calculator decision must be made first
-    // (i.e. plan.serviceModel must be set — meaning "Plan set" is showing)
-    if (t.id === 's2' && !locked && !checked && !(plan.serviceModel && plan.serviceModel !== '')) {
-      locked = true;
+    // Step 2 checkbox has an extra gate: the calculator decision (service model) must be
+    // set before the checkbox can be clicked — but the calculator itself always shows.
+    var chkLocked = locked;
+    if (t.id === 's2' && !chkLocked && !checked && !(plan.serviceModel && plan.serviceModel !== '')) {
+      chkLocked = true;
     }
     var rowCls = locked ? " step-locked" : "";
-    var chkCls = "task-chk" + (checked ? " checked" : "") + (locked ? " locked" : "");
+    var chkCls = "task-chk" + (checked ? " checked" : "") + (chkLocked ? " locked" : "");
     html += "<div class=\"task-row" + rowCls + "\">" +
-      "<div class=\"" + chkCls + "\"" + (locked ? "" : " data-taskid=\"" + t.id + "\" data-showid=\"" + sfSelId + "\"") + ">" +
+      "<div class=\"" + chkCls + "\"" + (chkLocked ? "" : " data-taskid=\"" + t.id + "\" data-showid=\"" + sfSelId + "\"") + ">" +
         "<span class=\"chk-mark\">\u2713</span>" +
       "</div>" +
       "<div class=\"task-body\">" +
