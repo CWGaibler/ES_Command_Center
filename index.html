@@ -4629,7 +4629,7 @@ function renderSfSmallEventCalc(s, plan) {
     '</div>';
 
   // Input panel — always shown so values can be changed
-  html += '<div class="sf-modify-panel open" style="margin-bottom:16px">' +
+  html += '<div class="sf-modify-panel open" style="margin:0 16px 16px">' +
     '<div class="sf-modify-hdr" style="margin-bottom:14px">Enter Show Metrics</div>' +
     '<div class="sf-modify-roles" style="grid-template-columns:repeat(3,1fr)">' +
       '<div class="sf-modify-role">' +
@@ -4796,7 +4796,7 @@ function renderSfCustomPlanCalc(s, rec, plan) {
       '<div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px">✓ Custom plan confirmed and submitted.</div>' +
     '</div>';
   } else {
-    html += '<div class="sf-modify-panel open" style="margin-bottom:16px">' +
+    html += '<div class="sf-modify-panel open" style="margin:0 16px 16px">' +
       '<div class="sf-modify-hdr" style="margin-bottom:14px">Custom Staffing Plan</div>' +
       '<div class="sf-modify-roles" id="sf-custom-roles-' + uid + '">' +
         '<div class="sf-modify-role"><label>Customer-Facing</label><div class="sf-model-val">Model suggestion: ' + ov.cf + '</div><input class="sf-modify-input" type="number" min="0" max="50" value="' + getCF + '" data-mod-key="cf"></div>' +
