@@ -7221,7 +7221,7 @@ function elRenderShow() {
   var html = '<div class="el-id-card">' +
     '<div class="el-id-card-bar"></div>' +
     '<div class="el-id-card-body">' +
-      '<div class="el-show-title">' + s.name + '</div>' +
+      '<div class="el-show-title"><span>' + s.name + '</span><span style="font-weight:400;color:var(--border);margin:0 10px">|</span><span style="color:var(--mb);font-size:21.6px;font-weight:700">Job #' + elSelId + '</span></div>' +
       '<div class="el-show-meta">' +
         '<span>&#128205; ' + (s.facility||s.city) + ', ' + s.city + '</span>' +
         '<span>&#127962; ' + (s.producingBranch||s.region) + '</span>' +
