@@ -4459,19 +4459,14 @@ function sfSmallEventDetermineAndRender(showId) {
   staffingPlans[showId].remoteFreight  = freight;
   staffingPlans[showId].remoteRevenue  = revenue;
 
-  // If on-site, set serviceModel and go back to normal flow after a short delay
+  // Set serviceModel for all three outcomes
   if (result === 'onsite') {
     staffingPlans[showId].serviceModel = 'On-Site Service Event';
-    if (SHOWS[showId]) SHOWS[showId].serviceModel = 'On-Site Service Event';
-    storageSaveStaffingPlans();
-    renderSfDetail();
-    return;
+  } else if (result === 'full') {
+    staffingPlans[showId].serviceModel = 'Remote (Fully Remote) Service Event';
+  } else {
+    staffingPlans[showId].serviceModel = 'Remote (Partially On-Site) Service Event';
   }
-
-  // For full/hybrid, set the serviceModel label now
-  staffingPlans[showId].serviceModel = (result === 'full')
-    ? 'Remote (Fully Remote) Service Event'
-    : 'Remote (Partially On-Site) Service Event';
   if (SHOWS[showId]) SHOWS[showId].serviceModel = staffingPlans[showId].serviceModel;
 
   storageSaveStaffingPlans();
@@ -4550,9 +4545,16 @@ function renderSfSmallEventCalc(s, plan) {
         'ES will be present during certain peak times and support customers remotely for the remainder. ' +
         'Review the additional considerations below before finalizing this approach.</p>' +
       '</div>';
+    } else if (result === 'onsite') {
+      html += '<div class="sf-remote-result sf-remote-result-onsite">' +
+        '<div class="sf-remote-result-badge">On-Site Required</div>' +
+        '<div class="sf-remote-result-label" style="color:var(--green)">On-Site Service Event</div>' +
+        '<p style="margin:6px 0 0;font-size:13px">Based on your inputs (MHA count, freight value, or revenue exceeds the remote threshold), this event requires <strong>on-site</strong> staffing. ' +
+        'Use the standard ES Staffing Service Model to determine headcount.</p>' +
+      '</div>';
     }
 
-    // Considerations (for full and hybrid)
+    // Considerations (for all outcomes)
     var questions = [
       {i:'🏙️', t:'Is this show taking place in a grey city? Grey city events may require additional coordination and may affect the feasibility of remote or hybrid staffing.'},
       {i:'👥', t:'Are there enough ES resources in the local city, or will staff need to travel to support on-site during peak times?'},
