@@ -7548,7 +7548,7 @@ function initScheduling() {
 function getScScopeShows() {
   var scopeShows = getScopeShows();
   return scopeShows.filter(function(s) {
-    var sfConfirmed = staffingPlans[s.job] && staffingPlans[s.job].confirmed;
+    var sfConfirmed = staffingPlans[s.id] && staffingPlans[s.id].confirmed;
     var scConfirmed = ROLE_ASSIGNMENTS[s.id] && ROLE_ASSIGNMENTS[s.id].confirmed;
     return sfConfirmed && !scConfirmed;
   });
