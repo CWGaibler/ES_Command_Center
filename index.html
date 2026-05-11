@@ -4180,6 +4180,10 @@ function initStaffing() {
   }
   renderSfStats();
   renderSfList();
+  // If the previously selected show is now confirmed, clear it so we land on staffing home
+  if (sfSelId && staffingPlans[sfSelId] && staffingPlans[sfSelId].confirmed) {
+    sfSelId = null;
+  }
   if (!sfSelId) renderSfEmptyDetail();
   else renderSfDetail();
 }
@@ -5302,9 +5306,21 @@ function showSfPostConfirmPopup(showId) {
 
   document.getElementById('sf-post-confirm-close').addEventListener('click', function() {
     overlay.remove();
+    sfSelId = null;
+    renderSfEmptyDetail();
+    renderSfList();
+    renderSfStats();
+    renderScList();
   });
   overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) overlay.remove();
+    if (e.target === overlay) {
+      overlay.remove();
+      sfSelId = null;
+      renderSfEmptyDetail();
+      renderSfList();
+      renderSfStats();
+      renderScList();
+    }
   });
 }
 
