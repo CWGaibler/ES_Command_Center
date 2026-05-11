@@ -4569,7 +4569,7 @@ function renderSfSmallEventCalc(s, plan) {
     html += '<button class="sf-collapsible-btn" data-collapsible="re-consider-' + uid + '">⚡ Consider These Before Finalizing <span class="sf-chev">▼</span></button>' +
       '<div class="sf-collapsible-body" id="sf-re-consider-' + uid + '">' + qHtml + '</div>';
 
-    // Notes + confirm
+    // Notes + confirm — result card always visible; confirm button hidden once confirmed
     if (!plan.confirmed) {
       html += '<div class="sf-decision-section">' +
         '<div class="sf-decision-lbl">Notes / Rationale (optional)</div>' +
@@ -4579,8 +4579,9 @@ function renderSfSmallEventCalc(s, plan) {
         '</div>' +
       '</div>';
     } else {
+      var resultLabel = result === 'full' ? 'Fully Remote' : result === 'onsite' ? 'On-Site' : 'Hybrid (Partially On-Site)';
       html += '<div class="sf-decision-section">' +
-        '<div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px">✓ Staffing approach confirmed — ' + (result === 'full' ? 'Fully Remote' : 'Hybrid (Partially On-Site)') + '.</div>' +
+        '<div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px">✓ Staffing approach confirmed — ' + resultLabel + '.</div>' +
       '</div>';
     }
   }
