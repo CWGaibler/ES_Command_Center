@@ -4350,6 +4350,11 @@ function renderSfDetail() {
         if (plan.checked.indexOf(STAFFING_TASKS[i].id) < 0) { locked = true; break; }
       }
     }
+    // Step 2 (s2) has an extra gate: the calculator decision must be made first
+    // (i.e. plan.serviceModel must be set — meaning "Plan set" is showing)
+    if (t.id === 's2' && !locked && !checked && !(plan.serviceModel && plan.serviceModel !== '')) {
+      locked = true;
+    }
     var rowCls = locked ? " step-locked" : "";
     var chkCls = "task-chk" + (checked ? " checked" : "") + (locked ? " locked" : "");
     html += "<div class=\"task-row" + rowCls + "\">" +
@@ -5102,10 +5107,8 @@ function updateSfName(showId, field, val) {
 // so the user still has to go through the final "Complete Process" modal.
 function saveSfCalcDecision(showId) {
   if (!staffingPlans[showId]) staffingPlans[showId] = {checked:[], overrides:{}, confirmed:false};
-  // Mark s2 checked
-  if (staffingPlans[showId].checked.indexOf('s2') < 0) {
-    staffingPlans[showId].checked.push('s2');
-  }
+  // Save the calculator decision — do NOT mark s2 checked here.
+  // The user must manually click the step 2 checkbox after seeing the "Plan set" confirmation.
   storageSaveStaffingPlans();
   renderSfDetail();
   renderSfList();
