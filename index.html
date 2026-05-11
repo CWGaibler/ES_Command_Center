@@ -1110,12 +1110,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         <div class="rh-sidebar-hdr">
           <span class="rh-sidebar-title" id="sf-sidebar-count">Shows Needing Action</span>
         </div>
-        <div class="sf-sidebar-filter">
-          <button class="sf-filter-btn active" onclick="setSfFilter('unstaffed',this)">Unstaffed</button>
-          <button class="sf-filter-btn" onclick="setSfFilter('confirmed',this)">Confirmed</button>
-          <button class="sf-filter-btn" onclick="setSfFilter('all',this)">All</button>
-        </div>
-        <div id="sf-show-list" style="overflow-y:auto;max-height:calc(100vh - 340px)"></div>
+        <div id="sf-show-list" style="overflow-y:auto;max-height:calc(100vh - 295px)"></div>
       </div>
       <div class="rh-detail" id="sf-detail">
         <div class="sf-empty">
@@ -4033,7 +4028,6 @@ function storageSaveRoleAssignments()  { storageSave('roleAssignments',    ROLE_
 
 var staffingPlans = {};
 var sfSelId = null;
-var sfFilter = "unstaffed";
 
 var schedulingPlans = {};
 var scSelId = null;
@@ -4159,12 +4153,10 @@ function getAllScopeShows() {
 }
 
 function getFilteredShows() {
-  // Use getAllScopeShows (no date filter) — per filter contract: all unconfirmed shows appear
+  // Always returns only unconfirmed shows — confirmed shows move to Scheduling queue
   var shows = getAllScopeShows();
   shows.sort(function(a, b) { return new Date(a.showOpen) - new Date(b.showOpen); });
-  if (sfFilter === "unstaffed") return shows.filter(function(s) { return !staffingPlans[s.id] || !staffingPlans[s.id].confirmed; });
-  if (sfFilter === "confirmed") return shows.filter(function(s) { return staffingPlans[s.id] && staffingPlans[s.id].confirmed; });
-  return shows;
+  return shows.filter(function(s) { return !staffingPlans[s.id] || !staffingPlans[s.id].confirmed; });
 }
 
 function initStaffing() {
@@ -4193,13 +4185,6 @@ function initStaffing() {
   }
   if (!sfSelId) renderSfEmptyDetail();
   else renderSfDetail();
-}
-
-function setSfFilter(f, el) {
-  sfFilter = f;
-  document.querySelectorAll(".sf-filter-btn").forEach(function(b) { b.classList.remove("active"); });
-  el.classList.add("active");
-  renderSfList();
 }
 
 function renderSfStats() {
@@ -4236,8 +4221,8 @@ function renderSfList() {
 
   if (shows.length === 0) {
     var empty = document.createElement("div");
-    empty.style.cssText = "padding:20px;text-align:center;color:var(--muted);font-size:12px";
-    empty.textContent = "No active shows today for this scope.";
+    empty.style.cssText = "padding:20px 16px;text-align:center;color:var(--muted);font-size:13px";
+    empty.innerHTML = '<div style="font-size:28px;margin-bottom:8px">&#x2705;</div><div style="font-weight:700;margin-bottom:4px;color:var(--fb)">All caught up</div><div>No shows are waiting for a staffing plan in this scope.</div>';
     list.appendChild(empty);
     return;
   }
