@@ -784,8 +784,123 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-id-inner{display:flex;gap:24px;align-items:center;padding:22px 24px}
 
 .kpi-icon-circle{width:136px;height:136px;border-radius:50%;flex-shrink:0;overflow:hidden;display:block;background:var(--surface)}</style>
+
+  <style id="auth-styles">
+    #auth-gate {
+      position: fixed; inset: 0; z-index: 99999;
+      background: #001F5F;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Nunito Sans', sans-serif;
+    }
+    #auth-card {
+      background: #fff; border-radius: 12px;
+      padding: 40px 48px; width: 400px; max-width: 90vw;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+      text-align: center;
+    }
+    #auth-card img { height: 36px; margin-bottom: 24px; }
+    #auth-card h2 {
+      font-size: 18px; font-weight: 800; color: #001F5F;
+      margin: 0 0 6px;
+    }
+    #auth-card p {
+      font-size: 13px; color: #7A8099; margin: 0 0 28px; line-height: 1.5;
+    }
+    #auth-input {
+      width: 100%; box-sizing: border-box;
+      border: 1.5px solid #E2E5EF; border-radius: 8px;
+      padding: 11px 14px; font-size: 15px; font-family: inherit;
+      color: #001F5F; outline: none; margin-bottom: 12px;
+      transition: border-color 0.15s;
+    }
+    #auth-input:focus { border-color: #00BDF6; }
+    #auth-input.error { border-color: #FB471F; }
+    #auth-btn {
+      width: 100%; padding: 12px; border: none; border-radius: 8px;
+      background: #001F5F; color: #fff; font-size: 15px;
+      font-weight: 800; font-family: inherit; cursor: pointer;
+      transition: background 0.15s;
+    }
+    #auth-btn:hover { background: #00BDF6; }
+    #auth-error {
+      font-size: 12px; color: #FB471F; margin-top: 8px;
+      min-height: 16px; display: none;
+    }
+    #auth-notice {
+      font-size: 11px; color: #7A8099; margin-top: 20px; line-height: 1.5;
+    }
+    body.auth-locked { overflow: hidden; }
+  </style>
 </head>
 <body>
+
+  <div id="auth-gate">
+    <div id="auth-card">
+      <img src="https://cwgaibler.github.io/ES_Command_Center/Freemanlogo_primarystandard_RGB.png" alt="Freeman" onerror="this.style.display='none'">
+      <h2>ES Command Center</h2>
+      <p>This tool contains confidential Freeman operational data.<br>Enter your access passphrase to continue.</p>
+      <input id="auth-input" type="password" placeholder="Passphrase" autocomplete="off" />
+      <button id="auth-btn">Access Command Center</button>
+      <div id="auth-error">Incorrect passphrase. Please try again.</div>
+      <div id="auth-notice">🔒 Authorized Freeman personnel only.<br>Unauthorized access is prohibited.</div>
+    </div>
+  </div>
+  <script>
+    (function() {
+      var HASH = 'd3b273609d1c1a9078841d8fcd4a911dfbf30fbe7058fa71dde85addeacd7212';
+      var SESSION_KEY = 'escc_auth_v1';
+
+      function sha256(str) {
+        // Use SubtleCrypto for hashing
+        return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))
+          .then(function(buf) {
+            return Array.from(new Uint8Array(buf)).map(function(b) {
+              return b.toString(16).padStart(2,'0');
+            }).join('');
+          });
+      }
+
+      function unlock() {
+        document.getElementById('auth-gate').style.display = 'none';
+        document.body.classList.remove('auth-locked');
+      }
+
+      function checkSession() {
+        return sessionStorage.getItem(SESSION_KEY) === HASH;
+      }
+
+      // Already authenticated this session
+      if (checkSession()) { unlock(); return; }
+
+      // Show gate
+      document.body.classList.add('auth-locked');
+
+      function attempt() {
+        var val = document.getElementById('auth-input').value;
+        var input = document.getElementById('auth-input');
+        var errEl = document.getElementById('auth-error');
+        if (!val) return;
+        sha256(val).then(function(h) {
+          if (h === HASH) {
+            sessionStorage.setItem(SESSION_KEY, HASH);
+            unlock();
+          } else {
+            input.classList.add('error');
+            errEl.style.display = 'block';
+            errEl.textContent = 'Incorrect passphrase. Please try again.';
+            setTimeout(function() {
+              input.classList.remove('error');
+            }, 1200);
+          }
+        });
+      }
+
+      document.getElementById('auth-btn').addEventListener('click', attempt);
+      document.getElementById('auth-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') attempt();
+      });
+    })();
+  </script>
 
 <!-- HEADER -->
 <header class="header">
