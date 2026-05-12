@@ -277,7 +277,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 
 /* POSITION DETAIL CARD */
 .pos-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px}
-.pos-card-hdr{padding:10px 16px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center;justify-content:space-between}
+.pos-card-hdr{padding:10px 16px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center;justify-content:space-between}.lc-edit-btn{font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:700;padding:3px 12px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;margin-right:4px}.lc-edit-btn:hover{border-color:var(--mb);color:var(--mb)}
 .pos-card-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
 .pos-card-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
 .pos-field{padding:9px 14px;border-right:1px solid var(--border-lt);border-bottom:1px solid var(--border-lt)}
@@ -6343,7 +6343,10 @@ function renderTrDetail() {
     '<div class="pos-card">'+
       '<div class="pos-card-hdr">'+
         '<span class="pos-card-title">Employee Details</span>'+
-        '<div style="display:flex;gap:5px">'+ftChipTr+typeChip+'</div>'+
+        '<div style="display:flex;gap:6px;align-items:center">'+
+        (trHasNoChecks(rec) ? '<button class="lc-edit-btn" onclick="trEditRecord(\''+rec.id+'\')">' +
+          'Revise</button>' : '') +
+        ftChipTr+typeChip+'</div>'+
       '</div>'+
       '<div class="pos-card-body">'+
         '<div class="pos-field"><div class="pos-field-lbl">Name</div><div class="pos-field-val">'+rec.firstName+' '+rec.lastName+'</div></div>'+
@@ -6604,7 +6607,10 @@ function renderOffDetail() {
     '<div class="pos-card">'+
       '<div class="pos-card-hdr">'+
         '<span class="pos-card-title">Employee Details</span>'+
-        '<div style="display:flex;gap:5px">'+ftChipOff+typeChip+'</div>'+
+        '<div style="display:flex;gap:6px;align-items:center">'+
+        (offHasNoChecks(rec) ? '<button class="lc-edit-btn" onclick="offEditRecord(\''+rec.id+'\')">' +
+          'Revise</button>' : '') +
+        ftChipOff+typeChip+'</div>'+
       '</div>'+
       '<div class="pos-card-body">'+
         '<div class="pos-field"><div class="pos-field-lbl">Name</div><div class="pos-field-val">'+rec.firstName+' '+rec.lastName+'</div></div>'+
@@ -9033,5 +9039,240 @@ showPage = function(pageId, navEl) {
   _origShowPage(pageId, navEl);
   tnSetActive(pageId);
 };
+
+
+// ── TRANSITIONS & OFFBOARDING: EDIT / REVISE ─────────────────────────────────
+
+function trHasNoChecks(rec) {
+  return !rec.checked || Object.keys(rec.checked).length === 0;
+}
+function offHasNoChecks(rec) {
+  return !rec.checked || Object.keys(rec.checked).length === 0;
+}
+
+function trEditRecord(recId) {
+  var rec = trRecords.find(function(r){ return r.id === recId; });
+  if (!rec) return;
+  showLcEditModal('tr', rec);
+}
+function offEditRecord(recId) {
+  var rec = offRecords.find(function(r){ return r.id === recId; });
+  if (!rec) return;
+  showLcEditModal('off', rec);
+}
+
+function showLcEditModal(ws, rec) {
+  var overlay = document.createElement('div');
+  overlay.className = 'sf-complete-overlay';
+  overlay.id = 'lc-edit-overlay';
+
+  var isTr = ws === 'tr';
+  var name = rec.firstName + ' ' + rec.lastName;
+
+  var typeOptions = isTr
+    ? '<option value="promotion"' + (rec.transitionType==='promotion'?' selected':'') + '>Promotion / Title Change</option>' +
+      '<option value="transfer"' + (rec.transitionType==='transfer'?' selected':'') + '>Transfer Out of ES</option>'
+    : '<option value="resignation"' + (rec.departureType==='resignation'?' selected':'') + '>Resignation</option>' +
+      '<option value="termination"' + (rec.departureType==='termination'?' selected':'') + '>Termination</option>';
+
+  var newRoleRow = (isTr)
+    ? '<div class="lc-edit-row"><label class="lc-edit-lbl">New Role / Title</label>' +
+      '<select id="lc-edit-newrole" class="lc-edit-input">' +
+      ['Exhibitor Services Specialist','Exhibitor Services Sr Specialist','Exhibitor Services Consultant',
+       'Exhibitor Services Event Experience Supervisor','Exhibitor Services Sr Event Experience Supervisor',
+       'Manager Exhibitor Services','Director Exhibitor Services',
+       'Director Exhibitor Services Business Operations',
+       'Regional Director Exhibitor Services','Sr Director Exhibitor Services']
+      .map(function(t){return '<option value="'+t+'"'+(rec.newRole===t?' selected':'')+'>'+t+'</option>';}).join('') +
+      '</select></div>'
+    : '';
+
+  var dateLabel = isTr ? 'Effective Date' : 'Last Day';
+  var dateVal   = isTr ? (rec.effectiveDate||'') : (rec.lastDay||'');
+
+  var backfillRow = (!isTr || rec.transitionType === 'transfer')
+    ? '<div class="lc-edit-row"><label class="lc-edit-lbl">Backfill Decision</label>' +
+      '<select id="lc-edit-backfill" class="lc-edit-input">' +
+      '<option value="">-- Select --</option>' +
+      '<option value="backfill"'+(rec.backfillDecision==='backfill'?' selected':'')+'>Backfill Needed</option>' +
+      '<option value="rif"'+(rec.backfillDecision==='rif'?' selected':'')+'>RIF / No Backfill</option>' +
+      '</select></div>'
+    : '';
+
+  var modal = document.createElement('div');
+  modal.className = 'sf-complete-modal';
+  modal.style.maxWidth = '480px';
+  modal.innerHTML =
+    '<div class="sf-cmp-head">' +
+      '<div class="sf-cmp-icon">&#9998;</div>' +
+      '<div class="sf-cmp-title">Revise ' + (isTr ? 'Transition' : 'Offboarding') + ' Record</div>' +
+      '<div class="sf-cmp-sub">' + name + '</div>' +
+    '</div>' +
+    '<div class="sf-cmp-body" style="display:flex;flex-direction:column;gap:12px">' +
+      '<div class="lc-edit-row"><label class="lc-edit-lbl">First Name</label>' +
+        '<input id="lc-edit-first" class="lc-edit-input" type="text" value="' + rec.firstName + '" /></div>' +
+      '<div class="lc-edit-row"><label class="lc-edit-lbl">Last Name</label>' +
+        '<input id="lc-edit-last" class="lc-edit-input" type="text" value="' + rec.lastName + '" /></div>' +
+      '<div class="lc-edit-row"><label class="lc-edit-lbl">' + (isTr ? 'Transition Type' : 'Departure Type') + '</label>' +
+        '<select id="lc-edit-type" class="lc-edit-input">' + typeOptions + '</select></div>' +
+      newRoleRow +
+      '<div class="lc-edit-row"><label class="lc-edit-lbl">' + dateLabel + '</label>' +
+        '<input id="lc-edit-date" class="lc-edit-input" type="date" value="' + dateVal + '" /></div>' +
+      backfillRow +
+    '</div>' +
+    '<div class="sf-cmp-footer" style="gap:10px">' +
+      '<button class="sf-cmp-btn" id="lc-edit-cancel">Cancel</button>' +
+      '<button class="sf-cmp-btn sf-cmp-btn-primary" id="lc-edit-review">Review Changes</button>' +
+    '</div>';
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  document.getElementById('lc-edit-cancel').addEventListener('click', function(){ overlay.remove(); });
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.remove(); });
+
+  // Show new role field only for promotions
+  if (isTr) {
+    var typeSelect = document.getElementById('lc-edit-type');
+    var newRoleEl  = document.getElementById('lc-edit-newrole');
+    function toggleNewRole() {
+      if (newRoleEl) newRoleEl.closest('.lc-edit-row').style.display = typeSelect.value === 'promotion' ? '' : 'none';
+    }
+    toggleNewRole();
+    typeSelect.addEventListener('change', toggleNewRole);
+  }
+
+  document.getElementById('lc-edit-review').addEventListener('click', function() {
+    var newFirst = document.getElementById('lc-edit-first').value.trim();
+    var newLast  = document.getElementById('lc-edit-last').value.trim();
+    var newType  = document.getElementById('lc-edit-type').value;
+    var newDate  = document.getElementById('lc-edit-date').value;
+    var newRole  = isTr && document.getElementById('lc-edit-newrole') ? document.getElementById('lc-edit-newrole').value : '';
+    var newBackfillEl = document.getElementById('lc-edit-backfill');
+    var newBackfill = newBackfillEl ? newBackfillEl.value : null;
+
+    if (!newFirst || !newLast) { alert('Name cannot be empty.'); return; }
+    if (!newDate) { alert('Date cannot be empty.'); return; }
+    if (isTr && newType === 'promotion' && !newRole) { alert('Please select a new role.'); return; }
+
+    overlay.remove();
+    showLcEditConfirm(ws, rec, {
+      firstName: newFirst, lastName: newLast,
+      transitionType: newType, departureType: newType,
+      effectiveDate: newDate, lastDay: newDate,
+      newRole: newRole,
+      backfillDecision: newBackfill || null
+    });
+  });
+}
+
+function showLcEditConfirm(ws, rec, edits) {
+  var overlay = document.createElement('div');
+  overlay.className = 'sf-complete-overlay';
+
+  var isTr = ws === 'tr';
+  var changes = [];
+
+  if (edits.firstName !== rec.firstName || edits.lastName !== rec.lastName) {
+    changes.push({ lbl: 'Name', from: rec.firstName+' '+rec.lastName, to: edits.firstName+' '+edits.lastName });
+  }
+  if (isTr && edits.transitionType !== rec.transitionType) {
+    var typeMap = {promotion:'Promotion / Title Change', transfer:'Transfer Out of ES'};
+    changes.push({ lbl: 'Transition Type', from: typeMap[rec.transitionType]||rec.transitionType, to: typeMap[edits.transitionType]||edits.transitionType });
+  }
+  if (!isTr && edits.departureType !== rec.departureType) {
+    changes.push({ lbl: 'Departure Type', from: rec.departureType, to: edits.departureType });
+  }
+  if (isTr && edits.newRole && edits.newRole !== rec.newRole) {
+    changes.push({ lbl: 'New Role', from: rec.newRole||'(none)', to: edits.newRole });
+  }
+  if (isTr && edits.effectiveDate !== rec.effectiveDate) {
+    changes.push({ lbl: 'Effective Date', from: rec.effectiveDate||'—', to: edits.effectiveDate });
+  }
+  if (!isTr && edits.lastDay !== rec.lastDay) {
+    changes.push({ lbl: 'Last Day', from: rec.lastDay||'—', to: edits.lastDay });
+  }
+  if (edits.backfillDecision !== undefined && edits.backfillDecision !== rec.backfillDecision) {
+    var bfMap = {backfill:'Backfill Needed', rif:'RIF / No Backfill', '':null, null:null};
+    changes.push({ lbl: 'Backfill Decision', from: bfMap[rec.backfillDecision]||rec.backfillDecision||'(none)', to: bfMap[edits.backfillDecision]||edits.backfillDecision||'(none)' });
+  }
+
+  var changesHtml = changes.length
+    ? changes.map(function(c){
+        return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
+          '<span style="color:var(--muted);width:130px;flex-shrink:0">' + c.lbl + '</span>' +
+          '<span style="color:var(--muted);text-decoration:line-through;flex:1">' + c.from + '</span>' +
+          '<span style="margin:0 6px;color:var(--border)">&rarr;</span>' +
+          '<span style="font-weight:700;color:var(--fb);flex:1;text-align:right">' + c.to + '</span>' +
+        '</div>';
+      }).join('')
+    : '<div style="font-size:13px;color:var(--muted);padding:8px 0">No changes detected.</div>';
+
+  var modal = document.createElement('div');
+  modal.className = 'sf-complete-modal';
+  modal.style.maxWidth = '500px';
+  modal.innerHTML =
+    '<div class="sf-cmp-head">' +
+      '<div class="sf-cmp-icon">&#128203;</div>' +
+      '<div class="sf-cmp-title">Confirm Changes</div>' +
+      '<div class="sf-cmp-sub">' + edits.firstName + ' ' + edits.lastName + '</div>' +
+    '</div>' +
+    '<div class="sf-cmp-body">' +
+      '<div class="sf-cmp-section" style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Changes Summary</div>' +
+      '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px 14px">' +
+        changesHtml +
+      '</div>' +
+    '</div>' +
+    '<div class="sf-cmp-footer" style="gap:10px">' +
+      '<button class="sf-cmp-btn" id="lc-edit-back">Back</button>' +
+      '<button class="sf-cmp-btn sf-cmp-btn-primary" id="lc-edit-save"' + (changes.length===0 ? ' disabled style="opacity:.5;cursor:default"' : '') + '>Save Changes</button>' +
+    '</div>';
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  document.getElementById('lc-edit-back').addEventListener('click', function() {
+    overlay.remove();
+    showLcEditModal(ws, rec);
+  });
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.remove(); });
+
+  document.getElementById('lc-edit-save').addEventListener('click', function() {
+    if (changes.length === 0) return;
+    overlay.remove();
+    // Apply edits to record
+    if (isTr) {
+      var r = trRecords.find(function(x){ return x.id === rec.id; });
+      if (!r) return;
+      r.firstName = edits.firstName; r.lastName = edits.lastName;
+      r.transitionType = edits.transitionType;
+      r.newRole = edits.newRole || r.newRole;
+      r.effectiveDate = edits.effectiveDate;
+      if (edits.backfillDecision !== undefined) r.backfillDecision = edits.backfillDecision || null;
+      storageSaveTrRecords();
+      renderTrDetail(); renderTrList(); updateTrStats();
+    } else {
+      var r = offRecords.find(function(x){ return x.id === rec.id; });
+      if (!r) return;
+      r.firstName = edits.firstName; r.lastName = edits.lastName;
+      r.departureType = edits.departureType;
+      r.lastDay = edits.lastDay;
+      if (edits.backfillDecision !== undefined) r.backfillDecision = edits.backfillDecision || null;
+      storageSaveOffRecords();
+      renderOffDetail(); renderOffList(); updateOffStats();
+    }
+  });
+}
+
+// CSS for edit form rows
+(function() {
+  var s = document.createElement('style');
+  s.textContent = '.lc-edit-row{display:flex;flex-direction:column;gap:3px}' +
+    '.lc-edit-lbl{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}' +
+    '.lc-edit-input{font-family:\'Nunito Sans\',sans-serif;font-size:13px;font-weight:700;color:var(--fb);' +
+    'padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);outline:none}' +
+    '.lc-edit-input:focus{border-color:var(--mb)}';
+  document.head.appendChild(s);
+})();
 
 </script>
