@@ -8684,7 +8684,6 @@ function tlRenderDetail() {
     : '<div class="tl-photo" style="background:' + av.bg + ';color:' + av.color + '">' + p.initials + '</div>';
 
   var chips = '';
-  if (p.branch)       chips += '<span class="chip chip-mb">' + tlEsc(p.branch) + '</span> ';
   if (p.region)       chips += '<span class="chip chip-ghost">' + tlEsc(p.region) + '</span> ';
   if (p.ftPt)         chips += '<span class="chip chip-ghost">' + tlEsc(p.ftPt) + (p.compensation ? ' &middot; ' + tlEsc(p.compensation) : '') + '</span> ';
   if (p.hireDate)     chips += '<span class="chip chip-ghost">Hired ' + tlFmtHireDate(p.hireDate) + '</span> ';
