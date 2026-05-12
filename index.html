@@ -931,7 +931,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <span class="nav-label">Events</span>
   </div>
   <div class="nav-item" onclick="showPage('team',this)">
-    <span class="nav-label">Team</span>
+    <span class="nav-label">Team Members</span>
   </div>
   <div class="nav-item" onclick="showPage('customers',this)">
     <span class="nav-label">Customers</span>
@@ -1216,7 +1216,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   </div>
   <div class="page" id="page-team">
     <div class="page-hdr">
-      <span class="page-title">Team</span>
+      <span class="page-title">Team Members</span>
       <span class="page-sub">Look up any team member by name</span>
     </div>
     <div class="el-search-row">
@@ -7299,7 +7299,7 @@ function elRenderShow() {
   dotsHtml = dotsHtml.replace('<div class="el-dot-row">',
     '<div class="el-dot-row"><div class="el-track"></div><div style="position:absolute;top:50%;left:12px;height:2px;background:var(--green);width:' + pct + '%;transform:translateY(-50%);z-index:1"></div>');
 
-  html += '<div class="el-tl-card"><div class="el-tl-hdr"><span class="el-tl-hdr-title">Event Timeline</span></div><div class="el-tl-body">' +
+  html += '<div class="el-section-div">Event Timeline</div><div class="el-tl-card"><div class="el-tl-body">' +
     dotsHtml + labelsHtml +
     '<div class="el-legend">' +
       '<div class="el-leg"><div class="el-leg-dot" style="background:var(--green)"></div>Completed</div>' +
@@ -8708,11 +8708,10 @@ function tlRenderDetail() {
     '</div>' +
   '</div>';
 
-  // 2-col: Event Assignments + Lifecycle
-  html += '<div class="tl-cards-2col">';
+  // Event Assignments + Lifecycle — stacked
 
   // Event assignments — KEY FIX: job number passed via data-job, click handled by delegation
-  html += '<div class="el-section-div">Event Assignments</div><div class="tl-card">';
+  html += '<div class="el-section-div">Event Assignments</div><div class="tl-card-full">';
   if (assigns.length) {
     var shown = assigns.slice(0, 5);
     html += shown.map(function(a) {
@@ -8732,7 +8731,7 @@ function tlRenderDetail() {
   html += '</div>';
 
   // Lifecycle status
-  html += '<div class="el-section-div">Lifecycle Status</div><div class="tl-card">';
+  html += '<div class="el-section-div">Lifecycle Status</div><div class="tl-card-full">';
   var lcHtml = '';
   if (typeof obRecords !== 'undefined') {
     var obMatch = obRecords.filter(function(r){ return r.name === p.name; });
@@ -8749,14 +8748,11 @@ function tlRenderDetail() {
   if (!lcHtml) lcHtml = '<div class="tl-no-data">No active lifecycle records.</div>';
   html += lcHtml + '</div>';
 
-  html += '</div>'; // close 2col
-
-  // 2-col: Compliance + Timekeeping
-  html += '<div class="tl-cards-2col">';
+  // Compliance + Timekeeping — stacked
 
   var ncShell = '<div class="tl-not-connected"><div class="tl-nc-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="tl-nc-title">Not yet connected</div>';
 
-  html += '<div class="el-section-div">Compliance Flags</div><div class="tl-card">' +
+  html += '<div class="el-section-div">Compliance Flags</div><div class="tl-card-full">' +
     ncShell + '<div class="tl-nc-sub">Requires Workfront &amp; show-close task integration</div></div></div></div>';
 
   var tkLinks = '';
@@ -8768,9 +8764,7 @@ function tlRenderDetail() {
     tkLinks = '<a class="tl-tk-link" href="https://freeman.workfront.com" target="_blank"><div><div class="tl-tk-label">Workfront &#8599;</div><div class="tl-tk-sub">Hours &amp; project time</div></div></a>' +
               '<a class="tl-tk-link" href="https://freeman.kronos.com" target="_blank"><div><div class="tl-tk-label">Kronos &#8599;</div><div class="tl-tk-sub">Timecards &amp; hours</div></div></a>';
   }
-  html += '<div class="el-section-div">Timekeeping &amp; Utilization</div><div class="tl-card">' + tkLinks + '</div>';
-
-  html += '</div>'; // close 2col
+  html += '<div class="el-section-div">Timekeeping &amp; Utilization</div><div class="tl-card-full">' + tkLinks + '</div>';
 
   // Full-width: Development & Training
   var ncSmall = function(sub) {
