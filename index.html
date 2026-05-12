@@ -7256,9 +7256,9 @@ function elRenderShow() {
           '<span>' + (s.producingBranch||s.region) + '</span>' +
           (rdDisplay ? '<span style="color:var(--border);margin:0 6px">|</span><span>' + rdDisplay + ', RD' + growthMeta + '</span>' : (growthMeta ? '<span style="color:var(--border);margin:0 6px">|</span><span>' + growthMeta.replace(' · ','') + '</span>' : '')) +
         '</div>' +
+        (flagsHtml ? '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">' + flagsHtml + '</div>' : '') +
       '</div>' +
     '</div>' +
-    (flagsHtml ? '<div class="el-id-card-chips" style="padding-bottom:14px">' + flagsHtml + '</div>' : '<div style="padding-bottom:6px"></div>') +
   '</div>';
 
   // --------------------------------------------------
