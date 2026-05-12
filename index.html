@@ -2386,7 +2386,7 @@ function renderActiveEvents() {
         '<span class="event-job-num" style="color:var(--mb);font-weight:700">Job #' + s.id + '</span>' +
       '</div>' +
       '<div class="event-meta">' + (s.facility || s.city) + ' · ' + moveInLabel + ' – ' + clearLabel + '</div>' +
-      '<div class="event-meta" style="margin-top:2px">' + s.producingBranch + ' · ' + (s.currentBooths || s.projectedBooths || 0) + ' booths</div>' +
+      '<div class="event-meta" style="margin-top:2px">' + s.producingBranch + ' · ' + Math.round(s.currentBooths || s.projectedBooths || 0) + ' booths</div>' +
       '<div class="event-tags">' + platformChip + '</div>' +
     '</div>';
   }).join('');
@@ -3235,8 +3235,8 @@ function sfGetRow(b) {
 function sfActiveBooths(s) {
   if (!s.projectedBooths || s.projectedBooths === 0) return {count: s.currentBooths || 0, source: "actual"};
   return (s.currentBooths / s.projectedBooths) >= 0.80
-    ? {count: s.currentBooths, source: "actual"}
-    : {count: s.projectedBooths, source: "projected"};
+    ? {count: Math.round(s.currentBooths), source: "actual"}
+    : {count: Math.round(s.projectedBooths), source: "projected"};
 }
 
 function sfActiveRevenue(s) {
@@ -3346,7 +3346,7 @@ function storageLoadAll() {
   // Seed default staffing plans for any show not yet touched by a leader
   var seeded = 0;
   Object.keys(DEFAULT_STAFFING_PLANS).forEach(function(id) {
-    if (!staffingPlans[id]) {
+    if (!staffingPlans[id] || !staffingPlans[id].confirmed) {
       staffingPlans[id]    = DEFAULT_STAFFING_PLANS[id];
       ROLE_ASSIGNMENTS[id] = DEFAULT_ROLE_ASSIGNMENTS[id] || ROLE_ASSIGNMENTS[id];
       seeded++;
@@ -4044,10 +4044,10 @@ function renderSfSmallEventCalc(s, plan) {
       '<div class="sf-calc-full-hdr-banner-name">' + (s.name || '') + '</div>' +
     '</div>' +
     '<div class="sf-calc-show-hdr">' +
-      '<div class="sf-calc-job-line">Job <span>#' + uid + '</span> &nbsp;·&nbsp; <span style="color:var(--mb)">' + (s.currentBooths || s.projectedBooths || 0) + ' booths — Small Event</span></div>' +
+      '<div class="sf-calc-job-line">Job <span>#' + uid + '</span> &nbsp;·&nbsp; <span style="color:var(--mb)">' + Math.round(s.currentBooths || s.projectedBooths || 0) + ' booths — Small Event</span></div>' +
     '</div>' +
     '<div style="background:rgba(0,189,246,.07);border:1px solid rgba(0,189,246,.25);border-radius:8px;padding:12px 16px;margin:0 16px 16px;font-size:13px;color:var(--fb);line-height:1.5">' +
-      'This show has <strong>' + (s.currentBooths || s.projectedBooths || 0) + ' booths</strong>, which puts it in the small event category (≤&nbsp;50&nbsp;booths). ' +
+      'This show has <strong>' + Math.round(s.currentBooths || s.projectedBooths || 0) + ' booths</strong>, which puts it in the small event category (≤&nbsp;50&nbsp;booths). ' +
       'Before determining headcount, we need to assess whether this event should be staffed <strong>fully remote</strong>, <strong>hybrid</strong>, or <strong>on-site</strong>.' +
     '</div>';
 
@@ -4207,10 +4207,10 @@ function renderSfCustomPlanCalc(s, rec, plan) {
       '<div class="sf-calc-full-hdr-banner-name">' + (s.name || '') + '</div>' +
     '</div>' +
     '<div class="sf-calc-show-hdr">' +
-      '<div class="sf-calc-job-line">Job <span>#' + uid + '</span> &nbsp;·&nbsp; <span style="color:var(--orange)">' + (s.currentBooths || s.projectedBooths || 0) + ' booths — Exceeds Model Ceiling</span></div>' +
+      '<div class="sf-calc-job-line">Job <span>#' + uid + '</span> &nbsp;·&nbsp; <span style="color:var(--orange)">' + Math.round(s.currentBooths || s.projectedBooths || 0) + ' booths — Exceeds Model Ceiling</span></div>' +
     '</div>' +
     '<div style="background:rgba(251,71,31,.06);border:1px solid rgba(251,71,31,.25);border-radius:8px;padding:12px 16px;margin:0 16px 16px;font-size:13px;color:var(--fb);line-height:1.5">' +
-      'This show has <strong>' + (s.currentBooths || s.projectedBooths || 0) + ' booths</strong>, which exceeds the 750-booth model ceiling. ' +
+      'This show has <strong>' + Math.round(s.currentBooths || s.projectedBooths || 0) + ' booths</strong>, which exceeds the 750-booth model ceiling. ' +
       'The ES Staffing Model has provided a <strong>suggested starting plan</strong> below based on the 701–750 range and revenue — ' +
       'but this show requires your review and a custom plan rationale. Adjust any roles as needed, then submit.' +
     '</div>';
