@@ -3635,7 +3635,7 @@ function renderSfList() {
     // Show meta — line 2: producing branch · booths
     var metaDiv2 = document.createElement("div");
     metaDiv2.className = "sf-show-meta";
-    metaDiv2.textContent = (s.producingBranch || s.region) + " · " + rec.booths + " booths";
+    metaDiv2.textContent = (s.producingBranch || s.region) + " · " + Math.round(rec.booths) + " booths";
 
     // Tags row
     var tagsDiv = document.createElement("div");
@@ -7271,7 +7271,7 @@ function renderScList() {
     // Meta line 2 — producing branch · booths
     var metaDiv2 = document.createElement('div');
     metaDiv2.className = 'sf-show-meta';
-    metaDiv2.textContent = (s.producingBranch || s.region) + ' \u00b7 ' + rec.booths + ' booths';
+    metaDiv2.textContent = (s.producingBranch || s.region) + ' \u00b7 ' + Math.round(rec.booths) + ' booths';
 
     // Tags row — badge + region chip — identical to staffing
     var tagsDiv = document.createElement('div');
@@ -7341,7 +7341,7 @@ function renderScDetail() {
     '<div class="det-sub">' + s.city + ' &middot; ' + (s.facility || '') + ' &middot; ' + sfFmtDate(s.showOpen) + (s.showClose && s.showClose !== s.showOpen ? ' &ndash; ' + sfFmtDate(s.showClose) : '') + subLineExtra + '</div>' +
     '<div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">' +
       '<span class="chip chip-ghost">' + dashRegion + '</span>' +
-      '<span class="chip chip-ghost">' + rec.booths + ' booths</span>' +
+      '<span class="chip chip-ghost">' + Math.round(rec.booths) + ' booths</span>' +
       '<span class="chip chip-ghost">' + sfFmt(rec.revenue) + ' revenue</span>' +
     '</div></div>' +
     '<div>' + (scConfirmed ? '<span class="chip chip-green">&#x2713; Scheduling Confirmed</span>' : '<span class="chip chip-amber">Needs Scheduling</span>') + '</div>' +
