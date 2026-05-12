@@ -3577,7 +3577,7 @@ function getScopeShows() {
   return allShows.filter(function(s) {
     // ── Hard exclusions ──────────────────────────────────────────────────
     if (s.freemanElectricalOnly) return false;
-    if (s.fte === "N") return false;
+    // fte field = First-Time Exhibitor program flag — not an exclusion criterion
 
     // ── Date filter: active exhibitor window only ────────────────────────
     if (!s.moveInStart || !s.clearDate) return false;
