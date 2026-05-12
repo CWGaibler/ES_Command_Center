@@ -98,9 +98,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-coming-soon{padding:20px 24px;background:var(--fb-xlt);border-radius:8px;margin:16px 24px;text-align:center;color:var(--muted);font-size:13px}
 
 /* COCKPIT */
-.cockpit{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;height:calc(100vh - 280px);min-height:320px}
-.panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
-.panel-hdr{padding:10px 14px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb)}
+
+.panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:0;border-top:3px solid var(--mb)}
+.panel-hdr{display:none}
 .panel-hdr.gold{border-top-color:var(--gold)}
 .panel-hdr.orange{border-top-color:var(--orange)}
 .panel-title{font-size:12px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
@@ -950,21 +950,27 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div class="kpi-strip" id="kpi-strip">
       <!-- Populated by renderKpiStrip() -->
     </div>
-    <div class="cockpit">
-      <div class="panel">
-        <div class="panel-hdr"><div class="panel-title">Active Events</div></div>
-        <div class="panel-body" id="active-events-body">
-          <!-- Populated by renderActiveEvents() -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;height:calc(100vh - 280px);min-height:320px">
+      <div style="display:flex;flex-direction:column;min-height:0">
+        <div class="el-section-div">Active Events</div>
+        <div class="panel" style="flex:1;min-height:0">
+          <div class="panel-body" id="active-events-body">
+            <!-- Populated by renderActiveEvents() -->
+          </div>
         </div>
       </div>
-      <div class="panel">
-        <div class="panel-hdr"><div class="panel-title">Needs Attention</div></div>
-        <div class="panel-body" id="needs-attention-body">
-          <!-- Populated by renderNeedsAttention() -->
+      <div style="display:flex;flex-direction:column;min-height:0">
+        <div class="el-section-div">Needs Attention</div>
+        <div class="panel" style="flex:1;min-height:0">
+          <div class="panel-body" id="needs-attention-body">
+            <!-- Populated by renderNeedsAttention() -->
+          </div>
         </div>
       </div>
-      <div class="panel">
-        <div class="panel-hdr"><div class="panel-title">Customer Resolution</div></div>
+      <div style="display:flex;flex-direction:column;min-height:0">
+        <div class="el-section-div">Customer Resolution</div>
+        <div class="panel" style="flex:1;min-height:0">
+          <div class="panel-hdr"><div class="panel-title">Customer Resolution</div></div>
         <div class="panel-body">
           <div class="event-card">
             <div class="event-name">BBB Complaint — Booth 4412</div>
@@ -1185,15 +1191,19 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
           </div>
         </div>
       </div>
-      <div class="tl-card-full" id="kpi-lens-breakdown" style="display:none">
-        <div class="tl-card-hdr">Regional breakdown</div>
+      <div id="kpi-lens-breakdown" style="display:none">
+        <div class="el-section-div">Regional Breakdown</div>
+        <div class="tl-card-full">
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="kpi-lens-grid"></div>
+        </div>
       </div>
-      <div class="tl-card-full" style="margin-bottom:0">
-        <div class="tl-card-hdr">Historical trend</div>
+      <div>
+        <div class="el-section-div">Historical Trend</div>
+        <div class="tl-card-full" style="margin-bottom:0">
         <div class="tl-not-connected">
           <div class="tl-nc-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
           <div><div class="tl-nc-title">Not yet connected</div><div class="tl-nc-sub">Monthly trend data &mdash; requires live data source integration</div></div>
+        </div>
         </div>
       </div>
     </div>
@@ -5749,9 +5759,7 @@ function renderKpiDetail() {
 
   // Regional breakdown (if enterprise scope)
   if (scope === 'enterprise' && Object.keys(kpi.regions).length > 1) {
-    html += '<div class="kpi-det-section">' +
-      '<div class="kpi-det-section-title">Regional Breakdown</div>' +
-      '<div class="kpi-scope-grid">';
+    html += '<div class="el-section-div">Regional Breakdown</div><div class="tl-card-full"><div class="kpi-scope-grid">';
     Object.keys(kpi.regions).forEach(function(r) {
       var rv = kpi.regions[r];
       var rs = kpiStatus(kpi, rv);
@@ -5761,14 +5769,12 @@ function renderKpiDetail() {
         '<div class="kpi-scope-tile-val" style="color:' + rc + '">' + kpiFmt(kpi, rv) + '</div>' +
         '</div>';
     });
-    html += '</div></div>';
+    html += '</div></div></div>';
   }
 
   // Branch breakdown (if region scope selected)
   if (scope === 'region' && region && BRANCH_MAP[region]) {
-    html += '<div class="kpi-det-section">' +
-      '<div class="kpi-det-section-title">Branch Breakdown — ' + region + '</div>' +
-      '<div class="kpi-scope-grid">';
+    html += '<div class="el-section-div">Branch Breakdown — ' + region + '</div><div class="tl-card-full"><div class="kpi-scope-grid">';
     BRANCH_MAP[region].forEach(function(b) {
       var bv = kpi.branches[b] !== undefined ? kpi.branches[b] : kpi.enterprise;
       var bs = kpiStatus(kpi, bv);
@@ -5778,14 +5784,11 @@ function renderKpiDetail() {
         '<div class="kpi-scope-tile-val" style="color:' + bc + '">' + kpiFmt(kpi, bv) + '</div>' +
         '</div>';
     });
-    html += '</div></div>';
+    html += '</div></div></div>';
   }
 
   // Trend placeholder
-  html += '<div class="kpi-det-section">' +
-    '<div class="kpi-det-section-title">Historical Trend</div>' +
-    '<div class="kpi-coming-soon">📈 Monthly trend data coming soon — will display FY26 progression vs. goal once connected to live data sources.</div>' +
-    '</div>';
+  html += '<div class="el-section-div">Historical Trend</div><div class="tl-card-full"><div class="kpi-coming-soon">📈 Monthly trend data coming soon — will display FY26 progression vs. goal once connected to live data sources.</div></div>';
 
   el.innerHTML = html;
 }
@@ -8708,7 +8711,7 @@ function tlRenderDetail() {
   html += '<div class="tl-cards-2col">';
 
   // Event assignments — KEY FIX: job number passed via data-job, click handled by delegation
-  html += '<div class="tl-card"><div class="tl-card-hdr">Event Assignments</div>';
+  html += '<div class="el-section-div">Event Assignments</div><div class="tl-card">';
   if (assigns.length) {
     var shown = assigns.slice(0, 5);
     html += shown.map(function(a) {
@@ -8728,7 +8731,7 @@ function tlRenderDetail() {
   html += '</div>';
 
   // Lifecycle status
-  html += '<div class="tl-card"><div class="tl-card-hdr">Lifecycle Status</div>';
+  html += '<div class="el-section-div">Lifecycle Status</div><div class="tl-card">';
   var lcHtml = '';
   if (typeof obRecords !== 'undefined') {
     var obMatch = obRecords.filter(function(r){ return r.name === p.name; });
@@ -8752,7 +8755,7 @@ function tlRenderDetail() {
 
   var ncShell = '<div class="tl-not-connected"><div class="tl-nc-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="tl-nc-title">Not yet connected</div>';
 
-  html += '<div class="tl-card"><div class="tl-card-hdr">Compliance Flags</div>' +
+  html += '<div class="el-section-div">Compliance Flags</div><div class="tl-card">' +
     ncShell + '<div class="tl-nc-sub">Requires Workfront &amp; show-close task integration</div></div></div></div>';
 
   var tkLinks = '';
@@ -8764,7 +8767,7 @@ function tlRenderDetail() {
     tkLinks = '<a class="tl-tk-link" href="https://freeman.workfront.com" target="_blank"><div><div class="tl-tk-label">Workfront &#8599;</div><div class="tl-tk-sub">Hours &amp; project time</div></div></a>' +
               '<a class="tl-tk-link" href="https://freeman.kronos.com" target="_blank"><div><div class="tl-tk-label">Kronos &#8599;</div><div class="tl-tk-sub">Timecards &amp; hours</div></div></a>';
   }
-  html += '<div class="tl-card"><div class="tl-card-hdr">Timekeeping &amp; Utilization</div>' + tkLinks + '</div>';
+  html += '<div class="el-section-div">Timekeeping &amp; Utilization</div><div class="tl-card">' + tkLinks + '</div>';
 
   html += '</div>'; // close 2col
 
@@ -8772,7 +8775,7 @@ function tlRenderDetail() {
   var ncSmall = function(sub) {
     return '<div class="tl-not-connected"><div class="tl-nc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="tl-nc-title">Not yet connected</div><div class="tl-nc-sub">' + sub + '</div></div></div>';
   };
-  html += '<div class="tl-card-full"><div class="tl-card-hdr">Development &amp; Training</div>' +
+  html += '<div class="el-section-div">Development &amp; Training</div><div class="tl-card-full">' +
     '<div class="tl-dev-3col">' +
       '<div><div class="tl-dev-section-lbl">Training</div>' + ncSmall('My Career Connection') + '</div>' +
       '<div><div class="tl-dev-section-lbl">Performance Improvement Plans</div>' + ncSmall('Offline process') + '</div>' +
