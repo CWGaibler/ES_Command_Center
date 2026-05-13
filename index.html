@@ -783,7 +783,27 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-id-bar{height:4px;background:#00BDF6;border-radius:10px 10px 0 0}
 .kpi-id-inner{display:flex;gap:24px;align-items:center;padding:22px 24px}
 
-.kpi-icon-circle{width:136px;height:136px;border-radius:50%;flex-shrink:0;overflow:hidden;display:block;background:var(--surface)}</style>
+.kpi-icon-circle{width:136px;height:136px;border-radius:50%;flex-shrink:0;overflow:hidden;display:block;background:var(--surface)}
+.el-survey-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.el-survey-hdr{padding:10px 14px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb)}
+.el-survey-hdr-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.el-survey-gauges{display:flex;flex-direction:row;width:100%}
+.el-survey-cell{flex:1;display:flex;flex-direction:column;align-items:center;padding:16px 8px 12px}
+.el-survey-divider{width:1px;flex-shrink:0;background:var(--border);align-self:stretch}
+.el-survey-lbl{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;text-align:center}
+.el-survey-scale{display:flex;justify-content:space-between;width:130px;margin-top:3px}
+.el-survey-scale span{font-size:10px;font-weight:700;color:var(--muted)}
+.el-survey-chip{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;margin-top:6px}
+.el-survey-goal{display:flex;align-items:center;gap:5px;margin-top:5px}
+.el-survey-goal-dot{width:8px;height:8px;border-radius:50%;background:var(--fb);flex-shrink:0}
+.el-survey-goal-txt{font-size:10px;font-weight:700;color:var(--muted)}
+.el-survey-footer{padding:8px 14px 10px;border-top:1px solid var(--border-lt);display:flex;align-items:center;gap:8px}
+.el-survey-n{font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:4px}
+.el-survey-warn{font-size:11px;font-weight:700;color:#7a5800;background:#FFF7E0;border:1.5px solid #FFD966;border-radius:999px;padding:2px 8px;display:flex;align-items:center;gap:3px}
+.el-survey-link{margin-left:auto;font-size:12px;font-weight:700;color:#006A8A;background:rgba(0,189,246,.07);border:1px solid rgba(0,189,246,.3);border-radius:999px;padding:3px 10px;text-decoration:none;display:flex;align-items:center;gap:4px;cursor:pointer}
+.el-survey-nodata{padding:18px 14px;background:var(--fb-xlt);border-radius:8px;margin:10px 14px;text-align:center}
+.el-survey-nodata-title{font-size:13px;font-weight:800;color:var(--fb);margin-bottom:3px}
+.el-survey-nodata-sub{font-size:12px;font-weight:700;color:var(--muted)}</style>
 
   <style id="auth-styles">
     #auth-gate {
@@ -6698,6 +6718,93 @@ function elGetRolePersonForPhase(showId, roleLookup) {
 }
 
 // ======================================================
+// ══════════════════════════════════════════════════════════════════════════
+// SURVEY DATA — Post-Show Exhibitor Survey Results
+// Keyed by job number string. Seeded with known reports; expanded by weekly batch.
+// Fields: nps (int), cx (int, % Excellent top-box), n (int), reportUrl (string)
+// ══════════════════════════════════════════════════════════════════════════
+var SURVEY_DATA = {
+  "538857": { nps: 14,  cx: 25, n: 9,  reportUrl: "https://freemanco.sharepoint.com/:f:/r/sites/ExhibitorServices/Shared%20Documents/Managers%20and%20above/Performance%20Management/Post%20Event%20Exhibitor%20CX%20Feedback%20Reports/2026/04%20-%20April" },
+  "539268": { nps: 73,  cx: 70, n: 14, reportUrl: "https://freemanco.sharepoint.com/:f:/r/sites/ExhibitorServices/Shared%20Documents/Managers%20and%20above/Performance%20Management/Post%20Event%20Exhibitor%20CX%20Feedback%20Reports/2026/04%20-%20April" },
+  "538361": { nps: 13,  cx: 32, n: 43, reportUrl: "https://freemanco.sharepoint.com/:f:/r/sites/ExhibitorServices/Shared%20Documents/Managers%20and%20above/Performance%20Management/Post%20Event%20Exhibitor%20CX%20Feedback%20Reports/2026/04%20-%20April" },
+  "538762": { nps: 2,   cx: 46, n: 54, reportUrl: "https://freemanco.sharepoint.com/:f:/r/sites/ExhibitorServices/Shared%20Documents/Managers%20and%20above/Performance%20Management/Post%20Event%20Exhibitor%20CX%20Feedback%20Reports/2026/04%20-%20April" },
+  "538694": { nps: -14, cx: 48, n: 26, reportUrl: "https://freemanco.sharepoint.com/:f:/r/sites/ExhibitorServices/Shared%20Documents/Managers%20and%20above/Performance%20Management/Post%20Event%20Exhibitor%20CX%20Feedback%20Reports/2026/04%20-%20April" }
+};
+
+var SURVEY_NPS_GOAL = 20;
+var SURVEY_CX_GOAL  = 60;
+
+function elSurveyRingPath(score, minV, maxV, goalV, color) {
+  var W=140, cx=70, cy=70, R=52, sw=10, PI=Math.PI;
+  function toRad(deg){ return deg * PI / 180; }
+  function pt(deg){ return { x: cx + R*Math.cos(toRad(deg)), y: cy + R*Math.sin(toRad(deg)) }; }
+  var ts = pt(135), te = pt(45);
+  var frac = (score - minV) / (maxV - minV);
+  if(frac < 0) frac = 0; if(frac > 1) frac = 1;
+  var fa = 135 + 270*frac, fp = pt(fa), fl = (270*frac) > 180 ? 1 : 0;
+  var gf = Math.max(0, Math.min(1, (goalV - minV)/(maxV - minV)));
+  var ga = 135 + 270*gf, gr = toRad(ga);
+  var iR=R-sw/2-3, oR=R+sw/2+3;
+  var gx1=cx+iR*Math.cos(gr), gy1=cy+iR*Math.sin(gr);
+  var gx2=cx+oR*Math.cos(gr), gy2=cy+oR*Math.sin(gr);
+  var st = (score > 0 ? '+' : '') + score;
+  var fs = st.length >= 4 ? 20 : st.length === 3 ? 24 : 28;
+  return '<svg width="'+W+'" height="'+W+'" viewBox="0 0 '+W+' '+W+'" style="display:block" aria-hidden="true">' +
+    '<path d="M '+ts.x.toFixed(2)+' '+ts.y.toFixed(2)+' A '+R+' '+R+' 0 1 1 '+te.x.toFixed(2)+' '+te.y.toFixed(2)+'" fill="none" stroke="#E2E5EF" stroke-width="'+sw+'" stroke-linecap="round"/>' +
+    (frac > 0 ? '<path d="M '+ts.x.toFixed(2)+' '+ts.y.toFixed(2)+' A '+R+' '+R+' 0 '+fl+' 1 '+fp.x.toFixed(2)+' '+fp.y.toFixed(2)+'" fill="none" stroke="'+color+'" stroke-width="'+sw+'" stroke-linecap="round"/>' : '') +
+    '<line x1="'+gx1.toFixed(2)+'" y1="'+gy1.toFixed(2)+'" x2="'+gx2.toFixed(2)+'" y2="'+gy2.toFixed(2)+'" stroke="#001F5F" stroke-width="2.5" stroke-linecap="round"/>' +
+    '<text x="'+cx+'" y="'+(cy+fs*0.36)+'" text-anchor="middle" font-family="Nunito Sans,sans-serif" font-size="'+fs+'" font-weight="900" fill="'+color+'">'+st+'</text>' +
+    '</svg>';
+}
+
+function elSurveyCardHtml(showId) {
+  var d = SURVEY_DATA[showId];
+  var hdr = '<div class="el-survey-card"><div class="el-survey-hdr"><span class="el-survey-hdr-title">Post-show survey results</span></div>';
+
+  if(!d) {
+    return hdr +
+      '<div class="el-survey-nodata">' +
+        '<div class="el-survey-nodata-title">No survey report available</div>' +
+        '<div class="el-survey-nodata-sub">Report will appear once published by the CX team</div>' +
+      '</div></div>';
+  }
+
+  var nc = d.nps > 20 ? '#42BB37' : d.nps < 0 ? '#FB471F' : '#FFB500';
+  var cc = d.cx  >= 60 ? '#42BB37' : d.cx  >= 40 ? '#FFB500' : '#FB471F';
+  var nbg = d.nps > 20 ? 'rgba(66,187,55,.12)' : d.nps < 0 ? 'rgba(251,71,31,.12)' : 'rgba(255,181,0,.12)';
+  var cbg = d.cx  >= 60 ? 'rgba(66,187,55,.12)' : d.cx  >= 40 ? 'rgba(255,181,0,.12)' : 'rgba(251,71,31,.12)';
+  var nlbl = d.nps >= SURVEY_NPS_GOAL ? 'Above goal' : 'Below goal';
+  var clbl = d.cx  >= SURVEY_CX_GOAL  ? 'Above goal' : 'Below goal';
+  var warn = d.n < 25
+    ? '<span class="el-survey-warn">&#9651; Low sample &mdash; n='+d.n+'</span>'
+    : '';
+
+  return hdr +
+    '<div class="el-survey-gauges">' +
+      '<div class="el-survey-cell">' +
+        '<div class="el-survey-lbl">Exhibitor NPS</div>' +
+        elSurveyRingPath(d.nps, -100, 100, SURVEY_NPS_GOAL, nc) +
+        '<div class="el-survey-scale"><span>&#8722;100</span><span>100</span></div>' +
+        '<span class="el-survey-chip" style="color:'+nc+';background:'+nbg+'">'+nlbl+'</span>' +
+        '<div class="el-survey-goal"><div class="el-survey-goal-dot"></div><span class="el-survey-goal-txt">FY26 goal: +'+SURVEY_NPS_GOAL+'</span></div>' +
+      '</div>' +
+      '<div class="el-survey-divider"></div>' +
+      '<div class="el-survey-cell">' +
+        '<div class="el-survey-lbl">ES Customer Service</div>' +
+        elSurveyRingPath(d.cx, 0, 100, SURVEY_CX_GOAL, cc) +
+        '<div class="el-survey-scale"><span>0%</span><span>100%</span></div>' +
+        '<span class="el-survey-chip" style="color:'+cc+';background:'+cbg+'">'+clbl+'</span>' +
+        '<div class="el-survey-goal"><div class="el-survey-goal-dot"></div><span class="el-survey-goal-txt">FY26 goal: '+SURVEY_CX_GOAL+'%</span></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="el-survey-footer">' +
+      '<span class="el-survey-n">'+d.n+' surveys</span>' +
+      warn +
+      '<a href="'+d.reportUrl+'" target="_blank" class="el-survey-link">View full report &#8599;</a>' +
+    '</div>' +
+  '</div>';
+}
+
 // MAIN RENDER (replaces existing elRenderShow)
 // ======================================================
 function elRenderShow() {
@@ -7273,14 +7380,14 @@ function elRenderShow() {
   html += '</div>'; // close el-team-ops
 
   // --------------------------------------------------
-  // SERVICE EXCELLENCE — unchanged placeholders
+  // SERVICE EXCELLENCE — Post-Show Survey Gauges
   // --------------------------------------------------
-  html += '<div class="el-section-div">Service excellence</div>' +
-    '<div class="el-3col">' +
-      '<div class="el-cs"><div class="el-cs-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="el-cs-title">Post-show survey results</div><div class="el-cs-sub">Requires Qualtrics API integration</div></div></div>' +
-      '<div class="el-cs"><div class="el-cs-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="el-cs-title">Service requests</div><div class="el-cs-sub">Requires Salesforce SR integration</div></div></div>' +
-      '<div class="el-cs"><div class="el-cs-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="el-cs-title">BBB / social media</div><div class="el-cs-sub">No source system connected yet</div></div></div>' +
-    '</div>';
+  html += '<div class="el-section-div">Service excellence</div>';
+  html += elSurveyCardHtml(showId);
+  html += '<div class="el-3col" style="margin-top:10px">' +
+    '<div class="el-cs"><div class="el-cs-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="el-cs-title">Service requests</div><div class="el-cs-sub">Requires Salesforce SR integration</div></div></div>' +
+    '<div class="el-cs"><div class="el-cs-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="el-cs-title">BBB / social media</div><div class="el-cs-sub">No source system connected yet</div></div></div>' +
+  '</div>';
 
   el.innerHTML = html;
 
