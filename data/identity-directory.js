@@ -1,0 +1,45 @@
+/* IDENTITY_DIRECTORY — extracted from index.html */
+var IDENTITY_DIRECTORY = {
+  // ── ES LEADERSHIP (enterprise, read-only on tasks except Erii) ──
+  'craig':    {name:'Craig Gaibler',     title:'Sr. Director, ES',       level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  'nesana':   {name:'Nesana Wieger',     title:'VP, Exhibitor Services',  level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  'erica':    {name:'Erica Cochran',     title:'Director, Biz Ops',       level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  'erii':     {name:'Erii Rodriguez',    title:'ES Administrator',        level:'enterprise', branches:[], regions:[], canCheckOwner:'admin', taskRole:'admin'},
+  'lauren':   {name:'Lauren Medina',     title:'Training',                level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  'amber':    {name:'Amber Segura',      title:'Training',                level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  'kacie':    {name:'Kacie Kugel',       title:'Training',                level:'enterprise', branches:[], regions:[], canCheckOwner:'none',  taskRole:'es'},
+  // ── REGIONAL DIRECTORS (see full region, read-only on tasks) ──
+  'leslie':   {name:'Leslie Davis',      title:'Regional Director, NW/SoCal',          level:'region',    branches:['San Francisco','Anaheim','Denver','Reno'], regions:['NW/SoCal'], canCheckOwner:'none', taskRole:'rd'},
+  'ellen':    {name:'Ellen Crowley',     title:'Regional Director, LV & North Central', level:'region',    branches:['Las Vegas','Chicago','Des Moines'],        regions:['Las Vegas','North Central'], canCheckOwner:'none', taskRole:'rd'},
+  'lubi':     {name:'Lubi Garza',        title:'Regional Director, South Central',      level:'region',    branches:['Dallas','Houston','San Antonio'],           regions:['South Central'], canCheckOwner:'hm', taskRole:'hm', directReports:['tiffany']},
+  'maud':     {name:'Maud Langlois',     title:'Regional Director, NE & Canada',        level:'region',    branches:['Boston','New York','Washington D.C.','Toronto'], regions:['Northeast','Canada'], canCheckOwner:'none', taskRole:'rd'},
+  'lisette':  {name:'Lisette Bergeron',  title:'Regional Director, Southeast',          level:'region',    branches:['Atlanta','Nashville','New Orleans','Orlando'], regions:['Southeast'], canCheckOwner:'none', taskRole:'rd'},
+  // ── DIRECTORS (see their branch(es), read-only on tasks) ──
+  'nicole':   {name:'Nicole Hanna',      title:'Director, Anaheim',       level:'branch',    branches:['Anaheim'],              regions:[], canCheckOwner:'none', taskRole:'rd', directReports:['joanne']},
+  'tlam':     {name:'T Lam',             title:'Director, Denver & Reno',  level:'branch',    branches:['Denver','Reno'],        regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'cory':     {name:'Cory Marin',        title:'Director, Las Vegas',      level:'branch',    branches:['Las Vegas'],            regions:[], canCheckOwner:'none', taskRole:'rd', directReports:['chenille','emily','jessica','lisa']},
+  'mary':     {name:'Mary Ligammari',    title:'Director, Chicago',        level:'branch',    branches:['Chicago'],              regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'joan':     {name:'Joan Davis',        title:'Director, Houston',        level:'branch',    branches:['Houston'],              regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'laura':    {name:'Laura Ewell',       title:'Director, Boston',         level:'branch',    branches:['Boston'],               regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'jose':     {name:'Jose Medina',       title:'Director, New Orleans & Orlando', level:'branch', branches:['New Orleans','Orlando'], regions:[], canCheckOwner:'none', taskRole:'rd', directReports:['lymari','regina']},
+  'tricia':   {name:'Tricia Orme',       title:'Director, Atlanta & Nashville',   level:'branch', branches:['Atlanta','Nashville'],   regions:[], canCheckOwner:'none', taskRole:'rd', directReports:['anne']},
+  // ── MANAGERS (see own branch only, can check off HM tasks for their own records) ──
+  'niall':    {name:'Niall McCarthy',    title:'Manager, San Francisco',   level:'branch',    branches:['San Francisco'],        regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'joanne':   {name:'Joanne Peau',       title:'Manager, Anaheim',         level:'branch',    branches:['Anaheim'],              regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'chenille': {name:'Chenille Book',     title:'Manager, Las Vegas',       level:'branch',    branches:['Las Vegas'],            regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'emily':    {name:'Emily Dodd',        title:'Manager, Las Vegas',       level:'branch',    branches:['Las Vegas'],            regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'jessica':  {name:'Jessica Montoro',   title:'Manager, Las Vegas',       level:'branch',    branches:['Las Vegas'],            regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'lisa':     {name:'Lisa Park',         title:'Manager, Las Vegas',       level:'branch',    branches:['Las Vegas'],            regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'tiffany':  {name:'Tiffany Jarrett',   title:'Manager, Dallas',          level:'branch',    branches:['Dallas'],               regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'gina':     {name:'Gina Alberto',      title:'Manager, New York',        level:'branch',    branches:['New York'],             regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'cassandra':{name:'Cassandra Karns',   title:'Manager, Washington D.C.', level:'branch',    branches:['Washington D.C.'],      regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'lymari':   {name:'Lymari Colon',      title:'Manager, Orlando',         level:'branch',    branches:['Orlando'],              regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'regina':   {name:'Regina Serigne',    title:'Manager, New Orleans',     level:'branch',    branches:['New Orleans'],          regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  'anne':     {name:'Anne Wolkenhauer',  title:'Manager, Atlanta',         level:'branch',    branches:['Atlanta'],              regions:[], canCheckOwner:'hm', taskRole:'hm'},
+  // ── OFF-SITE TEAM (out of scope for ES field dashboard — enterprise view, read-only) ──
+  'jennifer_v':  {name:'Jennifer Vaughan', title:'Regional Director, Off-Site', level:'region',    branches:['High-Touch Accounts','Off-Site'], regions:['Off-Site'], canCheckOwner:'none', taskRole:'rd'},
+  'jennifer_p':  {name:'Jennifer Pearson', title:'Director, High-Touch Accounts', level:'branch',  branches:['High-Touch Accounts'], regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'elaine':      {name:'Elaine Yesh',       title:'Director, Off-Site',          level:'branch',     branches:['Off-Site'], regions:[], canCheckOwner:'none', taskRole:'rd'},
+  'courtney':    {name:'Courtney Gonzalez', title:'Manager, Off-Site',           level:'branch',     branches:['Off-Site'], regions:[], canCheckOwner:'hm',   taskRole:'hm'},
+  'michelle':    {name:'Michelle Bogdan',   title:'Manager, Off-Site',           level:'branch',     branches:['Off-Site'], regions:[], canCheckOwner:'hm',   taskRole:'hm'},
+};

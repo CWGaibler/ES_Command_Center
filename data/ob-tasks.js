@@ -1,0 +1,38 @@
+/* OB_TASKS — extracted from index.html */
+var OB_TASKS = [
+  // Phase 1: Before Start Date
+  {id:'ob1', phase:'Before Start Date', title:'Confirm all Recruiting & Hiring procedures are complete', owner:'hm', links:[]},
+  {id:'ob2', phase:'Before Start Date', title:'Complete CX Team Member Contact Info Smartsheet (include full mailing address with apt/suite)', owner:'hm', links:[]},
+  {id:'ob3', phase:'Before Start Date', title:'Add employee to bulk CARF spreadsheet and Laptop Request Form (at least 2 weeks prior)', owner:'admin', links:[]},
+  {id:'ob4', phase:'Before Start Date', title:'Send Laptop Request spreadsheet to ITEquipmentRequest@freeman.com', owner:'admin', links:[]},
+  {id:'ob5', phase:'Before Start Date', title:'Order headset via Coupa for employees receiving one (at least 2 weeks prior)', owner:'admin', links:[]},
+  {id:'ob6', phase:'Before Start Date', title:'Fulfill equipment requests — must ship 8 business days before start date', owner:'it', links:[]},
+  {id:'ob7', phase:'Before Start Date', title:'Send Bulk CARF spreadsheet to bulkCARFprocess@freeman.com (at least 2 weeks prior)', owner:'admin', links:[]},
+  {id:'ob8', phase:'Before Start Date', title:'Fulfill CARF request and provide logins/passwords to employee prior to start date', owner:'it', links:[]},
+  {id:'ob9', phase:'Before Start Date', title:'Upon CARF completion, forward credentials to Hiring Manager, Office Manager, and CX Enablement Manager', owner:'admin', links:[]},
+  {id:'ob10', phase:'Before Start Date', title:'Request uniform vouchers for new employee once Freeman email is active', owner:'admin', links:[]},
+  {id:'ob11', phase:'Before Start Date', title:'Set employee up in Five9, CSM, Workfront, and Smartsheet with correct user profile and agent group', owner:'cx', links:[]},
+  {id:'ob12', phase:'Before Start Date', title:'Email CX Insights Analyst to add employee to ES Regional Schedule', owner:'hm', links:[]},
+  {id:'ob13', phase:'Before Start Date', title:'Add employee to CX and ES Microsoft Teams with correct location/user tags', owner:'admin', links:[]},
+  // Phase 2: First Week
+  {id:'ob14', phase:'First Week', title:'Ensure employee receives local badge for branch office access', owner:'hm', links:[]},
+  {id:'ob15', phase:'First Week', title:'Introduce new hire to team via email or team meeting', owner:'hm', links:[]},
+  {id:'ob16', phase:'First Week', title:'Execute Hiring Manager checklist from HR', owner:'hm', links:[{label:'HR Onboarding Home', url:'https://freemanco.sharepoint.com/teams/EmployeeOnboarding'}]},
+  {id:'ob17', phase:'First Week', title:'Guide employee through New Hire Checklist from HR (Days 1–5 emails)', owner:'hm', links:[]},
+  {id:'ob18', phase:'First Week', title:'Review ES Handbook with new employee — discuss role responsibilities and expectations', owner:'hm', links:[]},
+  {id:'ob19', phase:'First Week', title:'Confirm IT equipment received and working; connect employee with local IT if needed', owner:'hm', links:[]},
+  {id:'ob20', phase:'First Week', title:'Verify access to all required applications (TSS, SAP, OnBase, Kronos, Five9, CSM, Adobe, Teams, Zoom, Smartsheet)', owner:'hm', links:[]},
+  {id:'ob21', phase:'First Week', title:'Introduce employee to Freeway — allow free exploration time', owner:'hm', links:[]},
+  {id:'ob22', phase:'First Week', title:'Introduce employee to local/regional schedules and Kronos time logging', owner:'hm', links:[]},
+  {id:'ob23', phase:'First Week', title:'Schedule a show site visit for/with the employee', owner:'hm', links:[]},
+  {id:'ob24', phase:'First Week', title:'Schedule office visit (when applicable)', owner:'hm', links:[]},
+  {id:'ob25', phase:'First Week', title:'Order ESCA badge from ESCA website (only for required facilities/markets)', owner:'hm', links:[]},
+  {id:'ob26', phase:'First Week', title:'Attend NET expectations meeting with new employee and NET facilitator', owner:'hm', links:[]},
+  // Phase 3: During NET
+  {id:'ob27', phase:'During NET', title:'Order cell phone from Wireless Watchdogs and case via Coupa (final Monday of NET)', owner:'admin', links:[]},
+  {id:'ob28', phase:'During NET', title:'Order employee business cards after mobile number is known (on-site employees)', owner:'admin', links:[]},
+  {id:'ob29', phase:'During NET', title:'Gain ES Leadership approval and order MiFi from Wireless Watchdogs', owner:'admin', links:[]},
+  {id:'ob30', phase:'During NET', title:'Coordinate corporate credit card approval with ES Leadership and forward to FreemanCards', owner:'admin', links:[]},
+  {id:'ob31', phase:'During NET', title:'Conduct weekly 1:1 meetings with employee — review NET scores, performance, and open topics', owner:'hm', links:[]},
+  {id:'ob32', phase:'During NET', title:'Spend at least 1 hour per week in NET classes where direct reports are attending', owner:'hm', links:[]},
+];
