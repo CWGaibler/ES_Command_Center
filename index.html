@@ -5750,7 +5750,7 @@ function elSearchInput(val) {
   if (!matches.length) { drop.classList.remove('open'); drop.innerHTML = ''; return; }
   drop.innerHTML = matches.map(function(id) {
     var s = SHOWS[id];
-    return '<div class="el-dd-item" onclick="elSelectShow(\'' + id + '\')">' +
+    return '<div class="el-dd-item" onmousedown="elSelectShow(\'' + id + '\')">' +
       '<div><span class="el-dd-name">' + s.name + '</span><span class="el-dd-job">#' + id + '</span></div>' +
       '<div class="el-dd-meta">' + s.city + ' \u00b7 ' + (s.producingBranch || s.region) + ' \u00b7 Open ' + fmtD(s.showOpen) + '</div>' +
     '</div>';
@@ -7421,7 +7421,7 @@ function initEvents() {
 document.addEventListener('click', function(e) {
   var drop = document.getElementById('el-search-results');
   if (!drop) return;
-  if (!e.target.closest || !e.target.closest('.el-search-box')) {
+  if (!e.target.closest || (!e.target.closest('.el-search-box') && !e.target.closest('#el-search-results'))) {
     drop.classList.remove('open');
   }
 });
