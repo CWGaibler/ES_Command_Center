@@ -5722,14 +5722,9 @@ function elGetShowLogo(showId) {
 }
 
 function goToEventLens(showId) {
+  elSelId = showId;
   showPage('events', null);
   tnSetActive('events');
-  setTimeout(function() {
-    elSelId = showId;
-    var inp = document.getElementById('el-search-input');
-    if (inp && SHOWS[showId]) inp.value = SHOWS[showId].name + '  #' + showId;
-    elRenderShow();
-  }, 30);
 }
 
 function elSearchInput(val) {
@@ -5764,7 +5759,14 @@ function elSelectShow(id) {
   if (inp) { inp.value = ''; inp.blur(); }
   var drop = document.getElementById('el-search-results');
   if (drop) { drop.classList.remove('open'); drop.innerHTML = ''; }
-  elRenderShow();
+  // Ensure Events page is active before rendering
+  var evPage = document.getElementById('page-events');
+  if (evPage && !evPage.classList.contains('active')) {
+    showPage('events', null);
+    tnSetActive('events');
+  } else {
+    elRenderShow();
+  }
 }
 
 function elFmtDate(d) {
