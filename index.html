@@ -7572,10 +7572,12 @@ function scBuildLeadPickerPanel(container, showId, sc) {
       var sid = openEl.getAttribute('data-sc-lead-showid');
       window._scLeadPickerState = { showId: sid, field: field };
       renderScDetail();
-      setTimeout(function() {
-        var inp = document.getElementById('sc-lead-inp-' + field + '-' + sid);
-        if (inp) { inp.focus(); scPopulateLeadDrop(field, sid, ''); }
-      }, 20);
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          var inp = document.getElementById('sc-lead-inp-' + field + '-' + sid);
+          if (inp) { inp.focus(); scPopulateLeadDrop(field, sid, ''); }
+        });
+      });
       return;
     }
     var clearEl = e.target.closest('[data-sc-lead-clear]');
@@ -7630,6 +7632,14 @@ function scBuildLeadPickerPanel(container, showId, sc) {
 function scPopulateLeadDrop(field, showId, query) {
   var drop = document.getElementById('sc-lead-drop-' + field + '-' + showId);
   if (!drop) return;
+  // Position using fixed coordinates to escape overflow containers
+  var inp = document.getElementById('sc-lead-inp-' + field + '-' + showId);
+  if (inp) {
+    var rect = inp.getBoundingClientRect();
+    drop.style.cssText = 'position:fixed;top:' + rect.bottom + 'px;left:' + rect.left + 'px;width:' + rect.width + 'px;' +
+      'background:#fff;border:1.5px solid var(--mb);border-top:none;border-radius:0 0 8px 8px;' +
+      'z-index:99999;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,31,95,.15)';
+  }
   var sc = schedulingPlans[showId] || {};
   var leadName = sc.leadName || '';
   var supName  = sc.supervisorName || '';
@@ -8180,10 +8190,13 @@ function scBuildSlotFilling(container, s, ra, sc) {
 function scOpenNamePicker(showId, slotIdx, slotType) {
   SC_PICKER = { showId: showId, slotIdx: slotIdx, slotType: slotType };
   renderScDetail();
-  setTimeout(function() {
-    var inp = document.getElementById('sc-np-input');
-    if (inp) { inp.focus(); scNamePickerSearch(''); }
-  }, 30);
+  // Use requestAnimationFrame to ensure DOM is painted before measuring position
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      var inp = document.getElementById('sc-np-input');
+      if (inp) { inp.focus(); scNamePickerSearch(''); }
+    });
+  });
 }
 
 function scCancelPicker() {
