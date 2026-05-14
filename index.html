@@ -8663,23 +8663,142 @@ function tlRenderDetail() {
   var p = PEOPLE[tlSelName];
   var av = tlAvColor(p.name);
 
-  // Build event assignments from ROLE_ASSIGNMENTS only — NSS ASSIGNMENTS object no longer used here
+  // Build event assignments — includes slot assignments, lead, and supervisor roles
   var assigns = [];
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  // Date helpers (mirrors the EL task logic)
+  function tlAddDays(dateStr, days) {
+    if (!dateStr) return null;
+    var d = new Date(dateStr); d.setDate(d.getDate() + days);
+    return d;
+  }
+  function tlAddBizDays(dateStr, n) {
+    if (!dateStr) return null;
+    var d = new Date(dateStr), added = 0;
+    while (added < n) { d.setDate(d.getDate()+1); var dow=d.getDay(); if(dow!==0&&dow!==6) added++; }
+    return d;
+  }
+  function tlFmtD(d) {
+    if (!d) return null;
+    var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return months[d.getMonth()] + ' ' + d.getDate();
+  }
+  function tlCalcDeadline(timing, s) {
+    var mi=s.moveInStart||'', so=s.showOpen||'', sc=s.showClose||'', cd=s.clearDate||'';
+    var t = timing.toLowerCase();
+    if (t.indexOf('120 days')>=0) return {date:tlAddDays(mi,-120), grey:tlAddDays(mi,1)};
+    if (t.indexOf('90 days')>=0)  return {date:tlAddDays(mi,-90),  grey:tlAddDays(mi,1)};
+    if (t.indexOf('60 days')>=0)  return {date:tlAddDays(mi,-60),  grey:tlAddDays(mi,1)};
+    if (t.indexOf('30 days')>=0)  return {date:tlAddDays(mi,-30),  grey:tlAddDays(mi,1)};
+    if (t.indexOf('6 weeks')>=0)  return {date:tlAddDays(mi,-42),  grey:tlAddDays(mi,1)};
+    if (t.indexOf('4 weeks')>=0)  return {date:tlAddDays(mi,-28),  grey:tlAddDays(mi,1)};
+    if (t.indexOf('3 weeks')>=0)  return {date:tlAddDays(mi,-21),  grey:tlAddDays(mi,1)};
+    if (t.indexOf('2 weeks')>=0)  return {date:tlAddDays(mi,-14),  grey:tlAddDays(mi,1)};
+    if (t.indexOf('1 week')>=0)   return {date:tlAddDays(mi,-7),   grey:tlAddDays(mi,1)};
+    if (t.indexOf('2 day')>=0)    return {date:tlAddDays(mi,-2),   grey:tlAddDays(mi,1)};
+    if (t==='prior to move-in')   return {date:tlAddDays(mi,-1),   grey:tlAddDays(mi,1)};
+    if (t.indexOf('as soon as scheduling')>=0) return {date:new Date(mi||today),grey:tlAddDays(mi,1)};
+    if (t.indexOf('as soon as orders')>=0)     return {date:new Date(mi||today),grey:tlAddDays(mi,1)};
+    if (t.indexOf('as soon as freight')>=0)    return {date:new Date(mi||today),grey:tlAddDays(mi,1)};
+    if (t.indexOf('as needed, daily')>=0)      return {date:new Date(mi||today),grey:tlAddDays(cd,1)};
+    if (t.indexOf('once team arrives')>=0)          return {date:new Date(mi),grey:tlAddDays(mi,1)};
+    if (t.indexOf('before exhibitor move-in')>=0)   return {date:new Date(mi),grey:tlAddDays(mi,1)};
+    if (t.indexOf('once exhibitor move-in begins')>=0) return {date:new Date(mi),grey:tlAddDays(mi,1)};
+    if (t.indexOf('once show opens')>=0)       return {date:new Date(so),grey:tlAddDays(so,1)};
+    if (t.indexOf('once show is invoiced')>=0) return {date:new Date(so),grey:tlAddDays(so,1)};
+    if (t.indexOf('during show days')>=0)      return {date:new Date(sc),grey:tlAddDays(sc,1)};
+    if (t==='daily')                           return {date:new Date(mi||today),grey:tlAddDays(cd,1)};
+    if (t.indexOf('when stepping away')>=0)    return {date:new Date(mi||today),grey:tlAddDays(cd,1)};
+    if (t.indexOf('during assigned show day')>=0) return {date:new Date(mi||today),grey:tlAddDays(cd,1)};
+    if (t.indexOf('once exhibitor move-out ends')>=0) return {date:new Date(cd),grey:tlAddDays(cd,1)};
+    if (t.indexOf('8 business days')>=0) { var dl=tlAddBizDays(sc,8); return {date:dl,grey:tlAddDays(dl?dl.toISOString().slice(0,10):null,1)}; }
+    return {date:null, grey:null};
+  }
+
+  // Collect all shows this person is involved in
   Object.keys(ROLE_ASSIGNMENTS).forEach(function(jobNum) {
     var ra = ROLE_ASSIGNMENTS[jobNum];
-    if (!ra || !ra.slots) return;
+    var show = SHOWS[jobNum];
+    if (!ra || !ra.slots || !show) return;
+
+    // What roles does this person fill on this show?
+    var personRoles = []; // 'slot-cf','slot-br','slot-as','slot-sv','lead','supervisor'
+    var scPlan = schedulingPlans[jobNum] || {};
+
     ra.slots.forEach(function(slot) {
-      if (slot.person === p.name) {
-        var show = SHOWS[jobNum];
-        if (show) {
-          assigns.push({
-            jobNum: jobNum,
-            showName: show.name,
-            role: slot.label
-          });
-        }
-      }
+      if (slot.person === p.name) personRoles.push('slot-' + slot.type);
     });
+    if (scPlan.leadName === p.name) personRoles.push('lead');
+    if (scPlan.supervisorName === p.name) personRoles.push('supervisor');
+    if (!personRoles.length) return;
+
+    var slotLabel = '';
+    ra.slots.forEach(function(sl) { if (sl.person === p.name) slotLabel = sl.label; });
+
+    // Determine which task party labels this person matches
+    function personMatchesParty(partyLabel, show) {
+      if (!partyLabel) return false;
+      var showIsRemote = show.serviceModel && show.serviceModel.toLowerCase().indexOf('remote') >= 0;
+      var party = showIsRemote ? partyLabel : partyLabel; // same field used for both via onsiteParty/remoteParty
+      var parts = party.split(',').map(function(x){return x.trim();});
+      return parts.some(function(part) {
+        if (part === 'All Parties') return true;
+        if ((part === 'On-Site Lead' || part === 'Additional Off-Site Team') && personRoles.indexOf('lead') >= 0) return true;
+        if (part === 'Event Experience Supervisor' && personRoles.indexOf('supervisor') >= 0) return true;
+        if (part === 'Customer-Facing Teams' && personRoles.indexOf('slot-cf') >= 0) return true;
+        if (part === 'Back Room Teams' && personRoles.indexOf('slot-br') >= 0) return true;
+        if (part === 'Additional Support Teams' && personRoles.indexOf('slot-as') >= 0) return true;
+        if (part === 'Additional On-Site Team') return personRoles.some(function(r){return r.indexOf('slot-')===0;});
+        return false;
+      });
+    }
+
+    // Find currently active tasks for this person on this show
+    var showIsRemote = show.serviceModel && show.serviceModel.toLowerCase().indexOf('remote') >= 0;
+    var showSvcKey = showIsRemote ? 'remote' : 'onsite';
+    var showPlatformKey = (show.freemanPlatform === 'Freeman Next') ? 'fnext' : 'fnow';
+    var activeTasks = [];
+
+    var allPhaseTasks = (EL_TASKS.preEvent || []).concat(EL_TASKS.onSite || []).concat(EL_TASKS.postEvent || []);
+    allPhaseTasks.forEach(function(task) {
+      var pOk = task.platform === 'both' || task.platform === showPlatformKey;
+      var sOk = task.svcModel === 'both' || task.svcModel === showSvcKey;
+      if (!pOk || !sOk) return;
+
+      var partyLabel = showIsRemote ? task.remoteParty : task.onsiteParty;
+      if (!personMatchesParty(partyLabel, show)) return;
+
+      var dl = tlCalcDeadline(task.timing, show);
+      var isActive = dl.date && today >= dl.date && (!dl.grey || today < dl.grey);
+      // Also include tasks with no specific date if show is currently active phase
+      var showMi = show.moveInStart ? new Date(show.moveInStart) : null;
+      var showCd = show.clearDate   ? new Date(show.clearDate)   : null;
+      var showInProgress = showMi && showCd && today >= showMi && today <= showCd;
+      if (!isActive && !dl.date && showInProgress) isActive = true;
+
+      if (isActive) activeTasks.push({name: task.name, timing: task.timing, deadline: dl.date});
+    });
+
+    assigns.push({
+      jobNum: jobNum,
+      showName: show.name,
+      city: show.city || '',
+      moveIn: show.moveInStart || '',
+      clearDate: show.clearDate || '',
+      role: slotLabel || (personRoles.indexOf('lead') >= 0 ? 'On-Site Lead' : personRoles.indexOf('supervisor') >= 0 ? 'Supervisor' : ''),
+      activeTasks: activeTasks,
+      isLead: personRoles.indexOf('lead') >= 0,
+      isSup: personRoles.indexOf('supervisor') >= 0
+    });
+  });
+
+  // Sort: shows with active tasks first, then by move-in date
+  assigns.sort(function(a,b) {
+    var aAct = a.activeTasks.length > 0 ? 0 : 1;
+    var bAct = b.activeTasks.length > 0 ? 0 : 1;
+    if (aAct !== bAct) return aAct - bAct;
+    return (a.moveIn||'') < (b.moveIn||'') ? -1 : 1;
   });
 
   // Identity header
@@ -8710,21 +8829,54 @@ function tlRenderDetail() {
 
   // Event Assignments + Lifecycle — stacked
 
-  // Event assignments — KEY FIX: job number passed via data-job, click handled by delegation
+  // Event assignments — rich view with active tasks
   html += '<div class="el-section-div">Event Assignments</div><div class="tl-card-full">';
   if (assigns.length) {
-    var shown = assigns.slice(0, 5);
-    html += shown.map(function(a) {
-      return '<div class="tl-assign-row">' +
-        '<div class="tl-assign-info">' +
-          '<span class="tl-assign-name tl-event-link" data-job="' + tlEsc(a.jobNum) + '">' + tlEsc(a.showName) + ' &#8599;</span>' +
-          '<div class="tl-assign-role">' + tlEsc(a.role) + '</div>' +
-        '</div>' +
+    assigns.forEach(function(a) {
+      var isCurrent = a.moveIn && a.clearDate &&
+        today >= new Date(a.moveIn) && today <= new Date(a.clearDate);
+      var isUpcoming = a.moveIn && today < new Date(a.moveIn);
+      var isPast = a.clearDate && today > new Date(a.clearDate);
+
+      var statusChip = '';
+      if (isCurrent) statusChip = '<span class="chip chip-green" style="font-size:10px;padding:1px 7px">Active Now</span>';
+      else if (isUpcoming) statusChip = '<span class="chip chip-ghost" style="font-size:10px;padding:1px 7px">Upcoming</span>';
+      else if (isPast) statusChip = '<span class="chip" style="font-size:10px;padding:1px 7px;background:#f5f5f5;color:var(--muted)">Past</span>';
+
+      var roleChips = '';
+      if (a.isLead) roleChips += '<span class="chip" style="font-size:10px;padding:1px 7px;background:#EBF8FF;color:#005A75;border:1.5px solid #B3E5FC">On-Site Lead</span> ';
+      if (a.isSup)  roleChips += '<span class="chip" style="font-size:10px;padding:1px 7px;background:#F3F0FF;color:#5B3FBF;border:1.5px solid #D6CEF5">Supervisor</span> ';
+      if (a.role && !a.isLead && !a.isSup) roleChips += '<span class="chip chip-ghost" style="font-size:10px;padding:1px 7px">' + tlEsc(a.role) + '</span>';
+
+      var dateRange = a.moveIn ? (tlFmtD(new Date(a.moveIn)) + (a.clearDate ? ' – ' + tlFmtD(new Date(a.clearDate)) : '')) : '';
+
+      html += '<div style="border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:8px">';
+      html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">' +
+        '<span class="tl-event-link" data-job="' + tlEsc(a.jobNum) + '" style="font-size:13px;font-weight:800;color:var(--fb);cursor:pointer">' + tlEsc(a.showName) + ' &#8599;</span>' +
+        '<div style="display:flex;gap:4px;flex-shrink:0">' + statusChip + '</div>' +
       '</div>';
-    }).join('');
-    if (assigns.length > 5) {
-      html += '<div class="tl-assign-more">+ ' + (assigns.length - 5) + ' more assignment' + (assigns.length - 5 > 1 ? 's' : '') + '</div>';
-    }
+      html += '<div style="font-size:12px;color:var(--muted);margin-bottom:6px">' +
+        (a.city ? tlEsc(a.city) + ' &middot; ' : '') + dateRange +
+      '</div>';
+      html += '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:' + (a.activeTasks.length ? '8' : '0') + 'px">' + roleChips + '</div>';
+
+      if (a.activeTasks.length) {
+        html += '<div style="border-top:1px solid var(--border-lt);padding-top:8px;margin-top:4px">' +
+          '<div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Your Active Tasks Right Now</div>';
+        a.activeTasks.forEach(function(task) {
+          html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border-lt);font-size:12px">' +
+            '<div style="width:6px;height:6px;border-radius:50%;background:var(--mb);flex-shrink:0"></div>' +
+            '<span style="color:var(--fb);font-weight:600;flex:1">' + tlEsc(task.name) + '</span>' +
+            '<span style="color:var(--muted);font-size:11px;white-space:nowrap">' + (task.deadline ? tlFmtD(task.deadline) : task.timing) + '</span>' +
+          '</div>';
+        });
+        html += '</div>';
+      } else if (isCurrent || isUpcoming) {
+        html += '<div style="font-size:11px;color:var(--muted);font-style:italic;padding-top:4px;border-top:1px solid var(--border-lt);margin-top:4px">No tasks due right now for this event.</div>';
+      }
+
+      html += '</div>';
+    });
   } else {
     html += '<div class="tl-no-data">No event assignments yet. Assignments appear here once a team member is placed into a slot on any show in the Events Lens.</div>';
   }
