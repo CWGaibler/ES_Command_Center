@@ -1019,6 +1019,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   </div><!-- end hdr-row1 -->
   <div class="hdr-row2">
     <div class="tn-item tn-active" data-tn="today" onclick="tnClick(this,'today')">Today's Priorities</div>
+    <div class="tn-item" data-tn="kpis" onclick="tnGo(event,'kpis')">KPIs</div>
     <div class="tn-item" data-tn="lifecycle" onclick="tnClick(this,'lifecycle')">Employee Lifecycle
       <svg viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       <div class="tn-drop">
@@ -1052,7 +1053,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div class="tn-item" data-tn="lenses" onclick="tnClick(this,'lenses')">Lenses
       <svg viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       <div class="tn-drop">
-        <div class="tn-drop-item" onclick="tnGo(event,'kpis')">KPIs</div>
         <div class="tn-drop-item" onclick="tnGo(event,'events')">Events</div>
         <div class="tn-drop-item" onclick="tnGo(event,'team')">Team Members</div>
         <div class="tn-drop-item" onclick="tnGo(event,'customers')">Customers</div>
@@ -8696,19 +8696,12 @@ function tlSearchInput(val) {
   if (!drop) return;
   var q = val.trim().toLowerCase();
   if (q.length < 1) { drop.classList.remove('open'); drop.innerHTML = ''; return; }
-  var scopePeople = tlGetScopePeople();
-  var matches = scopePeople.filter(function(p) { return p.name.toLowerCase().indexOf(q) >= 0; });
-  matches.sort(function(a,b) { return a.name.split(' ').pop().localeCompare(b.name.split(' ').pop()); });
+  // Team Members lens is always enterprise-wide — search all employees regardless of scope pill
   var allPeople = Object.values(PEOPLE);
-  var outOfScope = allPeople.filter(function(p) {
-    return p.name.toLowerCase().indexOf(q) >= 0 && !scopePeople.some(function(sp) { return sp.name === p.name; });
-  });
-  if (!matches.length && outOfScope.length) {
-    drop.innerHTML = '<div style="padding:10px 14px;font-size:12.5px;color:var(--muted);line-height:1.5">No team members match your search in the current scope. To expand your results, consider switching to Region or Enterprise view.</div>';
-    drop.classList.add('open'); return;
-  }
+  var matches = allPeople.filter(function(p) { return p.name.toLowerCase().indexOf(q) >= 0; });
+  matches.sort(function(a,b) { return a.name.split(' ').pop().localeCompare(b.name.split(' ').pop()); });
   if (!matches.length) {
-    drop.innerHTML = '<div style="padding:10px 14px;font-size:12.5px;color:var(--muted)">No results found.</div>';
+    drop.innerHTML = '<div style="padding:10px 14px;font-size:12.5px;color:var(--muted)">No team members found.</div>';
     drop.classList.add('open'); return;
   }
   var shown = matches.slice(0, 10);
@@ -8722,7 +8715,7 @@ function tlSearchInput(val) {
   if (matches.length > 10) {
     drop.innerHTML += '<div style="padding:6px 14px;font-size:12px;color:var(--muted);font-style:italic">+ ' + (matches.length - 10) + ' more — keep typing to narrow results</div>';
   }
-    drop.classList.add('open');
+  drop.classList.add('open');
 }
 
 
@@ -9171,6 +9164,7 @@ function kpiInitLens() {
 // ── TOP NAV ──────────────────────────────────────────────────────────────────
 var TN_PAGE_MAP = {
   'today':       'today',
+  'kpis':        'kpis',
   'recruiting':  'lifecycle', 'onboarding':  'lifecycle',
   'transitions': 'lifecycle', 'offboarding': 'lifecycle',
   'staffing':    'teamops',   'scheduling':  'teamops',
@@ -9179,9 +9173,12 @@ var TN_PAGE_MAP = {
   'teambuild':   'teamops',
   'bbb':         'service',   'social':      'service',
   'surveys':     'service',   'servicereqs': 'service',
-  'kpis':        'lenses',    'events':      'lenses',
-  'team':        'lenses',    'customers':   'lenses'
+  'events':      'lenses',    'team':        'lenses',
+  'customers':   'lenses'
 };
+
+// Pages where scope pills are hidden and data is always enterprise-wide
+var LENS_PAGES = { 'events': true, 'team': true, 'customers': true };
 
 function tnSetActive(pageId) {
   var group = TN_PAGE_MAP[pageId] || 'today';
@@ -9189,6 +9186,9 @@ function tnSetActive(pageId) {
     el.classList.remove('tn-active');
     if (el.getAttribute('data-tn') === group) el.classList.add('tn-active');
   });
+  // Hide scope pills on Lens pages; show on all others
+  var pillCenter = document.querySelector('.hdr-center');
+  if (pillCenter) pillCenter.style.visibility = LENS_PAGES[pageId] ? 'hidden' : '';
 }
 
 function tnClick(el, group) {
