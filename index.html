@@ -3916,6 +3916,8 @@ function renderSfDetail() {
         staffingPlans[subId].serviceModel = 'On-Site Service Event';
         if (SHOWS[subId]) SHOWS[subId].serviceModel = 'On-Site Service Event';
       }
+      // Force slot rebuild with new counts
+      if (ROLE_ASSIGNMENTS[subId]) ROLE_ASSIGNMENTS[subId] = null;
       saveSfCalcDecision(subId);
       return;
     }
@@ -4141,14 +4143,19 @@ function renderSfSmallEventCalc(s, plan) {
 
 function sfClearCustomPlan(showId) {
   if (!staffingPlans[showId]) return;
-  // Clear the submitted plan so the edit form re-appears
   delete staffingPlans[showId].serviceModel;
   delete staffingPlans[showId].overrides;
   delete staffingPlans[showId].modifyReason;
-  // Also uncheck s2 since plan is no longer confirmed
   var ci = staffingPlans[showId].checked ? staffingPlans[showId].checked.indexOf('s2') : -1;
   if (ci >= 0) staffingPlans[showId].checked.splice(ci, 1);
+  // Clear downstream steps and slots since headcount is changing
+  ['s3','s4','s5'].forEach(function(sid) {
+    var idx = staffingPlans[showId].checked ? staffingPlans[showId].checked.indexOf(sid) : -1;
+    if (idx >= 0) staffingPlans[showId].checked.splice(idx, 1);
+  });
+  if (ROLE_ASSIGNMENTS[showId]) ROLE_ASSIGNMENTS[showId] = null;
   storageSaveStaffingPlans();
+  storageSaveRoleAssignments();
   renderSfDetail();
   renderSfList();
   renderSfStats();
@@ -4172,6 +4179,10 @@ function sfCustomPlanSubmit(showId) {
   staffingPlans[showId].serviceModel    = 'On-Site Service Event';
   staffingPlans[showId].isCustomPlan    = true;
   if (SHOWS[showId]) SHOWS[showId].serviceModel = 'On-Site Service Event';
+  // Force slot rebuild with new counts — clear existing slots so elInitRoleAssignments rebuilds
+  if (ROLE_ASSIGNMENTS[showId]) {
+    ROLE_ASSIGNMENTS[showId] = null; // will be rebuilt by elInitRoleAssignments with new overrides
+  }
   saveSfCalcDecision(showId);
 }
 
@@ -6103,19 +6114,56 @@ function elConfirmPlan(showId) {
 }
 
 function elInitRoleAssignments(showId) {
-  if (ROLE_ASSIGNMENTS[showId]) {
-    return;
-  }
   var show = SHOWS[showId];
   if (!show) return;
   var rec = typeof sfCalcRec === 'function' ? sfCalcRec(show) : null;
   if (!rec) return;
+
+  // Apply plan overrides — custom plan numbers take precedence over model recommendation
+  var plan = staffingPlans[showId] || {};
+  var ov = plan.overrides || {};
+  var counts = {
+    cf: ov.cf != null ? ov.cf : rec.cf,
+    br: ov.br != null ? ov.br : rec.br,
+    as: ov.as != null ? ov.as : rec.as,
+    sv: ov.sv != null ? ov.sv : rec.sv,
+    fr: ov.fr != null ? ov.fr : (rec.fr || 0)
+  };
+
+  // If slots already exist, check if counts have changed — rebuild if so
+  if (ROLE_ASSIGNMENTS[showId]) {
+    var existing = ROLE_ASSIGNMENTS[showId];
+    var existingCounts = { cf:0, br:0, as:0, sv:0, fr:0 };
+    existing.slots.forEach(function(sl) { existingCounts[sl.type] = (existingCounts[sl.type]||0) + 1; });
+    var countsMatch = ['cf','br','as','sv','fr'].every(function(r) { return existingCounts[r] === counts[r]; });
+    if (countsMatch) return; // counts unchanged — keep existing assignments (names, ESC, coverage)
+
+    // Counts changed — rebuild slots but preserve assignments for slots that still exist
+    var roleLabels = {cf:'Customer-Facing',br:'Back room',as:'Additional support',sv:'Supervisory',fr:'Freight / storage desk'};
+    var newSlots = [];
+    ['cf','br','as','sv','fr'].forEach(function(role) {
+      var oldSlotsOfType = existing.slots.filter(function(sl){ return sl.type === role; });
+      for (var i = 0; i < counts[role]; i++) {
+        if (i < oldSlotsOfType.length) {
+          // Preserve existing assignment for this slot position
+          newSlots.push(oldSlotsOfType[i]);
+        } else {
+          // New slot — blank
+          newSlots.push({ type: role, label: roleLabels[role], person: null, branch: null, homeBranch: null });
+        }
+      }
+      // Slots that no longer exist (count reduced) are simply dropped
+    });
+    ROLE_ASSIGNMENTS[showId].slots = newSlots;
+    storageSaveRoleAssignments();
+    return;
+  }
+
+  // First-time initialization
   var slots = [];
   var roleLabels = {cf:'Customer-Facing',br:'Back room',as:'Additional support',sv:'Supervisory',fr:'Freight / storage desk'};
   ['cf','br','as','sv','fr'].forEach(function(role) {
-    var count = rec[role] || 0;
-    if (role === 'fr') count = rec.fr || 0;
-    for (var i = 0; i < count; i++) {
+    for (var i = 0; i < counts[role]; i++) {
       slots.push({ type: role, label: roleLabels[role], person: null, branch: null, homeBranch: null });
     }
   });
