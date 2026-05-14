@@ -3505,6 +3505,8 @@ function sfUpdateStepGates(showId) {
   var plan = staffingPlans[showId] || {};
   var confirmed = plan.confirmed;
   if (confirmed) return;
+  // Ensure slots are initialized before gate evaluation
+  if (plan.serviceModel) elInitRoleAssignments(showId);
 
   // Recompute gate states
   var sfEscData = scGetEscData(showId);
@@ -3573,6 +3575,8 @@ function renderSfDetail() {
   if (!staffingPlans[sfSelId]) staffingPlans[sfSelId] = {checked:[], overrides:{}, supervisorName:"", leadName:"", confirmed:false};
   var plan = staffingPlans[sfSelId];
   var rec = sfCalcRec(s);
+  // Ensure role assignments are initialized with current plan counts before reading sfRa
+  if (plan.serviceModel) elInitRoleAssignments(sfSelId);
   var dashRegion = CALC_REGION_MAP[s.region] || s.region;
   var confirmed = plan.confirmed;
 
