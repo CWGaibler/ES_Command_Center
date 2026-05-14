@@ -3508,7 +3508,7 @@ function sfUpdateStepGates(showId) {
 
   // Recompute gate states
   var sfEscData = scGetEscData(showId);
-  var sfEscFieldsReady = sfEscData.configured && (sfEscData.count === 1 || (sfEscData.names && sfEscData.names.filter(function(n){return n&&n.trim();}).length === sfEscData.count));
+  var sfEscFieldsReady = sfEscData.count === 1 || (sfEscData.configured && sfEscData.names && sfEscData.names.filter(function(n){return n&&n.trim();}).length === sfEscData.count);
   var sfEscAssignReady = sfEscData.count <= 1 || (function() {
     var ra = ROLE_ASSIGNMENTS[showId];
     if (!ra || !ra.slots) return false;
@@ -3595,7 +3595,7 @@ function renderSfDetail() {
 
   // Compute field-gate states for the new steps
   var sfEscData = scGetEscData(sfSelId);
-  var sfEscFieldsReady = sfEscData.configured && (sfEscData.count === 1 || (sfEscData.names && sfEscData.names.filter(function(n){return n&&n.trim();}).length === sfEscData.count));
+  var sfEscFieldsReady = sfEscData.count === 1 || (sfEscData.configured && sfEscData.names && sfEscData.names.filter(function(n){return n&&n.trim();}).length === sfEscData.count);
 
   // s4 (assign roles to ESCs) — only required if count > 1
   var sfEscAssignReady = sfEscData.count <= 1 || (function() {
@@ -3641,7 +3641,8 @@ function renderSfDetail() {
     if (!checked && !locked && !confirmed) {
       if (t.id === 's2' && !plan.serviceModel) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Use the calculator below to determine your staffing plan, then check this box when ready.</div>';
       if (t.id === 's3' && !sfEscFieldsReady) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in the ESC configuration below, then check this box when ready.</div>';
-      if (t.id === 's3' && sfEscFieldsReady) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Configuration complete — check this box when ready to move on.</div>';
+      if (t.id === 's3' && sfEscFieldsReady && sfEscData.count === 1) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">One Exhibitor Service Center — no naming required. Check this box when ready to move on.</div>';
+      if (t.id === 's3' && sfEscFieldsReady && sfEscData.count > 1) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Configuration complete — check this box when ready to move on.</div>';
       if (t.id === 's4' && sfEscData.count <= 1) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Only one ESC — no assignments needed. Check this box to continue.</div>';
       if (t.id === 's4' && sfEscData.count > 1 && !sfEscAssignReady) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Assign each role slot to an ESC below, then check this box when ready.</div>';
       if (t.id === 's4' && sfEscData.count > 1 && sfEscAssignReady) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">All roles assigned — check this box when ready to move on.</div>';
