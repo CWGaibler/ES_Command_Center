@@ -3883,6 +3883,11 @@ function renderSfDetail() {
         staffingPlans[agreeId].serviceModel = 'On-Site Service Event';
         if (SHOWS[agreeId]) SHOWS[agreeId].serviceModel = 'On-Site Service Event';
       }
+      // Agreeing with model — clear any previous overrides so slot counts reset to model
+      if (Object.keys(staffingPlans[agreeId].overrides || {}).length > 0) {
+        staffingPlans[agreeId].overrides = {};
+        if (ROLE_ASSIGNMENTS[agreeId]) ROLE_ASSIGNMENTS[agreeId] = null;
+      }
       saveSfCalcDecision(agreeId);
       return;
     }
