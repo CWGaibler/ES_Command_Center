@@ -168,7 +168,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .hire-prog-wrap{flex:1;height:4px;background:var(--border-lt);border-radius:2px;overflow:hidden}
 .hire-prog-fill{height:100%;background:var(--mb);border-radius:2px;transition:width .3s}
 .hire-prog-pct{font-size:14px;font-weight:800;color:var(--muted)}
-.rh-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.rh-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:visible}
 .det-hdr{padding:13px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .det-name-row{display:flex;align-items:baseline;gap:0;flex-wrap:nowrap;min-width:0}
 .det-name{font-size:19.2px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0}
@@ -8026,6 +8026,7 @@ function scBuildSlotFilling(container, s, ra, sc) {
       var drop = document.createElement('div');
       drop.id = 'sc-np-drop';
       drop.className = 'el-name-picker-drop';
+      drop.style.display = 'block'; // always visible when open; position set dynamically by scNamePickerSearch
 
       inputWrap.appendChild(inp);
       inputWrap.appendChild(drop);
@@ -8117,8 +8118,18 @@ function scCancelPicker() {
 }
 
 function scNamePickerSearch(val) {
+  var inp = document.getElementById('sc-np-input');
   var drop = document.getElementById('sc-np-drop');
   if (!drop || !SC_PICKER) return;
+
+  // Position dropdown using fixed coordinates to escape overflow:hidden/auto containers
+  if (inp) {
+    var rect = inp.getBoundingClientRect();
+    drop.style.cssText = 'position:fixed;top:' + (rect.bottom) + 'px;left:' + rect.left + 'px;width:' + rect.width + 'px;' +
+      'background:#fff;border:1.5px solid var(--mb);border-top:none;border-radius:0 0 8px 8px;' +
+      'z-index:99999;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,31,95,.15)';
+  }
+
   var showId = SC_PICKER.showId;
   var slotType = SC_PICKER.slotType;
   var ra = ROLE_ASSIGNMENTS[showId];
@@ -8126,7 +8137,7 @@ function scNamePickerSearch(val) {
 
   var filtered = TEAM_MEMBERS.filter(function(tm) {
     if (assigned.indexOf(tm.name) >= 0) return false;
-    if (slotType === 'ees' && typeof elIsEligibleForSupervisory === 'function' && !elIsEligibleForSupervisory(tm)) return false;
+    if (slotType === 'sv' && typeof elIsEligibleForSupervisory === 'function' && !elIsEligibleForSupervisory(tm)) return false;
     if (!val) return true;
     return tm.name.toLowerCase().indexOf(val.toLowerCase()) >= 0 ||
            (tm.branch && tm.branch.toLowerCase().indexOf(val.toLowerCase()) >= 0);
@@ -8136,9 +8147,8 @@ function scNamePickerSearch(val) {
   if (!filtered.length) {
     var noMatch = document.createElement('div');
     noMatch.style.cssText = 'padding:10px 12px;color:var(--muted);font-size:12px';
-    noMatch.textContent = 'No matches found';
+    noMatch.textContent = 'No matches found' + (slotType === 'sv' ? ' (supervisor-eligible titles only)' : '');
     drop.appendChild(noMatch);
-    drop.classList.add('open');
     return;
   }
   filtered.forEach(function(tm) {
@@ -8146,11 +8156,11 @@ function scNamePickerSearch(val) {
     item.className = 'el-name-picker-item';
     item.innerHTML = '<div class="el-name-picker-name">' + tm.name + '</div><div class="el-name-picker-meta">' + (tm.title||'') + ' · ' + (tm.branch||'') + '</div>';
     (function(t) {
+      item.addEventListener('mousedown', function(e) { e.preventDefault(); }); // prevent blur before click
       item.addEventListener('click', function() { scPickPerson(showId, t.name, t.branch||''); });
     })(tm);
     drop.appendChild(item);
   });
-  drop.classList.add('open');
 }
 
 function scPickPerson(showId, name, branch) {
