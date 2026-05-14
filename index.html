@@ -3499,6 +3499,9 @@ function renderSfEmptyDetail(caughtUp) {
 function renderSfDetail() {
   var det = document.getElementById("sf-detail");
   if (!det || !sfSelId || !SHOWS[sfSelId]) { renderSfEmptyDetail(); return; }
+  // Preserve scroll position across re-renders
+  var scrollEl = det.querySelector('.det-scroll');
+  var savedScroll = scrollEl ? scrollEl.scrollTop : 0;
 
   var s = SHOWS[sfSelId];
   if (!staffingPlans[sfSelId]) staffingPlans[sfSelId] = {checked:[], overrides:{}, supervisorName:"", leadName:"", confirmed:false};
@@ -3635,6 +3638,12 @@ function renderSfDetail() {
   }
 
   det.innerHTML = html;
+
+  // Restore scroll position
+  if (savedScroll > 0) {
+    var newScrollEl = det.querySelector('.det-scroll');
+    if (newScrollEl) newScrollEl.scrollTop = savedScroll;
+  }
 
   // ── Inject staffing panels into anchors ──────────────────────────────────
   if (!confirmed) {
@@ -7122,6 +7131,9 @@ function scGetTravelerNeededShows() {
 function renderScDetail() {
   var det = document.getElementById('sc-detail');
   if (!det) return;
+  // Preserve scroll position across re-renders
+  var scScrollEl = det.querySelector('.det-scroll');
+  var scSavedScroll = scScrollEl ? scScrollEl.scrollTop : 0;
 
   if (!scSelId || !SHOWS[scSelId]) {
     det.innerHTML = '<div class="sf-empty"><div class="sf-empty-icon">&#128203;</div><div class="sf-empty-msg">Select a show</div><div class="sf-empty-sub">Choose a show from the left panel to work through its scheduling tasks</div></div>';
@@ -7263,6 +7275,12 @@ function renderScDetail() {
   }
 
   det.innerHTML = html;
+
+  // Restore scroll position
+  if (scSavedScroll > 0) {
+    var newScScrollEl = det.querySelector('.det-scroll');
+    if (newScScrollEl) newScScrollEl.scrollTop = scSavedScroll;
+  }
 
   // ── INJECT PANELS INTO ANCHORS ──
   if (sc1done && !scConfirmed) {
@@ -7605,7 +7623,8 @@ function scBuildEscPanel(container, s, ra, sc) {
     var newCount = parseInt(this.value);
     var currentNames = Array.from(namesContainer.querySelectorAll('input')).map(function(el){return el.value;});
     scSaveEscData(showId, newCount, currentNames, true);
-    rerender();
+    renderEscNames(newCount, currentNames);
+    // Defer full re-render to blur so scroll isn't disrupted on every click
   });
 }
 
