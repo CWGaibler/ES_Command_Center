@@ -7636,7 +7636,7 @@ function scPopulateLeadDrop(field, showId, query) {
   var inp = document.getElementById('sc-lead-inp-' + field + '-' + showId);
   if (inp) {
     var rect = inp.getBoundingClientRect();
-    drop.style.cssText = 'position:fixed;top:' + rect.bottom + 'px;left:' + rect.left + 'px;width:' + rect.width + 'px;' +
+    drop.style.cssText = 'display:block;position:fixed;top:' + rect.bottom + 'px;left:' + rect.left + 'px;width:' + rect.width + 'px;' +
       'background:#fff;border:1.5px solid var(--mb);border-top:none;border-radius:0 0 8px 8px;' +
       'z-index:99999;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,31,95,.15)';
   }
@@ -8109,8 +8109,7 @@ function scBuildSlotFilling(container, s, ra, sc) {
 
       var drop = document.createElement('div');
       drop.id = 'sc-np-drop';
-      drop.className = 'el-name-picker-drop';
-      drop.style.display = 'block'; // always visible when open; position set dynamically by scNamePickerSearch
+      // No class — styles set entirely by scNamePickerSearch via cssText
 
       inputWrap.appendChild(inp);
       inputWrap.appendChild(drop);
@@ -8212,7 +8211,7 @@ function scNamePickerSearch(val) {
   // Position dropdown using fixed coordinates to escape overflow:hidden/auto containers
   if (inp) {
     var rect = inp.getBoundingClientRect();
-    drop.style.cssText = 'position:fixed;top:' + (rect.bottom) + 'px;left:' + rect.left + 'px;width:' + rect.width + 'px;' +
+    drop.style.cssText = 'display:block;position:fixed;top:' + (rect.bottom) + 'px;left:' + rect.left + 'px;width:' + rect.width + 'px;' +
       'background:#fff;border:1.5px solid var(--mb);border-top:none;border-radius:0 0 8px 8px;' +
       'z-index:99999;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,31,95,.15)';
   }
