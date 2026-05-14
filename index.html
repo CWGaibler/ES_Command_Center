@@ -7465,56 +7465,77 @@ function scBuildSlotFilling(container, s, ra, sc) {
     var label = roleTypeCounts[slot.type] > 1 ? slot.label + ' ' + roleTypeCounters[slot.type] : slot.label;
     var isPickerOpen = SC_PICKER && SC_PICKER.showId === showId && SC_PICKER.slotIdx === idx;
 
+    // ── Determine ESC state for this slot ──
+    var multiEsc = escData.count > 1;
+    var assignedEscIdx = slot.escAssignment ? parseInt(slot.escAssignment) - 1 : -1;
+    var assignedEscName = (multiEsc && assignedEscIdx >= 0 && escData.names[assignedEscIdx]) ? escData.names[assignedEscIdx] : null;
+    var escAssigned = !multiEsc || !!assignedEscName;
+
     var slotDiv = document.createElement('div');
     slotDiv.className = 'el-slot';
+    slotDiv.style.overflow = 'hidden'; // keep inner strip flush to card edges
 
-    // ESC assignment badge (if multiple ESCs)
-    var escBadge = '';
-    if (escData.count > 1) {
-      var assignedEsc = slot.escAssignment || null;
-      var escName = assignedEsc && escData.names[assignedEsc-1] ? escData.names[assignedEsc-1] : null;
-      var escBadgeEl = document.createElement('div');
-      escBadgeEl.style.cssText = 'margin-bottom:4px';
-      if (escName) {
-        var pill = document.createElement('span');
-        pill.style.cssText = 'font-size:11px;font-weight:700;background:#EBF8FF;color:#005A75;border:1.5px solid #B3E5FC;border-radius:999px;padding:2px 8px';
-        pill.textContent = escLabel.replace('Exhibitor Service C','ESC: ') + escName;
-        escBadgeEl.appendChild(pill);
-      } else if (!scConfirmed) {
-        var escSel = document.createElement('select');
-        escSel.style.cssText = 'font-size:11px;border:1.5px solid var(--border);border-radius:8px;padding:2px 6px;color:var(--muted);background:var(--white)';
-        var defOpt = document.createElement('option');
-        defOpt.value = '';
-        defOpt.textContent = 'Assign to ' + escLabel.replace('Exhibitor Service C','ESC') + '...';
-        escSel.appendChild(defOpt);
-        for (var ei = 0; ei < escData.count; ei++) {
-          var eOpt = document.createElement('option');
-          eOpt.value = ei+1;
-          eOpt.textContent = escData.names[ei] || (escLabel.replace('Exhibitor Service C','ESC ') + (ei+1));
-          escSel.appendChild(eOpt);
+    // ── INNER CARD HEADER STRIP (ESC + coverage note) ──
+    // Always shown when multiEsc OR coverageNote exists, integrated inside the card border
+    var hasCardHeader = multiEsc || slot.coverageNote;
+    if (hasCardHeader) {
+      var cardHdr = document.createElement('div');
+      cardHdr.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 12px;background:rgba(0,31,95,.03);border-bottom:1px solid var(--border-lt);flex-wrap:wrap';
+
+      if (multiEsc) {
+        if (assignedEscName) {
+          // Assigned — show teal pill, clickable to re-assign
+          var escPill = document.createElement('span');
+          escPill.style.cssText = 'font-size:11px;font-weight:700;background:#EBF8FF;color:#005A75;border:1.5px solid #B3E5FC;border-radius:999px;padding:2px 8px;cursor:pointer;white-space:nowrap';
+          escPill.textContent = 'ESC: ' + assignedEscName;
+          escPill.title = 'Click to reassign ESC';
+          if (!scConfirmed) {
+            (function(si) {
+              escPill.addEventListener('click', function() {
+                ROLE_ASSIGNMENTS[showId].slots[si].escAssignment = null;
+                storageSaveRoleAssignments();
+                renderScDetail();
+              });
+            })(idx);
+          }
+          cardHdr.appendChild(escPill);
+        } else if (!scConfirmed) {
+          // Unassigned — inline select
+          var escSel = document.createElement('select');
+          escSel.style.cssText = 'font-size:11px;border:1.5px solid #FFD166;border-radius:8px;padding:3px 8px;color:#7A5200;background:#FFFBEC;font-weight:700;cursor:pointer';
+          var defOpt = document.createElement('option');
+          defOpt.value = '';
+          defOpt.textContent = 'Assign to ESC \u2193';
+          escSel.appendChild(defOpt);
+          for (var ei = 0; ei < escData.count; ei++) {
+            var eOpt = document.createElement('option');
+            eOpt.value = ei + 1;
+            eOpt.textContent = escData.names[ei] || ('ESC ' + (ei + 1));
+            escSel.appendChild(eOpt);
+          }
+          (function(si) {
+            escSel.addEventListener('change', function() {
+              ROLE_ASSIGNMENTS[showId].slots[si].escAssignment = parseInt(this.value) || null;
+              storageSaveRoleAssignments();
+              renderScDetail();
+            });
+          })(idx);
+          cardHdr.appendChild(escSel);
         }
-        (function(si) {
-          escSel.addEventListener('change', function() {
-            ROLE_ASSIGNMENTS[showId].slots[si].escAssignment = parseInt(this.value) || null;
-            storageSaveRoleAssignments();
-            renderScDetail();
-          });
-        })(idx);
-        escBadgeEl.appendChild(escSel);
       }
-      slotDiv.appendChild(escBadgeEl);
+
+      if (slot.coverageNote) {
+        var noteChip = document.createElement('span');
+        noteChip.style.cssText = 'font-size:11px;color:var(--muted);font-style:italic';
+        noteChip.textContent = slot.coverageNote;
+        cardHdr.appendChild(noteChip);
+      }
+
+      slotDiv.appendChild(cardHdr);
     }
 
-    // Coverage note display
-    if (slot.coverageNote) {
-      var noteEl = document.createElement('div');
-      noteEl.style.cssText = 'font-size:11px;color:var(--muted);margin-bottom:4px;font-style:italic';
-      noteEl.textContent = slot.coverageNote;
-      slotDiv.appendChild(noteEl);
-    }
-
+    // ── SLOT BODY ──
     if (slot.travelerNeeded) {
-      // ── TRAVELER NEEDED state ──
       var tDiv = document.createElement('div');
       tDiv.className = 'el-slot-filled';
       tDiv.style.borderLeft = '3px solid var(--gold)';
@@ -7536,15 +7557,12 @@ function scBuildSlotFilling(container, s, ra, sc) {
       nameDivT.className = 'el-slot-name';
       nameDivT.textContent = 'Traveler Needed';
       nameDivT.style.color = 'var(--gold)';
-      var reqNote = slot.travelerNote || '';
-      if (reqNote) {
+      infoDivT.appendChild(nameDivT);
+      if (slot.travelerNote) {
         var reqSpan = document.createElement('div');
         reqSpan.style.cssText = 'font-size:11px;color:var(--muted);font-weight:400;margin-top:2px';
-        reqSpan.textContent = reqNote;
-        infoDivT.appendChild(nameDivT);
+        reqSpan.textContent = slot.travelerNote;
         infoDivT.appendChild(reqSpan);
-      } else {
-        infoDivT.appendChild(nameDivT);
       }
       personDivT.appendChild(avDivT);
       personDivT.appendChild(infoDivT);
@@ -7592,7 +7610,7 @@ function scBuildSlotFilling(container, s, ra, sc) {
       if (slot.homeBranch) {
         var travel = document.createElement('span');
         travel.className = 'el-slot-travel';
-        travel.textContent = 'Traveling — ' + slot.homeBranch;
+        travel.textContent = 'Traveling \u2014 ' + slot.homeBranch;
         nameDiv.appendChild(travel);
       }
       var branchDiv = document.createElement('div');
@@ -7660,6 +7678,7 @@ function scBuildSlotFilling(container, s, ra, sc) {
       slotDiv.appendChild(pickerWrap);
 
     } else {
+      // ── OPEN / UNASSIGNED ──
       var openDiv = document.createElement('div');
       openDiv.className = 'el-slot-open';
 
@@ -7669,28 +7688,42 @@ function scBuildSlotFilling(container, s, ra, sc) {
 
       var prompt = document.createElement('span');
       prompt.className = 'el-slot-open-prompt';
-      prompt.textContent = 'Assign a team member to this slot';
+      prompt.textContent = escAssigned ? 'Assign a team member to this slot' : 'Assign an ESC above, then add a team member';
 
       openDiv.appendChild(typeSpan3);
       openDiv.appendChild(prompt);
 
       if (!scConfirmed) {
         var btnRow = document.createElement('div');
-        btnRow.style.cssText = 'display:flex;gap:6px;margin-top:4px';
+        btnRow.style.cssText = 'display:flex;gap:6px;margin-top:0;flex-shrink:0';
 
         var addBtn = document.createElement('button');
         addBtn.className = 'el-slot-add-btn';
         addBtn.textContent = '+ Add';
-        (function(sid, si, stype) {
-          addBtn.addEventListener('click', function() { scOpenNamePicker(sid, si, stype); });
-        })(showId, idx, slot.type);
+        if (!escAssigned) {
+          addBtn.disabled = true;
+          addBtn.style.opacity = '0.35';
+          addBtn.style.cursor = 'not-allowed';
+          addBtn.title = 'Assign an ESC to this slot first';
+        } else {
+          (function(sid, si, stype) {
+            addBtn.addEventListener('click', function() { scOpenNamePicker(sid, si, stype); });
+          })(showId, idx, slot.type);
+        }
 
         var travBtn = document.createElement('button');
         travBtn.style.cssText = 'cursor:pointer;border:1.5px solid #FFD166;background:#FFFBEC;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;color:#7A5200';
         travBtn.textContent = 'Traveler Needed';
-        (function(sid, si) {
-          travBtn.addEventListener('click', function() { scOpenTravelerModal(sid, si); });
-        })(showId, idx);
+        if (!escAssigned) {
+          travBtn.disabled = true;
+          travBtn.style.opacity = '0.35';
+          travBtn.style.cursor = 'not-allowed';
+          travBtn.title = 'Assign an ESC to this slot first';
+        } else {
+          (function(sid, si) {
+            travBtn.addEventListener('click', function() { scOpenTravelerModal(sid, si); });
+          })(showId, idx);
+        }
 
         btnRow.appendChild(addBtn);
         btnRow.appendChild(travBtn);
