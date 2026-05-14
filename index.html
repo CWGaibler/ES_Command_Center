@@ -6396,9 +6396,6 @@ function elRenderShow() {
     var rAs = ov.as != null ? ov.as : rec.as;
     var rSv = ov.sv != null ? ov.sv : rec.sv;
     var rFr = ov.fr != null ? ov.fr : (rec.specialty || 0);
-    var sfLead = sfPlanData.leadName || '\u2014';
-    var sfSup  = sfPlanData.supervisorName || '';
-
     html += '<div style="padding:12px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:center;justify-content:space-between">' +
       '<span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Staffing Plan</span>' +
       '<span class="chip chip-green">&#x2713; Confirmed</span>' +
@@ -6427,18 +6424,12 @@ function elRenderShow() {
     '</div>';
     html += '<div style="padding:10px 16px;border-bottom:1px solid var(--border-lt)">' + roleRowsHtml + '</div>';
 
-    html += '<div style="padding:10px 16px;display:flex;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--border-lt)">';
     if (sfPlanData.serviceModel) {
-      html += '<div><div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px">Service Model</div>' +
-        '<div style="font-size:13px;font-weight:700;color:var(--fb)">' + sfPlanData.serviceModel + '</div></div>';
+      html += '<div style="padding:10px 16px;border-bottom:1px solid var(--border-lt)">' +
+        '<div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px">Service Model</div>' +
+        '<div style="font-size:13px;font-weight:700;color:var(--fb)">' + sfPlanData.serviceModel + '</div>' +
+      '</div>';
     }
-    html += '<div><div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px">On-Site Lead</div>' +
-      '<div style="font-size:13px;font-weight:700;color:var(--fb)">' + sfLead + '</div></div>';
-    if (sfSup) {
-      html += '<div><div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px">Supervisor</div>' +
-        '<div style="font-size:13px;font-weight:700;color:var(--fb)">' + sfSup + '</div></div>';
-    }
-    html += '</div>';
 
   } else {
     html += '<div style="padding:12px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:center;justify-content:space-between">' +
@@ -6483,7 +6474,7 @@ function elRenderShow() {
   var scConfirmedFlag = ROLE_ASSIGNMENTS[elSelId] && ROLE_ASSIGNMENTS[elSelId].confirmed;
   var scStep1Done = scPlanData.step_sc1 === true;
   var scRA = ROLE_ASSIGNMENTS[elSelId];
-  var scAllFilled = scRA && scRA.slots && scRA.slots.every(function(sl){ return sl.person; });
+  var scAllFilled = scRA && scRA.slots && scRA.slots.every(function(sl){ return sl.person || sl.travelerNeeded; });
   var scStarted = scStep1Done || !!scAllFilled;
 
   html += '<div class="el-section-div">Scheduling</div>';
@@ -6527,8 +6518,8 @@ function elRenderShow() {
       });
       html += '</div>';
     }
-    var scLead = (schedulingPlans[showId] || {}).leadName || '';
-    var scSup  = (schedulingPlans[showId] || {}).supervisorName || '';
+    var scLead = (schedulingPlans[elSelId] || {}).leadName || '';
+    var scSup  = (schedulingPlans[elSelId] || {}).supervisorName || '';
     if (scLead) {
       html += '<div style="padding:10px 16px;display:flex;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--border-lt)">' +
         '<div><div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px">On-Site Lead</div>' +
@@ -6546,9 +6537,12 @@ function elRenderShow() {
     if (!scStarted) {
       html += '<div style="padding:14px 16px;border-bottom:1px solid var(--border-lt);font-size:13px;color:var(--muted)">The scheduling process has not been started for this event.</div>';
     } else {
+      var scStep2Done = scPlanData.step_sc2 === true;
+      var scStep3Done = scPlanData.step_sc3 === true;
       var scStepDefs = [
-        {done: scStep1Done,   label:'Add event to ES Regional Schedule'},
-        {done: !!scAllFilled, label:'Assign team members to event slots'}
+        {done: scStep1Done,  label:'Add event to ES Regional Schedule'},
+        {done: scStep2Done,  label:'Identify on-site lead and supervisor'},
+        {done: !!scAllFilled || scStep3Done, label:'Assign team members to event slots'}
       ];
       html += '<div style="padding:10px 16px;border-bottom:1px solid var(--border-lt)">';
       scStepDefs.forEach(function(step) {
