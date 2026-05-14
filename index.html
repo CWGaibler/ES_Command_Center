@@ -3835,13 +3835,19 @@ function renderSfDetail() {
       var reKey = reModelBtn.getAttribute('data-re-model-select');
       if (!staffingPlans[reUid]) staffingPlans[reUid] = {checked:[], overrides:{}, confirmed:false};
       staffingPlans[reUid].remoteModResult = reKey;
-      // Update serviceModel
       var modelMap = {full:'Remote (Fully Remote) Service Event', hybrid:'Remote (Partially On-Site) Service Event', onsite:'On-Site Service Event'};
       staffingPlans[reUid].serviceModel = modelMap[reKey];
       if (SHOWS[reUid]) SHOWS[reUid].serviceModel = modelMap[reKey];
       storageSaveStaffingPlans();
-      // Re-render just the buttons to show active state
-      renderSfDetail();
+      // Update button active states in-place — no full re-render needed
+      var allModelBtns = det.querySelectorAll('[data-re-model-select][data-re-uid="' + reUid + '"]');
+      allModelBtns.forEach(function(btn) {
+        var isActive = btn.getAttribute('data-re-model-select') === reKey;
+        btn.style.background = isActive ? 'var(--fb)' : '';
+        btn.style.color = isActive ? '#fff' : '';
+        btn.style.borderColor = isActive ? 'var(--fb)' : '';
+      });
+      sfUpdateStepGates(reUid);
       return;
     }
 
@@ -3964,7 +3970,19 @@ function sfSmallEventDetermineAndRender(showId) {
   if (SHOWS[showId]) SHOWS[showId].serviceModel = staffingPlans[showId].serviceModel;
 
   storageSaveStaffingPlans();
-  renderSfDetail();
+
+  // Update result container in-place — no full re-render, no scroll jump
+  var resultContainer = document.getElementById('sf-re-result-' + showId);
+  if (resultContainer) {
+    var s = SHOWS[showId] || {};
+    var plan = staffingPlans[showId];
+    var newResultHtml = renderSfSmallEventResultBlock(s, plan, result);
+    resultContainer.innerHTML = newResultHtml;
+    sfUpdateStepGates(showId);
+  } else {
+    // Fallback: full re-render if container not found
+    renderSfDetail();
+  }
 }
 
 function sfSmallEventConfirm(showId) {
@@ -3977,6 +3995,90 @@ function sfSmallEventConfirm(showId) {
     if (SHOWS[showId]) SHOWS[showId].serviceModel = modelMap[finalResult];
   }
   saveSfCalcDecision(showId);
+}
+
+// Renders just the result + decision section HTML for small event calc — used for in-place update
+function renderSfSmallEventResultBlock(s, plan, result) {
+  var uid = s.id;
+  var modelLabels = {full:'Fully Remote', hybrid:'Hybrid (Partially On-Site)', onsite:'On-Site'};
+  var html = '';
+  if (!result) return html;
+
+  if (result === 'full') {
+    html += '<div class="sf-remote-result sf-remote-result-full">' +
+      '<div class="sf-remote-result-badge">Fully Remote</div>' +
+      '<div class="sf-remote-result-label" style="color:var(--mb)">Remote (Fully Remote) Service Event</div>' +
+      '<p style="margin:6px 0 0;font-size:13px">Based on your inputs, this event is eligible for <strong>fully remote</strong> staffing. ' +
+      'ES will not be on-site but will support customers remotely throughout the event. ' +
+      'Follow the Remote Staffing SOP for next steps including exhibitor communications, Delivery coordination, and service plan setup.</p>' +
+      '</div>';
+  } else if (result === 'hybrid') {
+    html += '<div class="sf-remote-result sf-remote-result-hybrid">' +
+      '<div class="sf-remote-result-badge" style="background:rgba(255,181,0,.15);color:#a07000;border:1px solid rgba(255,181,0,.4)">Partially On-Site (Hybrid)</div>' +
+      '<div class="sf-remote-result-label" style="color:#a07000">Remote (Partially On-Site) Service Event</div>' +
+      '<p style="margin:6px 0 0;font-size:13px">Based on your inputs, this event is eligible for <strong>partially on-site (hybrid)</strong> staffing. ' +
+      'ES will be present during certain peak times and support customers remotely for the remainder. ' +
+      'Review the additional considerations below before finalizing this approach.</p>' +
+      '</div>';
+  } else if (result === 'onsite') {
+    html += '<div class="sf-remote-result sf-remote-result-onsite">' +
+      '<div class="sf-remote-result-badge">On-Site Required</div>' +
+      '<div class="sf-remote-result-label" style="color:var(--green)">On-Site Service Event</div>' +
+      '<p style="margin:6px 0 0;font-size:13px">Based on your inputs (MHA count, freight value, or revenue exceeds the remote threshold), this event requires <strong>on-site</strong> staffing. ' +
+      'Use the standard ES Staffing Service Model to determine headcount.</p>' +
+      '</div>';
+  }
+
+  var questions = [
+    {i:'🏙️', t:'Is this show taking place in a grey city? Grey city events may require additional coordination and may affect the feasibility of remote or hybrid staffing.'},
+    {i:'👥', t:'Are there enough ES resources in the local city, or will staff need to travel to support on-site during peak times?'},
+    {i:'📅', t:'Does the on-site CSM have less than 1 year of tenure with Freeman? Less experienced team members may benefit from more on-site support.'},
+    {i:'🔨', t:'Will Delivery be supported by a union lead? Union-led Delivery teams may require more active ES coordination on-site.'},
+    {i:'📦', t:'Has Freeman produced this event before? New-to-Freeman events may have service needs that are difficult to anticipate and manage remotely.'}
+  ];
+  var qHtml = questions.map(function(q) {
+    return '<div class="sf-consider-item"><div class="sf-consider-icon">' + q.i + '</div><div>' + q.t + '</div></div>';
+  }).join('');
+  html += '<button class="sf-collapsible-btn" data-collapsible="re-consider-' + uid + '">⚡ Consider These Before Finalizing <span class="sf-chev">▼</span></button>' +
+    '<div class="sf-collapsible-body" id="sf-re-consider-' + uid + '">' + qHtml + '</div>';
+
+  var calcDecisionMadeRe = plan && plan.serviceModel && plan.serviceModel !== '';
+  if (!calcDecisionMadeRe) {
+    var isModifying = plan.remoteModifying || false;
+    var savedModResult = plan.remoteModResult || result;
+    var modelBtns = ['full','hybrid','onsite'].map(function(key) {
+      var active = savedModResult === key ? ' style="background:var(--fb);color:#fff;border-color:var(--fb)"' : '';
+      return '<button class="sf-btn-modify" style="flex:1;font-size:12px;font-weight:700;padding:6px 10px"' +
+        ' data-re-model-select="' + key + '" data-re-uid="' + uid + '"' + active + '>' +
+        modelLabels[key] + '</button>';
+    }).join('');
+    html += '<div class="sf-decision-section">' +
+      '<div class="sf-decision-lbl">Your Staffing Decision</div>' +
+      '<div class="sf-decision-btns">' +
+        '<button class="sf-btn-agree" data-re-agree="' + uid + '">✓ I Agree With This Plan</button>' +
+        '<button class="sf-btn-modify" data-re-modify="' + uid + '">⊘ I Need to Modify This Plan</button>' +
+      '</div>' +
+      '<div class="sf-modify-panel' + (isModifying ? ' open' : '') + '" id="sf-re-modify-' + uid + '">' +
+        '<div class="sf-modify-hdr">Document Your Modification</div>' +
+        '<div class="sf-decision-lbl" style="font-size:11px;margin-bottom:6px">Select the correct staffing approach</div>' +
+        '<div class="sf-decision-btns" style="margin-bottom:14px">' + modelBtns + '</div>' +
+        '<div class="sf-decision-lbl" style="font-size:11px">Reason for Modification</div>' +
+        '<textarea class="sf-reason-textarea" id="sf-re-reason-' + uid + '" placeholder="Explain why you are modifying the recommended approach...">' + (plan.remoteReason || '') + '</textarea>' +
+        '<button class="sf-btn-submit-mod" data-re-submit="' + uid + '" style="margin-top:10px;width:100%">Submit Modified Plan →</button>' +
+      '</div>' +
+    '</div>';
+  } else {
+    var wasModified = plan.remoteModResult && plan.remoteModResult !== result;
+    var resultLabel = modelLabels[result] || result;
+    html += '<div class="sf-decision-section">' +
+      '<div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px">' +
+        (wasModified
+          ? '✓ Plan set — ' + modelLabels[plan.remoteModResult] + ' <span style="font-weight:400;color:var(--muted)">(modified from ' + modelLabels[result] + ')</span>'
+          : '✓ Plan set — you agreed with this model recommendation.') +
+      '</div>' +
+    '</div>';
+  }
+  return html;
 }
 
 function renderSfSmallEventCalc(s, plan) {
@@ -4023,91 +4125,10 @@ function renderSfSmallEventCalc(s, plan) {
     '<button class="sf-btn-agree" style="margin-top:12px" onclick="sfSmallEventDetermineAndRender(\'' + uid + '\')">Determine Staffing Approach →</button>' +
   '</div>';
 
-  // Result block (only shown after determination)
-  if (result) {
-    if (result === 'full') {
-      html += '<div class="sf-remote-result sf-remote-result-full">' +
-        '<div class="sf-remote-result-badge">Fully Remote</div>' +
-        '<div class="sf-remote-result-label" style="color:var(--mb)">Remote (Fully Remote) Service Event</div>' +
-        '<p style="margin:6px 0 0;font-size:13px">Based on your inputs, this event is eligible for <strong>fully remote</strong> staffing. ' +
-        'ES will not be on-site but will support customers remotely throughout the event. ' +
-        'Follow the Remote Staffing SOP for next steps including exhibitor communications, Delivery coordination, and service plan setup.</p>' +
-      '</div>';
-    } else if (result === 'hybrid') {
-      html += '<div class="sf-remote-result sf-remote-result-hybrid">' +
-        '<div class="sf-remote-result-badge" style="background:rgba(255,181,0,.15);color:#a07000;border:1px solid rgba(255,181,0,.4)">Partially On-Site (Hybrid)</div>' +
-        '<div class="sf-remote-result-label" style="color:#a07000">Remote (Partially On-Site) Service Event</div>' +
-        '<p style="margin:6px 0 0;font-size:13px">Based on your inputs, this event is eligible for <strong>partially on-site (hybrid)</strong> staffing. ' +
-        'ES will be present during certain peak times and support customers remotely for the remainder. ' +
-        'Review the additional considerations below before finalizing this approach.</p>' +
-      '</div>';
-    } else if (result === 'onsite') {
-      html += '<div class="sf-remote-result sf-remote-result-onsite">' +
-        '<div class="sf-remote-result-badge">On-Site Required</div>' +
-        '<div class="sf-remote-result-label" style="color:var(--green)">On-Site Service Event</div>' +
-        '<p style="margin:6px 0 0;font-size:13px">Based on your inputs (MHA count, freight value, or revenue exceeds the remote threshold), this event requires <strong>on-site</strong> staffing. ' +
-        'Use the standard ES Staffing Service Model to determine headcount.</p>' +
-      '</div>';
-    }
-
-    // Considerations (for all outcomes)
-    var questions = [
-      {i:'🏙️', t:'Is this show taking place in a grey city? Grey city events may require additional coordination and may affect the feasibility of remote or hybrid staffing.'},
-      {i:'👥', t:'Are there enough ES resources in the local city, or will staff need to travel to support on-site during peak times?'},
-      {i:'📅', t:'Does the on-site CSM have less than 1 year of tenure with Freeman? Less experienced team members may benefit from more on-site support.'},
-      {i:'🔨', t:'Will Delivery be supported by a union lead? Union-led Delivery teams may require more active ES coordination on-site.'},
-      {i:'📦', t:'Has Freeman produced this event before? New-to-Freeman events may have service needs that are difficult to anticipate and manage remotely.'}
-    ];
-    var qHtml = questions.map(function(q) {
-      return '<div class="sf-consider-item"><div class="sf-consider-icon">' + q.i + '</div><div>' + q.t + '</div></div>';
-    }).join('');
-
-    html += '<button class="sf-collapsible-btn" data-collapsible="re-consider-' + uid + '">⚡ Consider These Before Finalizing <span class="sf-chev">▼</span></button>' +
-      '<div class="sf-collapsible-body" id="sf-re-consider-' + uid + '">' + qHtml + '</div>';
-
-    // Your Staffing Decision — show "Plan set" as soon as serviceModel is saved
-    // (i.e. after agree/submit), before the user checks the s2 checkbox.
-    var calcDecisionMadeRe = plan && plan.serviceModel && plan.serviceModel !== '';
-    var modelLabels = {full: 'Fully Remote', hybrid: 'Hybrid (Partially On-Site)', onsite: 'On-Site'};
-    if (!calcDecisionMadeRe) {
-      var isModifying = plan.remoteModifying || false;
-      var savedModResult = plan.remoteModResult || result;
-
-      // Service model selector buttons for modify panel
-      var modelBtns = ['full','hybrid','onsite'].map(function(key) {
-        var active = savedModResult === key ? ' style="background:var(--fb);color:#fff;border-color:var(--fb)"' : '';
-        return '<button class="sf-btn-modify" style="flex:1;font-size:12px;font-weight:700;padding:6px 10px"' +
-          ' data-re-model-select="' + key + '" data-re-uid="' + uid + '"' + active + '>' +
-          modelLabels[key] + '</button>';
-      }).join('');
-
-      html += '<div class="sf-decision-section">' +
-        '<div class="sf-decision-lbl">Your Staffing Decision</div>' +
-        '<div class="sf-decision-btns">' +
-          '<button class="sf-btn-agree" data-re-agree="' + uid + '">✓ I Agree With This Plan</button>' +
-          '<button class="sf-btn-modify" data-re-modify="' + uid + '">⊘ I Need to Modify This Plan</button>' +
-        '</div>' +
-        '<div class="sf-modify-panel' + (isModifying ? ' open' : '') + '" id="sf-re-modify-' + uid + '">' +
-          '<div class="sf-modify-hdr">Document Your Modification</div>' +
-          '<div class="sf-decision-lbl" style="font-size:11px;margin-bottom:6px">Select the correct staffing approach</div>' +
-          '<div class="sf-decision-btns" style="margin-bottom:14px">' + modelBtns + '</div>' +
-          '<div class="sf-decision-lbl" style="font-size:11px">Reason for Modification</div>' +
-          '<textarea class="sf-reason-textarea" id="sf-re-reason-' + uid + '" placeholder="Explain why you are modifying the recommended approach...">' + (plan.remoteReason || '') + '</textarea>' +
-          '<button class="sf-btn-submit-mod" data-re-submit="' + uid + '" style="margin-top:10px;width:100%">Submit Modified Plan →</button>' +
-        '</div>' +
-      '</div>';
-    } else {
-      var resultLabel = result === 'full' ? 'Fully Remote' : result === 'onsite' ? 'On-Site' : 'Hybrid (Partially On-Site)';
-      var wasModified = plan.remoteModResult && plan.remoteModResult !== plan.remoteResult;
-      html += '<div class="sf-decision-section">' +
-        '<div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px">' +
-          (wasModified
-            ? '✓ Plan set — ' + modelLabels[plan.remoteModResult] + ' <span style="font-weight:400;color:var(--muted)">(modified from ' + modelLabels[result] + ')</span>'
-            : '✓ Plan set — ' + resultLabel + ' — you agreed with this recommendation.') +
-        '</div>' +
-      '</div>';
-    }
-  }
+  // Result block container — always rendered, populated after determination
+  html += '<div id="sf-re-result-' + uid + '">';
+  html += renderSfSmallEventResultBlock(s, plan, result);
+  html += '</div>'; // close sf-re-result container
 
   html += '</div>'; // close ss-calc-full
   return html;
@@ -4615,10 +4636,18 @@ function updateSfName(showId, field, val) {
 // so the user still has to go through the final "Complete Process" modal.
 function saveSfCalcDecision(showId) {
   if (!staffingPlans[showId]) staffingPlans[showId] = {checked:[], overrides:{}, confirmed:false};
-  // Save the calculator decision — do NOT mark s2 checked here.
-  // The user must manually click the step 2 checkbox after seeing the "Plan set" confirmation.
   storageSaveStaffingPlans();
-  renderSfDetail();
+  // Update result block in-place — avoid scroll jump
+  var s = SHOWS[showId] || {};
+  var plan = staffingPlans[showId];
+  var result = plan.remoteResult || null;
+  var resultContainer = document.getElementById('sf-re-result-' + showId);
+  if (resultContainer) {
+    resultContainer.innerHTML = renderSfSmallEventResultBlock(s, plan, result);
+    sfUpdateStepGates(showId);
+  } else {
+    renderSfDetail();
+  }
   renderSfList();
   renderSfStats();
 }
