@@ -5722,8 +5722,8 @@ function elGetShowLogo(showId) {
 }
 
 function goToEventLens(showId) {
-  var navItem = document.querySelector('.nav-item[onclick*="events"]');
-  showPage('events', navItem);
+  showPage('events', null);
+  tnSetActive('events');
   setTimeout(function() {
     elSelId = showId;
     var inp = document.getElementById('el-search-input');
