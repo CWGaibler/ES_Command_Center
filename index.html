@@ -1307,6 +1307,11 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="page-title">Scheduling</div>
       <div class="page-sub" id="sc-sub">Shows ready to schedule — staffing confirmed, scheduling pending</div>
     </div>
+    <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0;padding:0 20px">
+      <button id="sc-tab-queue" onclick="scSwitchTab('queue')" style="background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:800;color:var(--fb);cursor:pointer;border-bottom:2px solid var(--fb);margin-bottom:-2px">Scheduling Queue</button>
+      <button id="sc-tab-travel" onclick="scSwitchTab('travel')" style="background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">Open Travel Needs <span id="sc-travel-badge" style="display:none;margin-left:4px;background:var(--gold);color:#5A3A00;border-radius:999px;padding:1px 7px;font-size:11px;font-weight:900"></span></button>
+    </div>
+    <div id="sc-panel-queue">
     <div class="rh-layout" id="sc-layout">
       <div class="rh-sidebar">
         <div class="rh-sidebar-hdr">
@@ -1321,6 +1326,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
           <div class="sf-empty-sub">Choose a show from the left to work through its scheduling tasks</div>
         </div>
       </div>
+    </div>
+    </div>
+    <div id="sc-panel-travel" style="display:none;padding:20px">
+      <div id="sc-travel-board"></div>
     </div>
   </div>
   <div class="page" id="page-timekeeping"><div class="page-hdr"><span class="page-title">Timekeeping & Utilization</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="cs-title">Timekeeping & Utilization</div><div class="cs-sub">Workfront approvals, Kronos timecards, and billable-to-job reporting.</div></div></div>
@@ -2232,10 +2241,52 @@ function renderNeedsAttention() {
     '</div>';
   }).join('');
 
-  // Hardcoded placeholder items removed — pending process timeline definition
+  // ── Traveler Needed: open slots on confirmed/in-progress shows ──────────
+  var travelerItems = [];
+  var activePillTrav = document.querySelector('.scope-pill.active');
+  var scopeTrav = activePillTrav ? activePillTrav.getAttribute('data-scope') : 'enterprise';
+  var regionElTrav = document.getElementById('region-select');
+  var branchElTrav = document.getElementById('branch-select');
+  var pillRegionTrav = regionElTrav ? regionElTrav.value : '';
+  var pillBranchTrav = branchElTrav ? branchElTrav.value : '';
+  Object.keys(ROLE_ASSIGNMENTS).forEach(function(sid) {
+    var ra = ROLE_ASSIGNMENTS[sid];
+    if (!ra || !ra.slots) return;
+    var travSlots = ra.slots.filter(function(sl) { return sl.travelerNeeded; });
+    if (!travSlots.length) return;
+    var show = SHOWS[sid];
+    if (!show) return;
+    var showBranch = show.producingBranch || show.region || '';
+    var inScope = true;
+    if (scopeTrav === 'region' && pillRegionTrav) {
+      var rb = BRANCH_MAP[pillRegionTrav] || [];
+      inScope = rb.indexOf(showBranch) >= 0;
+    } else if (scopeTrav === 'branch' && pillBranchTrav) {
+      inScope = showBranch === pillBranchTrav;
+    }
+    if (!inScope) return;
+    travSlots.forEach(function(sl, i) {
+      var roleTypeCounts2 = {};
+      ra.slots.forEach(function(s2) { roleTypeCounts2[s2.type] = (roleTypeCounts2[s2.type]||0)+1; });
+      var roleTypeCounters2 = {};
+      var slLabel = sl.label;
+      ra.slots.forEach(function(s2, j2) {
+        roleTypeCounters2[s2.type] = (roleTypeCounters2[s2.type]||0)+1;
+        if (s2 === sl) slLabel = roleTypeCounts2[s2.type] > 1 ? s2.label + ' ' + roleTypeCounters2[s2.type] : s2.label;
+      });
+      travelerItems.push({ show: show, showId: sid, slot: sl, slotLabel: slLabel });
+    });
+  });
+  html += travelerItems.map(function(item) {
+    return '<div class="na-card" onclick="(function(){var nav=document.querySelector(\'.nav-item[onclick*=scheduling]\');if(nav){showPage(\'scheduling\',nav);}setTimeout(function(){scSelectShow(\''+item.showId+'\');},100);})()">' +
+      '<div class="na-card-title">' + item.show.name + ' &mdash; ' + item.slotLabel + '</div>' +
+      '<div class="na-card-meta">Traveler needed &middot; Move-in ' + sfFmtDate(item.show.moveInStart) + ' &middot; ' + (item.show.producingBranch || item.show.region || '') + (item.slot.travelerNote ? ' &middot; ' + item.slot.travelerNote.substring(0,60) : '') + '</div>' +
+      '<div class="na-card-tags"><span class="chip" style="background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166">&#9873; Traveler Needed</span><span class="chip chip-ghost">Scheduling</span></div>' +
+    '</div>';
+  }).join('');
 
   // Empty state
-  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length;
+  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length + travelerItems.length;
   if (totalItems === 0) {
     html = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No items need your attention right now.</div>';
   }
@@ -6733,10 +6784,96 @@ function goToSchedulingFromStaffing(showId) {
 
 // ── Scheduling workspace functions ───────────────────────────────────────
 
+function scSwitchTab(tab) {
+  var qPanel = document.getElementById('sc-panel-queue');
+  var tPanel = document.getElementById('sc-panel-travel');
+  var qTab   = document.getElementById('sc-tab-queue');
+  var tTab   = document.getElementById('sc-tab-travel');
+  if (!qPanel || !tPanel) return;
+  if (tab === 'queue') {
+    qPanel.style.display = '';
+    tPanel.style.display = 'none';
+    qTab.style.cssText = 'background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:800;color:var(--fb);cursor:pointer;border-bottom:2px solid var(--fb);margin-bottom:-2px';
+    tTab.style.cssText = 'background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px';
+  } else {
+    qPanel.style.display = 'none';
+    tPanel.style.display = '';
+    qTab.style.cssText = 'background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px';
+    tTab.style.cssText = 'background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:800;color:var(--fb);cursor:pointer;border-bottom:2px solid var(--fb);margin-bottom:-2px';
+    renderTravelBoard();
+  }
+}
+
+function renderTravelBoard() {
+  var board = document.getElementById('sc-travel-board');
+  if (!board) return;
+  var items = scGetTravelerNeededShows();
+  // Update badge
+  var badge = document.getElementById('sc-travel-badge');
+  if (badge) {
+    if (items.length) { badge.textContent = items.length; badge.style.display = ''; }
+    else { badge.style.display = 'none'; }
+  }
+  if (!items.length) {
+    board.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px"><div style="font-size:32px;margin-bottom:10px">&#x2705;</div><div style="font-weight:800;color:var(--fb);margin-bottom:6px">No open travel needs</div><div>All scheduling positions are filled across all branches.</div></div>';
+    return;
+  }
+  var html = '<div style="margin-bottom:14px">' +
+    '<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px">Showing all open traveler-needed positions across the organization &mdash; enterprise-wide, read-only.</div>' +
+    '<div style="font-size:12px;color:var(--muted)">Use the monthly collaborative scheduling meeting to determine assignments. Positions are filled by the show-owning leader in their Scheduling queue.</div>' +
+  '</div>';
+  items.forEach(function(item) {
+    var s = item.show;
+    var rec = sfCalcRec ? sfCalcRec(s) : {};
+    html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">';
+    html += '<div><span style="font-size:14px;font-weight:800;color:var(--fb)">' + s.name + '</span><span style="margin:0 6px;color:var(--border)">|</span><span style="font-size:13px;font-weight:700;color:var(--mb)">Job #' + item.showId + '</span></div>';
+    html += '<span style="font-size:11px;font-weight:700;background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;border-radius:999px;padding:2px 8px">' + item.slots.length + ' Traveler' + (item.slots.length > 1 ? 's' : '') + ' Needed</span>';
+    html += '</div>';
+    html += '<div style="font-size:12px;color:var(--muted);margin-bottom:8px">' +
+      (s.facility || s.city || '') + ' &middot; Move-in ' + sfFmtDate(s.moveInStart) + ' &ndash; Clear ' + sfFmtDate(s.clearDate) + ' &middot; ' +
+      '<strong style="color:var(--fb)">' + (s.producingBranch || s.region || '') + '</strong>' +
+    '</div>';
+    item.slots.forEach(function(sl) {
+      var roleTypeCounts3 = {};
+      var ra3 = ROLE_ASSIGNMENTS[item.showId];
+      if (ra3) ra3.slots.forEach(function(s3) { roleTypeCounts3[s3.type] = (roleTypeCounts3[s3.type]||0)+1; });
+      var roleTypeCounters3 = {};
+      var slLabel3 = sl.label;
+      if (ra3) ra3.slots.forEach(function(s3) {
+        roleTypeCounters3[s3.type] = (roleTypeCounters3[s3.type]||0)+1;
+        if (s3 === sl) slLabel3 = roleTypeCounts3[s3.type] > 1 ? s3.label + ' ' + roleTypeCounters3[s3.type] : s3.label;
+      });
+      var escData3 = scGetEscData(item.showId);
+      var escLine3 = escData3.count > 1 && sl.escAssignment && escData3.names[sl.escAssignment-1]
+        ? ' &middot; <span style="color:var(--mb)">' + escData3.names[sl.escAssignment-1] + '</span>' : '';
+      html += '<div style="display:flex;align-items:flex-start;gap:10px;background:var(--surface);border:1px solid var(--border-lt);border-radius:8px;padding:8px 12px;margin-bottom:6px">';
+      html += '<div style="font-size:11px;background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;border-radius:999px;padding:2px 8px;font-weight:700;white-space:nowrap">&#9873; ' + slLabel3 + '</div>';
+      html += '<div style="flex:1;font-size:12px;color:var(--fb)">';
+      if (sl.coverageNote) html += '<div><strong>Coverage:</strong> ' + sl.coverageNote + '</div>';
+      if (sl.travelerNote)  html += '<div style="color:var(--muted)"><strong>Requirements:</strong> ' + sl.travelerNote + '</div>';
+      html += escLine3;
+      html += '</div></div>';
+    });
+    html += '</div>';
+  });
+  board.innerHTML = html;
+}
+
 function initScheduling() {
   scSelId = null;
+  scSwitchTab('queue');
   renderScList();
-  renderScEmptyDetail(); // always start with clean empty state on navigation
+  renderScEmptyDetail();
+  renderTravelBadge();
+}
+
+function renderTravelBadge() {
+  var badge = document.getElementById('sc-travel-badge');
+  if (!badge) return;
+  var items = scGetTravelerNeededShows();
+  if (items.length) { badge.textContent = items.length; badge.style.display = ''; }
+  else { badge.style.display = 'none'; }
 }
 
 function getScScopeShows() {
@@ -6815,8 +6952,22 @@ function renderScList() {
     var tagsDiv = document.createElement('div');
     tagsDiv.className = 'sf-show-tags';
     var badge = document.createElement('span');
-    badge.className = scConfirmed ? 'sf-badge ss-badge-confirmed' : 'sf-badge ss-badge-unstaffed';
-    badge.textContent = scConfirmed ? '\u2713 Scheduled' : 'Needs Scheduling';
+    var scStatus = scGetStatus(s.id);
+    if (scStatus === 'fully-scheduled') {
+      badge.className = 'sf-badge ss-badge-confirmed';
+      badge.textContent = '\u2713 Fully Scheduled';
+    } else if (scStatus === 'travelers-pending') {
+      badge.className = 'sf-badge';
+      badge.style.cssText = 'background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166';
+      badge.textContent = '\u9873 Traveler(s) Pending';
+    } else if (scStatus === 'in-progress') {
+      badge.className = 'sf-badge sf-badge-in-progress';
+      badge.style.cssText = 'background:#EBF8FF;color:#005A75;border:1.5px solid #B3E5FC';
+      badge.textContent = 'In Progress';
+    } else {
+      badge.className = 'sf-badge ss-badge-unstaffed';
+      badge.textContent = 'Needs Scheduling';
+    }
     var regionChip = document.createElement('span');
     regionChip.className = 'chip chip-ghost';
     regionChip.style.fontSize = '12px';
@@ -6844,6 +6995,70 @@ function scSelectShow(showId) {
   renderScDetail();
 }
 
+// ── SCHEDULING HELPER: ESC label (US vs Canada) ──────────────────────────
+function scEscLabel(showId) {
+  var s = SHOWS[showId] || {};
+  var branch = s.producingBranch || '';
+  return branch.toLowerCase().indexOf('toronto') >= 0 ? 'Exhibitor Service Centre' : 'Exhibitor Service Center';
+}
+
+// ── SCHEDULING HELPER: compute status state ───────────────────────────────
+// States: 'unscheduled' | 'in-progress' | 'travelers-pending' | 'fully-scheduled'
+function scGetStatus(showId) {
+  var ra = ROLE_ASSIGNMENTS[showId];
+  var sc = schedulingPlans[showId] || {};
+  if (!ra || !ra.slots || !ra.slots.length) return 'unscheduled';
+  if (ra.confirmed) return 'fully-scheduled';
+  var hasTraveler = ra.slots.some(function(sl) { return sl.travelerNeeded; });
+  var hasEmpty    = ra.slots.some(function(sl) { return !sl.person && !sl.travelerNeeded; });
+  var sc1done = sc.step_sc1;
+  if (!sc1done) return 'unscheduled';
+  if (hasTraveler && !hasEmpty) return 'travelers-pending';
+  if (sc1done) return 'in-progress';
+  return 'unscheduled';
+}
+
+// ── SCHEDULING HELPER: ESC step save/load ────────────────────────────────
+function scSaveEscData(showId, count, names) {
+  if (!schedulingPlans[showId]) schedulingPlans[showId] = {};
+  schedulingPlans[showId].escCount = count;
+  schedulingPlans[showId].escNames = names;
+  storageSaveSchedulingPlans();
+}
+
+function scGetEscData(showId) {
+  var sc = schedulingPlans[showId] || {};
+  return { count: sc.escCount || 1, names: sc.escNames || [] };
+}
+
+// ── SCHEDULING HELPER: coverage note save/load ────────────────────────────
+function scSaveCoverageNote(showId, slotIdx, note) {
+  var ra = ROLE_ASSIGNMENTS[showId];
+  if (!ra || !ra.slots[slotIdx]) return;
+  ra.slots[slotIdx].coverageNote = note;
+  storageSaveRoleAssignments();
+}
+
+// ── SCHEDULING HELPER: traveler needed data ───────────────────────────────
+function scGetTravelerNeededShows() {
+  // Returns all shows (scope-aware) with at least one travelerNeeded slot, not yet confirmed
+  var allShows = Object.keys(SHOWS);
+  var result = [];
+  allShows.forEach(function(sid) {
+    var ra = ROLE_ASSIGNMENTS[sid];
+    if (!ra || ra.confirmed) return;
+    var travelerSlots = ra.slots ? ra.slots.filter(function(sl) { return sl.travelerNeeded; }) : [];
+    if (!travelerSlots.length) return;
+    result.push({ show: SHOWS[sid], showId: sid, slots: travelerSlots });
+  });
+  // Sort by moveInStart ascending
+  result.sort(function(a, b) {
+    var da = a.show.moveInStart || '', db = b.show.moveInStart || '';
+    return da < db ? -1 : da > db ? 1 : 0;
+  });
+  return result;
+}
+
 function renderScDetail() {
   var det = document.getElementById('sc-detail');
   if (!det) return;
@@ -6861,8 +7076,8 @@ function renderScDetail() {
   var rec = sfCalcRec(s);
   var scConfirmed = ra && ra.confirmed;
   var sc1done = sc.step_sc1;
-  var allFilled = ra && ra.slots && ra.slots.every(function(sl) { return sl.person; });
-  var allDone = sc1done && allFilled;
+  var allSlotsResolved = ra && ra.slots && ra.slots.every(function(sl) { return sl.person || sl.travelerNeeded; });
+  var allDone = sc1done && allSlotsResolved;
 
   // ── DETAIL HEADER — identical structure to staffing ──
   var sfPlan = staffingPlans[scSelId] || {};
@@ -6882,7 +7097,14 @@ function renderScDetail() {
       '<span class="chip chip-ghost">' + Math.round(rec.booths) + ' booths</span>' +
       '<span class="chip chip-ghost">' + sfFmt(rec.revenue) + ' revenue</span>' +
     '</div></div>' +
-    '<div>' + (scConfirmed ? '<span class="chip chip-green">&#x2713; Scheduling Confirmed</span>' : '<span class="chip chip-amber">Needs Scheduling</span>') + '</div>' +
+    '<div>' + (function() {
+      if (scConfirmed) return '<span class="chip chip-green">&#x2713; Fully Scheduled</span>';
+      var hasTraveler = ra && ra.slots && ra.slots.some(function(sl) { return sl.travelerNeeded; });
+      var hasEmpty    = ra && ra.slots && ra.slots.some(function(sl) { return !sl.person && !sl.travelerNeeded; });
+      if (sc1done && hasTraveler && !hasEmpty) return '<span class="chip" style="background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166">&#9873; Traveler(s) Pending</span>';
+      if (sc1done) return '<span class="chip chip-amber">In Progress</span>';
+      return '<span class="chip chip-amber">Needs Scheduling</span>';
+    })() + '</div>' +
     '</div>';
 
   html += '<div class="det-scroll" style="max-height:calc(100vh - 300px);overflow-y:auto;padding-top:8px">';
@@ -6900,23 +7122,64 @@ function renderScDetail() {
     '</div>' +
     '</div>';
 
-  // ── TASK 2 — Assign team members (locked until sc1 done) ──
-  var t2locked = !sc1done && !scConfirmed;
-  var t2chkCls = 'task-chk readonly' + (allFilled ? ' checked' : '') + (t2locked ? ' locked' : '');
-  html += '<div class="task-row' + (t2locked ? ' step-locked' : '') + '">' +
+  // ── TASK 2 — ESC Setup (locked until sc1 done) ──
+  var escLocked = !sc1done && !scConfirmed;
+  var escData = scGetEscData(scSelId);
+  var escDone = sc1done && escData.count >= 1 && (escData.count === 1 || (escData.names && escData.names.filter(function(n){return n&&n.trim();}).length === escData.count));
+  var t2chkCls = 'task-chk readonly' + (escDone ? ' checked' : '') + (escLocked ? ' locked' : '');
+  html += '<div class="task-row' + (escLocked ? ' step-locked' : '') + '">' +
     '<div class="' + t2chkCls + '">' +
       '<span class="chk-mark">&#x2713;</span>' +
     '</div>' +
     '<div class="task-body">' +
-      '<div class="task-title' + (allFilled ? ' done' : '') + '"' + (t2locked ? ' style="opacity:.35"' : '') + '>2. Assign team members to event slots</div>' +
-      '<div class="task-desc"' + (t2locked ? ' style="opacity:.5"' : '') + '>Assign identified team members to their roles for this event. All slots must be filled to confirm scheduling.</div>' +
+      '<div class="task-title' + (escDone ? ' done' : '') + '"' + (escLocked ? ' style="opacity:.35"' : '') + '>2. Define Exhibitor Service Center configuration</div>' +
+      '<div class="task-desc"' + (escLocked ? ' style="opacity:.5"' : '') + '>Specify how many ' + scEscLabel(scSelId) + 's will be active at this event and name each one if there are multiple.</div>' +
+      (escLocked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
+    '</div>' +
+    '</div>';
+
+  // ── TASK 3 — Coverage Structure (locked until sc1 done) ──
+  var coverageLocked = !sc1done && !scConfirmed;
+  var cfCount = ra && ra.slots ? ra.slots.filter(function(sl){return sl.type==='cf';}).length : 0;
+  var asCount = ra && ra.slots ? ra.slots.filter(function(sl){return sl.type==='as';}).length : 0;
+  var coverageNeeded = cfCount > 1 || asCount > 0;
+  var coverageDone = !coverageNeeded || (sc1done && (function() {
+    if (!ra || !ra.slots) return false;
+    var cfSlots = ra.slots.filter(function(sl){return sl.type==='cf';});
+    var asSlots = ra.slots.filter(function(sl){return sl.type==='as';});
+    var cfOk = cfCount <= 1 || cfSlots.every(function(sl){return sl.coverageNote && sl.coverageNote.trim();});
+    var asOk = asSlots.every(function(sl){return sl.coverageNote && sl.coverageNote.trim();});
+    return cfOk && asOk;
+  })());
+  var t3chkCls = 'task-chk readonly' + (coverageDone ? ' checked' : '') + (coverageLocked ? ' locked' : '');
+  html += '<div class="task-row' + (coverageLocked ? ' step-locked' : '') + '">' +
+    '<div class="' + t3chkCls + '">' +
+      '<span class="chk-mark">&#x2713;</span>' +
+    '</div>' +
+    '<div class="task-body">' +
+      '<div class="task-title' + (coverageDone ? ' done' : '') + '"' + (coverageLocked ? ' style="opacity:.35"' : '') + '>3. Define coverage areas and responsibilities</div>' +
+      '<div class="task-desc"' + (coverageLocked ? ' style="opacity:.5"' : '') + '>' + (coverageNeeded ? 'Assign booth ranges and responsibility notes to customer-facing and additional support roles before filling names.' : 'No coverage assignments required for this event configuration.') + '</div>' +
+      (coverageLocked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
+    '</div>' +
+    '</div>';
+
+  // ── TASK 4 — Assign team members (locked until sc1 done) ──
+  var t2locked = !sc1done && !scConfirmed;
+  var t4chkCls = 'task-chk readonly' + (allSlotsResolved ? ' checked' : '') + (t2locked ? ' locked' : '');
+  html += '<div class="task-row' + (t2locked ? ' step-locked' : '') + '">' +
+    '<div class="' + t4chkCls + '">' +
+      '<span class="chk-mark">&#x2713;</span>' +
+    '</div>' +
+    '<div class="task-body">' +
+      '<div class="task-title' + (allSlotsResolved ? ' done' : '') + '"' + (t2locked ? ' style="opacity:.35"' : '') + '>4. Assign team members to event slots</div>' +
+      '<div class="task-desc"' + (t2locked ? ' style="opacity:.5"' : '') + '>Assign team members to their roles. Mark any unfilled positions as <strong>Traveler Needed</strong> to flag them for the collaborative scheduling meeting.</div>' +
       (t2locked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
     '</div>' +
     '</div>';
 
   html += '</div>'; // close det-scroll
 
-  // ── CONFIRM BAR — identical pattern to staffing ──
+  // ── CONFIRM BAR ──
   var scPlan = schedulingPlans[scSelId] || {};
   var leadError = scPlan._leadError || '';
   if (scConfirmed) {
@@ -6925,7 +7188,6 @@ function renderScDetail() {
       '<button class="m-cancel" data-sc-action="unconfirm" data-sc-showid="' + scSelId + '">Revise</button>' +
       '</div>';
   } else {
-    // Clear lead error if they've now assigned the required lead
     if (leadError && ra && ra.slots) {
       var nowAssigned = ra.slots.map(function(sl){return sl.person||'';});
       if (nowAssigned.indexOf(leadError) >= 0) { leadError = ''; if(schedulingPlans[scSelId]) delete schedulingPlans[scSelId]._leadError; }
@@ -6936,12 +7198,14 @@ function renderScDetail() {
         '<button class="btn-confirm" data-sc-action="confirm" data-sc-showid="' + scSelId + '" disabled style="opacity:.45;cursor:not-allowed">Complete Process</button>' +
         '</div>';
     } else {
-      var pendingMsg = allDone ? 'All steps complete &mdash; ready to confirm' :
-        (!sc1done ? 'Complete step 1 to unlock slot assignment' :
-         !allFilled ? 'Assign all team member slots to continue' : 'Complete all steps above to confirm');
+      var hasTravelerBar = ra && ra.slots && ra.slots.some(function(sl){return sl.travelerNeeded;});
+      var pendingMsg = allDone ? (hasTravelerBar ? 'Ready to confirm &mdash; traveler(s) pending' : 'All steps complete &mdash; ready to confirm') :
+        (!sc1done ? 'Complete step 1 to unlock scheduling setup' :
+         !allSlotsResolved ? 'Assign all slots or mark as Traveler Needed to continue' : 'Complete all steps above to confirm');
       var pendingSub = allDone ?
-        'Completing this process will lock both steps and mark this show as fully scheduled.' :
-        'Both steps must be complete before you can confirm.';
+        (hasTravelerBar ? 'This show will be marked as confirmed with open traveler slots. Needs Attention tasks will remain until travelers are assigned.' :
+         'Completing this process will lock all steps and mark this show as fully scheduled.') :
+        'All steps must be complete before you can confirm.';
       html += '<div class="sf-confirm-bar pending">' +
         '<div class="sf-confirm-msg">' + pendingMsg + '<div class="sub">' + pendingSub + '</div></div>' +
         '<button class="btn-confirm" data-sc-action="confirm" data-sc-showid="' + scSelId + '"' + (allDone ? '' : ' disabled style="opacity:.45;cursor:not-allowed"') + '>Complete Process</button>' +
@@ -6951,14 +7215,40 @@ function renderScDetail() {
 
   det.innerHTML = html;
 
-  // ── SLOT FILLING — injected after det-scroll renders ──
-  if (sc1done && ra && ra.slots) {
+  // ── ESC SETUP — injected after det-scroll renders (when sc1 done) ──
+  if (sc1done && !scConfirmed) {
     var scrollEl = det.querySelector('.det-scroll');
     if (scrollEl) {
+      var escPanel = document.createElement('div');
+      escPanel.style.cssText = 'border-top:1px solid var(--border-lt);padding:12px 16px 14px;background:rgba(0,31,95,.02)';
+      scBuildEscPanel(escPanel, s, ra, sc);
+      scrollEl.appendChild(escPanel);
+    }
+  }
+
+  // ── COVERAGE NOTES — injected after ESC panel (when sc1 done and coverage needed) ──
+  if (sc1done && !scConfirmed && ra && ra.slots) {
+    var cfSlotsForCoverage = ra.slots.filter(function(sl){return sl.type==='cf';});
+    var asSlotsForCoverage = ra.slots.filter(function(sl){return sl.type==='as';});
+    if (cfSlotsForCoverage.length > 1 || asSlotsForCoverage.length > 0) {
+      var scrollEl2 = det.querySelector('.det-scroll');
+      if (scrollEl2) {
+        var covPanel = document.createElement('div');
+        covPanel.style.cssText = 'border-top:1px solid var(--border-lt);padding:12px 16px 14px;background:rgba(0,31,95,.02)';
+        scBuildCoveragePanel(covPanel, s, ra, sc);
+        scrollEl2.appendChild(covPanel);
+      }
+    }
+  }
+
+  // ── SLOT FILLING — injected last ──
+  if (sc1done && ra && ra.slots) {
+    var scrollEl3 = det.querySelector('.det-scroll');
+    if (scrollEl3) {
       var slotContainer = document.createElement('div');
       slotContainer.style.cssText = 'border-top:1px solid var(--border-lt);padding:10px 16px 14px;background:rgba(0,31,95,.02)';
       scBuildSlotFilling(slotContainer, s, ra, sc);
-      scrollEl.appendChild(slotContainer);
+      scrollEl3.appendChild(slotContainer);
     }
   }
 
@@ -6988,6 +7278,146 @@ function renderScDetail() {
   if (np) { np.focus(); scNamePickerSearch(''); }
 }
 
+// ── ESC PANEL BUILDER ─────────────────────────────────────────────────────
+function scBuildEscPanel(container, s, ra, sc) {
+  var showId = scSelId;
+  var escLabel = scEscLabel(showId);
+  var escData = scGetEscData(showId);
+
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px';
+  hdr.textContent = escLabel + ' Configuration';
+  container.appendChild(hdr);
+
+  // Count question
+  var countRow = document.createElement('div');
+  countRow.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:12px';
+  var countLabel = document.createElement('label');
+  countLabel.style.cssText = 'font-size:13px;font-weight:700;color:var(--fb);flex:1';
+  countLabel.textContent = 'How many ' + escLabel + 's will be active at this event?';
+  var countSel = document.createElement('select');
+  countSel.style.cssText = 'border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:700;color:var(--fb);background:var(--white);cursor:pointer';
+  [1,2,3,4].forEach(function(n) {
+    var opt = document.createElement('option');
+    opt.value = n;
+    opt.textContent = n;
+    if (n === escData.count) opt.selected = true;
+    countSel.appendChild(opt);
+  });
+  countRow.appendChild(countLabel);
+  countRow.appendChild(countSel);
+  container.appendChild(countRow);
+
+  // Names section (only if count > 1)
+  var namesContainer = document.createElement('div');
+  namesContainer.id = 'esc-names-container';
+  container.appendChild(namesContainer);
+
+  function renderEscNames(count, names) {
+    namesContainer.innerHTML = '';
+    if (count <= 1) return;
+    var namesHdr = document.createElement('div');
+    namesHdr.style.cssText = 'font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px';
+    namesHdr.textContent = 'Name each ' + escLabel + ':';
+    namesContainer.appendChild(namesHdr);
+    for (var i = 0; i < count; i++) {
+      (function(idx) {
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px';
+        var lbl = document.createElement('span');
+        lbl.style.cssText = 'font-size:12px;font-weight:700;color:var(--muted);width:60px';
+        lbl.textContent = escLabel.replace('Exhibitor Service C','C') + ' ' + (idx+1) + ':';
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.placeholder = 'e.g. North Hall, Hall A, South Hall...';
+        inp.value = names[idx] || '';
+        inp.style.cssText = 'flex:1;border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;font-size:13px;color:var(--fb);background:var(--white)';
+        inp.addEventListener('input', function() {
+          var currentNames = Array.from(namesContainer.querySelectorAll('input')).map(function(el){return el.value;});
+          scSaveEscData(showId, parseInt(countSel.value), currentNames);
+          // Update ESC assignment dropdowns if slot panel is present
+          scRefreshEscAssignments(showId);
+          renderScDetail();
+        });
+        row.appendChild(lbl);
+        row.appendChild(inp);
+        namesContainer.appendChild(row);
+      })(i);
+    }
+  }
+
+  renderEscNames(escData.count, escData.names);
+
+  countSel.addEventListener('change', function() {
+    var newCount = parseInt(this.value);
+    var currentNames = Array.from(namesContainer.querySelectorAll('input')).map(function(el){return el.value;});
+    scSaveEscData(showId, newCount, currentNames);
+    renderEscNames(newCount, currentNames);
+    renderScDetail();
+  });
+}
+
+// ── ESC ASSIGNMENT refresh helper ────────────────────────────────────────
+function scRefreshEscAssignments(showId) {
+  var ra = ROLE_ASSIGNMENTS[showId];
+  if (!ra || !ra.slots) return;
+  var escData = scGetEscData(showId);
+  if (escData.count <= 1) {
+    ra.slots.forEach(function(sl) { sl.escAssignment = null; });
+  }
+  storageSaveRoleAssignments();
+}
+
+// ── COVERAGE PANEL BUILDER ────────────────────────────────────────────────
+function scBuildCoveragePanel(container, s, ra, sc) {
+  var showId = scSelId;
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px';
+  hdr.textContent = 'Coverage Areas & Responsibilities';
+  container.appendChild(hdr);
+
+  var roleTypeCounts = {};
+  ra.slots.forEach(function(sl) { roleTypeCounts[sl.type] = (roleTypeCounts[sl.type]||0) + 1; });
+  var roleTypeCounters = {};
+
+  var cfCount = ra.slots.filter(function(sl){return sl.type==='cf';}).length;
+
+  ra.slots.forEach(function(slot, idx) {
+    roleTypeCounters[slot.type] = (roleTypeCounters[slot.type]||0) + 1;
+    var isCf = slot.type === 'cf';
+    var isAs = slot.type === 'as';
+    if (!isCf && !isAs) return;
+    if (isCf && cfCount <= 1) return; // single CF: skip
+
+    var label = roleTypeCounts[slot.type] > 1 ? slot.label + ' ' + roleTypeCounters[slot.type] : slot.label;
+    var row = document.createElement('div');
+    row.style.cssText = 'margin-bottom:10px';
+
+    var lbl = document.createElement('label');
+    lbl.style.cssText = 'font-size:12px;font-weight:700;color:var(--fb);display:block;margin-bottom:4px';
+    lbl.textContent = label;
+
+    var inp = document.createElement('input');
+    inp.type = 'text';
+    inp.value = slot.coverageNote || '';
+    if (isCf) {
+      inp.placeholder = 'Enter the booth range this rep will cover, e.g. Booths 100–400';
+    } else {
+      inp.placeholder = 'Describe this person\'s responsibilities at the event';
+    }
+    inp.style.cssText = 'width:100%;box-sizing:border-box;border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;color:var(--fb);background:var(--white)';
+    (function(slotIdx) {
+      inp.addEventListener('input', function() {
+        scSaveCoverageNote(showId, slotIdx, this.value);
+      });
+    })(idx);
+
+    row.appendChild(lbl);
+    row.appendChild(inp);
+    container.appendChild(row);
+  });
+}
+
 // Build slot filling UI directly into a container element — no innerHTML string building
 var SC_PICKER = null;
 
@@ -7000,11 +7430,19 @@ function scBuildSlotFilling(container, s, ra, sc) {
     return;
   }
 
+  var showId = scSelId;
   var scConfirmed = ra.confirmed;
+  var escData = scGetEscData(showId);
+  var escLabel = scEscLabel(showId);
   var avColors = [
     {bg:'#EBF8FF',color:'#005A75'},{bg:'#EAFAF0',color:'#1A6B35'},{bg:'#FFF5D6',color:'#7A5C00'},
     {bg:'#F3F0FF',color:'#5B3FBF'},{bg:'#FFE4E1',color:'#8B2500'},{bg:'#E0F7FA',color:'#006064'}
   ];
+
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px';
+  hdr.textContent = 'Team Member Assignment';
+  container.appendChild(hdr);
 
   var roleTypeCounts = {};
   ra.slots.forEach(function(sl) { roleTypeCounts[sl.type] = (roleTypeCounts[sl.type]||0) + 1; });
@@ -7016,12 +7454,111 @@ function scBuildSlotFilling(container, s, ra, sc) {
   ra.slots.forEach(function(slot, idx) {
     roleTypeCounters[slot.type] = (roleTypeCounters[slot.type]||0) + 1;
     var label = roleTypeCounts[slot.type] > 1 ? slot.label + ' ' + roleTypeCounters[slot.type] : slot.label;
-    var isPickerOpen = SC_PICKER && SC_PICKER.showId === scSelId && SC_PICKER.slotIdx === idx;
+    var isPickerOpen = SC_PICKER && SC_PICKER.showId === showId && SC_PICKER.slotIdx === idx;
 
     var slotDiv = document.createElement('div');
     slotDiv.className = 'el-slot';
 
-    if (slot.person) {
+    // ESC assignment badge (if multiple ESCs)
+    var escBadge = '';
+    if (escData.count > 1) {
+      var assignedEsc = slot.escAssignment || null;
+      var escName = assignedEsc && escData.names[assignedEsc-1] ? escData.names[assignedEsc-1] : null;
+      var escBadgeEl = document.createElement('div');
+      escBadgeEl.style.cssText = 'margin-bottom:4px';
+      if (escName) {
+        var pill = document.createElement('span');
+        pill.style.cssText = 'font-size:11px;font-weight:700;background:#EBF8FF;color:#005A75;border:1.5px solid #B3E5FC;border-radius:999px;padding:2px 8px';
+        pill.textContent = escLabel.replace('Exhibitor Service C','ESC: ') + escName;
+        escBadgeEl.appendChild(pill);
+      } else if (!scConfirmed) {
+        var escSel = document.createElement('select');
+        escSel.style.cssText = 'font-size:11px;border:1.5px solid var(--border);border-radius:8px;padding:2px 6px;color:var(--muted);background:var(--white)';
+        var defOpt = document.createElement('option');
+        defOpt.value = '';
+        defOpt.textContent = 'Assign to ' + escLabel.replace('Exhibitor Service C','ESC') + '...';
+        escSel.appendChild(defOpt);
+        for (var ei = 0; ei < escData.count; ei++) {
+          var eOpt = document.createElement('option');
+          eOpt.value = ei+1;
+          eOpt.textContent = escData.names[ei] || (escLabel.replace('Exhibitor Service C','ESC ') + (ei+1));
+          escSel.appendChild(eOpt);
+        }
+        (function(si) {
+          escSel.addEventListener('change', function() {
+            ROLE_ASSIGNMENTS[showId].slots[si].escAssignment = parseInt(this.value) || null;
+            storageSaveRoleAssignments();
+            renderScDetail();
+          });
+        })(idx);
+        escBadgeEl.appendChild(escSel);
+      }
+      slotDiv.appendChild(escBadgeEl);
+    }
+
+    // Coverage note display
+    if (slot.coverageNote) {
+      var noteEl = document.createElement('div');
+      noteEl.style.cssText = 'font-size:11px;color:var(--muted);margin-bottom:4px;font-style:italic';
+      noteEl.textContent = slot.coverageNote;
+      slotDiv.appendChild(noteEl);
+    }
+
+    if (slot.travelerNeeded) {
+      // ── TRAVELER NEEDED state ──
+      var tDiv = document.createElement('div');
+      tDiv.className = 'el-slot-filled';
+      tDiv.style.borderLeft = '3px solid var(--gold)';
+
+      var typeSpanT = document.createElement('span');
+      typeSpanT.className = 'el-slot-type';
+      typeSpanT.textContent = label;
+
+      var personDivT = document.createElement('div');
+      personDivT.className = 'el-slot-person';
+
+      var avDivT = document.createElement('div');
+      avDivT.className = 'el-slot-av';
+      avDivT.style.cssText = 'background:#FFF4D6;color:#7A5200;font-size:11px';
+      avDivT.textContent = '?';
+
+      var infoDivT = document.createElement('div');
+      var nameDivT = document.createElement('div');
+      nameDivT.className = 'el-slot-name';
+      nameDivT.textContent = 'Traveler Needed';
+      nameDivT.style.color = 'var(--gold)';
+      var reqNote = slot.travelerNote || '';
+      if (reqNote) {
+        var reqSpan = document.createElement('div');
+        reqSpan.style.cssText = 'font-size:11px;color:var(--muted);font-weight:400;margin-top:2px';
+        reqSpan.textContent = reqNote;
+        infoDivT.appendChild(nameDivT);
+        infoDivT.appendChild(reqSpan);
+      } else {
+        infoDivT.appendChild(nameDivT);
+      }
+      personDivT.appendChild(avDivT);
+      personDivT.appendChild(infoDivT);
+
+      var actDivT = document.createElement('div');
+      actDivT.className = 'el-slot-actions';
+      if (!scConfirmed) {
+        var resolveBtn = document.createElement('button');
+        resolveBtn.className = 'sf-task-link';
+        resolveBtn.style.cssText = 'cursor:pointer;border:1.5px solid var(--border);background:transparent;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;color:var(--muted)';
+        resolveBtn.textContent = 'Assign';
+        (function(sid, si) {
+          resolveBtn.addEventListener('click', function() { scResolveTraveler(sid, si); });
+        })(showId, idx);
+        actDivT.appendChild(resolveBtn);
+      }
+
+      tDiv.appendChild(typeSpanT);
+      tDiv.appendChild(personDivT);
+      tDiv.appendChild(actDivT);
+      slotDiv.appendChild(tDiv);
+
+    } else if (slot.person) {
       var av = avColors[idx % avColors.length];
       var filled = document.createElement('div');
       filled.className = 'el-slot-filled';
@@ -7066,7 +7603,7 @@ function scBuildSlotFilling(container, s, ra, sc) {
         removeBtn.textContent = 'Remove';
         (function(sid, si) {
           removeBtn.addEventListener('click', function() { scRemoveSlot(sid, si); });
-        })(scSelId, idx);
+        })(showId, idx);
         actionsDiv.appendChild(removeBtn);
       }
 
@@ -7129,13 +7666,26 @@ function scBuildSlotFilling(container, s, ra, sc) {
       openDiv.appendChild(prompt);
 
       if (!scConfirmed) {
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;gap:6px;margin-top:4px';
+
         var addBtn = document.createElement('button');
         addBtn.className = 'el-slot-add-btn';
         addBtn.textContent = '+ Add';
         (function(sid, si, stype) {
           addBtn.addEventListener('click', function() { scOpenNamePicker(sid, si, stype); });
-        })(scSelId, idx, slot.type);
-        openDiv.appendChild(addBtn);
+        })(showId, idx, slot.type);
+
+        var travBtn = document.createElement('button');
+        travBtn.style.cssText = 'cursor:pointer;border:1.5px solid #FFD166;background:#FFFBEC;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;color:#7A5200';
+        travBtn.textContent = 'Traveler Needed';
+        (function(sid, si) {
+          travBtn.addEventListener('click', function() { scOpenTravelerModal(sid, si); });
+        })(showId, idx);
+
+        btnRow.appendChild(addBtn);
+        btnRow.appendChild(travBtn);
+        openDiv.appendChild(btnRow);
       }
       slotDiv.appendChild(openDiv);
     }
@@ -7220,9 +7770,114 @@ function scRemoveSlot(showId, slotIdx) {
   ra.slots[slotIdx].person = null;
   ra.slots[slotIdx].branch = null;
   ra.slots[slotIdx].homeBranch = null;
+  ra.slots[slotIdx].travelerNeeded = false;
+  ra.slots[slotIdx].travelerNote = null;
   storageSaveRoleAssignments();
   renderScList();
   renderScDetail();
+  renderNeedsAttention();
+}
+
+// ── TRAVELER NEEDED MODAL ─────────────────────────────────────────────────
+function scOpenTravelerModal(showId, slotIdx) {
+  var s = SHOWS[showId] || {};
+  var ra = ROLE_ASSIGNMENTS[showId];
+  if (!ra || !ra.slots[slotIdx]) return;
+  var slot = ra.slots[slotIdx];
+
+  // Determine label
+  var roleTypeCounts = {};
+  ra.slots.forEach(function(sl) { roleTypeCounts[sl.type] = (roleTypeCounts[sl.type]||0) + 1; });
+  var roleTypeCounters = {};
+  var label = '';
+  ra.slots.forEach(function(sl, i) {
+    roleTypeCounters[sl.type] = (roleTypeCounters[sl.type]||0) + 1;
+    if (i === slotIdx) label = roleTypeCounts[sl.type] > 1 ? sl.label + ' ' + roleTypeCounters[sl.type] : sl.label;
+  });
+
+  var overlay = document.createElement('div');
+  overlay.className = 'sf-complete-overlay';
+  overlay.id = 'sc-traveler-modal-overlay';
+
+  var modal = document.createElement('div');
+  modal.className = 'sf-complete-modal';
+  modal.style.maxWidth = '480px';
+
+  var noteInp = document.createElement('textarea');
+  noteInp.placeholder = 'Any additional requirements for this traveler, e.g. bilingual, forklift certified, prior experience with this show...';
+  noteInp.value = slot.travelerNote || '';
+  noteInp.style.cssText = 'width:100%;box-sizing:border-box;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--fb);background:var(--white);resize:vertical;min-height:80px;margin-top:8px;font-family:inherit';
+
+  var head = document.createElement('div');
+  head.className = 'sf-cmp-head';
+  head.innerHTML = '<div class="sf-cmp-icon">&#9873;</div><div class="sf-cmp-title">Mark as Traveler Needed</div><div class="sf-cmp-sub">' + (s.name || showId) + ' &nbsp;&middot;&nbsp; ' + label + '</div>';
+
+  var body = document.createElement('div');
+  body.className = 'sf-cmp-body';
+
+  var infoGrid = document.createElement('div');
+  infoGrid.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px';
+  var escData = scGetEscData(showId);
+  var escLine = escData.count > 1 && slot.escAssignment && escData.names[slot.escAssignment-1]
+    ? '<div><span style="color:var(--muted);font-weight:700">ESC:</span> ' + escData.names[slot.escAssignment-1] + '</div>' : '';
+  var coverLine = slot.coverageNote
+    ? '<div><span style="color:var(--muted);font-weight:700">Coverage:</span> ' + slot.coverageNote + '</div>' : '';
+  var datesLine = '<div><span style="color:var(--muted);font-weight:700">Dates:</span> ' + sfFmtDate(s.moveInStart) + ' &ndash; ' + sfFmtDate(s.clearDate) + '</div>';
+  var branchLine = '<div><span style="color:var(--muted);font-weight:700">Branch:</span> ' + (s.producingBranch || s.region || '') + '</div>';
+  infoGrid.innerHTML = datesLine + branchLine + escLine + coverLine;
+
+  var noteLabel = document.createElement('label');
+  noteLabel.style.cssText = 'font-size:12px;font-weight:700;color:var(--fb)';
+  noteLabel.textContent = 'Additional requirements (optional):';
+
+  body.appendChild(infoGrid);
+  body.appendChild(noteLabel);
+  body.appendChild(noteInp);
+
+  var footer = document.createElement('div');
+  footer.className = 'sf-cmp-footer';
+  footer.style.gap = '10px';
+
+  var cancelBtn = document.createElement('button');
+  cancelBtn.className = 'sf-cmp-btn';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', function() { overlay.remove(); });
+
+  var confirmBtn = document.createElement('button');
+  confirmBtn.className = 'sf-cmp-btn sf-cmp-btn-primary';
+  confirmBtn.style.cssText = 'background:var(--gold);border-color:var(--gold);color:#5A3A00';
+  confirmBtn.textContent = 'Mark as Traveler Needed';
+  confirmBtn.addEventListener('click', function() {
+    ra.slots[slotIdx].person = null;
+    ra.slots[slotIdx].branch = null;
+    ra.slots[slotIdx].homeBranch = null;
+    ra.slots[slotIdx].travelerNeeded = true;
+    ra.slots[slotIdx].travelerNote = noteInp.value.trim() || null;
+    storageSaveRoleAssignments();
+    overlay.remove();
+    renderScList();
+    renderScDetail();
+    renderNeedsAttention();
+  });
+
+  footer.appendChild(cancelBtn);
+  footer.appendChild(confirmBtn);
+  modal.appendChild(head);
+  modal.appendChild(body);
+  modal.appendChild(footer);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+}
+
+function scResolveTraveler(showId, slotIdx) {
+  // Open the name picker to replace the traveler placeholder
+  var ra = ROLE_ASSIGNMENTS[showId];
+  if (!ra || !ra.slots[slotIdx]) return;
+  ra.slots[slotIdx].travelerNeeded = false;
+  ra.slots[slotIdx].travelerNote = null;
+  storageSaveRoleAssignments();
+  scOpenNamePicker(showId, slotIdx, ra.slots[slotIdx].type);
 }
 
 function scToggleStep(showId, stepId) {
@@ -7238,7 +7893,8 @@ function scConfirmScheduling(showId) {
   if (!ra) return;
   var sc = schedulingPlans[showId] || {};
   if (!sc.step_sc1) return;
-  if (!ra.slots.every(function(sl) { return sl.person; })) return;
+  // All slots must have a person OR be marked travelerNeeded
+  if (!ra.slots.every(function(sl) { return sl.person || sl.travelerNeeded; })) return;
 
   // Validate: on-site lead from staffing must be assigned to one of the slots
   var sfPlan = staffingPlans[showId] || {};
@@ -7252,15 +7908,11 @@ function scConfirmScheduling(showId) {
       return;
     }
   }
-  // Clear any previous error
   if (schedulingPlans[showId]) delete schedulingPlans[showId]._leadError;
-
-  // All gates passed — show pre-confirm review modal (mirrors staffing flow)
   showScConfirmModal(showId);
 }
 
 function scDoConfirm(showId) {
-  // Called by the modal OK button — performs the actual confirmation
   var ra = ROLE_ASSIGNMENTS[showId];
   if (!schedulingPlans[showId]) schedulingPlans[showId] = {};
   schedulingPlans[showId].confirmed = true;
@@ -7268,6 +7920,8 @@ function scDoConfirm(showId) {
   storageSaveSchedulingPlans();
   storageSaveRoleAssignments();
   renderScList();
+  renderTravelBadge();
+  renderNeedsAttention();
 }
 
 function showScConfirmModal(showId) {
@@ -7288,9 +7942,12 @@ function showScConfirmModal(showId) {
     ra.slots.forEach(function(sl) {
       typeCounters[sl.type] = (typeCounters[sl.type]||0)+1;
       var label = typeCounts[sl.type] > 1 ? (roleLabels[sl.type]||sl.type) + ' ' + typeCounters[sl.type] : (roleLabels[sl.type]||sl.type);
+      var personDisplay = sl.travelerNeeded
+        ? '<span style="color:var(--gold);font-weight:700">Traveler Needed</span>'
+        : '<span style="font-weight:700;color:var(--fb)">' + (sl.person || '—') + '</span>';
       rosterRows += '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
         '<span style="color:var(--muted)">' + label + '</span>' +
-        '<span style="font-weight:700;color:var(--fb)">' + (sl.person || '—') + '</span>' +
+        personDisplay +
       '</div>';
     });
   }
@@ -7318,8 +7975,14 @@ function showScConfirmModal(showId) {
         '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
           '<span style="color:var(--green);font-weight:800">✓</span><span style="color:var(--muted)">Added to ES Regional Schedule</span>' +
         '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
+          '<span style="color:var(--green);font-weight:800">✓</span><span style="color:var(--muted)">Exhibitor Service Center configuration defined</span>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
+          '<span style="color:var(--green);font-weight:800">✓</span><span style="color:var(--muted)">Coverage areas and responsibilities defined</span>' +
+        '</div>' +
         '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px">' +
-          '<span style="color:var(--green);font-weight:800">✓</span><span style="color:var(--muted)">All team member slots assigned</span>' +
+          '<span style="color:var(--green);font-weight:800">✓</span><span style="color:var(--muted)">Team member slots assigned</span>' +
         '</div>' +
       '</div>' +
 
@@ -7358,6 +8021,8 @@ function showScConfirmModal(showId) {
 
 function showScPostConfirmPopup(showId) {
   var s = SHOWS[showId] || {};
+  var ra = ROLE_ASSIGNMENTS[showId];
+  var hasTravelerPost = ra && ra.slots && ra.slots.some(function(sl) { return sl.travelerNeeded; });
   var overlay = document.createElement('div');
   overlay.className = 'sf-complete-overlay';
 
@@ -7372,9 +8037,10 @@ function showScPostConfirmPopup(showId) {
     '</div>' +
     '<div class="sf-cmp-body">' +
       '<div class="sf-cmp-section">The following has been completed:</div>' +
-      '<div class="sf-cmp-step"><div class="sf-cmp-step-num">1</div><div class="sf-cmp-step-text"><strong>All steps locked</strong><br>Regional schedule updated and team roster assigned for job #' + showId + '.</div></div>' +
-      '<div class="sf-cmp-step"><div class="sf-cmp-step-num">2</div><div class="sf-cmp-step-text"><strong>Event is fully scheduled</strong><br>This show has been removed from your Scheduling queue. The event profile has been updated.</div></div>' +
-      '<div class="sf-cmp-note">All steps are locked. To make changes, use the Revise button on the Scheduling page.</div>' +
+      '<div class="sf-cmp-step"><div class="sf-cmp-step-num">1</div><div class="sf-cmp-step-text"><strong>All steps locked</strong><br>Regional schedule updated and event structure defined for job #' + showId + '.</div></div>' +
+      '<div class="sf-cmp-step"><div class="sf-cmp-step-num">2</div><div class="sf-cmp-step-text"><strong>Event is scheduled</strong><br>' + (hasTravelerPost ? 'This show has open <strong>Traveler Needed</strong> slots. Needs Attention tasks will remain until all travelers are assigned.' : 'This show has been marked as fully scheduled.') + '</div></div>' +
+      (hasTravelerPost ? '<div class="sf-cmp-note" style="background:#FFFBEC;border-color:#FFD166;color:#7A5200">&#9873; Open travel requests for this show are now visible on the <strong>Open Travel Needs</strong> board.</div>' : '') +
+      '<div class="sf-cmp-note">To make changes, use the Revise button on the Scheduling page.</div>' +
     '</div>' +
     '<div class="sf-cmp-footer">' +
       '<button class="sf-cmp-btn sf-cmp-btn-primary" id="sc-post-confirm-close">Got it</button>' +
