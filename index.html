@@ -7135,6 +7135,7 @@ function renderScDetail() {
       '<div class="task-title' + (escDone ? ' done' : '') + '"' + (escLocked ? ' style="opacity:.35"' : '') + '>2. Define Exhibitor Service Center configuration</div>' +
       '<div class="task-desc"' + (escLocked ? ' style="opacity:.5"' : '') + '>Specify how many ' + scEscLabel(scSelId) + 's will be active at this event and name each one if there are multiple.</div>' +
       (escLocked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
+      (sc1done && !scConfirmed ? '<div id="sc-esc-panel-anchor" style="margin-top:10px"></div>' : '') +
     '</div>' +
     '</div>';
 
@@ -7160,6 +7161,7 @@ function renderScDetail() {
       '<div class="task-title' + (coverageDone ? ' done' : '') + '"' + (coverageLocked ? ' style="opacity:.35"' : '') + '>3. Define coverage areas and responsibilities</div>' +
       '<div class="task-desc"' + (coverageLocked ? ' style="opacity:.5"' : '') + '>' + (coverageNeeded ? 'Assign booth ranges and responsibility notes to customer-facing and additional support roles before filling names.' : 'No coverage assignments required for this event configuration.') + '</div>' +
       (coverageLocked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
+      (sc1done && !scConfirmed && coverageNeeded ? '<div id="sc-cov-panel-anchor" style="margin-top:10px"></div>' : '') +
     '</div>' +
     '</div>';
 
@@ -7174,6 +7176,7 @@ function renderScDetail() {
       '<div class="task-title' + (allSlotsResolved ? ' done' : '') + '"' + (t2locked ? ' style="opacity:.35"' : '') + '>4. Assign team members to event slots</div>' +
       '<div class="task-desc"' + (t2locked ? ' style="opacity:.5"' : '') + '>Assign team members to their roles. Mark any unfilled positions as <strong>Traveler Needed</strong> to flag them for the collaborative scheduling meeting.</div>' +
       (t2locked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
+      (sc1done ? '<div id="sc-slot-panel-anchor" style="margin-top:10px"></div>' : '') +
     '</div>' +
     '</div>';
 
@@ -7215,41 +7218,20 @@ function renderScDetail() {
 
   det.innerHTML = html;
 
-  // ── ESC SETUP — injected after det-scroll renders (when sc1 done) ──
+  // ── INJECT PANELS INTO THEIR ANCHORS (no re-render needed, DOM is stable) ──
   if (sc1done && !scConfirmed) {
-    var scrollEl = det.querySelector('.det-scroll');
-    if (scrollEl) {
-      var escPanel = document.createElement('div');
-      escPanel.style.cssText = 'border-top:1px solid var(--border-lt);padding:12px 16px 14px;background:rgba(0,31,95,.02)';
-      scBuildEscPanel(escPanel, s, ra, sc);
-      scrollEl.appendChild(escPanel);
-    }
+    var escAnchor = document.getElementById('sc-esc-panel-anchor');
+    if (escAnchor) scBuildEscPanel(escAnchor, s, ra, sc);
   }
 
-  // ── COVERAGE NOTES — injected after ESC panel (when sc1 done and coverage needed) ──
-  if (sc1done && !scConfirmed && ra && ra.slots) {
-    var cfSlotsForCoverage = ra.slots.filter(function(sl){return sl.type==='cf';});
-    var asSlotsForCoverage = ra.slots.filter(function(sl){return sl.type==='as';});
-    if (cfSlotsForCoverage.length > 1 || asSlotsForCoverage.length > 0) {
-      var scrollEl2 = det.querySelector('.det-scroll');
-      if (scrollEl2) {
-        var covPanel = document.createElement('div');
-        covPanel.style.cssText = 'border-top:1px solid var(--border-lt);padding:12px 16px 14px;background:rgba(0,31,95,.02)';
-        scBuildCoveragePanel(covPanel, s, ra, sc);
-        scrollEl2.appendChild(covPanel);
-      }
-    }
+  if (sc1done && !scConfirmed && coverageNeeded) {
+    var covAnchor = document.getElementById('sc-cov-panel-anchor');
+    if (covAnchor) scBuildCoveragePanel(covAnchor, s, ra, sc);
   }
 
-  // ── SLOT FILLING — injected last ──
   if (sc1done && ra && ra.slots) {
-    var scrollEl3 = det.querySelector('.det-scroll');
-    if (scrollEl3) {
-      var slotContainer = document.createElement('div');
-      slotContainer.style.cssText = 'border-top:1px solid var(--border-lt);padding:10px 16px 14px;background:rgba(0,31,95,.02)';
-      scBuildSlotFilling(slotContainer, s, ra, sc);
-      scrollEl3.appendChild(slotContainer);
-    }
+    var slotAnchor = document.getElementById('sc-slot-panel-anchor');
+    if (slotAnchor) scBuildSlotFilling(slotAnchor, s, ra, sc);
   }
 
   // ── EVENT DELEGATION ──
@@ -7335,9 +7317,8 @@ function scBuildEscPanel(container, s, ra, sc) {
         inp.addEventListener('input', function() {
           var currentNames = Array.from(namesContainer.querySelectorAll('input')).map(function(el){return el.value;});
           scSaveEscData(showId, parseInt(countSel.value), currentNames);
-          // Update ESC assignment dropdowns if slot panel is present
+          // Update slot ESC assignment dropdowns without full re-render
           scRefreshEscAssignments(showId);
-          renderScDetail();
         });
         row.appendChild(lbl);
         row.appendChild(inp);
@@ -7352,8 +7333,7 @@ function scBuildEscPanel(container, s, ra, sc) {
     var newCount = parseInt(this.value);
     var currentNames = Array.from(namesContainer.querySelectorAll('input')).map(function(el){return el.value;});
     scSaveEscData(showId, newCount, currentNames);
-    renderEscNames(newCount, currentNames);
-    renderScDetail();
+    renderScDetail(); // structural change — re-render is correct here
   });
 }
 
