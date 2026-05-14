@@ -7019,16 +7019,17 @@ function scGetStatus(showId) {
 }
 
 // ── SCHEDULING HELPER: ESC step save/load ────────────────────────────────
-function scSaveEscData(showId, count, names) {
+function scSaveEscData(showId, count, names, configured) {
   if (!schedulingPlans[showId]) schedulingPlans[showId] = {};
   schedulingPlans[showId].escCount = count;
   schedulingPlans[showId].escNames = names;
+  if (configured !== undefined) schedulingPlans[showId].escConfigured = configured;
   storageSaveSchedulingPlans();
 }
 
 function scGetEscData(showId) {
   var sc = schedulingPlans[showId] || {};
-  return { count: sc.escCount || 1, names: sc.escNames || [] };
+  return { count: sc.escCount || 1, names: sc.escNames || [], configured: sc.escConfigured === true };
 }
 
 // ── SCHEDULING HELPER: coverage note save/load ────────────────────────────
@@ -7125,7 +7126,7 @@ function renderScDetail() {
   // ── TASK 2 — ESC Setup (locked until sc1 done) ──
   var escLocked = !sc1done && !scConfirmed;
   var escData = scGetEscData(scSelId);
-  var escDone = sc1done && escData.count >= 1 && (escData.count === 1 || (escData.names && escData.names.filter(function(n){return n&&n.trim();}).length === escData.count));
+  var escDone = sc1done && escData.configured && (escData.count === 1 || (escData.names && escData.names.filter(function(n){return n&&n.trim();}).length === escData.count));
   var t2chkCls = 'task-chk readonly' + (escDone ? ' checked' : '') + (escLocked ? ' locked' : '');
   html += '<div class="task-row' + (escLocked ? ' step-locked' : '') + '">' +
     '<div class="' + t2chkCls + '">' +
@@ -7316,11 +7317,10 @@ function scBuildEscPanel(container, s, ra, sc) {
         inp.style.cssText = 'flex:1;border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;font-size:13px;color:var(--fb);background:var(--white)';
         inp.addEventListener('input', function() {
           var currentNames = Array.from(namesContainer.querySelectorAll('input')).map(function(el){return el.value;});
-          scSaveEscData(showId, parseInt(countSel.value), currentNames);
+          scSaveEscData(showId, parseInt(countSel.value), currentNames, true);
           scRefreshEscAssignments(showId);
         });
         inp.addEventListener('blur', function() {
-          // Re-render on field exit so Task 2 checkbox state updates
           renderScDetail();
         });
         row.appendChild(lbl);
@@ -7335,8 +7335,8 @@ function scBuildEscPanel(container, s, ra, sc) {
   countSel.addEventListener('change', function() {
     var newCount = parseInt(this.value);
     var currentNames = Array.from(namesContainer.querySelectorAll('input')).map(function(el){return el.value;});
-    scSaveEscData(showId, newCount, currentNames);
-    renderScDetail(); // structural change — re-render is correct here
+    scSaveEscData(showId, newCount, currentNames, true); // explicit selection = configured
+    renderScDetail();
   });
 }
 
