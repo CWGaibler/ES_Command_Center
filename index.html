@@ -3705,12 +3705,6 @@ function renderSfDetail() {
 
   det.innerHTML = html;
 
-  // Restore scroll position
-  if (savedScroll > 0) {
-    var newScrollEl = det.querySelector('.det-scroll');
-    if (newScrollEl) newScrollEl.scrollTop = savedScroll;
-  }
-
   // ── Inject staffing panels into anchors ──────────────────────────────────
   if (!confirmed) {
     var sfEscAnchor = document.getElementById('sf-esc-config-anchor');
@@ -3727,6 +3721,14 @@ function renderSfDetail() {
       var sfCovContext = Object.assign({}, plan, {_showId: sfSelId});
       scBuildCoveragePanel(sfCovAnchor, s, sfRa, sfCovContext);
     }
+  }
+
+  // Restore scroll position after panels are injected and browser has painted
+  if (savedScroll > 0) {
+    requestAnimationFrame(function() {
+      var newScrollEl = det.querySelector('.det-scroll');
+      if (newScrollEl) newScrollEl.scrollTop = savedScroll;
+    });
   }
 
   // Attach event handlers via delegation on det
@@ -7362,12 +7364,6 @@ function renderScDetail() {
 
   det.innerHTML = html;
 
-  // Restore scroll position
-  if (scSavedScroll > 0) {
-    var newScScrollEl = det.querySelector('.det-scroll');
-    if (newScScrollEl) newScScrollEl.scrollTop = scSavedScroll;
-  }
-
   // ── INJECT PANELS INTO ANCHORS ──
   if (sc1done && !scConfirmed) {
     var leadAnchor = document.getElementById('sc-lead-picker-anchor');
@@ -7376,6 +7372,14 @@ function renderScDetail() {
   if (sc2done && ra && ra.slots) {
     var slotAnchor = document.getElementById('sc-slot-panel-anchor');
     if (slotAnchor) scBuildSlotFilling(slotAnchor, s, ra, sc);
+  }
+
+  // Restore scroll position after panels are injected and browser has painted
+  if (scSavedScroll > 0) {
+    requestAnimationFrame(function() {
+      var newScScrollEl = det.querySelector('.det-scroll');
+      if (newScScrollEl) newScScrollEl.scrollTop = scSavedScroll;
+    });
   }
 
   // ── EVENT DELEGATION ──
