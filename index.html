@@ -6104,6 +6104,7 @@ function elRenderShow() {
     el.innerHTML = '<div class="el-empty"><div class="el-empty-icon">&#128197;</div><div class="el-empty-msg">Select a show to view its event profile</div><div class="el-empty-sub">Search by show name or job number above, or click any show in Active Events.</div></div>';
     return;
   }
+  try {
   var s = SHOWS[elSelId];
   var today = new Date().toISOString().slice(0,10);
 
@@ -6685,6 +6686,9 @@ function elRenderShow() {
   if (EL_SLOT_PICKER_STATE && EL_SLOT_PICKER_STATE.showId) {
     var inp = document.getElementById('el-np-input');
     if (inp) { setTimeout(function(){inp.focus();},50); }
+  }
+  } catch(e) {
+    el.innerHTML = '<div class="el-empty"><div class="el-empty-icon">⚠️</div><div class="el-empty-msg">Render error</div><div class="el-empty-sub" style="font-family:monospace;color:#c00;font-size:12px">' + e.message + '<br>' + (e.stack||'').slice(0,300) + '</div></div>';
   }
 }
 
