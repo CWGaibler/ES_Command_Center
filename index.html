@@ -7077,8 +7077,30 @@ function renderScDetail() {
   var rec = sfCalcRec(s);
   var scConfirmed = ra && ra.confirmed;
   var sc1done = sc.step_sc1;
+
+  // Manual step flags — leader must deliberately check each box
+  var sc2done = sc.step_sc2;
+  var sc3done = sc.step_sc3;
+  var sc4done = sc.step_sc4;
+
+  // Field-gate: are required fields filled? (controls whether checkbox is clickable)
+  var escData = scGetEscData(scSelId);
+  var escFieldsReady = escData.configured && (escData.count === 1 || (escData.names && escData.names.filter(function(n){return n&&n.trim();}).length === escData.count));
+
+  var cfCount = ra && ra.slots ? ra.slots.filter(function(sl){return sl.type==='cf';}).length : 0;
+  var asCount = ra && ra.slots ? ra.slots.filter(function(sl){return sl.type==='as';}).length : 0;
+  var coverageNeeded = cfCount > 1 || asCount > 0;
+  var coverageFieldsReady = !coverageNeeded || (ra && ra.slots && (function() {
+    var cfSlots = ra.slots.filter(function(sl){return sl.type==='cf';});
+    var asSlots = ra.slots.filter(function(sl){return sl.type==='as';});
+    var cfOk = cfCount <= 1 || cfSlots.every(function(sl){return sl.coverageNote && sl.coverageNote.trim();});
+    var asOk = asSlots.every(function(sl){return sl.coverageNote && sl.coverageNote.trim();});
+    return cfOk && asOk;
+  })());
+
   var allSlotsResolved = ra && ra.slots && ra.slots.every(function(sl) { return sl.person || sl.travelerNeeded; });
-  var allDone = sc1done && allSlotsResolved;
+
+  var allDone = sc1done && sc2done && sc3done && sc4done;
 
   // ── DETAIL HEADER — identical structure to staffing ──
   var sfPlan = staffingPlans[scSelId] || {};
@@ -7123,61 +7145,60 @@ function renderScDetail() {
     '</div>' +
     '</div>';
 
-  // ── TASK 2 — ESC Setup (locked until sc1 done) ──
+  // ── TASK 2 — ESC Setup ──
   var escLocked = !sc1done && !scConfirmed;
-  var escData = scGetEscData(scSelId);
-  var escDone = sc1done && escData.configured && (escData.count === 1 || (escData.names && escData.names.filter(function(n){return n&&n.trim();}).length === escData.count));
-  var t2chkCls = 'task-chk readonly' + (escDone ? ' checked' : '') + (escLocked ? ' locked' : '');
+  var sc2canCheck = sc1done && !sc2done && !scConfirmed && escFieldsReady;
+  var t2chkCls = 'task-chk' + (sc2done ? ' checked' : '') + ((escLocked || scConfirmed || (!sc2done && !sc2canCheck)) ? ' locked' : '');
+  var t2chkAttrs = sc2canCheck ? ' data-sc-task="sc2" data-sc-showid="' + scSelId + '"' : '';
   html += '<div class="task-row' + (escLocked ? ' step-locked' : '') + '">' +
-    '<div class="' + t2chkCls + '">' +
+    '<div class="' + t2chkCls + '"' + t2chkAttrs + '>' +
       '<span class="chk-mark">&#x2713;</span>' +
     '</div>' +
     '<div class="task-body">' +
-      '<div class="task-title' + (escDone ? ' done' : '') + '"' + (escLocked ? ' style="opacity:.35"' : '') + '>2. Define Exhibitor Service Center configuration</div>' +
+      '<div class="task-title' + (sc2done ? ' done' : '') + '"' + (escLocked ? ' style="opacity:.35"' : '') + '>2. Define Exhibitor Service Center configuration</div>' +
       '<div class="task-desc"' + (escLocked ? ' style="opacity:.5"' : '') + '>Specify how many ' + scEscLabel(scSelId) + 's will be active at this event and name each one if there are multiple.</div>' +
       (escLocked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
+      (!sc2done && sc1done && !scConfirmed && !escFieldsReady ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in the configuration below, then check this box when ready.</div>' : '') +
+      (!sc2done && sc1done && !scConfirmed && escFieldsReady ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Configuration complete — check this box when you are ready to move on.</div>' : '') +
       (sc1done && !scConfirmed ? '<div id="sc-esc-panel-anchor" style="margin-top:10px"></div>' : '') +
     '</div>' +
     '</div>';
 
-  // ── TASK 3 — Coverage Structure (locked until sc1 done) ──
-  var coverageLocked = !sc1done && !scConfirmed;
-  var cfCount = ra && ra.slots ? ra.slots.filter(function(sl){return sl.type==='cf';}).length : 0;
-  var asCount = ra && ra.slots ? ra.slots.filter(function(sl){return sl.type==='as';}).length : 0;
-  var coverageNeeded = cfCount > 1 || asCount > 0;
-  var coverageDone = !coverageNeeded || (sc1done && (function() {
-    if (!ra || !ra.slots) return false;
-    var cfSlots = ra.slots.filter(function(sl){return sl.type==='cf';});
-    var asSlots = ra.slots.filter(function(sl){return sl.type==='as';});
-    var cfOk = cfCount <= 1 || cfSlots.every(function(sl){return sl.coverageNote && sl.coverageNote.trim();});
-    var asOk = asSlots.every(function(sl){return sl.coverageNote && sl.coverageNote.trim();});
-    return cfOk && asOk;
-  })());
-  var t3chkCls = 'task-chk readonly' + (coverageDone ? ' checked' : '') + (coverageLocked ? ' locked' : '');
+  // ── TASK 3 — Coverage Structure ──
+  var coverageLocked = !sc2done && !scConfirmed;
+  var sc3canCheck = sc2done && !sc3done && !scConfirmed && coverageFieldsReady;
+  var t3chkCls = 'task-chk' + (sc3done ? ' checked' : '') + ((coverageLocked || scConfirmed || (!sc3done && !sc3canCheck)) ? ' locked' : '');
+  var t3chkAttrs = sc3canCheck ? ' data-sc-task="sc3" data-sc-showid="' + scSelId + '"' : '';
   html += '<div class="task-row' + (coverageLocked ? ' step-locked' : '') + '">' +
-    '<div class="' + t3chkCls + '">' +
+    '<div class="' + t3chkCls + '"' + t3chkAttrs + '>' +
       '<span class="chk-mark">&#x2713;</span>' +
     '</div>' +
     '<div class="task-body">' +
-      '<div class="task-title' + (coverageDone ? ' done' : '') + '"' + (coverageLocked ? ' style="opacity:.35"' : '') + '>3. Define coverage areas and responsibilities</div>' +
+      '<div class="task-title' + (sc3done ? ' done' : '') + '"' + (coverageLocked ? ' style="opacity:.35"' : '') + '>3. Define coverage areas and responsibilities</div>' +
       '<div class="task-desc"' + (coverageLocked ? ' style="opacity:.5"' : '') + '>' + (coverageNeeded ? 'Assign booth ranges and responsibility notes to customer-facing and additional support roles before filling names.' : 'No coverage assignments required for this event configuration.') + '</div>' +
-      (coverageLocked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
-      (sc1done && !scConfirmed && coverageNeeded ? '<div id="sc-cov-panel-anchor" style="margin-top:10px"></div>' : '') +
+      (coverageLocked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 2 first.</div>' : '') +
+      (!sc3done && sc2done && !scConfirmed && coverageNeeded && !coverageFieldsReady ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in all coverage fields below, then check this box when ready.</div>' : '') +
+      (!sc3done && sc2done && !scConfirmed && coverageFieldsReady ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Coverage complete — check this box when you are ready to move on.</div>' : '') +
+      (sc2done && !scConfirmed && coverageNeeded ? '<div id="sc-cov-panel-anchor" style="margin-top:10px"></div>' : '') +
     '</div>' +
     '</div>';
 
-  // ── TASK 4 — Assign team members (locked until sc1 done) ──
-  var t2locked = !sc1done && !scConfirmed;
-  var t4chkCls = 'task-chk readonly' + (allSlotsResolved ? ' checked' : '') + (t2locked ? ' locked' : '');
-  html += '<div class="task-row' + (t2locked ? ' step-locked' : '') + '">' +
-    '<div class="' + t4chkCls + '">' +
+  // ── TASK 4 — Assign team members ──
+  var slotLocked = !sc3done && !scConfirmed;
+  var sc4canCheck = sc3done && !sc4done && !scConfirmed && allSlotsResolved;
+  var t4chkCls = 'task-chk' + (sc4done ? ' checked' : '') + ((slotLocked || scConfirmed || (!sc4done && !sc4canCheck)) ? ' locked' : '');
+  var t4chkAttrs = sc4canCheck ? ' data-sc-task="sc4" data-sc-showid="' + scSelId + '"' : '';
+  html += '<div class="task-row' + (slotLocked ? ' step-locked' : '') + '">' +
+    '<div class="' + t4chkCls + '"' + t4chkAttrs + '>' +
       '<span class="chk-mark">&#x2713;</span>' +
     '</div>' +
     '<div class="task-body">' +
-      '<div class="task-title' + (allSlotsResolved ? ' done' : '') + '"' + (t2locked ? ' style="opacity:.35"' : '') + '>4. Assign team members to event slots</div>' +
-      '<div class="task-desc"' + (t2locked ? ' style="opacity:.5"' : '') + '>Assign team members to their roles. Mark any unfilled positions as <strong>Traveler Needed</strong> to flag them for the collaborative scheduling meeting.</div>' +
-      (t2locked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
-      (sc1done ? '<div id="sc-slot-panel-anchor" style="margin-top:10px"></div>' : '') +
+      '<div class="task-title' + (sc4done ? ' done' : '') + '"' + (slotLocked ? ' style="opacity:.35"' : '') + '>4. Assign team members to event slots</div>' +
+      '<div class="task-desc"' + (slotLocked ? ' style="opacity:.5"' : '') + '>Assign team members to their roles. Mark any unfilled positions as <strong>Traveler Needed</strong> to flag them for the collaborative scheduling meeting.</div>' +
+      (slotLocked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 3 first.</div>' : '') +
+      (!sc4done && sc3done && !scConfirmed && !allSlotsResolved ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Assign all slots or mark as Traveler Needed, then check this box when ready.</div>' : '') +
+      (!sc4done && sc3done && !scConfirmed && allSlotsResolved ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">All slots assigned — check this box when you are ready to move on.</div>' : '') +
+      (sc3done ? '<div id="sc-slot-panel-anchor" style="margin-top:10px"></div>' : '') +
     '</div>' +
     '</div>';
 
@@ -7205,11 +7226,13 @@ function renderScDetail() {
       var hasTravelerBar = ra && ra.slots && ra.slots.some(function(sl){return sl.travelerNeeded;});
       var pendingMsg = allDone ? (hasTravelerBar ? 'Ready to confirm &mdash; traveler(s) pending' : 'All steps complete &mdash; ready to confirm') :
         (!sc1done ? 'Complete step 1 to unlock scheduling setup' :
-         !allSlotsResolved ? 'Assign all slots or mark as Traveler Needed to continue' : 'Complete all steps above to confirm');
+         !sc2done ? 'Complete step 2 — ESC configuration' :
+         !sc3done ? 'Complete step 3 — coverage areas' :
+         !sc4done ? 'Complete step 4 — assign all team member slots' : 'Complete all steps above to confirm');
       var pendingSub = allDone ?
         (hasTravelerBar ? 'This show will be marked as confirmed with open traveler slots. Needs Attention tasks will remain until travelers are assigned.' :
          'Completing this process will lock all steps and mark this show as fully scheduled.') :
-        'All steps must be complete before you can confirm.';
+        'All four steps must be checked before you can confirm.';
       html += '<div class="sf-confirm-bar pending">' +
         '<div class="sf-confirm-msg">' + pendingMsg + '<div class="sub">' + pendingSub + '</div></div>' +
         '<button class="btn-confirm" data-sc-action="confirm" data-sc-showid="' + scSelId + '"' + (allDone ? '' : ' disabled style="opacity:.45;cursor:not-allowed"') + '>Complete Process</button>' +
@@ -7219,18 +7242,18 @@ function renderScDetail() {
 
   det.innerHTML = html;
 
-  // ── INJECT PANELS INTO THEIR ANCHORS (no re-render needed, DOM is stable) ──
+  // ── INJECT PANELS INTO THEIR ANCHORS ──
   if (sc1done && !scConfirmed) {
     var escAnchor = document.getElementById('sc-esc-panel-anchor');
     if (escAnchor) scBuildEscPanel(escAnchor, s, ra, sc);
   }
 
-  if (sc1done && !scConfirmed && coverageNeeded) {
+  if (sc2done && !scConfirmed && coverageNeeded) {
     var covAnchor = document.getElementById('sc-cov-panel-anchor');
     if (covAnchor) scBuildCoveragePanel(covAnchor, s, ra, sc);
   }
 
-  if (sc1done && ra && ra.slots) {
+  if (sc3done && ra && ra.slots) {
     var slotAnchor = document.getElementById('sc-slot-panel-anchor');
     if (slotAnchor) scBuildSlotFilling(slotAnchor, s, ra, sc);
   }
@@ -7875,8 +7898,7 @@ function scConfirmScheduling(showId) {
   var ra = ROLE_ASSIGNMENTS[showId];
   if (!ra) return;
   var sc = schedulingPlans[showId] || {};
-  if (!sc.step_sc1) return;
-  // All slots must have a person OR be marked travelerNeeded
+  if (!sc.step_sc1 || !sc.step_sc2 || !sc.step_sc3 || !sc.step_sc4) return;
   if (!ra.slots.every(function(sl) { return sl.person || sl.travelerNeeded; })) return;
 
   // Validate: on-site lead from staffing must be assigned to one of the slots
