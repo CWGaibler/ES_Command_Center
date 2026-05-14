@@ -6692,6 +6692,11 @@ function elRenderShow() {
     var show = SHOWS[showId];
     if (!ra || !show) return null;
 
+    // Lead and supervisor now live in schedulingPlans (set during Scheduling Step 2)
+    var scPlan = schedulingPlans[showId] || {};
+    var schedulingLead = scPlan.leadName || null;
+    var schedulingSup  = scPlan.supervisorName || null;
+
     // Map party label strings to people
     var parts = partyLabel.split(',').map(function(p){ return p.trim(); });
     var names = [];
@@ -6703,30 +6708,34 @@ function elRenderShow() {
       } else if (part === 'Additional On-Site Team') {
         names.push('All Parties');
       } else if (part === 'Customer-Facing Teams') {
-        names.push('Customer-Facing Team');
+        var cfPeople = ra.slots ? ra.slots.filter(function(sl){return sl.type==='cf' && sl.person;}).map(function(sl){return sl.person;}) : [];
+        if (cfPeople.length) cfPeople.forEach(function(n){names.push(n);}); else names.push('Customer-Facing Team');
       } else if (part === 'Back Room Teams') {
-        names.push('Back Room Team');
+        var brPeople = ra.slots ? ra.slots.filter(function(sl){return sl.type==='br' && sl.person;}).map(function(sl){return sl.person;}) : [];
+        if (brPeople.length) brPeople.forEach(function(n){names.push(n);}); else names.push('Back Room Team');
       } else if (part === 'Specialty Roles') {
         names.push('Specialty Roles');
       } else if (part === 'Additional Support Teams') {
-        names.push('Additional Support');
+        var asPeople = ra.slots ? ra.slots.filter(function(sl){return sl.type==='as' && sl.person;}).map(function(sl){return sl.person;}) : [];
+        if (asPeople.length) asPeople.forEach(function(n){names.push(n);}); else names.push('Additional Support');
       } else if (part === 'On-Site Lead') {
-        // Find person assigned to an onsite lead slot — use context strip lead name
-        var lead = show.lead || null;
-        // Check if lead is in roster
-        if (lead && ra.slots.some(function(sl){ return sl.person === lead; })) {
-          names.push(lead);
-        } else if (ra.slots.some(function(sl){ return sl.person; })) {
-          names.push(part); // role label — show in orange
+        if (schedulingLead) {
+          // Verify lead is actually assigned to a slot
+          var leadInRoster = ra.slots && ra.slots.some(function(sl){ return sl.person === schedulingLead; });
+          names.push(leadInRoster ? schedulingLead : schedulingLead + ' *');
         } else {
-          names.push(part);
+          names.push(part); // unresolved — show in orange
         }
       } else if (part === 'Off-Site Lead') {
         var osl = show.offsitePrep && show.offsitePrep !== 'Branch' ? show.offsitePrep : null;
         names.push(osl || part);
       } else if (part === 'Event Experience Supervisor') {
-        var ees = show.supervisor && show.supervisor !== 'No Supervisor' ? show.supervisor : null;
-        names.push(ees || part);
+        if (schedulingSup) {
+          names.push(schedulingSup);
+        } else {
+          var legacySup = show.supervisor && show.supervisor !== 'No Supervisor' ? show.supervisor : null;
+          names.push(legacySup || part);
+        }
       } else {
         names.push(part);
       }
