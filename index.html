@@ -7416,6 +7416,9 @@ function scBuildCoveragePanel(container, s, ra, sc) {
       inp.addEventListener('input', function() {
         scSaveCoverageNote(showId, slotIdx, this.value);
       });
+      inp.addEventListener('blur', function() {
+        renderScDetail();
+      });
     })(idx);
 
     row.appendChild(lbl);
