@@ -3640,8 +3640,8 @@ function renderSfDetail() {
   if (!confirmed) {
     var sfEscAnchor = document.getElementById('sf-esc-config-anchor');
     if (sfEscAnchor) {
-      var sfEscContainer = document.createElement('div');
-      scBuildEscPanel(sfEscAnchor, s, sfRa, plan);
+      var sfScContext = Object.assign({}, plan, {_showId: sfSelId});
+      scBuildEscPanel(sfEscAnchor, s, sfRa, sfScContext);
     }
     var sfAssignAnchor = document.getElementById('sf-esc-assign-anchor');
     if (sfAssignAnchor && sfRa && sfRa.slots) {
@@ -3649,7 +3649,8 @@ function renderSfDetail() {
     }
     var sfCovAnchor = document.getElementById('sf-coverage-anchor');
     if (sfCovAnchor && sfRa) {
-      scBuildCoveragePanel(sfCovAnchor, s, sfRa, plan);
+      var sfCovContext = Object.assign({}, plan, {_showId: sfSelId});
+      scBuildCoveragePanel(sfCovAnchor, s, sfRa, sfCovContext);
     }
   }
 
@@ -7529,9 +7530,11 @@ function scBuildSlotEscAssignPanel(container, showId, escData, ra) {
 }
 
 function scBuildEscPanel(container, s, ra, sc) {
-  var showId = scSelId;
+  var showId = sc && sc._showId ? sc._showId : (scSelId || sfSelId);
   var escLabel = scEscLabel(showId);
   var escData = scGetEscData(showId);
+  // Re-render callback: works whether called from Staffing or Scheduling context
+  var rerender = (sfSelId && sfSelId === showId) ? renderSfDetail : renderScDetail;
 
   var hdr = document.createElement('div');
   hdr.style.cssText = 'font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px';
@@ -7587,7 +7590,7 @@ function scBuildEscPanel(container, s, ra, sc) {
           scRefreshEscAssignments(showId);
         });
         inp.addEventListener('blur', function() {
-          renderScDetail();
+          rerender();
         });
         row.appendChild(lbl);
         row.appendChild(inp);
@@ -7601,8 +7604,8 @@ function scBuildEscPanel(container, s, ra, sc) {
   countSel.addEventListener('change', function() {
     var newCount = parseInt(this.value);
     var currentNames = Array.from(namesContainer.querySelectorAll('input')).map(function(el){return el.value;});
-    scSaveEscData(showId, newCount, currentNames, true); // explicit selection = configured
-    renderScDetail();
+    scSaveEscData(showId, newCount, currentNames, true);
+    rerender();
   });
 }
 
@@ -7619,7 +7622,8 @@ function scRefreshEscAssignments(showId) {
 
 // ── COVERAGE PANEL BUILDER ────────────────────────────────────────────────
 function scBuildCoveragePanel(container, s, ra, sc) {
-  var showId = scSelId;
+  var showId = sc && sc._showId ? sc._showId : (scSelId || sfSelId);
+  var rerender = (sfSelId && sfSelId === showId) ? renderSfDetail : renderScDetail;
   var hdr = document.createElement('div');
   hdr.style.cssText = 'font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px';
   hdr.textContent = 'Coverage Areas & Responsibilities';
@@ -7660,7 +7664,7 @@ function scBuildCoveragePanel(container, s, ra, sc) {
         scSaveCoverageNote(showId, slotIdx, this.value);
       });
       inp.addEventListener('blur', function() {
-        renderScDetail();
+        rerender();
       });
     })(idx);
 
