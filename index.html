@@ -3211,15 +3211,17 @@ var schedulingPlans = {};
 var scSelId = null;
 
 var SCHEDULING_TASKS = [
-  {id:"sc1", phase:"Scheduling Steps", title:"Add event to the ES Regional Schedule", desc:"Update the ES Regional Schedule spreadsheet with this event and identify available team members for scheduling.", links:[{label:"Regional Schedules",url:"https://freemanco.sharepoint.com/:x:/r/teams/CustomerExperienceTeam/_layouts/15/Doc.aspx?sourcedoc=%7B4A18F518-B87C-47CE-8CE0-5E9441603823%7D&file=ES%20Regional%20Schedules%20-%20All%20Views.xlsx"}]},
-  {id:"sc2", phase:"Scheduling Steps", title:"Assign team members to event slots", desc:"Assign identified team members to their roles for this event.", links:[], slotFilling:true}
+  {id:'sc1', title:'Add event to the ES Regional Schedule', desc:'Update the ES Regional Schedule spreadsheet with this event and identify available team members for scheduling.', links:[{label:'Regional Schedules',url:'https://freemanco.sharepoint.com/:x:/r/teams/CustomerExperienceTeam/_layouts/15/Doc.aspx?sourcedoc=%7B4A18F518-B87C-47CE-8CE0-5E9441603823%7D&file=ES%20Regional%20Schedules%20-%20All%20Views.xlsx'}]},
+  {id:'sc2', title:'Identify on-site lead and supervisor', desc:'Select the on-site lead for this event using the employee picker. If a supervisor is assigned to this event, select them here as well. The on-site lead must be assigned to a specific role slot in step 3.', leadEntry:true},
+  {id:'sc3', title:'Assign team members to event slots', desc:'Assign team members to their roles. Mark any unfilled positions as Traveler Needed to flag them for the collaborative scheduling meeting.', slotFilling:true}
 ];
 
 var STAFFING_TASKS = [
-  {id:"s1", phase:"Leadership Steps", title:"Review event's prior year history", desc:"Research details captured about the event on the prior year's ‘Event’ page, including the staffing plan, information captured in the ES post-event survey, the exhibitor post-event survey results, and anything shared within the “Show Information” folder.", links:[]},
-  {id:"s2", phase:"Leadership Steps", title:"Determine staffing — review ES Staffing Service Model", desc:"Use the calculator below. For events of 50 or fewer booths, the calculator will guide you through a remote eligibility assessment. For 751+ booth shows, a custom plan and rationale are required.", links:[], calc:true, step:"2"},
-  {id:"s3", phase:"Leadership Steps", title:"Enter the on-site lead / supervisor names", desc:"Enter the on-site lead and supervisor names below. Once entered, an auto-alert is sent to the assigned persons at the 10-week mark.", links:[], nameEntry:true},
-  {id:"s4", phase:"Leadership Steps", title:"If travel needed, review with RD and complete Travel Needs file", desc:"Coordinate with your Regional Director and complete the Travel Needs by Region file.", links:[{label:"Travel Needs File",url:"https://freemanco.sharepoint.com/:x:/r/teams/ExhibitorServices296-Managersandabove/Shared%20Documents/Managers%20%20and%20above/Schedule/Travel%20Needs%20by%20Region%20v2.xlsx?d=wd8b7942c4b4f403c9fcf63ab63bbe3ad&csf=1&web=1&e=cnh0P6"}]}
+  {id:'s1', title:"Review event's prior year history", desc:"Research details captured about the event on the prior year's Event page, including the staffing plan, information captured in the ES post-event survey, the exhibitor post-event survey results, and anything shared within the Show Information folder.", links:[]},
+  {id:'s2', title:'Determine staffing — review ES Staffing Service Model', desc:'Use the calculator below. For events of 50 or fewer booths, the calculator will guide you through a remote eligibility assessment. For 751+ booth shows, a custom plan and rationale are required.', links:[], calc:true, step:'2'},
+  {id:'s3', title:'Define Exhibitor Service Center configuration', desc:'Specify how many Exhibitor Service Centers will be active at this event. If there are multiple, name each one so roles can be assigned to the correct desk.', escConfig:true},
+  {id:'s4', title:'Assign roles to Exhibitor Service Centers', desc:'Assign each staffing role slot to its respective Exhibitor Service Center. Skip this step if there is only one ESC.', escAssign:true},
+  {id:'s5', title:'Define coverage areas and responsibilities', desc:'Assign booth ranges to each customer-facing representative (when 2 or more are staffed) and responsibility notes to any additional support roles.', coverageConfig:true}
 ];
 
 
@@ -3520,76 +3522,136 @@ function renderSfDetail() {
 
   html += "<div class=\"det-scroll\" style=\"max-height:calc(100vh - 300px);overflow-y:auto;padding-top:8px\">";
 
-  // Staffing steps — sequential locking, no collapsible wrapper
+  // ── Staffing steps — new 5-step flow ────────────────────────────────────
+
+  // Compute field-gate states for the new steps
+  var sfEscData = scGetEscData(sfSelId);
+  var sfEscFieldsReady = sfEscData.configured && (sfEscData.count === 1 || (sfEscData.names && sfEscData.names.filter(function(n){return n&&n.trim();}).length === sfEscData.count));
+
+  // s4 (assign roles to ESCs) — only required if count > 1
+  var sfEscAssignReady = sfEscData.count <= 1 || (function() {
+    var ra = ROLE_ASSIGNMENTS[sfSelId];
+    if (!ra || !ra.slots) return false;
+    return ra.slots.every(function(sl){ return sl.escAssignment; });
+  })();
+
+  // s5 (coverage) — only required if 2+ CF or any AS
+  var sfRa = ROLE_ASSIGNMENTS[sfSelId];
+  var sfCfCount = sfRa && sfRa.slots ? sfRa.slots.filter(function(sl){return sl.type==='cf';}).length : 0;
+  var sfAsCount = sfRa && sfRa.slots ? sfRa.slots.filter(function(sl){return sl.type==='as';}).length : 0;
+  var sfCoverageNeeded = sfCfCount > 1 || sfAsCount > 0;
+  var sfCoverageReady = !sfCoverageNeeded || (sfRa && sfRa.slots && (function(){
+    var cfOk = sfCfCount <= 1 || sfRa.slots.filter(function(sl){return sl.type==='cf';}).every(function(sl){return sl.coverageNote && sl.coverageNote.trim();});
+    var asOk = sfRa.slots.filter(function(sl){return sl.type==='as';}).every(function(sl){return sl.coverageNote && sl.coverageNote.trim();});
+    return cfOk && asOk;
+  })());
 
   STAFFING_TASKS.forEach(function(t, idx) {
     var checked = plan.checked.indexOf(t.id) >= 0;
-    // A step is locked if any prior step is not yet checked
     var locked = false;
     if (idx > 0) {
       for (var i = 0; i < idx; i++) {
         if (plan.checked.indexOf(STAFFING_TASKS[i].id) < 0) { locked = true; break; }
       }
     }
-    // Step 2 checkbox has an extra gate: the calculator decision (service model) must be
-    // set before the checkbox can be clicked — but the calculator itself always shows.
-    // Step 3 checkbox has an extra gate: the on-site lead name must be filled in first.
-    var chkLocked = locked;
-    if (t.id === 's2' && !chkLocked && !checked && !(plan.serviceModel && plan.serviceModel !== '')) {
-      chkLocked = true;
+
+    // Field-gate logic per step
+    var chkLocked = locked || confirmed;
+    if (!checked && !locked && !confirmed) {
+      if (t.id === 's2') chkLocked = !(plan.serviceModel && plan.serviceModel !== '');
+      if (t.id === 's3') chkLocked = !sfEscFieldsReady;
+      if (t.id === 's4') chkLocked = !sfEscAssignReady;
+      if (t.id === 's5') chkLocked = !sfCoverageReady;
     }
-    if (t.id === 's3' && !chkLocked && !checked) {
-      if (!(plan.leadName && plan.leadName.trim())) chkLocked = true;
+
+    var rowCls = locked ? ' step-locked' : '';
+    var chkCls = 'task-chk' + (checked ? ' checked' : '') + (chkLocked ? ' locked' : '');
+    var chkAttrs = chkLocked ? '' : ' data-taskid="' + t.id + '" data-showid="' + sfSelId + '"';
+
+    var hintHtml = '';
+    if (!checked && !locked && !confirmed) {
+      if (t.id === 's2' && !plan.serviceModel) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Use the calculator below to determine your staffing plan, then check this box when ready.</div>';
+      if (t.id === 's3' && !sfEscFieldsReady) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in the ESC configuration below, then check this box when ready.</div>';
+      if (t.id === 's3' && sfEscFieldsReady) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Configuration complete — check this box when ready to move on.</div>';
+      if (t.id === 's4' && sfEscData.count <= 1) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Only one ESC — no assignments needed. Check this box to continue.</div>';
+      if (t.id === 's4' && sfEscData.count > 1 && !sfEscAssignReady) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Assign each role slot to an ESC below, then check this box when ready.</div>';
+      if (t.id === 's4' && sfEscData.count > 1 && sfEscAssignReady) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">All roles assigned — check this box when ready to move on.</div>';
+      if (t.id === 's5' && !sfCoverageNeeded) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">No coverage assignments required for this event. Check this box to continue.</div>';
+      if (t.id === 's5' && sfCoverageNeeded && !sfCoverageReady) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in all coverage fields below, then check this box when ready.</div>';
+      if (t.id === 's5' && sfCoverageNeeded && sfCoverageReady) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Coverage complete — check this box when ready to move on.</div>';
     }
-    var rowCls = locked ? " step-locked" : "";
-    var chkCls = "task-chk" + (checked ? " checked" : "") + (chkLocked ? " locked" : "");
-    html += "<div class=\"task-row" + rowCls + "\">" +
-      "<div class=\"" + chkCls + "\"" + (chkLocked ? "" : " data-taskid=\"" + t.id + "\" data-showid=\"" + sfSelId + "\"") + ">" +
-        "<span class=\"chk-mark\">\u2713</span>" +
-      "</div>" +
-      "<div class=\"task-body\">" +
-        "<div class=\"task-title" + (checked ? " done" : "") + (locked ? " style=\"opacity:.35\"" : "") + "\">" + (idx + 1) + ". " + t.title + "</div>" +
-        "<div class=\"task-desc\"" + (locked ? " style=\"opacity:.5\"" : "") + ">" + t.desc + "</div>" +
-        (!locked ? (function(){var linksHtml = (t.links && t.links.length ? t.links.map(function(l){ return "<a class=\"tlink\" href=\"" + l.url + "\" target=\"_blank\">" + l.label + "</a>"; }).join("") : "");if(t.id === "s1" && s.pyJobNumber && s.pyJobNumber !== "N/A" && s.pyJobNumber !== "") {linksHtml += "<a class=\"tlink\" href=\"#\" onclick=\"goToEventLens('" + s.pyJobNumber + "');return false;\">Prior Year Event &#8599;</a>";}return linksHtml ? "<div class=\"task-links\">" + linksHtml + "</div>" : "";})() : "") +
-        (!locked && t.calc ? renderSfCalcInline(s, rec, plan, t.step) : "") +
-        (!locked && t.nameEntry ? renderSfNameEntry(sfSelId, plan) : "") +
-      "</div>" +
-      "</div>";
+
+    // Inline content panels
+    var inlineHtml = '';
+    if (!locked && !confirmed) {
+      if (t.id === 's1') {
+        var linksHtml = '';
+        if (s.pyJobNumber && s.pyJobNumber !== 'N/A' && s.pyJobNumber !== '') {
+          linksHtml = '<a class="tlink" href="#" onclick="goToEventLens(\'' + s.pyJobNumber + '\');return false;">Prior Year Event &#8599;</a>';
+        }
+        if (linksHtml) inlineHtml = '<div class="task-links">' + linksHtml + '</div>';
+      }
+      if (t.calc) inlineHtml += renderSfCalcInline(s, rec, plan, t.step);
+      if (t.escConfig && plan.checked.indexOf('s2') >= 0) inlineHtml += '<div id="sf-esc-config-anchor" style="margin-top:10px"></div>';
+      if (t.escAssign && plan.checked.indexOf('s3') >= 0 && sfEscData.count > 1) inlineHtml += '<div id="sf-esc-assign-anchor" style="margin-top:10px"></div>';
+      if (t.coverageConfig && plan.checked.indexOf('s4') >= 0 && sfCoverageNeeded) inlineHtml += '<div id="sf-coverage-anchor" style="margin-top:10px"></div>';
+    }
+
+    html += '<div class="task-row' + rowCls + '">' +
+      '<div class="' + chkCls + '"' + chkAttrs + '>' +
+        '<span class="chk-mark">\u2713</span>' +
+      '</div>' +
+      '<div class="task-body">' +
+        '<div class="task-title' + (checked ? ' done' : '') + '"' + (locked ? ' style="opacity:.35"' : '') + '>' + (idx+1) + '. ' + t.title + '</div>' +
+        '<div class="task-desc"' + (locked ? ' style="opacity:.5"' : '') + '>' + t.desc + '</div>' +
+        hintHtml +
+        inlineHtml +
+      '</div>' +
+      '</div>';
   });
 
+  html += '</div>'; // close det-scroll
 
-  html += "</div>"; // close det-scroll
-
-  // Confirm bar
-  // Read current name field values (they may not be saved to plan yet)
-  var allTasksChecked = STAFFING_TASKS.every(function(t) {
-    if (t.nameEntry) return true;
-    return plan.checked.indexOf(t.id) >= 0;
-  });
-  var calcConfirmed = (plan.checked.indexOf('s2') >= 0) || (plan.serviceModel && plan.serviceModel !== '');
-  var leadFilled = !!(plan.leadName && plan.leadName.trim());
-  var allDone = allTasksChecked && calcConfirmed && leadFilled;
+  // ── Confirm bar ──────────────────────────────────────────────────────────
+  var allTasksChecked = STAFFING_TASKS.every(function(t) { return plan.checked.indexOf(t.id) >= 0; });
+  var calcConfirmed = !!(plan.serviceModel && plan.serviceModel !== '');
+  var allDone = allTasksChecked && calcConfirmed;
   if (confirmed) {
-    html += "<div class=\"sf-confirm-bar\">" +
-      "<div class=\"sf-confirm-msg\">\u2713 Staffing process complete \u2014 event ready for Scheduling<div class=\"sub\">All four steps are locked. Use Revise to make changes.</div></div>" +
-      "<button class=\"m-cancel\" data-action-ss=\"unconfirm\" data-showid=\"" + sfSelId + "\">Revise</button>" +
-      "</div>";
+    html += '<div class="sf-confirm-bar">' +
+      '<div class="sf-confirm-msg">\u2713 Staffing process complete \u2014 event ready for Scheduling<div class="sub">All five steps are locked. Use Revise to make changes.</div></div>' +
+      '<button class="m-cancel" data-action-ss="unconfirm" data-showid="' + sfSelId + '">Revise</button>' +
+      '</div>';
   } else {
-    var pendingMsg = allDone
-      ? "All steps complete \u2014 ready to confirm"
-      : (!calcConfirmed ? "Complete step 2 to determine your staffing plan" :
-         !leadFilled ? "Select the on-site lead in step 3 to continue" :
-         "Complete all steps above to confirm this plan");
+    var pendingMsg = allDone ? 'All steps complete \u2014 ready to confirm' :
+      (!calcConfirmed ? 'Complete step 2 to determine your staffing plan' :
+       'Complete all steps above to confirm this plan');
     var pendingSub = allDone
-      ? "Completing this process will lock all four steps and move this show to your Scheduling queue."
-      : "All four steps must be complete before you can confirm.";
-    html += "<div class=\"sf-confirm-bar pending\">" +
-      "<div class=\"sf-confirm-msg\">" + pendingMsg + "<div class=\"sub\">" + pendingSub + "</div></div>" +
-      "<button class=\"btn-confirm\" data-action-ss=\"confirm\" data-showid=\"" + sfSelId + "\"" + (allDone ? "" : " disabled style=\"opacity:.45;cursor:not-allowed\"") + ">Complete Process</button>" +
-      "</div>";
+      ? 'Completing this process will lock all five steps and move this show to your Scheduling queue.'
+      : 'All five steps must be complete before you can confirm.';
+    html += '<div class="sf-confirm-bar pending">' +
+      '<div class="sf-confirm-msg">' + pendingMsg + '<div class="sub">' + pendingSub + '</div></div>' +
+      '<button class="btn-confirm" data-action-ss="confirm" data-showid="' + sfSelId + '"' + (allDone ? '' : ' disabled style="opacity:.45;cursor:not-allowed"') + '>Complete Process</button>' +
+      '</div>';
   }
 
   det.innerHTML = html;
+
+  // ── Inject staffing panels into anchors ──────────────────────────────────
+  if (!confirmed) {
+    var sfEscAnchor = document.getElementById('sf-esc-config-anchor');
+    if (sfEscAnchor) {
+      var sfEscContainer = document.createElement('div');
+      scBuildEscPanel(sfEscAnchor, s, sfRa, plan);
+    }
+    var sfAssignAnchor = document.getElementById('sf-esc-assign-anchor');
+    if (sfAssignAnchor && sfRa && sfRa.slots) {
+      scBuildSlotEscAssignPanel(sfAssignAnchor, sfSelId, sfEscData, sfRa);
+    }
+    var sfCovAnchor = document.getElementById('sf-coverage-anchor');
+    if (sfCovAnchor && sfRa) {
+      scBuildCoveragePanel(sfCovAnchor, s, sfRa, plan);
+    }
+  }
 
   // Attach event handlers via delegation on det
   det.onclick = function(e) {
@@ -4623,8 +4685,8 @@ function showSfPostConfirmPopup(showId) {
     '</div>' +
     '<div class="sf-cmp-body">' +
       '<div class="sf-cmp-section">The following has been completed:</div>' +
-      '<div class="sf-cmp-step"><div class="sf-cmp-step-num">1</div><div class="sf-cmp-step-text"><strong>All four steps locked</strong><br>Prior year review, staffing plan, lead assignment, and travel review are confirmed for job #' + showId + '.</div></div>' +
-      '<div class="sf-cmp-step"><div class="sf-cmp-step-num">2</div><div class="sf-cmp-step-text"><strong>Show moved to Scheduling</strong><br>This show now appears in your Scheduling queue. The next step is to assign specific team members to their event roles.</div></div>' +
+      '<div class="sf-cmp-step"><div class="sf-cmp-step-num">1</div><div class="sf-cmp-step-text"><strong>All five steps locked</strong><br>Prior year review, staffing plan, ESC configuration, role assignments, and coverage areas are confirmed for job #' + showId + '.</div></div>' +
+      '<div class="sf-cmp-step"><div class="sf-cmp-step-num">2</div><div class="sf-cmp-step-text"><strong>Show moved to Scheduling</strong><br>This show now appears in your Scheduling queue. The next step is to identify the on-site lead and assign team members to their event roles.</div></div>' +
       '<div class="sf-cmp-note">All steps are locked. To make changes, use the Revise button on the Staffing page.</div>' +
     '</div>' +
     '<div class="sf-cmp-footer">' +
@@ -5952,8 +6014,10 @@ var EL_SUPERVISORY_TITLES = [
   'Exhibitor Services Sr Event Experience Supervisor',
   'Manager Exhibitor Services',
   'Director Exhibitor Services',
+  'Director Exhibitor Services Business Operations',
   'Regional Director Exhibitor Services',
-  'Sr Director Exhibitor Services'
+  'Sr Director Exhibitor Services',
+  'Vice President Exhibitor Services'
 ];
 var SF_SUPERVISOR_TITLES = EL_SUPERVISORY_TITLES;
 
@@ -6463,8 +6527,8 @@ function elRenderShow() {
       });
       html += '</div>';
     }
-    var scLead = sfPlanData.leadName || '';
-    var scSup  = sfPlanData.supervisorName || '';
+    var scLead = (schedulingPlans[showId] || {}).leadName || '';
+    var scSup  = (schedulingPlans[showId] || {}).supervisorName || '';
     if (scLead) {
       html += '<div style="padding:10px 16px;display:flex;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--border-lt)">' +
         '<div><div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px">On-Site Lead</div>' +
@@ -7077,39 +7141,17 @@ function renderScDetail() {
   var rec = sfCalcRec(s);
   var scConfirmed = ra && ra.confirmed;
   var sc1done = sc.step_sc1;
-
-  // Manual step flags — leader must deliberately check each box
   var sc2done = sc.step_sc2;
   var sc3done = sc.step_sc3;
-  var sc4done = sc.step_sc4;
-
-  // Field-gate: are required fields filled? (controls whether checkbox is clickable)
-  var escData = scGetEscData(scSelId);
-  var escFieldsReady = escData.configured && (escData.count === 1 || (escData.names && escData.names.filter(function(n){return n&&n.trim();}).length === escData.count));
-
-  var cfCount = ra && ra.slots ? ra.slots.filter(function(sl){return sl.type==='cf';}).length : 0;
-  var asCount = ra && ra.slots ? ra.slots.filter(function(sl){return sl.type==='as';}).length : 0;
-  var coverageNeeded = cfCount > 1 || asCount > 0;
-  var coverageFieldsReady = !coverageNeeded || (ra && ra.slots && (function() {
-    var cfSlots = ra.slots.filter(function(sl){return sl.type==='cf';});
-    var asSlots = ra.slots.filter(function(sl){return sl.type==='as';});
-    var cfOk = cfCount <= 1 || cfSlots.every(function(sl){return sl.coverageNote && sl.coverageNote.trim();});
-    var asOk = asSlots.every(function(sl){return sl.coverageNote && sl.coverageNote.trim();});
-    return cfOk && asOk;
-  })());
-
   var allSlotsResolved = ra && ra.slots && ra.slots.every(function(sl) { return sl.person || sl.travelerNeeded; });
 
-  var allDone = sc1done && sc2done && sc3done && sc4done;
-
-  // ── DETAIL HEADER — identical structure to staffing ──
-  var sfPlan = staffingPlans[scSelId] || {};
-  var sfLead = sfPlan.leadName || '';
-  var sfSup  = sfPlan.supervisorName || '';
+  // ── DETAIL HEADER ──
+  var scLead = sc.leadName || '';
+  var scSup  = sc.supervisorName || '';
   var subLineExtra = '';
-  if (sfLead) {
-    subLineExtra = ' | On-Site Lead: ' + sfLead;
-    if (sfSup) subLineExtra += ' \u2013 Supervisor: ' + sfSup;
+  if (scLead) {
+    subLineExtra = ' | On-Site Lead: ' + scLead;
+    if (scSup) subLineExtra += ' \u2013 Supervisor: ' + scSup;
   }
   var html = '<div class="det-hdr">' +
     '<div><div class="det-name-row"><span class="det-name">' + s.name + '</span><span class="det-name-sep">|</span><span class="det-job-num">Job #' + scSelId + '</span></div>' +
@@ -7145,94 +7187,79 @@ function renderScDetail() {
     '</div>' +
     '</div>';
 
-  // ── TASK 2 — ESC Setup ──
-  var escLocked = !sc1done && !scConfirmed;
-  var sc2canCheck = sc1done && !sc2done && !scConfirmed && escFieldsReady;
-  var t2chkCls = 'task-chk' + (sc2done ? ' checked' : '') + ((escLocked || scConfirmed || (!sc2done && !sc2canCheck)) ? ' locked' : '');
+  // ── TASK 2 — Identify on-site lead and supervisor ──
+  var sc2locked = !sc1done && !scConfirmed;
+  var sc2leadFilled = !!(sc.leadName && sc.leadName.trim());
+  var sc2canCheck = sc1done && !sc2done && !scConfirmed && sc2leadFilled;
+  var t2chkCls = 'task-chk' + (sc2done ? ' checked' : '') + ((sc2locked || scConfirmed || (!sc2done && !sc2canCheck)) ? ' locked' : '');
   var t2chkAttrs = sc2canCheck ? ' data-sc-task="sc2" data-sc-showid="' + scSelId + '"' : '';
-  html += '<div class="task-row' + (escLocked ? ' step-locked' : '') + '">' +
+  html += '<div class="task-row' + (sc2locked ? ' step-locked' : '') + '">' +
     '<div class="' + t2chkCls + '"' + t2chkAttrs + '>' +
       '<span class="chk-mark">&#x2713;</span>' +
     '</div>' +
     '<div class="task-body">' +
-      '<div class="task-title' + (sc2done ? ' done' : '') + '"' + (escLocked ? ' style="opacity:.35"' : '') + '>2. Define Exhibitor Service Center configuration</div>' +
-      '<div class="task-desc"' + (escLocked ? ' style="opacity:.5"' : '') + '>Specify how many ' + scEscLabel(scSelId) + 's will be active at this event and name each one if there are multiple.</div>' +
-      (escLocked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
-      (!sc2done && sc1done && !scConfirmed && !escFieldsReady ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in the configuration below, then check this box when ready.</div>' : '') +
-      (!sc2done && sc1done && !scConfirmed && escFieldsReady ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Configuration complete — check this box when you are ready to move on.</div>' : '') +
-      (sc1done && !scConfirmed ? '<div id="sc-esc-panel-anchor" style="margin-top:10px"></div>' : '') +
+      '<div class="task-title' + (sc2done ? ' done' : '') + '"' + (sc2locked ? ' style="opacity:.35"' : '') + '>2. Identify on-site lead and supervisor</div>' +
+      '<div class="task-desc"' + (sc2locked ? ' style="opacity:.5"' : '') + '>Select the on-site lead for this event. If a supervisor is assigned, select them here too. The on-site lead must fill a specific role slot in step 3.</div>' +
+      (sc2locked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
+      (!sc2done && sc1done && !scConfirmed && !sc2leadFilled ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Select an on-site lead below, then check this box when ready.</div>' : '') +
+      (!sc2done && sc1done && !scConfirmed && sc2leadFilled ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Lead selected — check this box when ready to move on.</div>' : '') +
+      (sc1done && !scConfirmed ? '<div id="sc-lead-picker-anchor" style="margin-top:10px"></div>' : '') +
     '</div>' +
     '</div>';
 
-  // ── TASK 3 — Coverage Structure ──
-  var coverageLocked = !sc2done && !scConfirmed;
-  var sc3canCheck = sc2done && !sc3done && !scConfirmed && coverageFieldsReady;
-  var t3chkCls = 'task-chk' + (sc3done ? ' checked' : '') + ((coverageLocked || scConfirmed || (!sc3done && !sc3canCheck)) ? ' locked' : '');
+  // ── TASK 3 — Assign team members ──
+  var sc3locked = !sc2done && !scConfirmed;
+  var sc3canCheck = sc2done && !sc3done && !scConfirmed && allSlotsResolved;
+  var t3chkCls = 'task-chk' + (sc3done ? ' checked' : '') + ((sc3locked || scConfirmed || (!sc3done && !sc3canCheck)) ? ' locked' : '');
   var t3chkAttrs = sc3canCheck ? ' data-sc-task="sc3" data-sc-showid="' + scSelId + '"' : '';
-  html += '<div class="task-row' + (coverageLocked ? ' step-locked' : '') + '">' +
+  html += '<div class="task-row' + (sc3locked ? ' step-locked' : '') + '">' +
     '<div class="' + t3chkCls + '"' + t3chkAttrs + '>' +
       '<span class="chk-mark">&#x2713;</span>' +
     '</div>' +
     '<div class="task-body">' +
-      '<div class="task-title' + (sc3done ? ' done' : '') + '"' + (coverageLocked ? ' style="opacity:.35"' : '') + '>3. Define coverage areas and responsibilities</div>' +
-      '<div class="task-desc"' + (coverageLocked ? ' style="opacity:.5"' : '') + '>' + (coverageNeeded ? 'Assign booth ranges and responsibility notes to customer-facing and additional support roles before filling names.' : 'No coverage assignments required for this event configuration.') + '</div>' +
-      (coverageLocked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 2 first.</div>' : '') +
-      (!sc3done && sc2done && !scConfirmed && coverageNeeded && !coverageFieldsReady ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in all coverage fields below, then check this box when ready.</div>' : '') +
-      (!sc3done && sc2done && !scConfirmed && coverageFieldsReady ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Coverage complete — check this box when you are ready to move on.</div>' : '') +
-      (sc2done && !scConfirmed && coverageNeeded ? '<div id="sc-cov-panel-anchor" style="margin-top:10px"></div>' : '') +
-    '</div>' +
-    '</div>';
-
-  // ── TASK 4 — Assign team members ──
-  var slotLocked = !sc3done && !scConfirmed;
-  var sc4canCheck = sc3done && !sc4done && !scConfirmed && allSlotsResolved;
-  var t4chkCls = 'task-chk' + (sc4done ? ' checked' : '') + ((slotLocked || scConfirmed || (!sc4done && !sc4canCheck)) ? ' locked' : '');
-  var t4chkAttrs = sc4canCheck ? ' data-sc-task="sc4" data-sc-showid="' + scSelId + '"' : '';
-  html += '<div class="task-row' + (slotLocked ? ' step-locked' : '') + '">' +
-    '<div class="' + t4chkCls + '"' + t4chkAttrs + '>' +
-      '<span class="chk-mark">&#x2713;</span>' +
-    '</div>' +
-    '<div class="task-body">' +
-      '<div class="task-title' + (sc4done ? ' done' : '') + '"' + (slotLocked ? ' style="opacity:.35"' : '') + '>4. Assign team members to event slots</div>' +
-      '<div class="task-desc"' + (slotLocked ? ' style="opacity:.5"' : '') + '>Assign team members to their roles. Mark any unfilled positions as <strong>Traveler Needed</strong> to flag them for the collaborative scheduling meeting.</div>' +
-      (slotLocked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 3 first.</div>' : '') +
-      (!sc4done && sc3done && !scConfirmed && !allSlotsResolved ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Assign all slots or mark as Traveler Needed, then check this box when ready.</div>' : '') +
-      (!sc4done && sc3done && !scConfirmed && allSlotsResolved ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">All slots assigned — check this box when you are ready to move on.</div>' : '') +
-      (sc3done ? '<div id="sc-slot-panel-anchor" style="margin-top:10px"></div>' : '') +
+      '<div class="task-title' + (sc3done ? ' done' : '') + '"' + (sc3locked ? ' style="opacity:.35"' : '') + '>3. Assign team members to event slots</div>' +
+      '<div class="task-desc"' + (sc3locked ? ' style="opacity:.5"' : '') + '>Assign team members to their roles. Mark any unfilled positions as <strong>Traveler Needed</strong> to flag them for the collaborative scheduling meeting.</div>' +
+      (sc3locked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 2 first.</div>' : '') +
+      (!sc3done && sc2done && !scConfirmed && !allSlotsResolved ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Assign all slots or mark as Traveler Needed, then check this box when ready.</div>' : '') +
+      (!sc3done && sc2done && !scConfirmed && allSlotsResolved ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">All slots assigned — check this box when ready to confirm.</div>' : '') +
+      (sc2done ? '<div id="sc-slot-panel-anchor" style="margin-top:10px"></div>' : '') +
     '</div>' +
     '</div>';
 
   html += '</div>'; // close det-scroll
 
   // ── CONFIRM BAR ──
-  var scPlan = schedulingPlans[scSelId] || {};
-  var leadError = scPlan._leadError || '';
+  var hasTravelerBar = ra && ra.slots && ra.slots.some(function(sl){return sl.travelerNeeded;});
+  var allDone = sc1done && sc2done && sc3done;
   if (scConfirmed) {
     html += '<div class="sf-confirm-bar">' +
       '<div class="sf-confirm-msg">&#x2713; Scheduling process complete &mdash; event is fully scheduled<div class="sub">All steps are locked. Use Revise to make changes.</div></div>' +
       '<button class="m-cancel" data-sc-action="unconfirm" data-sc-showid="' + scSelId + '">Revise</button>' +
       '</div>';
   } else {
-    if (leadError && ra && ra.slots) {
-      var nowAssigned = ra.slots.map(function(sl){return sl.person||'';});
-      if (nowAssigned.indexOf(leadError) >= 0) { leadError = ''; if(schedulingPlans[scSelId]) delete schedulingPlans[scSelId]._leadError; }
+    // Lead validation: on-site lead must be assigned to a slot
+    var leadError = '';
+    var requiredLead = sc.leadName ? sc.leadName.trim() : '';
+    if (allDone && requiredLead && ra && ra.slots) {
+      var assignedNames = ra.slots.map(function(sl){return sl.person||'';});
+      if (assignedNames.indexOf(requiredLead) < 0) {
+        leadError = requiredLead;
+      }
     }
     if (leadError) {
       html += '<div class="sf-confirm-bar" style="background:#FFEDE7;border-top-color:rgba(251,71,31,.2)">' +
-        '<div class="sf-confirm-msg" style="color:var(--orange)">&#9888; The on-site lead ' + leadError + ' must be assigned to one of the event staffing positions.<div class="sub" style="color:var(--fb)">Assign ' + leadError + ' to a slot above, then click Complete Process.</div></div>' +
+        '<div class="sf-confirm-msg" style="color:var(--orange)">&#9888; ' + leadError + ' (on-site lead) must be assigned to one of the event role slots.<div class="sub" style="color:var(--fb)">Assign them to a slot in step 3, then click Complete Process.</div></div>' +
         '<button class="btn-confirm" data-sc-action="confirm" data-sc-showid="' + scSelId + '" disabled style="opacity:.45;cursor:not-allowed">Complete Process</button>' +
         '</div>';
     } else {
-      var hasTravelerBar = ra && ra.slots && ra.slots.some(function(sl){return sl.travelerNeeded;});
       var pendingMsg = allDone ? (hasTravelerBar ? 'Ready to confirm &mdash; traveler(s) pending' : 'All steps complete &mdash; ready to confirm') :
-        (!sc1done ? 'Complete step 1 to unlock scheduling setup' :
-         !sc2done ? 'Complete step 2 — ESC configuration' :
-         !sc3done ? 'Complete step 3 — coverage areas' :
-         !sc4done ? 'Complete step 4 — assign all team member slots' : 'Complete all steps above to confirm');
+        (!sc1done ? 'Complete step 1 to begin scheduling' :
+         !sc2done ? 'Complete step 2 — identify on-site lead' :
+         !sc3done ? 'Assign all slots or mark as Traveler Needed, then check step 3' : 'Complete all steps above to confirm');
       var pendingSub = allDone ?
-        (hasTravelerBar ? 'This show will be marked as confirmed with open traveler slots. Needs Attention tasks will remain until travelers are assigned.' :
-         'Completing this process will lock all steps and mark this show as fully scheduled.') :
-        'All four steps must be checked before you can confirm.';
+        (hasTravelerBar ? 'This show will be confirmed with open traveler slots. Needs Attention tasks remain until travelers are assigned.' :
+         'Completing this process locks all steps and marks this show as fully scheduled.') :
+        'All three steps must be checked before you can confirm.';
       html += '<div class="sf-confirm-bar pending">' +
         '<div class="sf-confirm-msg">' + pendingMsg + '<div class="sub">' + pendingSub + '</div></div>' +
         '<button class="btn-confirm" data-sc-action="confirm" data-sc-showid="' + scSelId + '"' + (allDone ? '' : ' disabled style="opacity:.45;cursor:not-allowed"') + '>Complete Process</button>' +
@@ -7242,25 +7269,19 @@ function renderScDetail() {
 
   det.innerHTML = html;
 
-  // ── INJECT PANELS INTO THEIR ANCHORS ──
+  // ── INJECT PANELS INTO ANCHORS ──
   if (sc1done && !scConfirmed) {
-    var escAnchor = document.getElementById('sc-esc-panel-anchor');
-    if (escAnchor) scBuildEscPanel(escAnchor, s, ra, sc);
+    var leadAnchor = document.getElementById('sc-lead-picker-anchor');
+    if (leadAnchor) scBuildLeadPickerPanel(leadAnchor, scSelId, sc);
   }
-
-  if (sc2done && !scConfirmed && coverageNeeded) {
-    var covAnchor = document.getElementById('sc-cov-panel-anchor');
-    if (covAnchor) scBuildCoveragePanel(covAnchor, s, ra, sc);
-  }
-
-  if (sc3done && ra && ra.slots) {
+  if (sc2done && ra && ra.slots) {
     var slotAnchor = document.getElementById('sc-slot-panel-anchor');
     if (slotAnchor) scBuildSlotFilling(slotAnchor, s, ra, sc);
   }
 
   // ── EVENT DELEGATION ──
   det.onclick = function(e) {
-    // Task 1 checkbox
+    // Task checkboxes
     var chk = e.target.closest('.task-chk[data-sc-task]');
     if (chk) {
       scToggleStep(chk.getAttribute('data-sc-showid'), chk.getAttribute('data-sc-task'));
@@ -7285,6 +7306,234 @@ function renderScDetail() {
 }
 
 // ── ESC PANEL BUILDER ─────────────────────────────────────────────────────
+// ── SCHEDULING STEP 2: LEAD & SUPERVISOR PICKER PANEL ────────────────────
+function scBuildLeadPickerPanel(container, showId, sc) {
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:12px';
+  hdr.textContent = 'On-Site Lead & Supervisor';
+  container.appendChild(hdr);
+
+  var grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px';
+
+  function buildPickerRow(field, label, required, subLabel, supervisorOnly) {
+    var currentName = sc[field] || '';
+    var pickerState = window._scLeadPickerState || {};
+    var isOpen = pickerState.showId === showId && pickerState.field === field;
+
+    var wrap = document.createElement('div');
+    var lbl = document.createElement('div');
+    lbl.style.cssText = 'font-size:11px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:4px';
+    lbl.innerHTML = label + (subLabel ? ' <span style="font-weight:400;text-transform:none">(' + subLabel + ')</span>' : '');
+    wrap.appendChild(lbl);
+
+    if (currentName) {
+      var filled = document.createElement('div');
+      filled.style.cssText = 'display:flex;align-items:center;gap:7px;padding:6px 10px;border:1.5px solid var(--green);border-radius:8px;background:#EAFAF0;cursor:pointer';
+      filled.setAttribute('data-sc-lead-open', field);
+      filled.setAttribute('data-sc-lead-showid', showId);
+      var nameSpan = document.createElement('span');
+      nameSpan.style.cssText = 'font-size:13px;font-weight:800;color:#1A6B35;flex:1';
+      nameSpan.textContent = currentName;
+      var clearBtn = document.createElement('span');
+      clearBtn.style.cssText = 'font-size:11px;font-weight:700;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:999px;padding:1px 7px;cursor:pointer';
+      clearBtn.textContent = '× Clear';
+      clearBtn.setAttribute('data-sc-lead-clear', field);
+      clearBtn.setAttribute('data-sc-lead-showid', showId);
+      filled.appendChild(nameSpan);
+      filled.appendChild(clearBtn);
+      wrap.appendChild(filled);
+    } else if (isOpen) {
+      var inputWrap = document.createElement('div');
+      inputWrap.style.cssText = 'position:relative';
+      var inp = document.createElement('input');
+      inp.id = 'sc-lead-inp-' + field + '-' + showId;
+      inp.style.cssText = 'font-family:var(--ff,sans-serif);font-size:12px;font-weight:700;padding:6px 10px;border:1.5px solid var(--mb);border-radius:8px;outline:none;width:100%;box-sizing:border-box';
+      inp.placeholder = 'Search by name or branch...';
+      inp.setAttribute('data-sc-lead-inp', field);
+      inp.setAttribute('data-sc-lead-showid', showId);
+      inp.autocomplete = 'off';
+      var drop = document.createElement('div');
+      drop.id = 'sc-lead-drop-' + field + '-' + showId;
+      drop.style.cssText = 'position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--mb);border-top:none;border-radius:0 0 8px 8px;z-index:9999;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,31,95,.15)';
+      var cancelSpan = document.createElement('div');
+      cancelSpan.style.cssText = 'margin-top:4px';
+      cancelSpan.innerHTML = '<span style="font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;text-decoration:underline" data-sc-lead-cancel="' + field + '" data-sc-lead-showid="' + showId + '">Cancel</span>';
+      inputWrap.appendChild(inp);
+      inputWrap.appendChild(drop);
+      wrap.appendChild(inputWrap);
+      wrap.appendChild(cancelSpan);
+    } else {
+      var openBtn = document.createElement('div');
+      openBtn.style.cssText = 'padding:6px 10px;border:1.5px dashed var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer';
+      openBtn.setAttribute('data-sc-lead-open', field);
+      openBtn.setAttribute('data-sc-lead-showid', showId);
+      openBtn.innerHTML = (required ? '<span style="color:var(--orange);margin-right:3px">*</span>' : '') + 'Select a team member\u2026';
+      wrap.appendChild(openBtn);
+    }
+    return wrap;
+  }
+
+  grid.appendChild(buildPickerRow('leadName', 'On-Site Lead', true, 'required', false));
+  grid.appendChild(buildPickerRow('supervisorName', 'Supervisor', false, 'supervisor-eligible titles only', true));
+  container.appendChild(grid);
+
+  // Attach handlers
+  container.onclick = function(e) {
+    var openEl = e.target.closest('[data-sc-lead-open]');
+    if (openEl) {
+      var field = openEl.getAttribute('data-sc-lead-open');
+      var sid = openEl.getAttribute('data-sc-lead-showid');
+      window._scLeadPickerState = { showId: sid, field: field };
+      renderScDetail();
+      setTimeout(function() {
+        var inp = document.getElementById('sc-lead-inp-' + field + '-' + sid);
+        if (inp) { inp.focus(); scPopulateLeadDrop(field, sid, ''); }
+      }, 20);
+      return;
+    }
+    var clearEl = e.target.closest('[data-sc-lead-clear]');
+    if (clearEl) {
+      e.stopPropagation();
+      var field = clearEl.getAttribute('data-sc-lead-clear');
+      var sid = clearEl.getAttribute('data-sc-lead-showid');
+      if (!schedulingPlans[sid]) schedulingPlans[sid] = {};
+      schedulingPlans[sid][field] = '';
+      // If clearing lead, also uncheck sc2 since required field is now empty
+      if (field === 'leadName') delete schedulingPlans[sid].step_sc2;
+      storageSaveSchedulingPlans();
+      window._scLeadPickerState = null;
+      renderScDetail();
+      return;
+    }
+    var cancelEl = e.target.closest('[data-sc-lead-cancel]');
+    if (cancelEl) {
+      window._scLeadPickerState = null;
+      renderScDetail();
+      return;
+    }
+    var pickEl = e.target.closest('[data-sc-lead-pick]');
+    if (pickEl) {
+      var field = pickEl.getAttribute('data-sc-lead-field');
+      var sid = pickEl.getAttribute('data-sc-lead-showid');
+      var name = pickEl.getAttribute('data-sc-lead-pick');
+      if (!schedulingPlans[sid]) schedulingPlans[sid] = {};
+      schedulingPlans[sid][field] = name;
+      storageSaveSchedulingPlans();
+      window._scLeadPickerState = null;
+      renderScDetail();
+      return;
+    }
+  };
+
+  container.oninput = function(e) {
+    var inp = e.target;
+    var field = inp.getAttribute('data-sc-lead-inp');
+    var sid = inp.getAttribute('data-sc-lead-showid');
+    if (field && sid) scPopulateLeadDrop(field, sid, inp.value);
+  };
+
+  // Populate drop if open
+  if (window._scLeadPickerState && window._scLeadPickerState.showId === showId) {
+    setTimeout(function() {
+      scPopulateLeadDrop(window._scLeadPickerState.field, showId, '');
+    }, 10);
+  }
+}
+
+function scPopulateLeadDrop(field, showId, query) {
+  var drop = document.getElementById('sc-lead-drop-' + field + '-' + showId);
+  if (!drop) return;
+  var sc = schedulingPlans[showId] || {};
+  var leadName = sc.leadName || '';
+  var supName  = sc.supervisorName || '';
+  var q = query.toLowerCase();
+
+  var filtered = TEAM_MEMBERS.filter(function(tm) {
+    if (field === 'supervisorName') {
+      if (!sfIsSupervisorEligible(tm)) return false;
+      if (leadName && tm.name === leadName) return false;
+    }
+    if (field === 'leadName') {
+      if (supName && tm.name === supName) return false;
+    }
+    if (!q) return true;
+    return tm.name.toLowerCase().indexOf(q) >= 0 || (tm.branch && tm.branch.toLowerCase().indexOf(q) >= 0);
+  }).slice(0, 8);
+
+  drop.innerHTML = '';
+  if (!filtered.length) {
+    drop.innerHTML = '<div style="padding:10px 12px;color:var(--muted);font-size:12px">No matches' + (field === 'supervisorName' ? ' (supervisor-eligible titles only)' : '') + '</div>';
+    return;
+  }
+  filtered.forEach(function(tm) {
+    var item = document.createElement('div');
+    item.style.cssText = 'padding:7px 10px;cursor:pointer;border-bottom:.5px solid var(--border-lt);font-size:13px;display:flex;justify-content:space-between;align-items:center';
+    item.setAttribute('data-sc-lead-pick', tm.name);
+    item.setAttribute('data-sc-lead-field', field);
+    item.setAttribute('data-sc-lead-showid', showId);
+    item.innerHTML = '<span style="font-weight:700;color:var(--fb)">' + tm.name + '</span><span style="font-size:11px;color:var(--muted)">' + (tm.branch || '') + '</span>';
+    item.addEventListener('mousedown', function(e) { e.preventDefault(); });
+    drop.appendChild(item);
+  });
+}
+
+// ── SLOT → ESC ASSIGNMENT PANEL (used in Staffing step 4) ────────────────
+function scBuildSlotEscAssignPanel(container, showId, escData, ra) {
+  if (!ra || !ra.slots || escData.count <= 1) return;
+  var escLabel = scEscLabel(showId);
+
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px';
+  hdr.textContent = 'Assign Roles to ' + escLabel + 's';
+  container.appendChild(hdr);
+
+  var roleTypeCounts = {};
+  ra.slots.forEach(function(sl) { roleTypeCounts[sl.type] = (roleTypeCounts[sl.type]||0)+1; });
+  var roleTypeCounters = {};
+
+  ra.slots.forEach(function(slot, idx) {
+    roleTypeCounters[slot.type] = (roleTypeCounters[slot.type]||0)+1;
+    var label = roleTypeCounts[slot.type] > 1 ? slot.label + ' ' + roleTypeCounters[slot.type] : slot.label;
+
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-lt)';
+
+    var lbl = document.createElement('span');
+    lbl.style.cssText = 'font-size:13px;font-weight:700;color:var(--fb);flex:1';
+    lbl.textContent = label;
+
+    var sel = document.createElement('select');
+    sel.style.cssText = 'border:1.5px solid var(--border);border-radius:8px;padding:4px 10px;font-size:13px;color:var(--fb);background:var(--white);min-width:160px';
+
+    var defOpt = document.createElement('option');
+    defOpt.value = '';
+    defOpt.textContent = 'Select ESC...';
+    sel.appendChild(defOpt);
+
+    for (var ei = 0; ei < escData.count; ei++) {
+      var opt = document.createElement('option');
+      opt.value = ei + 1;
+      opt.textContent = escData.names[ei] || ('ESC ' + (ei+1));
+      if (slot.escAssignment === ei + 1) opt.selected = true;
+      sel.appendChild(opt);
+    }
+
+    (function(si) {
+      sel.addEventListener('change', function() {
+        ROLE_ASSIGNMENTS[showId].slots[si].escAssignment = parseInt(this.value) || null;
+        storageSaveRoleAssignments();
+        // Re-evaluate s4 gate
+        renderSfDetail();
+      });
+    })(idx);
+
+    row.appendChild(lbl);
+    row.appendChild(sel);
+    container.appendChild(row);
+  });
+}
+
 function scBuildEscPanel(container, s, ra, sc) {
   var showId = scSelId;
   var escLabel = scEscLabel(showId);
@@ -7934,22 +8183,17 @@ function scConfirmScheduling(showId) {
   var ra = ROLE_ASSIGNMENTS[showId];
   if (!ra) return;
   var sc = schedulingPlans[showId] || {};
-  if (!sc.step_sc1 || !sc.step_sc2 || !sc.step_sc3 || !sc.step_sc4) return;
+  if (!sc.step_sc1 || !sc.step_sc2 || !sc.step_sc3) return;
   if (!ra.slots.every(function(sl) { return sl.person || sl.travelerNeeded; })) return;
-
-  // Validate: on-site lead from staffing must be assigned to one of the slots
-  var sfPlan = staffingPlans[showId] || {};
-  var requiredLead = sfPlan.leadName ? sfPlan.leadName.trim() : '';
+  // Validate on-site lead is assigned to a slot
+  var requiredLead = sc.leadName ? sc.leadName.trim() : '';
   if (requiredLead) {
     var assignedNames = ra.slots.map(function(sl) { return sl.person || ''; });
     if (assignedNames.indexOf(requiredLead) < 0) {
-      if (!schedulingPlans[showId]) schedulingPlans[showId] = {};
-      schedulingPlans[showId]._leadError = requiredLead;
       renderScDetail();
       return;
     }
   }
-  if (schedulingPlans[showId]) delete schedulingPlans[showId]._leadError;
   showScConfirmModal(showId);
 }
 
@@ -7969,9 +8213,8 @@ function showScConfirmModal(showId) {
   var s = SHOWS[showId] || {};
   var sc = schedulingPlans[showId] || {};
   var ra = ROLE_ASSIGNMENTS[showId];
-  var sfPlan = staffingPlans[showId] || {};
-  var leadName = sfPlan.leadName || '';
-  var supName  = sfPlan.supervisorName || '';
+  var leadName = sc.leadName || '';
+  var supName  = sc.supervisorName || '';
 
   // Build slot roster rows
   var rosterRows = '';
@@ -8017,10 +8260,7 @@ function showScConfirmModal(showId) {
           '<span style="color:var(--green);font-weight:800">✓</span><span style="color:var(--muted)">Added to ES Regional Schedule</span>' +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
-          '<span style="color:var(--green);font-weight:800">✓</span><span style="color:var(--muted)">Exhibitor Service Center configuration defined</span>' +
-        '</div>' +
-        '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
-          '<span style="color:var(--green);font-weight:800">✓</span><span style="color:var(--muted)">Coverage areas and responsibilities defined</span>' +
+          '<span style="color:var(--green);font-weight:800">✓</span><span style="color:var(--muted)">On-site lead identified' + (leadName ? ': ' + leadName : '') + (supName ? ' &mdash; Supervisor: ' + supName : '') + '</span>' +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px">' +
           '<span style="color:var(--green);font-weight:800">✓</span><span style="color:var(--muted)">Team member slots assigned</span>' +
