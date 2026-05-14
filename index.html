@@ -4138,6 +4138,21 @@ function renderSfSmallEventCalc(s, plan) {
 
 // ── 751+ CUSTOM PLAN ──────────────────────────────────────────────────────────
 
+function sfClearCustomPlan(showId) {
+  if (!staffingPlans[showId]) return;
+  // Clear the submitted plan so the edit form re-appears
+  delete staffingPlans[showId].serviceModel;
+  delete staffingPlans[showId].overrides;
+  delete staffingPlans[showId].modifyReason;
+  // Also uncheck s2 since plan is no longer confirmed
+  var ci = staffingPlans[showId].checked ? staffingPlans[showId].checked.indexOf('s2') : -1;
+  if (ci >= 0) staffingPlans[showId].checked.splice(ci, 1);
+  storageSaveStaffingPlans();
+  renderSfDetail();
+  renderSfList();
+  renderSfStats();
+}
+
 function sfCustomPlanSubmit(showId) {
   var panel = document.getElementById('sf-custom-roles-' + showId);
   var overrides = {};
@@ -4189,8 +4204,9 @@ function renderSfCustomPlanCalc(s, rec, plan) {
 
   var s2DoneCustom = plan && plan.serviceModel && plan.serviceModel !== '';
   if (s2DoneCustom) {
-    html += '<div class="sf-decision-section">' +
-      '<div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px">✓ Custom plan set and ready for final confirmation.</div>' +
+    html += '<div class="sf-decision-section" style="display:flex;align-items:center;gap:12px">' +
+      '<div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 10px;background:rgba(66,187,55,.08);border:1px solid rgba(66,187,55,.25);border-radius:7px;flex:1">&#x2713; Custom plan set and ready for final confirmation.</div>' +
+      '<button class="sf-btn-modify" style="white-space:nowrap;font-size:12px" onclick="sfClearCustomPlan(\'' + uid + '\')">&#9998; Revise Custom Plan</button>' +
     '</div>';
   } else {
     html += '<div class="sf-modify-panel open" style="margin:0 16px 16px">' +
