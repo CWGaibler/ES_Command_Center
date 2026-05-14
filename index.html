@@ -3496,6 +3496,72 @@ function renderSfEmptyDetail(caughtUp) {
   }
 }
 
+// ── TARGETED STEP GATE UPDATER ────────────────────────────────────────────
+// Updates only checkbox states and hint text in-place without rebuilding the
+// entire detail panel. Called from panel field interactions to avoid scroll jump.
+function sfUpdateStepGates(showId) {
+  var det = document.getElementById('sf-detail');
+  if (!det) return;
+  var plan = staffingPlans[showId] || {};
+  var confirmed = plan.confirmed;
+  if (confirmed) return;
+
+  // Recompute gate states
+  var sfEscData = scGetEscData(showId);
+  var sfEscFieldsReady = sfEscData.configured && (sfEscData.count === 1 || (sfEscData.names && sfEscData.names.filter(function(n){return n&&n.trim();}).length === sfEscData.count));
+  var sfEscAssignReady = sfEscData.count <= 1 || (function() {
+    var ra = ROLE_ASSIGNMENTS[showId];
+    if (!ra || !ra.slots) return false;
+    return ra.slots.every(function(sl){ return sl.escAssignment; });
+  })();
+  var sfRa = ROLE_ASSIGNMENTS[showId];
+  var sfCfCount = sfRa && sfRa.slots ? sfRa.slots.filter(function(sl){return sl.type==='cf';}).length : 0;
+  var sfAsCount = sfRa && sfRa.slots ? sfRa.slots.filter(function(sl){return sl.type==='as';}).length : 0;
+  var sfCoverageNeeded = sfCfCount > 1 || sfAsCount > 0;
+  var sfCoverageReady = !sfCoverageNeeded || (sfRa && sfRa.slots && (function(){
+    var cfOk = sfCfCount <= 1 || sfRa.slots.filter(function(sl){return sl.type==='cf';}).every(function(sl){return sl.coverageNote && sl.coverageNote.trim();});
+    var asOk = sfRa.slots.filter(function(sl){return sl.type==='as';}).every(function(sl){return sl.coverageNote && sl.coverageNote.trim();});
+    return cfOk && asOk;
+  })());
+
+  var gateMap = {
+    s3: sfEscFieldsReady,
+    s4: sfEscAssignReady,
+    s5: sfCoverageReady
+  };
+
+  // Update each checkbox in the DOM without rebuilding
+  STAFFING_TASKS.forEach(function(t) {
+    if (!gateMap.hasOwnProperty(t.id)) return;
+    var chk = det.querySelector('.task-chk[data-taskid="' + t.id + '"]');
+    var lockedChk = det.querySelector('.task-chk.locked[data-taskid="' + t.id + '"]');
+    var checked = plan.checked && plan.checked.indexOf(t.id) >= 0;
+    if (checked) return; // already checked — don't change
+
+    var ready = gateMap[t.id];
+    // Find any task-chk for this step (may be locked without data-taskid)
+    // We need to find it by position — use task-row order
+    var allChks = det.querySelectorAll('.task-chk');
+    var taskIdx = STAFFING_TASKS.findIndex(function(st){ return st.id === t.id; });
+    if (taskIdx >= 0 && allChks[taskIdx]) {
+      var el = allChks[taskIdx];
+      if (ready) {
+        // Unlock: add click handler if not present
+        el.classList.remove('locked');
+        if (!el.getAttribute('data-taskid')) {
+          el.setAttribute('data-taskid', t.id);
+          el.setAttribute('data-showid', showId);
+        }
+      } else {
+        // Lock: remove click handler
+        el.classList.add('locked');
+        el.removeAttribute('data-taskid');
+        el.removeAttribute('data-showid');
+      }
+    }
+  });
+}
+
 function renderSfDetail() {
   var det = document.getElementById("sf-detail");
   if (!det || !sfSelId || !SHOWS[sfSelId]) { renderSfEmptyDetail(); return; }
@@ -7536,8 +7602,7 @@ function scBuildSlotEscAssignPanel(container, showId, escData, ra) {
       sel.addEventListener('change', function() {
         ROLE_ASSIGNMENTS[showId].slots[si].escAssignment = parseInt(this.value) || null;
         storageSaveRoleAssignments();
-        // Re-evaluate s4 gate
-        renderSfDetail();
+        sfUpdateStepGates(showId);
       });
     })(idx);
 
@@ -7608,7 +7673,7 @@ function scBuildEscPanel(container, s, ra, sc) {
           scRefreshEscAssignments(showId);
         });
         inp.addEventListener('blur', function() {
-          rerender();
+          sfUpdateStepGates(showId);
         });
         row.appendChild(lbl);
         row.appendChild(inp);
@@ -7683,7 +7748,7 @@ function scBuildCoveragePanel(container, s, ra, sc) {
         scSaveCoverageNote(showId, slotIdx, this.value);
       });
       inp.addEventListener('blur', function() {
-        rerender();
+        sfUpdateStepGates(showId);
       });
     })(idx);
 
