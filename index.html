@@ -7317,8 +7317,11 @@ function scBuildEscPanel(container, s, ra, sc) {
         inp.addEventListener('input', function() {
           var currentNames = Array.from(namesContainer.querySelectorAll('input')).map(function(el){return el.value;});
           scSaveEscData(showId, parseInt(countSel.value), currentNames);
-          // Update slot ESC assignment dropdowns without full re-render
           scRefreshEscAssignments(showId);
+        });
+        inp.addEventListener('blur', function() {
+          // Re-render on field exit so Task 2 checkbox state updates
+          renderScDetail();
         });
         row.appendChild(lbl);
         row.appendChild(inp);
