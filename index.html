@@ -2573,11 +2573,19 @@ function renderDetail(){
       var canInteract = !locked && t13FieldsComplete && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
       var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'') + (!locked&&!canInteract?' not-owner':'');
       var chkAttrs = locked ? '' : ' data-hire="'+h.id+'" data-task="'+t.id+'" data-owner="'+t.owner+'"' + (!canInteract?' data-readonly="1"':'');
+      // t13 hint: muted when position fields are missing, blue when complete
+      var rcHintHtml = '';
+      if (!ck && !locked && t.id === 't13') {
+        rcHintHtml = t13FieldsComplete
+          ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Position details complete \u2014 check this box when you are ready to move on.</div>'
+          : '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in all required Position Details above, then check this box when ready.</div>';
+      }
       clHtml+='<div class="task-row'+(locked?' step-locked':'')+'">'+
         '<div class="'+chkCls+'"'+chkAttrs+'><span class="chk-mark">&#10003;</span></div>'+
         '<div class="task-body">'+
           '<div class="task-title'+(ck?' done':'')+(locked?' style="opacity:.35"':'')+'>'+t.title+'</div>'+
           '<div class="task-desc"'+(locked?' style="opacity:.35"':'')+'>'+t.desc+'</div>'+lnks+
+          rcHintHtml+
         '</div>'+
         '<div class="task-right">'+
           '<span class="task-owner"'+(locked?' style="opacity:.35"':'')+'>'+t.ownerLabel+'</span>'+
@@ -3643,7 +3651,9 @@ function renderSfDetail() {
 
     var hintHtml = '';
     if (!checked && !locked && !confirmed) {
+      if (t.id === 's1') hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Review the prior year history above, then check this box when ready to move on.</div>';
       if (t.id === 's2' && !plan.serviceModel) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Use the calculator below to determine your staffing plan, then check this box when ready.</div>';
+      if (t.id === 's2' && plan.serviceModel) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Staffing plan set — check this box when you are ready to move on.</div>';
       if (t.id === 's3' && !sfEscFieldsReady) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in the ESC configuration below, then check this box when ready.</div>';
       if (t.id === 's3' && sfEscFieldsReady && sfEscData.count === 1) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">One Exhibitor Service Center — no naming required. Check this box when ready to move on.</div>';
       if (t.id === 's3' && sfEscFieldsReady && sfEscData.count > 1) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Configuration complete — check this box when ready to move on.</div>';
@@ -5251,11 +5261,15 @@ function renderObDetail() {
       var chkCls = isChecked ? 'checked' : (seqLocked ? 'locked' : (!canCheck ? 'readonly' : ''));
       var titleCls = isChecked ? 'done' : (seqLocked ? 'muted' : '');
       var clickAttr = (canCheck && !seqLocked) ? 'onclick="obToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
+      var obHintHtml = (!isChecked && !seqLocked && canCheck)
+        ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Check this box when complete.</div>'
+        : '';
       return '<div class="task-row' + (seqLocked ? ' task-locked' : '') + '">' +
         '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
         '<div class="task-body">' +
           '<div class="task-title '+titleCls+'">'+t.title+'</div>' +
           (t.links.length ? '<div class="task-links">'+t.links.map(function(l){ return '<a class="tlink" href="'+l.url+'" target="_blank">'+l.label+'</a>'; }).join('')+'</div>' : '') +
+          obHintHtml +
         '</div>' +
         '<div class="task-right">'+obOwnerLabel(t.owner)+'</div>' +
       '</div>';
@@ -5449,9 +5463,12 @@ function renderTrDetail() {
     var seqLocked = !isChecked && !priorDone;
     var chkCls = isChecked ? 'checked' : (seqLocked ? 'locked' : (!canCheck ? 'readonly' : ''));
     var clickAttr = (canCheck && !seqLocked) ? 'onclick="trToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
+    var trHintHtml = (!isChecked && !seqLocked && canCheck)
+      ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Check this box when complete.</div>'
+      : '';
     return '<div class="task-row' + (seqLocked ? ' task-locked' : '') + '">' +
       '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
-      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div></div>' +
+      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div>' + trHintHtml + '</div>' +
       '<div class="task-right">'+obOwnerLabel(t.owner)+'</div>' +
     '</div>';
   }).join('');
@@ -5682,9 +5699,12 @@ function renderOffDetail() {
     var seqLocked = !isChecked && !priorDone;
     var chkCls = isChecked ? 'checked' : (seqLocked ? 'locked' : (!canCheck ? 'readonly' : ''));
     var clickAttr = (canCheck && !seqLocked) ? 'onclick="offToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
+    var offHintHtml = (!isChecked && !seqLocked && canCheck)
+      ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Check this box when complete.</div>'
+      : '';
     return '<div class="task-row' + (seqLocked ? ' task-locked' : '') + '">' +
       '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
-      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div></div>' +
+      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div>' + offHintHtml + '</div>' +
       '<div class="task-right">'+obOwnerLabel(t.owner)+'</div>' +
     '</div>';
   }).join('');
