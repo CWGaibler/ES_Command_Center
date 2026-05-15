@@ -3592,8 +3592,10 @@ function buildEventDetailHeader(opts) {
   chipsHtml += '<a class="chip chip-mb" href="' + ecomUrl + '" target="_blank" style="text-decoration:none">Exhibitor Store \u2197</a>';
   if (s.pyJobNumber) {
     var pyInShows = !!SHOWS[s.pyJobNumber];
+    // Prior Year: real anchor — clicking opens the Events Lens in a new tab,
+    // pre-navigated to the prior year job via sessionStorage handoff.
     chipsHtml += pyInShows
-      ? '<span class="chip chip-ghost" style="cursor:pointer" onclick="elSelectShow(\'' + s.pyJobNumber + '\')">Prior Year #: ' + s.pyJobNumber + ' \u2197</span>'
+      ? '<a class="chip chip-ghost" href="' + location.href.split('#')[0] + '" target="_blank" onclick="sfOpenPriorYear(' + JSON.stringify(s.pyJobNumber) + ')" style="text-decoration:none" title="Open prior year event in new tab">Prior Year #: ' + s.pyJobNumber + ' \u2197</a>'
       : '<span class="chip chip-ghost">Prior Year #: ' + s.pyJobNumber + '</span>';
   }
   if (opts.extraChips) chipsHtml += opts.extraChips;
@@ -3721,13 +3723,7 @@ function renderSfDetail() {
     // Inline content panels
     var inlineHtml = '';
     if (!locked && !confirmed) {
-      if (t.id === 's1') {
-        var linksHtml = '';
-        if (s.pyJobNumber && s.pyJobNumber !== 'N/A' && s.pyJobNumber !== '') {
-          linksHtml = '<a class="tlink" href="#" onclick="goToEventLens(\'' + s.pyJobNumber + '\');return false;">Prior Year Event &#8599;</a>';
-        }
-        if (linksHtml) inlineHtml = '<div class="task-links">' + linksHtml + '</div>';
-      }
+      // Step 1: Prior Year link removed — now shown as clickable chip in the event header
       if (t.calc) inlineHtml += renderSfCalcInline(s, rec, plan, t.step);
       if (t.escConfig && plan.checked.indexOf('s2') >= 0) inlineHtml += '<div id="sf-esc-config-anchor" style="margin-top:10px"></div>';
       if (t.escAssign && plan.checked.indexOf('s3') >= 0 && sfEscData.count > 1) inlineHtml += '<div id="sf-esc-assign-anchor" style="margin-top:10px"></div>';
@@ -5140,8 +5136,18 @@ function initKpis() {
 
 document.addEventListener('DOMContentLoaded', function() {
   storageLoadAll(); // Restore persisted state before rendering anything
-  var firstNav = document.querySelector('.nav-item');
-  if(firstNav) showPage('today', firstNav);
+  // Handle Prior Year jump: if opened from a Staffing/Scheduling header chip,
+  // sessionStorage carries the job number to navigate Events Lens directly.
+  var pyJump = sessionStorage.getItem('sfPyJumpTo');
+  if (pyJump) {
+    sessionStorage.removeItem('sfPyJumpTo');
+    elSelId = pyJump;
+    showPage('events', null);
+    tnSetActive('events');
+  } else {
+    var firstNav = document.querySelector('.nav-item');
+    if(firstNav) showPage('today', firstNav);
+  }
   renderNeedsAttention();
 });
 
@@ -6040,6 +6046,10 @@ function elGetShowLogo(showId) {
   if (s && s.logoUrl) return s.logoUrl;
   if (s && s.producingBranch && EL_BRANCH_LOGOS[s.producingBranch]) return EL_BRANCH_LOGOS[s.producingBranch];
   return null;
+}
+
+function sfOpenPriorYear(jobNum) {
+  sessionStorage.setItem('sfPyJumpTo', jobNum);
 }
 
 function goToEventLens(showId) {
