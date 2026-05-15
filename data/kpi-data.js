@@ -3,6 +3,7 @@ var KPI_DATA = [
   {
     id: 'css', name: 'ES Customer Service Score', fullName: 'ES Customer Service Score',
     def: "The percentage of customers who respond 'excellent' when surveyed: 'How would you rate the customer service provided by Freeman's Exhibitor Service Center / desk staff?'",
+    docUrl: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/ESM/Service_Model.aspx#customer-surveys',
     goal: '60%', goalNum: 60, unit: '%', higherBetter: true, refresh: 'Daily', responsible: 'All ES Teams',
     enterprise: 58,
     trendEnt:    [52,54,53,55,56,55,57,56,58,57,58,58],
@@ -31,6 +32,7 @@ var KPI_DATA = [
   {
     id: 'nps', name: 'Exhibitor Post-Show NPS', fullName: 'Post-Show Exhibitor Net Promoter Score (NPS)',
     def: "Net Promoter Score derived from: 'Based on your recent experience with Freeman, how likely are you to recommend Freeman's products and services to your colleagues?'",
+    docUrl: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/ESM/Service_Model.aspx#customer-surveys',
     goal: '+20', goalNum: 20, unit: '', prefix: '+', higherBetter: true, refresh: 'Daily', responsible: 'All ES Teams',
     enterprise: 24,
     trendEnt:    [16,17,18,19,20,21,22,22,23,23,24,24],
@@ -59,6 +61,7 @@ var KPI_DATA = [
   {
     id: 'collections', name: 'Collections', fullName: 'Collections Percentage',
     def: 'The percentage of exhibitor revenue collected by Exhibitor Services on tradeshow engagements by the 8th business day post-show close.',
+    docUrl: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/ESM/Invoicing_Payments_Collections.aspx#section-3-collections',
     goal: '96%', goalNum: 96, unit: '%', higherBetter: true, refresh: 'Monthly', responsible: 'All ES Teams',
     enterprise: 94.2,
     trendEnt:    [92,93,93,94,93,94,94,94,94,94,94,94.2],
@@ -87,6 +90,7 @@ var KPI_DATA = [
   {
     id: 'per', name: 'Priority Empty Return Sales', fullName: 'Priority Empty Return Sales',
     def: 'Revenue associated to the sale of Priority Empty Return labels.',
+    docUrl: 'https://freemanco.sharepoint.com/teams/Solutions/SitePages/Material_Handling_FAQs.aspx#priority-empty-return',
     goal: '$6.4M', goalNum: 6400000, unit: '$M', higherBetter: true, refresh: 'Daily', responsible: 'All ES Teams',
     // trendEnt/trendReg = MONTHLY amounts in Jul→Jun order (chart code converts to cumulative)
     // CY: 11 months Jul–May populated; Jun intentionally omitted (null in chart)
@@ -118,6 +122,7 @@ var KPI_DATA = [
   {
     id: 'invoicing', name: 'Invoice Timing', fullName: 'Invoice Timing',
     def: 'For billing that ES is responsible for, the percentage of events where all billing was invoiced by show close +8 business days.',
+    docUrl: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/ESM/Finalizing_an_Event.aspx#preparing-for-invoicing',
     goal: '95%', goalNum: 95, unit: '%', higherBetter: true, refresh: 'Weekly (Mon 10a)', responsible: 'All ES Teams',
     enterprise: 96.1,
     trendEnt:    [93,93.5,94,94,94.5,95,95.2,95.5,95.8,96,96,96.1],
@@ -146,6 +151,7 @@ var KPI_DATA = [
   {
     id: 'feedback', name: 'ES Post-Show Feedback', fullName: 'ES Post-Show Feedback',
     def: 'For events supported by Exhibitor Services on-site, the percentage of shows where a Post-Event feedback survey was completed by Exhibitor Services.',
+    docUrl: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/ESM/Finalizing_an_Event.aspx#es-post-event-feedback-survey',
     goal: '95%', goalNum: 95, unit: '%', higherBetter: true, refresh: 'Weekly', responsible: 'On-Site ES Teams',
     enterprise: 88,
     trendEnt:    [80,81,82,83,84,84,85,85,86,87,87,88],
@@ -174,6 +180,7 @@ var KPI_DATA = [
   {
     id: 'emailq', name: 'Email Queue Time', fullName: 'ES Email Queue Time',
     def: 'For emails sent to ExhibitorServices@freeman.com, the average time it takes a new email to be assigned to a work queue from the time it was received.',
+    docUrl: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/ESM/Preparing_for_an_Event.aspx#exhibitor-services-email-inbox',
     goal: '< 24 hrs', goalNum: 24, unit: 'hrs', higherBetter: false, refresh: 'Weekly (Mon morning)', responsible: 'Off-Site ES Team',
     enterprise: 18.4,
     trendEnt:    [26,25,24,23,22,22,21,20,20,19,19,18.4],
@@ -186,6 +193,7 @@ var KPI_DATA = [
   {
     id: 'emailh', name: 'Email Handle Time', fullName: 'ES Email Handle Time',
     def: 'For emails sent to ExhibitorServices@freeman.com, the average time it takes an email to be resolved from the time it was assigned to a work queue.',
+    docUrl: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/ESM/Preparing_for_an_Event.aspx#exhibitor-services-email-inbox',
     goal: '< 48 hrs', goalNum: 48, unit: 'hrs', higherBetter: false, refresh: 'Weekly (Mon morning)', responsible: 'Off-Site ES Team',
     enterprise: 31.2,
     trendEnt:    [44,43,42,41,40,39,38,37,36,34,32,31.2],
@@ -198,6 +206,7 @@ var KPI_DATA = [
   {
     id: 'training', name: 'Training Completion', fullName: 'Training Completion',
     def: 'The percentage of required training courses assigned to Exhibitor Services team members that was completed as expected.',
+    docUrl: 'https://freemanco.sharepoint.com/teams/ExhibitorServices296/SitePages/ESM/Handbook.aspx#section-3-training-expectations',
     goal: '100%', goalNum: 100, unit: '%', higherBetter: true, refresh: 'Weekly (Mon 10a)', responsible: 'All ES Teams',
     enterprise: 91,
     trendEnt:    [83,84,85,86,87,87,88,88,89,90,90,91],
