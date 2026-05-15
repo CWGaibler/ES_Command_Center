@@ -2302,13 +2302,54 @@ function renderNeedsAttention() {
     '</div>';
   }).join('');
 
+  // ── Timekeeping & Utilization: daily/weekly tasks due today ─────────────
+  var tkDueTasks = tkGetTasksDueToday();
+  if (tkDueTasks.length > 0) {
+    var tkUndone = tkDueTasks.filter(function(t){ return !tkIsTaskDone(t); });
+    if (tkUndone.length > 0) {
+      html += '<div class="na-card" style="padding:0;overflow:hidden">' +
+        '<div style="padding:10px 14px 8px;border-bottom:1px solid var(--border-lt)">' +
+          '<div class="na-card-title" style="margin-bottom:2px">Timekeeping &amp; Utilization</div>' +
+          '<div class="na-card-meta">' + tkUndone.length + ' task' + (tkUndone.length>1?'s':'')+' due today</div>' +
+        '</div>';
+      tkUndone.forEach(function(task) {
+        var done = tkIsTaskDone(task);
+        var dueLabel = tkFormatDueLabel(task);
+        var isUrgent = task.tier === 'monthend' && dueLabel.indexOf('Closes today') >= 0;
+        html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border-lt)" id="tkna-row-'+task.id+'">' +
+          '<div class="task-chk' + (done?' checked':'') + '" data-tk-taskid="'+task.id+'" style="margin-top:2px;flex-shrink:0">' +
+            '<span class="chk-mark">✓</span>' +
+          '</div>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:13.5px;font-weight:700;color:var(--fb)'+(done?';text-decoration:line-through;color:var(--muted)':'')+'">' + task.title + '</div>' +
+            '<div style="font-size:12px;color:'+(isUrgent?'var(--orange)':'var(--muted)')+';margin-top:1px;font-weight:'+(isUrgent?'800':'400')+'">' + dueLabel + '</div>' +
+          '</div>' +
+        '</div>';
+      });
+      html += '<div style="padding:8px 14px">' +
+        '<button onclick="tkGoToPage()" style="font-size:12px;font-weight:800;color:var(--mb);background:none;border:none;cursor:pointer;padding:0">View all procedures →</button>' +
+        '</div>' +
+        '</div>';
+    }
+  }
+
   // Empty state
-  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length + travelerItems.length;
+  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length + travelerItems.length + (tkDueTasks.filter(function(t){return !tkIsTaskDone(t);}).length);
   if (totalItems === 0) {
     html = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No items need your attention right now.</div>';
   }
 
   el.innerHTML = html;
+
+  // Wire TK checkboxes in needs-attention panel
+  el.querySelectorAll('.task-chk[data-tk-taskid]').forEach(function(chk) {
+    chk.addEventListener('click', function() {
+      var taskId = chk.getAttribute('data-tk-taskid');
+      var isDone = chk.classList.contains('checked');
+      tkMarkTaskDone(taskId, !isDone);
+      renderNeedsAttention();
+    });
+  });
 }
 
 function renderList(){
@@ -5378,25 +5419,32 @@ var TK_SECTIONS = [
     tasks: [
       { id:'k1', num:1, title:'Monitor daily time entries',
         desc:'Check punches in My Timecard daily for missing entries, late clock-ins, or incorrect locations. Contact employees immediately for clarification and record adjustments as needed.',
-        parties:[{label:'Supervisor / Manager', cls:'chip-sup'}], deadline:'Daily — end of workday' },
+        parties:[{label:'Supervisor / Manager', cls:'chip-sup'}],
+        tier:'daily', deadline:'Daily — end of workday' },
       { id:'k2', num:2, title:'Add job number to punches',
         desc:'Use the Transfer → Search function to locate the correct event job number under WBS-IO, select the event, then choose 002-000 Exhibitor Services under Task/Sub-Task and click Apply. If working for another branch, include the branch and job number in a comment.',
-        parties:[{label:'Supervisor / Manager', cls:'chip-sup'}], deadline:null },
+        parties:[{label:'Supervisor / Manager', cls:'chip-sup'}],
+        tier:'daily', deadline:null },
       { id:'k3', num:3, title:'Correct missed or inaccurate punches',
-        desc:'If a punch is missing or incorrect, the employee notifies their Supervisor or Manager. The leader confirms details and updates Kronos, adding a \u201cZ-Other\u201d comment noting the correction (e.g., missed punch, wrong job, system glitch).',
-        parties:[{label:'Employee', cls:'chip-emp'},{label:'Supervisor / Manager', cls:'chip-sup'}], deadline:null },
+        desc:'If a punch is missing or incorrect, the employee notifies their Supervisor or Manager. The leader confirms details and updates Kronos, adding a “Z-Other” comment noting the correction (e.g., missed punch, wrong job, system glitch).',
+        parties:[{label:'Employee', cls:'chip-emp'},{label:'Supervisor / Manager', cls:'chip-sup'}],
+        tier:'reference', deadline:null },
       { id:'k4', num:4, title:'Manage time-off requests',
         desc:'Review requests within 2 business days. Approve if coverage allows; deny only when necessary and communicate reasons clearly. Use comments for transparency.',
-        parties:[{label:'Supervisor / Manager', cls:'chip-sup'}], deadline:'Within 2 business days' },
+        parties:[{label:'Supervisor / Manager', cls:'chip-sup'}],
+        tier:'reference', deadline:'Within 2 business days' },
       { id:'k5', num:5, title:'Approve timecards weekly',
         desc:'Verify all timecards for accuracy, ensuring hours align with schedules and events. Comments should be entered for all edits or anomalies. Ensure compliance with company policies regarding overtime, leave, and shift differentials. See the ES Handbook compensation page for additional details.',
-        parties:[{label:'Supervisor / Manager', cls:'chip-sup'},{label:'Director', cls:'chip-dir'}], deadline:'Monday 12:00 pm CST' },
+        parties:[{label:'Supervisor / Manager', cls:'chip-sup'},{label:'Director', cls:'chip-dir'}],
+        tier:'weekly', weekday:1, deadline:'Monday 12:00 pm CST' },
       { id:'k6', num:6, title:'Ensure payroll readiness',
         desc:'Confirm that all timecards are approved by the deadline. Incomplete or inaccurate approvals can delay payroll. Escalate unresolved issues to Regional Directors as needed.',
-        parties:[{label:'Manager / Director', cls:'chip-mgr'}], deadline:'Monday 12:00 pm CST' },
+        parties:[{label:'Manager / Director', cls:'chip-mgr'}],
+        tier:'weekly', weekday:1, deadline:'Monday 12:00 pm CST' },
       { id:'k7', num:7, title:'Collaborate with Kronos administrators (as needed)',
         desc:'Reach out to the ES Administrator or CX Executive Assistant for support when: the timecard has already been approved, the time is marked in purple and cannot be edited, or when adding part-time PTO/sick time.',
-        parties:[{label:'Manager / Director', cls:'chip-mgr'}], deadline:'As needed' }
+        parties:[{label:'Manager / Director', cls:'chip-mgr'}],
+        tier:'reference', deadline:'As needed' }
     ]
   },
   {
@@ -5407,20 +5455,25 @@ var TK_SECTIONS = [
     docUrl: 'https://freemanco.sharepoint.com/teams/Workfront564/SitePages/Home_Page.aspx',
     tasks: [
       { id:'wf1', num:1, title:'Record daily time allocation',
-        desc:'Enter time in 15-minute (.25 hour) increments throughout the day to reflect actual work. Include explanatory comments when charging time to a \u201cgeneral\u201d task.',
-        parties:[{label:'Employee', cls:'chip-emp'}], deadline:'Daily — throughout the day' },
+        desc:'Enter time in 15-minute (.25 hour) increments throughout the day to reflect actual work. Include explanatory comments when charging time to a “general” task.',
+        parties:[{label:'Employee', cls:'chip-emp'}],
+        tier:'reference', deadline:'Daily — throughout the day' },
       { id:'wf2', num:2, title:'Submit weekly timesheet',
         desc:'All Workfront timesheets must be submitted by Monday 8:00 a.m. local time for the previous week.',
-        parties:[{label:'Employee', cls:'chip-emp'}], deadline:'Monday 8:00 am local time' },
+        parties:[{label:'Employee', cls:'chip-emp'}],
+        tier:'reference', deadline:'Monday 8:00 am local time' },
       { id:'wf3', num:3, title:'Review and approve timesheets',
-        desc:'Ensure entries reflect actual work performed, verify comments for \u201cgeneral\u201d tasks, and confirm that hours align reasonably with Kronos. Approvals must be completed by Tuesday 12:00 p.m. local time.',
-        parties:[{label:'Supervisor / Manager', cls:'chip-sup'},{label:'Director', cls:'chip-dir'}], deadline:'Tuesday 12:00 pm local time' },
+        desc:'Ensure entries reflect actual work performed, verify comments for “general” tasks, and confirm that hours align reasonably with Kronos. Approvals must be completed by Tuesday 12:00 p.m. local time.',
+        parties:[{label:'Supervisor / Manager', cls:'chip-sup'},{label:'Director', cls:'chip-dir'}],
+        tier:'weekly', weekday:2, deadline:'Tuesday 12:00 pm local time' },
       { id:'wf4', num:4, title:'Monitor utilization trends',
         desc:'Use Workfront and Kronos reports to review weekly or biweekly utilization. Identify underused or overextended staff, address workload imbalances, and share findings with Regional Directors or Business Operations.',
-        parties:[{label:'Manager / Director', cls:'chip-mgr'}], deadline:'Weekly or biweekly' },
+        parties:[{label:'Manager / Director', cls:'chip-mgr'}],
+        tier:'weekly', weekday:1, deadline:'Weekly or biweekly' },
       { id:'wf5', num:5, title:'Manage month-end closures',
         desc:'Timesheets for the prior month close on the 2nd business day of the new month. Approve any split-week timesheets before closure — reopening is not permitted. Monitor month-end reminder emails for compliance.',
-        parties:[{label:'Manager / Director', cls:'chip-mgr'}], deadline:'2nd business day of new month' }
+        parties:[{label:'Manager / Director', cls:'chip-mgr'}],
+        tier:'monthend', deadline:'2nd business day of new month' }
     ]
   },
   {
@@ -5431,11 +5484,13 @@ var TK_SECTIONS = [
     docUrl: null,
     tasks: [
       { id:'at1', num:1, title:'Ensure attendance compliance',
-        desc:'Monitor trends in tardiness, absences, or missed punches. Address repeated issues through coaching or with support from Exhibitor Services\u2019 HR Business Partner.',
-        parties:[{label:'Manager / Director', cls:'chip-mgr'}], deadline:'Ongoing' },
+        desc:'Monitor trends in tardiness, absences, or missed punches. Address repeated issues through coaching or with support from Exhibitor Services’ HR Business Partner.',
+        parties:[{label:'Manager / Director', cls:'chip-mgr'}],
+        tier:'reference', deadline:'Ongoing' },
       { id:'at2', num:2, title:'Support flexible scheduling',
         desc:'Work with employees to manage schedule changes, ensuring coverage and fairness. Reinforce the importance of advance communication and honoring assigned days off.',
-        parties:[{label:'Supervisor / Manager', cls:'chip-sup'},{label:'Director', cls:'chip-dir'}], deadline:'Ongoing' }
+        parties:[{label:'Supervisor / Manager', cls:'chip-sup'},{label:'Director', cls:'chip-dir'}],
+        tier:'reference', deadline:'Ongoing' }
     ]
   },
   {
@@ -5447,18 +5502,154 @@ var TK_SECTIONS = [
     tasks: [
       { id:'ca1', num:1, title:'Maintain integrity and confidentiality',
         desc:'Never approve hours you cannot verify. Do not share login credentials or approve time on behalf of another leader unless officially delegated.',
-        parties:[{label:'All Leaders', cls:'chip-all'}], deadline:'Always' },
+        parties:[{label:'All Leaders', cls:'chip-all'}],
+        tier:'reference', deadline:'Always' },
       { id:'ca2', num:2, title:'Escalate non-compliance',
         desc:'Report repeated missed submissions or timekeeping violations to the HR Business Partner or Regional Directors for follow-up.',
-        parties:[{label:'Manager / Director', cls:'chip-mgr'}], deadline:'As needed' },
+        parties:[{label:'Manager / Director', cls:'chip-mgr'}],
+        tier:'reference', deadline:'As needed' },
       { id:'ca3', num:3, title:'Audit and reinforce accountability',
         desc:'Confirm completion of weekly approvals across assigned branches and follow up with leaders who miss deadlines.',
-        parties:[{label:'Regional Director', cls:'chip-rd'}], deadline:'Weekly' }
+        parties:[{label:'Regional Director', cls:'chip-rd'}],
+        tier:'reference', deadline:'Weekly' }
     ]
   }
 ];
 
+
+// ── TK Daily/Weekly Reset Logic ─────────────────────────────────────────────
+// Storage key format: tkDone_YYYY-MM-DD_taskId  (daily)
+//                     tkDone_YYYY-W##_taskId     (weekly — ISO week)
+//                     tkDone_monthend_YYYY-MM     (month-end)
+
+function tkDateKey() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function tkWeekKey() {
+  // ISO week number
+  var d = new Date();
+  var startOfYear = new Date(d.getFullYear(), 0, 1);
+  var week = Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+  return d.getFullYear() + '-W' + String(week).padStart(2,'0');
+}
+
+function tkMonthKey() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+
+function tkTaskStorageKey(task) {
+  if (task.tier === 'daily')    return storageKey('tkDone_' + tkDateKey() + '_' + task.id);
+  if (task.tier === 'weekly')   return storageKey('tkDone_' + tkWeekKey() + '_' + task.id);
+  if (task.tier === 'monthend') return storageKey('tkDone_monthend_' + tkMonthKey());
+  return null;
+}
+
+function tkIsTaskDone(task) {
+  var k = tkTaskStorageKey(task);
+  return k ? localStorage.getItem(k) === '1' : false;
+}
+
+function tkMarkTaskDone(taskId, done) {
+  var task = null;
+  TK_SECTIONS.forEach(function(s){ s.tasks.forEach(function(t){ if(t.id===taskId) task=t; }); });
+  if (!task) return;
+  var k = tkTaskStorageKey(task);
+  if (!k) return;
+  if (done) localStorage.setItem(k, '1');
+  else localStorage.removeItem(k);
+}
+
+function tkNthBusinessDay(year, month, n) {
+  // Returns date of nth business day of given month (month is 0-indexed)
+  var d = new Date(year, month, 1);
+  var count = 0;
+  while (true) {
+    var dow = d.getDay();
+    if (dow !== 0 && dow !== 6) { count++; if (count === n) return new Date(d); }
+    d.setDate(d.getDate() + 1);
+  }
+}
+
+function tkAddBusinessDays(date, n) {
+  var d = new Date(date);
+  var added = 0;
+  while (added < n) {
+    d.setDate(d.getDate() + 1);
+    if (d.getDay() !== 0 && d.getDay() !== 6) added++;
+  }
+  return d;
+}
+
+function tkGetTasksDueToday() {
+  // Returns array of task objects that should appear on Today's Priorities today
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var dow = today.getDay(); // 0=Sun,1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat
+  var due = [];
+
+  TK_SECTIONS.forEach(function(sec) {
+    sec.tasks.forEach(function(task) {
+      if (task.tier === 'daily') {
+        due.push(task);
+      } else if (task.tier === 'weekly') {
+        if (task.weekday === dow) due.push(task);
+      } else if (task.tier === 'monthend') {
+        // Show for 3 business days before the 2nd business day of next month
+        // i.e. starting 3 business days before close date
+        var closeDate = tkNthBusinessDay(today.getFullYear(), today.getMonth()+1, 2);
+        // If we're already past close this month, check next month
+        if (today > closeDate) {
+          var nm = today.getMonth() + 1;
+          var ny = today.getFullYear();
+          if (nm > 11) { nm = 0; ny++; }
+          closeDate = tkNthBusinessDay(ny, nm, 2);
+        }
+        // Warn start = 3 business days before close
+        var warnStart = new Date(closeDate);
+        var bd = 0;
+        while (bd < 3) {
+          warnStart.setDate(warnStart.getDate() - 1);
+          if (warnStart.getDay() !== 0 && warnStart.getDay() !== 6) bd++;
+        }
+        if (today >= warnStart && today <= closeDate) due.push(task);
+      }
+    });
+  });
+
+  return due;
+}
+
+function tkFormatDueLabel(task) {
+  if (task.tier === 'daily') return 'Daily task';
+  if (task.tier === 'weekly') {
+    var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    return 'Due ' + days[task.weekday] + (task.deadline ? ' — ' + task.deadline : '');
+  }
+  if (task.tier === 'monthend') {
+    var today = new Date(); today.setHours(0,0,0,0);
+    var closeDate = tkNthBusinessDay(today.getFullYear(), today.getMonth()+1, 2);
+    if (today > closeDate) {
+      var nm = today.getMonth()+1; var ny = today.getFullYear();
+      if (nm > 11) { nm=0; ny++; }
+      closeDate = tkNthBusinessDay(ny, nm, 2);
+    }
+    var sameDay = today.toDateString() === closeDate.toDateString();
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    if (sameDay) return '⚠️ Closes today — ' + months[closeDate.getMonth()] + ' ' + closeDate.getDate();
+    return 'Month-end close ' + months[closeDate.getMonth()] + ' ' + closeDate.getDate();
+  }
+  return task.deadline || '';
+}
+
 var tkSelId = null;
+
+function tkGoToPage() {
+  var navItem = document.querySelector('.tn-drop-item[onclick*="timekeeping"]');
+  showPage('timekeeping', navItem);
+}
 
 function initTimekeeping() {
   tkRenderStats();
@@ -5510,24 +5701,47 @@ function tkRenderDetail() {
     '<div style="width:172px;flex-shrink:0;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);text-align:right">Responsible Party</div>' +
     '</div>';
 
+  var tierLabels = { daily:'Daily', weekly:'Weekly', monthend:'Month-End', reference:'Reference' };
+  var tierColors = { daily:'#E8F5E9;color:#166534;border-color:#86EFAC', weekly:'#EEF4FF;color:#001F5F;border-color:#C0D0F0', monthend:'#FFF7ED;color:#9A3412;border-color:#FCA974', reference:'#F5F6FA;color:#7A8099;border-color:#E2E5EF' };
+
   sec.tasks.forEach(function(t) {
+    var done = tkIsTaskDone(t);
     var partyHtml = t.parties.map(function(p){
       return '<div class="tk-party-chip ' + p.cls + '">' + p.label + '</div>';
     }).join('');
     if (t.deadline) {
       partyHtml += '<div class="tk-deadline-badge">' + t.deadline + '</div>';
     }
-    html += '<div class="tk-task-row">' +
-      '<div style="width:20px;height:20px;border-radius:50%;background:var(--fb);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">' + t.num + '</div>' +
+    var tierStyle = tierColors[t.tier] || tierColors.reference;
+    var tierBadge = '<span style="display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:' + tierStyle + ';border:1px solid;margin-left:8px;vertical-align:middle">' + (tierLabels[t.tier]||'') + '</span>';
+    html += '<div class="tk-task-row' + (done?' step-locked':'') + '">' +
+      '<div class="task-chk' + (done?' checked':'') + ' ' + (t.tier==='reference'?'readonly':'') + '" ' +
+        (t.tier!=='reference' ? 'data-tk-id="'+t.id+'"':'') +
+        ' style="flex-shrink:0;margin-top:1px">' +
+        '<span class="chk-mark">✓</span>' +
+      '</div>' +
       '<div class="tk-task-body">' +
-        '<div class="tk-task-title">' + t.title + '</div>' +
-        '<div class="tk-task-desc">' + t.desc + '</div>' +
+        '<div class="tk-task-title' + (done?' done':'') + '">' + t.num + '. ' + t.title + tierBadge + '</div>' +
+        '<div class="tk-task-desc"' + (done?' style="opacity:.5"':'') + '>' + t.desc + '</div>' +
+        (t.tier!=='reference' && !done ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Check this box when complete for today.</div>' : '') +
+        (done ? '<div style="font-size:12px;color:var(--green);font-style:italic;margin-top:3px">✓ Marked complete — resets ' + (t.tier==='daily'?'tomorrow':t.tier==='weekly'?'next week':'next month') + '.</div>' : '') +
       '</div>' +
       '<div class="tk-task-party">' + partyHtml + '</div>' +
       '</div>';
   });
 
   el.innerHTML = html;
+
+  // Wire checkboxes on T&U detail page
+  el.querySelectorAll('.task-chk[data-tk-id]').forEach(function(chk) {
+    chk.addEventListener('click', function() {
+      var taskId = chk.getAttribute('data-tk-id');
+      var isDone = chk.classList.contains('checked');
+      tkMarkTaskDone(taskId, !isDone);
+      tkRenderDetail();
+      renderNeedsAttention();
+    });
+  });
 }
 
 
