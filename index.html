@@ -5096,9 +5096,52 @@ function renderKpiDetail() {
     trendPY = kpi.trendEntPY || [];
   }
 
-  var months = ['Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May'];
+  // ── PER: fixed FY axis (Jul→Jun), cumulative, null-padded current year ──
+  var isPER = (kpi.id === 'per');
+  var months, chartCY, chartPY, sectionTitle, ytdDotIndex;
 
-  // Top bar injected via wrapper — detail panel already has border-top via CSS
+  if (isPER) {
+    // Fixed fiscal year axis: Jul Aug Sep Oct Nov Dec Jan Feb Mar Apr May Jun
+    months = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+
+    // trendEnt for PER is stored Jul→Jun order, monthly (not cumulative).
+    // Build cumulative CY: sum month by month, null-pad months not yet reached.
+    // Today is May 2026 → months completed in FY26: Jul–Apr = 10 months (indices 0–9).
+    // May data is current month, treat as populated (index 10). Jun = null (index 11).
+    var FY_MONTHS_COMPLETE = 11; // Jul(0)…May(10) = 11 months have data; Jun(11) = null
+    var monthlyCY = trendCY; // monthly amounts Jul→Jun
+    var monthlyPY = trendPY; // monthly amounts Jul→Jun (full prior year)
+
+    // Build cumulative arrays
+    chartCY = [];
+    var runCY = 0;
+    for (var i = 0; i < 12; i++) {
+      if (i < FY_MONTHS_COMPLETE) {
+        runCY += (monthlyCY[i] || 0);
+        chartCY.push(runCY);
+      } else {
+        chartCY.push(null); // future months — no line drawn
+      }
+    }
+    ytdDotIndex = FY_MONTHS_COMPLETE - 1; // last populated index = May = index 10
+
+    chartPY = [];
+    var runPY = 0;
+    for (var j = 0; j < 12; j++) {
+      runPY += (monthlyPY[j] || 0);
+      chartPY.push(runPY);
+    }
+
+    sectionTitle = 'FY26 Cumulative Revenue — ' + scopeDisplayLabel;
+  } else {
+    // All other KPIs: rolling 12-month window, Jun(last year)→May(current)
+    months = ['Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May'];
+    chartCY = trendCY;
+    chartPY = trendPY;
+    ytdDotIndex = -1; // no YTD dot for rolling KPIs
+    sectionTitle = '12-Month Trend — ' + scopeDisplayLabel;
+  }
+
   var html = '';
 
   // Header
@@ -5122,9 +5165,13 @@ function renderKpiDetail() {
     '</div>';
 
   // Trend chart section
-  html += '<div class="el-section-div">12-Month Trend — ' + scopeDisplayLabel + '</div>' +
+  var chartAriaLabel = isPER
+    ? 'Cumulative FY26 Priority Empty Return Sales vs FY25 and $6.4M goal'
+    : '12-month trend for ' + kpi.fullName + ' FY26 vs FY25';
+
+  html += '<div class="el-section-div">' + sectionTitle + '</div>' +
     '<div style="padding:0 24px 8px">' +
-      '<div style="position:relative;width:100%;height:220px"><canvas id="kpi-trend-canvas" role="img" aria-label="12-month trend for ' + kpi.fullName + ' FY26 vs FY25"></canvas></div>' +
+      '<div style="position:relative;width:100%;height:220px"><canvas id="kpi-trend-canvas" role="img" aria-label="' + chartAriaLabel + '"></canvas></div>' +
       '<div style="display:flex;gap:20px;margin-top:10px;align-items:center">' +
         '<div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--muted)">' +
           '<div style="width:24px;border-top:2.5px solid ' + color + '"></div>FY26 (current)' +
@@ -5133,7 +5180,7 @@ function renderKpiDetail() {
           '<div style="width:24px;border-top:1.5px dashed rgba(0,31,95,0.35)"></div>FY25 (prior year)' +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--muted)">' +
-          '<div style="width:24px;border-top:1.5px dotted #B0B7CC"></div>Goal' +
+          '<div style="width:24px;border-top:1.5px dotted #B0B7CC"></div>' + (isPER ? '$6.4M Goal' : 'Goal') +
         '</div>' +
       '</div>' +
     '</div>';
@@ -5144,29 +5191,65 @@ function renderKpiDetail() {
   requestAnimationFrame(function() {
     var canvas = document.getElementById('kpi-trend-canvas');
     if (!canvas || typeof Chart === 'undefined') return;
+
     var goalLine = [];
-    for (var i = 0; i < 12; i++) goalLine.push(kpi.goalNum);
+    for (var gi = 0; gi < 12; gi++) goalLine.push(kpi.goalNum);
+
+    // Point styling for CY line: for PER, only show dot at YTD index; for others, show all
+    var pointRadii = [];
+    var pointColors = [];
+    for (var pi = 0; pi < 12; pi++) {
+      if (isPER) {
+        pointRadii.push(pi === ytdDotIndex ? 6 : 0);
+        pointColors.push(color);
+      } else {
+        pointRadii.push(chartCY[pi] !== null ? 4 : 0);
+        pointColors.push(color);
+      }
+    }
+
+    // Custom plugin: draw "YTD" label above the last data point on PER chart
+    var ytdLabelPlugin = {
+      id: 'ytdLabel',
+      afterDatasetsDraw: function(chart) {
+        if (!isPER || ytdDotIndex < 0) return;
+        var ds = chart.data.datasets[0];
+        var meta = chart.getDatasetMeta(0);
+        if (!meta || !meta.data || !meta.data[ytdDotIndex]) return;
+        var pt = meta.data[ytdDotIndex];
+        var ctx2 = chart.ctx;
+        ctx2.save();
+        ctx2.font = '700 11px Nunito Sans, sans-serif';
+        ctx2.fillStyle = color;
+        ctx2.textAlign = 'center';
+        ctx2.fillText('YTD', pt.x, pt.y - 12);
+        ctx2.restore();
+      }
+    };
+
     window._kpiChartInst = new Chart(canvas, {
       type: 'line',
+      plugins: [ytdLabelPlugin],
       data: {
         labels: months,
         datasets: [
           {
             label: 'FY26',
-            data: trendCY,
+            data: chartCY,
             borderColor: color,
             backgroundColor: color + '18',
-            pointBackgroundColor: color,
-            pointRadius: 4,
-            pointHoverRadius: 6,
+            pointBackgroundColor: pointColors,
+            pointRadius: pointRadii,
+            pointHoverRadius: isPER ? pointRadii.map(function(r){ return r > 0 ? 8 : 4; }) : 6,
             borderWidth: 2.5,
             fill: true,
             tension: 0.35,
+            spanGaps: false,
             order: 1
           },
           {
             label: 'FY25',
-            data: trendPY,
+            data: chartPY,
             borderColor: 'rgba(0,31,95,0.30)',
             backgroundColor: 'transparent',
             pointRadius: 0,
@@ -5199,10 +5282,12 @@ function renderKpiDetail() {
           tooltip: {
             callbacks: {
               label: function(ctx) {
+                if (ctx.raw === null) return null;
                 var lbl = ctx.dataset.label === 'FY26' ? 'FY26' : ctx.dataset.label === 'FY25' ? 'FY25 (prior year)' : 'Goal';
                 return lbl + ': ' + kpiFmt(kpi, ctx.raw);
               }
-            }
+            },
+            filter: function(item) { return item.raw !== null; }
           }
         },
         scales: {
