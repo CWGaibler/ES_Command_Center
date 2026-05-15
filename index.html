@@ -81,7 +81,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 /* KPI Workspace */
 .kpi-workspace{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 140px);gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .kpi-sidebar{border-right:1px solid var(--border);overflow-y:auto;background:var(--white)}
-.kpi-layout{display:grid;grid-template-columns:calc((100% - 10px) / 4) 1fr;gap:10px;height:calc(100vh - 130px);min-height:320px}
+.kpi-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px;height:calc(100vh - 130px);min-height:320px}
 .kpi-sidebar-panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto}
 .kpi-sidebar-hdr{padding:9px 13px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center}
 .kpi-sidebar-title{font-size:12px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
@@ -95,7 +95,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kscard-row{display:flex;align-items:center;justify-content:space-between;margin-top:3px}
 .kscard-val{font-size:20px;font-weight:900;line-height:1}
 .kscard-goal{font-size:12px;color:var(--muted)}
-.kscard-bar{height:3px;background:var(--border);border-radius:2px;margin-top:6px}
+.kscard-bar{height:4px;background:var(--border-lt);border-radius:2px;margin-top:6px}
 .kscard-fill{height:100%;border-radius:2px}
 /* KPI Detail Panel */
 .kpi-det-hdr{padding:20px 24px 16px;border-bottom:1px solid var(--border-lt)}
@@ -343,10 +343,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .sf-show-item.sel{background:var(--fb-xlt);border-left-color:var(--mb)}
 .sf-show-item:last-child{border-bottom:none}
 .sf-show-name-row{display:flex;align-items:baseline;gap:0;pointer-events:none;flex-wrap:nowrap;min-width:0}
-.sf-show-name{font-size:14px;font-weight:700;line-height:1.3;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0}
-.sf-show-job-sep{font-size:14px;font-weight:400;color:var(--border);margin:0 6px;pointer-events:none;flex-shrink:0}
-.sf-show-job{font-size:14px;font-weight:700;color:var(--mb);pointer-events:none;white-space:nowrap;flex-shrink:0}
-.sf-show-meta{font-size:12px;color:var(--muted);margin-top:2px;pointer-events:none}
+.sf-show-name{font-size:14.4px;font-weight:700;line-height:1.3;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0}
+.sf-show-job-sep{font-size:14.4px;font-weight:400;color:var(--border);margin:0 6px;pointer-events:none;flex-shrink:0}
+.sf-show-job{font-size:14.4px;font-weight:700;color:var(--mb);pointer-events:none;white-space:nowrap;flex-shrink:0}
+.sf-show-meta{font-size:13.5px;color:var(--muted);margin-top:1px;pointer-events:none}
 .sf-show-tags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;pointer-events:none}
 .sf-detail-body{padding:0}
 .sf-calc-inline{background:var(--fb-xlt);border-top:1px solid var(--border-lt);border-bottom:1px solid var(--border-lt);padding:12px 16px;margin:0}
@@ -512,6 +512,14 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .lc-person-prog-fill.tr{background:var(--gold)}
 .lc-person-prog-fill.off{background:var(--orange)}
 .lc-person-prog-pct{font-size:14px;font-weight:800;color:var(--muted)}
+.sf-show-prog-row{display:flex;align-items:center;gap:6px;margin-top:5px;pointer-events:none}
+.sf-show-prog-wrap{flex:1;height:4px;background:var(--border-lt);border-radius:2px;overflow:hidden;pointer-events:none}
+.sf-show-prog-fill{height:100%;border-radius:2px;transition:width .3s;pointer-events:none}
+.sf-show-prog-fill.sf{background:var(--mb)}
+.sf-show-prog-fill.sc-scheduled{background:var(--green)}
+.sf-show-prog-fill.sc-travelers{background:var(--gold)}
+.sf-show-prog-fill.sc-progress{background:var(--mb)}
+.sf-show-prog-pct{font-size:14px;font-weight:800;color:var(--muted);pointer-events:none}
 .lc-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
 /* detail header */
 .lc-det-hdr{padding:13px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-top:3px solid var(--mb)}
@@ -1313,6 +1321,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <button id="sc-tab-queue" onclick="scSwitchTab('queue')" style="background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:800;color:var(--fb);cursor:pointer;border-bottom:2px solid var(--fb);margin-bottom:-2px">Scheduling Queue</button>
       <button id="sc-tab-travel" onclick="scSwitchTab('travel')" style="background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">Open Travel Needs <span id="sc-travel-badge" style="display:none;margin-left:4px;background:var(--gold);color:#5A3A00;border-radius:999px;padding:1px 7px;font-size:11px;font-weight:900"></span></button>
     </div>
+    <div class="sf-stats" id="sc-stats-strip"></div>
     <div id="sc-panel-queue">
     <div class="rh-layout" id="sc-layout">
       <div class="rh-sidebar">
@@ -1720,7 +1729,7 @@ function onScopeChanged() {
     sfSelId = null; initStaffing(); return;
   }
   if (pid === 'page-scheduling') {
-    scSelId = null; initScheduling(); return;
+    scUpdateStats(); renderScList(); renderTravelBadge(); return;
   }
   if (pid === 'page-kpis') {
     renderKpiSidebar(); renderKpiDetail(); return;
@@ -2268,8 +2277,8 @@ function renderList(){
       ? '<div class="hire-role" style="margin-top:2px">&#128100; '+(h.firstName||'')+(h.lastName?' '+h.lastName:'')+'</div>'
       : '<div class="hire-role" style="margin-top:2px;font-style:italic;color:var(--muted)">Candidate TBD</div>';
     var typeChip = h.hireType==='backfill'
-      ? '<span class="chip chip-amber" style="font-size:9.6px;padding:1px 5px">Backfill</span>'
-      : '<span class="chip chip-mb" style="font-size:9.6px;padding:1px 5px">Net New</span>';
+      ? '<span class="chip chip-amber" style="font-size:12px;padding:1px 5px">Backfill</span>'
+      : '<span class="chip chip-mb" style="font-size:12px;padding:1px 5px">Net New</span>';
     var ftLabel = h.ftpt==='Part-Time' ? 'PT' : 'FT';
     var dot = action?'<span style="width:7px;height:7px;background:var(--orange);border-radius:50%;display:inline-block;margin-left:4px;vertical-align:middle"></span>':'';
     d.innerHTML=
@@ -2280,7 +2289,7 @@ function renderList(){
         '<div class="hire-prog-wrap"><div class="hire-prog-fill" style="width:'+pct+'%"></div></div>'+
         '<span class="hire-prog-pct">'+pct+'%</span>'+
         typeChip+
-        '<span class="chip '+stg.cls+'" style="font-size:9.6px;padding:1px 5px">'+stg.label+'</span>'+
+        '<span class="chip '+stg.cls+'" style="font-size:12px;padding:1px 5px">'+stg.label+'</span>'+
       '</div>';
     d.onclick=(function(hid){return function(){selId=hid;renderList();renderDetail();};})(h.id);
     el.appendChild(d);
@@ -3437,10 +3446,20 @@ function renderSfList() {
 
     if (s.freemanPlatform) tagsDiv.appendChild(sfPlatformChip);
 
+    // Progress bar — steps confirmed out of 5
+    var sfChecked = plan && plan.checked ? plan.checked.length : 0;
+    var sfPct = confirmed ? 100 : Math.round(sfChecked / 5 * 100);
+    var progRow = document.createElement('div');
+    progRow.className = 'sf-show-prog-row';
+    progRow.innerHTML =
+      '<div class="sf-show-prog-wrap"><div class="sf-show-prog-fill sf" style="width:' + sfPct + '%"></div></div>' +
+      '<span class="sf-show-prog-pct">' + sfPct + '%</span>';
+
     item.appendChild(nameRow);
     item.appendChild(metaDiv);
     item.appendChild(metaDiv2);
     item.appendChild(tagsDiv);
+    item.appendChild(progRow);
     list.appendChild(item);
   });
 }
@@ -5177,7 +5196,7 @@ function renderObList() {
     return '<div class="lc-person-item'+sel+'" onclick="obSelectPerson(\''+rec.id+'\')">' +
       '<div class="lc-person-name">'+rec.firstName+' '+rec.lastName+'</div>' +
       '<div class="lc-person-role">'+rec.role+' &mdash; '+rec.branch+'</div>' +
-      '<div style="margin-top:5px"><span class="chip '+phaseChip+'" style="font-size:13px">'+rec.phase+'</span></div>' +
+      '<div style="margin-top:5px"><span class="chip '+phaseChip+'" style="font-size:12px">'+rec.phase+'</span></div>' +
       '<div class="lc-person-prog-row"><div class="lc-person-prog-wrap"><div class="lc-person-prog-fill ob" style="width:'+pct+'%"></div></div><span class="lc-person-prog-pct">'+pct+'%</span></div>' +
     '</div>';
   }).join('');
@@ -5381,7 +5400,7 @@ function renderTrList() {
     return '<div class="lc-person-item'+sel+'" onclick="trSelectPerson(\''+rec.id+'\')">' +
       '<div class="lc-person-name">'+rec.firstName+' '+rec.lastName+'</div>' +
       '<div class="lc-person-role">'+rec.role+' &mdash; '+rec.branch+'</div>' +
-      '<div style="margin-top:5px"><span class="chip '+typeChip+'" style="font-size:13px">'+typeLabel+'</span></div>' +
+      '<div style="margin-top:5px"><span class="chip '+typeChip+'" style="font-size:12px">'+typeLabel+'</span></div>' +
       '<div class="lc-person-prog-row"><div class="lc-person-prog-wrap"><div class="lc-person-prog-fill tr" style="width:'+pct+'%"></div></div><span class="lc-person-prog-pct">'+pct+'%</span></div>' +
     '</div>';
   }).join('');
@@ -5613,8 +5632,8 @@ function renderOffList() {
       '<div class="lc-person-name">'+rec.firstName+' '+rec.lastName+'</div>' +
       '<div class="lc-person-role">'+rec.role+' &mdash; '+rec.branch+'</div>' +
       '<div style="margin-top:5px;display:flex;gap:5px">' +
-        '<span class="chip '+typeChip+'" style="font-size:13px">'+typeLabel+'</span>' +
-        (!rec.backfillDecision ? '<span class="chip chip-amber" style="font-size:13px">Backfill?</span>' : '') +
+        '<span class="chip '+typeChip+'" style="font-size:12px">'+typeLabel+'</span>' +
+        (!rec.backfillDecision ? '<span class="chip chip-amber" style="font-size:12px">Backfill?</span>' : '') +
       '</div>' +
       '<div class="lc-person-prog-row"><div class="lc-person-prog-wrap"><div class="lc-person-prog-fill off" style="width:'+pct+'%"></div></div><span class="lc-person-prog-pct">'+pct+'%</span></div>' +
     '</div>';
@@ -7076,8 +7095,29 @@ function renderTravelBoard() {
   board.innerHTML = html;
 }
 
+function scUpdateStats() {
+  var strip = document.getElementById('sc-stats-strip');
+  if (!strip) return;
+  var allScope = getAllScopeShows().filter(function(s) {
+    return staffingPlans[s.id] && staffingPlans[s.id].confirmed;
+  });
+  var total = allScope.length;
+  var fullyScheduled = allScope.filter(function(s) { return ROLE_ASSIGNMENTS[s.id] && ROLE_ASSIGNMENTS[s.id].confirmed; }).length;
+  var needsScheduling = allScope.filter(function(s) { return !ROLE_ASSIGNMENTS[s.id] || !ROLE_ASSIGNMENTS[s.id].confirmed; }).length;
+  var travelersPending = allScope.filter(function(s) {
+    var ra = ROLE_ASSIGNMENTS[s.id];
+    return ra && !ra.confirmed && ra.slots && ra.slots.some(function(sl) { return sl.travelerNeeded; });
+  }).length;
+  strip.innerHTML =
+    '<div class="rh-stat"><div class="rh-stat-lbl">Staffed Shows</div><div class="rh-stat-val">' + total + '</div><div class="rh-stat-sub">ready to schedule</div></div>' +
+    '<div class="rh-stat"><div class="rh-stat-lbl">Needs Scheduling</div><div class="rh-stat-val" style="color:var(--orange)">' + needsScheduling + '</div><div class="rh-stat-sub">no schedule yet</div></div>' +
+    '<div class="rh-stat"><div class="rh-stat-lbl">Traveler(s) Pending</div><div class="rh-stat-val" style="color:var(--gold)">' + travelersPending + '</div><div class="rh-stat-sub">open travel needs</div></div>' +
+    '<div class="rh-stat"><div class="rh-stat-lbl">Fully Scheduled</div><div class="rh-stat-val" style="color:var(--green)">' + fullyScheduled + '</div><div class="rh-stat-sub">confirmed</div></div>';
+}
+
 function initScheduling() {
   scSelId = null;
+  scUpdateStats();
   scSwitchTab('queue');
   renderScList();
   renderScEmptyDetail();
@@ -7197,10 +7237,23 @@ function renderScList() {
     scPlatformChip.textContent = s.freemanPlatform || '';
     if (s.freemanPlatform) tagsDiv.appendChild(scPlatformChip);
 
+    // Progress bar — maps 4 status states to % complete
+    var scProgPct = 0;
+    var scProgCls = 'sc-progress';
+    if (scStatus === 'in-progress')       { scProgPct = 33;  scProgCls = 'sc-progress'; }
+    if (scStatus === 'travelers-pending') { scProgPct = 66;  scProgCls = 'sc-travelers'; }
+    if (scStatus === 'fully-scheduled')   { scProgPct = 100; scProgCls = 'sc-scheduled'; }
+    var scProgRow = document.createElement('div');
+    scProgRow.className = 'sf-show-prog-row';
+    scProgRow.innerHTML =
+      '<div class="sf-show-prog-wrap"><div class="sf-show-prog-fill ' + scProgCls + '" style="width:' + scProgPct + '%"></div></div>' +
+      '<span class="sf-show-prog-pct">' + scProgPct + '%</span>';
+
     item.appendChild(nameRow);
     item.appendChild(metaDiv);
     item.appendChild(metaDiv2);
     item.appendChild(tagsDiv);
+    item.appendChild(scProgRow);
     list.appendChild(item);
   });
 }
