@@ -5145,9 +5145,10 @@ function renderKpiDetail() {
   var html = '';
 
   // Header
-  html += '<div class="kpi-det-hdr">' +
+  html += '<div class="kpi-det-hdr" style="position:relative">' +
     '<div class="kpi-det-title">' + kpi.fullName + '</div>' +
     '<div class="kpi-det-def">' + kpi.def + '</div>' +
+    (kpi.docUrl ? '<a href="' + kpi.docUrl + '" target="_blank" rel="noopener" style="position:absolute;top:0;right:0;display:inline-flex;align-items:center;gap:6px;background:#EEF7FF;color:#0057B8;border:1px solid #AACEF5;border-radius:999px;font-size:12px;font-weight:800;padding:5px 13px;text-decoration:none;letter-spacing:.01em;white-space:nowrap;transition:background .15s" onmouseover="this.style.background=\'#D9EEFF\'" onmouseout="this.style.background=\'#EEF7FF\'"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-3" stroke="#0057B8" stroke-width="1.5" stroke-linecap="round"/><path d="M9 2h5v5M14 2L8 8" stroke="#0057B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>KPI Documentation</a>' : '') +
     '</div>';
 
   // Score row
