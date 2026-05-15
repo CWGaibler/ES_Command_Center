@@ -3548,6 +3548,92 @@ function sfUpdateStepGates(showId) {
   });
 }
 
+
+// ── SHARED EVENT DETAIL IDENTITY CARD ────────────────────────────────────────
+// Builds the el-id-card header used on Staffing and Scheduling detail panels.
+// Matches Events Lens visual exactly. Status badge and extra chips are page-specific.
+//   opts.showId      — job number string
+//   opts.statusHtml  — right-side badge HTML (page-specific, e.g. "Needs Plan")
+//   opts.extraChips  — optional chip HTML appended after standard chips (Scheduling only)
+function buildEventDetailHeader(opts) {
+  var showId = opts.showId;
+  var s = SHOWS[showId] || {};
+  var rec = sfCalcRec(s);
+
+  // RD / Growth meta (mirrors Events Lens)
+  var rdDisplay = s.rdName || '';
+  var growthMeta = '';
+  if (s.growthOwner || s.growthAE) {
+    var gp = [s.growthOwner, s.growthAE].filter(Boolean);
+    growthMeta = ' \u00b7 Growth: ' + gp.join(', ');
+  }
+
+  // Logo / initials circle (80px — compact for workflow panels)
+  var logoSrc = elGetShowLogo(showId);
+  var circleHtml = logoSrc
+    ? '<div style="width:80px;height:80px;border-radius:50%;flex-shrink:0;background:url(&quot;' + logoSrc + '&quot;) center/cover no-repeat"></div>'
+    : '<div style="width:80px;height:80px;border-radius:50%;flex-shrink:0;background:var(--fb);color:#fff;font-size:18px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;justify-content:center">' +
+        (s.producingBranch || s.region || 'ES').replace(/^\d+\s*-\s*/, '').slice(0, 2).toUpperCase() +
+      '</div>';
+
+  // Chip row — same logic as Events Lens flagsHtml
+  var isNext = s.freemanPlatform === 'Freeman Next';
+  var chipsHtml = isNext
+    ? '<span class="chip" style="background:#CBF0FC;color:#005A75;border:1.5px solid #7DD9F3;font-weight:700">Freeman Next</span>'
+    : '<span class="chip" style="background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;font-weight:700">Freeman Now</span>';
+  chipsHtml += '<span class="chip chip-ghost">' + Math.round(rec.booths) + ' booths</span>';
+  chipsHtml += '<span class="chip chip-ghost">' + sfFmt(rec.revenue) + ' revenue</span>';
+  if (s.serviceModel && s.serviceModel !== '') chipsHtml += '<span class="chip chip-mb">' + s.serviceModel + '</span>';
+  if (s.perLbMH === 'N' && !s.freemanElectricalOnly) chipsHtml += '<span class="chip chip-ghost">Non-Standard MH</span>';
+  if (s.freemanAV === 'Yes') chipsHtml += '<span class="chip chip-mb">AV</span>';
+  var ecomUrl = isNext
+    ? 'https://store.freeman.com/event-homepage?eventId=' + showId
+    : 'https://www.freemanco.com/store/show/landing?showID=' + showId;
+  chipsHtml += '<a class="chip chip-mb" href="' + ecomUrl + '" target="_blank" style="text-decoration:none">Exhibitor Store \u2197</a>';
+  if (s.pyJobNumber) {
+    var pyInShows = !!SHOWS[s.pyJobNumber];
+    chipsHtml += pyInShows
+      ? '<span class="chip chip-ghost" style="cursor:pointer" onclick="elSelectShow(\'' + s.pyJobNumber + '\')">Prior Year #: ' + s.pyJobNumber + ' \u2197</span>'
+      : '<span class="chip chip-ghost">Prior Year #: ' + s.pyJobNumber + '</span>';
+  }
+  if (opts.extraChips) chipsHtml += opts.extraChips;
+
+  // Meta line (facility, city | branch | RD/growth)
+  var metaHtml =
+    '<span>' + (s.facility || s.city) + ', ' + s.city + '</span>' +
+    '<span style="color:var(--border);margin:0 6px">|</span>' +
+    '<span>' + (s.producingBranch || s.region) + '</span>' +
+    (rdDisplay
+      ? '<span style="color:var(--border);margin:0 6px">|</span><span>' + rdDisplay + ', RD' + growthMeta + '</span>'
+      : (growthMeta ? '<span style="color:var(--border);margin:0 6px">|</span><span>' + growthMeta.replace(' \u00b7 ', '') + '</span>' : ''));
+
+  // Dates line
+  var datesLine = sfFmtDate(s.showOpen) + (s.showClose && s.showClose !== s.showOpen ? ' \u2013 ' + sfFmtDate(s.showClose) : '');
+
+  return '<div class="el-id-card" style="margin-bottom:10px">' +
+    '<div class="el-id-card-bar"></div>' +
+    '<div class="el-id-card-body" style="display:flex;gap:16px;align-items:center;padding:14px 18px">' +
+      circleHtml +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px">' +
+          '<div style="min-width:0">' +
+            '<div class="el-show-title" style="font-size:18px">' +
+              '<span>' + s.name + '</span>' +
+              '<span style="font-weight:400;color:var(--border);margin:0 8px">|</span>' +
+              '<span style="color:var(--mb);font-size:18px;font-weight:700">Job #' + showId + '</span>' +
+            '</div>' +
+            '<div class="el-show-meta" style="margin-bottom:2px">' + metaHtml + '</div>' +
+            '<div style="font-size:12px;color:var(--muted);margin-bottom:8px">' + datesLine + '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:5px">' + chipsHtml + '</div>' +
+          '</div>' +
+          '<div style="flex-shrink:0;margin-top:2px">' + (opts.statusHtml || '') + '</div>' +
+        '</div>' +
+        '<div style="margin-top:8px"><a class="tlink" href="#" onclick="goToEventLens(\'' + showId + '\');return false;">\uD83D\uDCC5 View full event profile \u2197</a></div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
 function renderSfDetail() {
   var det = document.getElementById("sf-detail");
   if (!det || !sfSelId || !SHOWS[sfSelId]) { renderSfEmptyDetail(); return; }
@@ -3564,19 +3650,10 @@ function renderSfDetail() {
   var dashRegion = CALC_REGION_MAP[s.region] || s.region;
   var confirmed = plan.confirmed;
 
-  var html = "<div class=\"det-hdr\">" +
-    "<div><div class=\"det-name-row\"><span class=\"det-name\">" + s.name + "</span><span class=\"det-name-sep\">|</span><span class=\"det-job-num\">Job #" + sfSelId + "</span></div>" +
-    "<div style=\"margin-top:5px\"><a class=\"tlink\" href=\"#\" onclick=\"goToEventLens('" + sfSelId + "');return false;\">\uD83D\uDCC5 View full event profile \u2197</a></div>" +
-    "<div class=\"det-sub\">" + s.city + " &middot; " + (s.facility || "") + " &middot; " + sfFmtDate(s.showOpen) + (s.showClose && s.showClose !== s.showOpen ? " &ndash; " + sfFmtDate(s.showClose) : "") + "</div>" +
-    "<div style=\"display:flex;gap:5px;margin-top:5px;flex-wrap:wrap\">" +
-      "<span class=\"chip chip-ghost\">" + dashRegion + "</span>" +
-      "<span class=\"chip chip-ghost\">" + rec.booths + " booths</span>" +
-      "<span class=\"chip chip-ghost\">" + sfFmt(rec.revenue) + " revenue</span>" +
-      (s.freemanAV === "Yes" ? "<span class=\"chip chip-mb\">AV</span>" : "") +
-    "</div></div>" +
-    "<div>" + (confirmed ? "<span class=\"chip chip-green\">\u2713 Plan Confirmed</span>" : "<span class=\"chip chip-amber\">Needs Plan</span>") + "</div>" +
-    "</div>";
-
+  var sfStatusHtml = confirmed
+    ? '<span class="chip chip-green">\u2713 Plan Confirmed</span>'
+    : '<span class="chip chip-amber">Needs Plan</span>';
+  var html = buildEventDetailHeader({ showId: sfSelId, statusHtml: sfStatusHtml });
   html += "<div class=\"det-scroll\" style=\"max-height:calc(100vh - 300px);overflow-y:auto;padding-top:8px\">";
 
   // ── Staffing steps — new 5-step flow ────────────────────────────────────
@@ -7361,24 +7438,20 @@ function renderScDetail() {
     subLineExtra = ' | On-Site Lead: ' + scLead;
     if (scSup) subLineExtra += ' \u2013 Supervisor: ' + scSup;
   }
-  var html = '<div class="det-hdr">' +
-    '<div><div class="det-name-row"><span class="det-name">' + s.name + '</span><span class="det-name-sep">|</span><span class="det-job-num">Job #' + scSelId + '</span></div>' +
-    '<div style="margin-top:5px"><a class="tlink" href="#" onclick="goToEventLens(\'' + scSelId + '\');return false;">&#128203; View full event profile &#8599;</a></div>' +
-    '<div class="det-sub">' + s.city + ' &middot; ' + (s.facility || '') + ' &middot; ' + sfFmtDate(s.showOpen) + (s.showClose && s.showClose !== s.showOpen ? ' &ndash; ' + sfFmtDate(s.showClose) : '') + subLineExtra + '</div>' +
-    '<div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">' +
-      '<span class="chip chip-ghost">' + dashRegion + '</span>' +
-      '<span class="chip chip-ghost">' + Math.round(rec.booths) + ' booths</span>' +
-      '<span class="chip chip-ghost">' + sfFmt(rec.revenue) + ' revenue</span>' +
-    '</div></div>' +
-    '<div>' + (function() {
-      if (scConfirmed) return '<span class="chip chip-green">&#x2713; Fully Scheduled</span>';
-      var hasTraveler = ra && ra.slots && ra.slots.some(function(sl) { return sl.travelerNeeded; });
-      var hasEmpty    = ra && ra.slots && ra.slots.some(function(sl) { return !sl.person && !sl.travelerNeeded; });
-      if (sc1done && hasTraveler && !hasEmpty) return '<span class="chip" style="background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166">&#9873; Traveler(s) Pending</span>';
-      if (sc1done) return '<span class="chip chip-amber">In Progress</span>';
-      return '<span class="chip chip-amber">Needs Scheduling</span>';
-    })() + '</div>' +
-    '</div>';
+  var scStatusHtml = (function() {
+    if (scConfirmed) return '<span class="chip chip-green">\u2713 Fully Scheduled</span>';
+    var hasTraveler = ra && ra.slots && ra.slots.some(function(sl) { return sl.travelerNeeded; });
+    var hasEmpty    = ra && ra.slots && ra.slots.some(function(sl) { return !sl.person && !sl.travelerNeeded; });
+    if (sc1done && hasTraveler && !hasEmpty) return '<span class="chip" style="background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166">\u9873 Traveler(s) Pending</span>';
+    if (sc1done) return '<span class="chip chip-amber">In Progress</span>';
+    return '<span class="chip chip-amber">Needs Scheduling</span>';
+  })();
+  // Lead/Supervisor chips (Scheduling-only — shown as teal/ghost chips after standard flags)
+  var scExtraChips = '';
+  if (scLead) scExtraChips += '<span class="chip" style="background:#E6F7FD;color:#005A75;border:1.5px solid #7DD9F3">\u25b6 Lead: ' + scLead + '</span>';
+  if (scSup)  scExtraChips += '<span class="chip chip-ghost">\u25b6 Sup: ' + scSup + '</span>';
+  var html = buildEventDetailHeader({ showId: scSelId, statusHtml: scStatusHtml, extraChips: scExtraChips });
+
 
   html += '<div class="det-scroll" style="max-height:calc(100vh - 300px);overflow-y:auto;padding-top:8px">';
 
