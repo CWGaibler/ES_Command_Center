@@ -190,18 +190,13 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .tk-task-row{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border-lt)}
 .tk-task-row:last-child{border-bottom:none}
 .tk-task-row:hover{background:var(--fb-xlt)}
+.tk-task-grid-row{display:grid;grid-template-columns:55% 25% 20%;align-items:start;padding:10px 16px;border-bottom:1px solid var(--border-lt);transition:background .1s}
+.tk-task-grid-row:last-child{border-bottom:none}
+.tk-task-grid-row:hover{background:var(--fb-xlt)}
 .tk-task-body{flex:1;min-width:0}
 .tk-task-title{font-size:14px;font-weight:700;line-height:1.4;color:var(--fb)}
 .tk-task-desc{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
-.tk-task-party{flex-shrink:0;text-align:right;min-width:160px;padding-top:1px}
-.tk-party-chip{display:inline-block;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--fb-xlt);color:var(--mb);border:1px solid var(--border);white-space:nowrap;margin-bottom:3px;line-height:1.4}
-.tk-party-chip.chip-sup{background:#EEF7FF;color:#0057A8;border-color:#AACEF5}
-.tk-party-chip.chip-mgr{background:#EEF4FF;color:#001F5F;border-color:#C0D0F0}
-.tk-party-chip.chip-dir{background:#F0E8FF;color:#4B0090;border-color:#C8A8F0}
-.tk-party-chip.chip-emp{background:#F0FDF4;color:#166534;border-color:#86EFAC}
-.tk-party-chip.chip-all{background:#FFF7ED;color:#9A3412;border-color:#FCA974}
-.tk-party-chip.chip-rd{background:#FFF0F6;color:#9D174D;border-color:#F9A8D4}
-.tk-deadline-badge{display:inline-block;font-size:11px;font-weight:700;color:var(--muted);margin-top:4px;background:var(--surface);border:1px solid var(--border);padding:2px 8px;border-radius:999px}
+
 
 .det-hdr{padding:13px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .det-name-row{display:flex;align-items:baseline;gap:0;flex-wrap:nowrap;min-width:0}
@@ -5695,44 +5690,60 @@ function tkRenderDetail() {
     (sec.docUrl ? '<a href="' + sec.docUrl + '" target="_blank" rel="noopener" style="position:absolute;top:18px;right:24px;display:inline-flex;align-items:center;gap:6px;background:#EEF7FF;color:#0057B8;border:1px solid #AACEF5;border-radius:999px;font-size:12px;font-weight:800;padding:5px 13px;text-decoration:none;white-space:nowrap" onmouseover="this.style.background=\'#D9EEFF\'" onmouseout="this.style.background=\'#EEF7FF\'"><svg width=\"13\" height=\"13\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-3\" stroke=\"#0057B8\" stroke-width=\"1.5\" stroke-linecap=\"round\"/><path d=\"M9 2h5v5M14 2L8 8\" stroke=\"#0057B8\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>System Documentation</a>' : '') +
     '</div>';
 
-  html += '<div style="display:flex;align-items:center;padding:7px 16px;border-bottom:2px solid var(--border-lt);background:var(--surface)">' +
-    '<div style="width:20px;flex-shrink:0"></div>' +
-    '<div style="flex:1;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-left:10px">Procedure</div>' +
-    '<div style="width:172px;flex-shrink:0;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);text-align:right">Responsible Party</div>' +
-    '</div>';
 
+
+  // Tier label and color — plain text matching EL date meta style
   var tierLabels = { daily:'Daily', weekly:'Weekly', monthend:'Month-End', reference:'Reference' };
-  var tierColors = { daily:'#E8F5E9;color:#166534;border-color:#86EFAC', weekly:'#EEF4FF;color:#001F5F;border-color:#C0D0F0', monthend:'#FFF7ED;color:#9A3412;border-color:#FCA974', reference:'#F5F6FA;color:#7A8099;border-color:#E2E5EF' };
+  var tierColors  = { daily:'var(--green)', weekly:'var(--mb)', monthend:'var(--orange)', reference:'var(--muted)' };
 
   sec.tasks.forEach(function(t) {
     var done = tkIsTaskDone(t);
-    var partyHtml = t.parties.map(function(p){
-      return '<div class="tk-party-chip ' + p.cls + '">' + p.label + '</div>';
+
+    // Responsible party — plain bold navy text, right-aligned, matching EL el-task-person
+    var partyLines = t.parties.map(function(p){
+      return '<div style="font-size:13.5px;font-weight:700;color:var(--fb);text-align:right;line-height:1.4">' + p.label + '</div>';
     }).join('');
-    if (t.deadline) {
-      partyHtml += '<div class="tk-deadline-badge">' + t.deadline + '</div>';
+
+    // Tier/deadline — muted smaller text below party, matching EL date meta
+    var tierColor = tierColors[t.tier] || 'var(--muted)';
+    var tierText  = t.tier === 'reference' ? 'Reference' : (t.deadline || tierLabels[t.tier] || '');
+    var tierLine  = '<div style="font-size:12px;color:' + tierColor + ';text-align:right;margin-top:2px;font-weight:' + (t.tier==='monthend'?'700':'400') + '">' + tierText + '</div>';
+
+    // Hint text
+    var hintHtml = '';
+    if (t.tier !== 'reference' && !done) {
+      hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Check this box when complete for today.</div>';
+    } else if (done) {
+      hintHtml = '<div style="font-size:12px;color:var(--green);font-style:italic;margin-top:3px">✓ Marked complete — resets ' + (t.tier==='daily'?'tomorrow':t.tier==='weekly'?'next week':'next month') + '.</div>';
     }
-    var tierStyle = tierColors[t.tier] || tierColors.reference;
-    var tierBadge = '<span style="display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:' + tierStyle + ';border:1px solid;margin-left:8px;vertical-align:middle">' + (tierLabels[t.tier]||'') + '</span>';
-    html += '<div class="tk-task-row' + (done?' step-locked':'') + '">' +
-      '<div class="task-chk' + (done?' checked':'') + ' ' + (t.tier==='reference'?'readonly':'') + '" ' +
-        (t.tier!=='reference' ? 'data-tk-id="'+t.id+'"':'') +
-        ' style="flex-shrink:0;margin-top:1px">' +
-        '<span class="chk-mark">✓</span>' +
-      '</div>' +
-      '<div class="tk-task-body">' +
-        '<div class="tk-task-title' + (done?' done':'') + '">' + t.num + '. ' + t.title + tierBadge + '</div>' +
-        '<div class="tk-task-desc"' + (done?' style="opacity:.5"':'') + '>' + t.desc + '</div>' +
-        (t.tier!=='reference' && !done ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Check this box when complete for today.</div>' : '') +
-        (done ? '<div style="font-size:12px;color:var(--green);font-style:italic;margin-top:3px">✓ Marked complete — resets ' + (t.tier==='daily'?'tomorrow':t.tier==='weekly'?'next week':'next month') + '.</div>' : '') +
-      '</div>' +
-      '<div class="tk-task-party">' + partyHtml + '</div>' +
+
+    // 3-column grid: checkbox+body (55%) | party (25%) | tier/deadline (20%)
+    // Matches EL el-task-row grid pattern exactly
+    html +=
+      '<div class="tk-task-grid-row' + (done?' step-locked':'') + '">' +
+        // Col 1: checkbox + title + desc + hint
+        '<div style="display:flex;align-items:flex-start;gap:10px;min-width:0">' +
+          '<div class="task-chk' + (done?' checked':'') + (t.tier==='reference'?' readonly':'') + '" ' +
+            (t.tier!=='reference' ? 'data-tk-id="'+t.id+'"' : '') +
+            ' style="flex-shrink:0;margin-top:2px">' +
+            '<span class="chk-mark">✓</span>' +
+          '</div>' +
+          '<div style="min-width:0">' +
+            '<div style="font-size:14px;font-weight:700;line-height:1.4;color:' + (done?'var(--muted)':'var(--fb)') + (done?';text-decoration:line-through':'') + '">' + t.title + '</div>' +
+            '<div style="font-size:13.5px;color:var(--muted);margin-top:2px;line-height:1.4' + (done?';opacity:.5':'') + '">' + t.desc + '</div>' +
+            hintHtml +
+          '</div>' +
+        '</div>' +
+        // Col 2: responsible party label(s)
+        '<div style="padding-left:8px;padding-top:2px">' + partyLines + '</div>' +
+        // Col 3: tier / deadline
+        '<div style="padding-top:2px">' + tierLine + '</div>' +
       '</div>';
   });
 
   el.innerHTML = html;
 
-  // Wire checkboxes on T&U detail page
+  // Wire checkboxes
   el.querySelectorAll('.task-chk[data-tk-id]').forEach(function(chk) {
     chk.addEventListener('click', function() {
       var taskId = chk.getAttribute('data-tk-id');
