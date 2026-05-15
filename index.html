@@ -174,6 +174,35 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .hire-prog-fill{height:100%;background:var(--mb);border-radius:2px;transition:width .3s}
 .hire-prog-pct{font-size:14px;font-weight:800;color:var(--muted)}
 .rh-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:visible}
+/* ── TIMEKEEPING & UTILIZATION ─────────────────────────────────────────────── */
+.tk-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px}
+.tk-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.tk-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:visible;border-top:4px solid var(--mb)}
+.tk-section-tile{padding:12px 16px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .12s}
+.tk-section-tile:hover{background:var(--fb-xlt)}
+.tk-section-tile.tk-sel{background:var(--fb-lt);border-left:3px solid var(--mb);padding-left:13px}
+.tk-section-name{font-size:13.5px;font-weight:800;color:var(--fb);line-height:1.3}
+.tk-section-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.tk-section-tile.tk-sel .tk-section-name{color:var(--mb)}
+.tk-det-hdr{padding:18px 24px 14px;border-bottom:1px solid var(--border-lt)}
+.tk-det-title{font-size:19px;font-weight:900;color:var(--fb);margin-bottom:4px}
+.tk-det-def{font-size:13px;color:var(--muted);line-height:1.5}
+.tk-task-row{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border-lt)}
+.tk-task-row:last-child{border-bottom:none}
+.tk-task-row:hover{background:var(--fb-xlt)}
+.tk-task-body{flex:1;min-width:0}
+.tk-task-title{font-size:14px;font-weight:700;line-height:1.4;color:var(--fb)}
+.tk-task-desc{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
+.tk-task-party{flex-shrink:0;text-align:right;min-width:160px;padding-top:1px}
+.tk-party-chip{display:inline-block;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--fb-xlt);color:var(--mb);border:1px solid var(--border);white-space:nowrap;margin-bottom:3px;line-height:1.4}
+.tk-party-chip.chip-sup{background:#EEF7FF;color:#0057A8;border-color:#AACEF5}
+.tk-party-chip.chip-mgr{background:#EEF4FF;color:#001F5F;border-color:#C0D0F0}
+.tk-party-chip.chip-dir{background:#F0E8FF;color:#4B0090;border-color:#C8A8F0}
+.tk-party-chip.chip-emp{background:#F0FDF4;color:#166534;border-color:#86EFAC}
+.tk-party-chip.chip-all{background:#FFF7ED;color:#9A3412;border-color:#FCA974}
+.tk-party-chip.chip-rd{background:#FFF0F6;color:#9D174D;border-color:#F9A8D4}
+.tk-deadline-badge{display:inline-block;font-size:11px;font-weight:700;color:var(--muted);margin-top:4px;background:var(--surface);border:1px solid var(--border);padding:2px 8px;border-radius:999px}
+
 .det-hdr{padding:13px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .det-name-row{display:flex;align-items:baseline;gap:0;flex-wrap:nowrap;min-width:0}
 .det-name{font-size:19.2px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0}
@@ -1343,7 +1372,26 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div id="sc-travel-board"></div>
     </div>
   </div>
-  <div class="page" id="page-timekeeping"><div class="page-hdr"><span class="page-title">Timekeeping & Utilization</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="cs-title">Timekeeping & Utilization</div><div class="cs-sub">Workfront approvals, Kronos timecards, and billable-to-job reporting.</div></div></div>
+  <div class="page" id="page-timekeeping">
+    <div class="page-hdr">
+      <span class="page-title">Timekeeping &amp; Utilization</span>
+      <span class="page-sub">Kronos timekeeping, Workfront utilization, and attendance oversight</span>
+    </div>
+    <div class="rh-stats" id="tk-stats-strip"></div>
+    <div class="tk-layout">
+      <div class="tk-sidebar">
+        <div class="rh-sidebar-hdr"><span class="rh-sidebar-title">Procedure Sections</span></div>
+        <div id="tk-section-list"></div>
+      </div>
+      <div class="tk-detail" id="tk-detail">
+        <div class="sf-empty">
+          <div class="sf-empty-icon">⏱</div>
+          <div class="sf-empty-msg">Select a section</div>
+          <div class="sf-empty-sub">Choose a procedure section from the left to review its tasks and responsibilities</div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="page" id="page-teambuilding"><div class="page-hdr"><span class="page-title">Team Building & Collaboration</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="cs-title">Team Building & Collaboration</div><div class="cs-sub">Meeting cascade, recognition activity, and Managers' Minutes.</div></div></div>
   <div class="page" id="page-performance"><div class="page-hdr"><span class="page-title">Performance Management</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div class="cs-title">Performance Management</div><div class="cs-sub">Five9 QA, On-Site evaluations, annual review cycle tracking.</div></div></div>
   <div class="page" id="page-bbr"><div class="page-hdr"><span class="page-title">BBB Responses</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="cs-title">BBB Responses</div><div class="cs-sub">Better Business Bureau complaint tracking, response deadlines, and resolution status.</div></div></div>
@@ -1599,6 +1647,7 @@ function showPage(id, el) {
   if (id === 'staffing')    { initStaffing(); }
   if (id === 'scheduling')  { initScheduling(); }
   if (id === 'kpis')        { initKpis(); }
+  if (id === 'timekeeping')  { initTimekeeping(); }
   if (id === 'events')      { initEvents(); }
   if (id === 'team')        { initTeam(); }
 }
@@ -1867,6 +1916,7 @@ function setIdentity(key) {
     if (pid === 'page-offboarding') { initOffboarding(); }
     if (pid === 'page-staffing')    { initStaffing(); }
     if (pid === 'page-kpis')        { initKpis(); }
+    if (pid === 'page-timekeeping') { initTimekeeping(); }
   }
   renderNeedsAttention();
 }
@@ -5313,6 +5363,173 @@ function initKpis() {
   renderKpiSidebar();
   renderKpiDetail();
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TIMEKEEPING & UTILIZATION WORKSPACE
+// ═══════════════════════════════════════════════════════════════════════════
+
+var TK_SECTIONS = [
+  {
+    id: 'kronos',
+    name: 'Kronos Timekeeping',
+    sub: '7 procedures · Daily through weekly',
+    def: 'Accurate timekeeping in Kronos ensures team members are paid correctly and event labor is tracked to the right job number. Supervisors and Managers own the daily monitoring and weekly approval cycle.',
+    docUrl: 'https://freemanco.sharepoint.com/teams/Finance-Accounting/SitePages/Kronos-Resources.aspx',
+    tasks: [
+      { id:'k1', num:1, title:'Monitor daily time entries',
+        desc:'Check punches in My Timecard daily for missing entries, late clock-ins, or incorrect locations. Contact employees immediately for clarification and record adjustments as needed.',
+        parties:[{label:'Supervisor / Manager', cls:'chip-sup'}], deadline:'Daily — end of workday' },
+      { id:'k2', num:2, title:'Add job number to punches',
+        desc:'Use the Transfer → Search function to locate the correct event job number under WBS-IO, select the event, then choose 002-000 Exhibitor Services under Task/Sub-Task and click Apply. If working for another branch, include the branch and job number in a comment.',
+        parties:[{label:'Supervisor / Manager', cls:'chip-sup'}], deadline:null },
+      { id:'k3', num:3, title:'Correct missed or inaccurate punches',
+        desc:'If a punch is missing or incorrect, the employee notifies their Supervisor or Manager. The leader confirms details and updates Kronos, adding a \u201cZ-Other\u201d comment noting the correction (e.g., missed punch, wrong job, system glitch).',
+        parties:[{label:'Employee', cls:'chip-emp'},{label:'Supervisor / Manager', cls:'chip-sup'}], deadline:null },
+      { id:'k4', num:4, title:'Manage time-off requests',
+        desc:'Review requests within 2 business days. Approve if coverage allows; deny only when necessary and communicate reasons clearly. Use comments for transparency.',
+        parties:[{label:'Supervisor / Manager', cls:'chip-sup'}], deadline:'Within 2 business days' },
+      { id:'k5', num:5, title:'Approve timecards weekly',
+        desc:'Verify all timecards for accuracy, ensuring hours align with schedules and events. Comments should be entered for all edits or anomalies. Ensure compliance with company policies regarding overtime, leave, and shift differentials. See the ES Handbook compensation page for additional details.',
+        parties:[{label:'Supervisor / Manager', cls:'chip-sup'},{label:'Director', cls:'chip-dir'}], deadline:'Monday 12:00 pm CST' },
+      { id:'k6', num:6, title:'Ensure payroll readiness',
+        desc:'Confirm that all timecards are approved by the deadline. Incomplete or inaccurate approvals can delay payroll. Escalate unresolved issues to Regional Directors as needed.',
+        parties:[{label:'Manager / Director', cls:'chip-mgr'}], deadline:'Monday 12:00 pm CST' },
+      { id:'k7', num:7, title:'Collaborate with Kronos administrators (as needed)',
+        desc:'Reach out to the ES Administrator or CX Executive Assistant for support when: the timecard has already been approved, the time is marked in purple and cannot be edited, or when adding part-time PTO/sick time.',
+        parties:[{label:'Manager / Director', cls:'chip-mgr'}], deadline:'As needed' }
+    ]
+  },
+  {
+    id: 'workfront',
+    name: 'Workfront Utilization',
+    sub: '5 procedures · Weekly through monthly',
+    def: 'Workfront tracks how time is allocated across projects and events. Salaried employees log daily time allocation; leaders review and approve weekly. Utilization trends inform staffing decisions.',
+    docUrl: 'https://freemanco.sharepoint.com/teams/Workfront564/SitePages/Home_Page.aspx',
+    tasks: [
+      { id:'wf1', num:1, title:'Record daily time allocation',
+        desc:'Enter time in 15-minute (.25 hour) increments throughout the day to reflect actual work. Include explanatory comments when charging time to a \u201cgeneral\u201d task.',
+        parties:[{label:'Employee', cls:'chip-emp'}], deadline:'Daily — throughout the day' },
+      { id:'wf2', num:2, title:'Submit weekly timesheet',
+        desc:'All Workfront timesheets must be submitted by Monday 8:00 a.m. local time for the previous week.',
+        parties:[{label:'Employee', cls:'chip-emp'}], deadline:'Monday 8:00 am local time' },
+      { id:'wf3', num:3, title:'Review and approve timesheets',
+        desc:'Ensure entries reflect actual work performed, verify comments for \u201cgeneral\u201d tasks, and confirm that hours align reasonably with Kronos. Approvals must be completed by Tuesday 12:00 p.m. local time.',
+        parties:[{label:'Supervisor / Manager', cls:'chip-sup'},{label:'Director', cls:'chip-dir'}], deadline:'Tuesday 12:00 pm local time' },
+      { id:'wf4', num:4, title:'Monitor utilization trends',
+        desc:'Use Workfront and Kronos reports to review weekly or biweekly utilization. Identify underused or overextended staff, address workload imbalances, and share findings with Regional Directors or Business Operations.',
+        parties:[{label:'Manager / Director', cls:'chip-mgr'}], deadline:'Weekly or biweekly' },
+      { id:'wf5', num:5, title:'Manage month-end closures',
+        desc:'Timesheets for the prior month close on the 2nd business day of the new month. Approve any split-week timesheets before closure — reopening is not permitted. Monitor month-end reminder emails for compliance.',
+        parties:[{label:'Manager / Director', cls:'chip-mgr'}], deadline:'2nd business day of new month' }
+    ]
+  },
+  {
+    id: 'attendance',
+    name: 'Attendance & Scheduling Oversight',
+    sub: '2 procedures · Ongoing',
+    def: 'Leaders monitor attendance patterns and support flexible scheduling. Repeated issues are addressed through coaching or with HR Business Partner support.',
+    docUrl: null,
+    tasks: [
+      { id:'at1', num:1, title:'Ensure attendance compliance',
+        desc:'Monitor trends in tardiness, absences, or missed punches. Address repeated issues through coaching or with support from Exhibitor Services\u2019 HR Business Partner.',
+        parties:[{label:'Manager / Director', cls:'chip-mgr'}], deadline:'Ongoing' },
+      { id:'at2', num:2, title:'Support flexible scheduling',
+        desc:'Work with employees to manage schedule changes, ensuring coverage and fairness. Reinforce the importance of advance communication and honoring assigned days off.',
+        parties:[{label:'Supervisor / Manager', cls:'chip-sup'},{label:'Director', cls:'chip-dir'}], deadline:'Ongoing' }
+    ]
+  },
+  {
+    id: 'compliance',
+    name: 'Compliance & Accountability',
+    sub: '3 procedures · Ongoing',
+    def: 'All leaders are responsible for maintaining integrity in the timekeeping process. Non-compliance is escalated to the HR Business Partner or Regional Directors.',
+    docUrl: null,
+    tasks: [
+      { id:'ca1', num:1, title:'Maintain integrity and confidentiality',
+        desc:'Never approve hours you cannot verify. Do not share login credentials or approve time on behalf of another leader unless officially delegated.',
+        parties:[{label:'All Leaders', cls:'chip-all'}], deadline:'Always' },
+      { id:'ca2', num:2, title:'Escalate non-compliance',
+        desc:'Report repeated missed submissions or timekeeping violations to the HR Business Partner or Regional Directors for follow-up.',
+        parties:[{label:'Manager / Director', cls:'chip-mgr'}], deadline:'As needed' },
+      { id:'ca3', num:3, title:'Audit and reinforce accountability',
+        desc:'Confirm completion of weekly approvals across assigned branches and follow up with leaders who miss deadlines.',
+        parties:[{label:'Regional Director', cls:'chip-rd'}], deadline:'Weekly' }
+    ]
+  }
+];
+
+var tkSelId = null;
+
+function initTimekeeping() {
+  tkRenderStats();
+  tkRenderSidebar();
+  if (!tkSelId && TK_SECTIONS.length) { tkSelId = TK_SECTIONS[0].id; }
+  tkRenderDetail();
+}
+
+function tkRenderStats() {
+  var strip = document.getElementById('tk-stats-strip');
+  if (!strip) return;
+  var totalTasks = TK_SECTIONS.reduce(function(sum, s){ return sum + s.tasks.length; }, 0);
+  strip.innerHTML =
+    '<div class="rh-stat"><div class="rh-stat-lbl">Procedure Sections</div><div class="rh-stat-val">' + TK_SECTIONS.length + '</div><div class="rh-stat-sub">Kronos, Workfront &amp; more</div></div>' +
+    '<div class="rh-stat"><div class="rh-stat-lbl">Total Procedures</div><div class="rh-stat-val">' + totalTasks + '</div><div class="rh-stat-sub">Across all sections</div></div>' +
+    '<div class="rh-stat"><div class="rh-stat-lbl">Kronos Deadline</div><div class="rh-stat-val" style="font-size:18px">Mon 12p CST</div><div class="rh-stat-sub">Weekly timecard approval</div></div>' +
+    '<div class="rh-stat"><div class="rh-stat-lbl">Workfront Deadline</div><div class="rh-stat-val" style="font-size:18px">Tue 12p local</div><div class="rh-stat-sub">Weekly timesheet approval</div></div>';
+}
+
+function tkRenderSidebar() {
+  var el = document.getElementById('tk-section-list');
+  if (!el) return;
+  var html = '';
+  TK_SECTIONS.forEach(function(sec) {
+    var sel = sec.id === tkSelId ? ' tk-sel' : '';
+    html += '<div class="tk-section-tile' + sel + '" onclick="tkSelId=\'' + sec.id + '\';tkRenderSidebar();tkRenderDetail()">' +
+      '<div class="tk-section-name">' + sec.name + '</div>' +
+      '<div class="tk-section-sub">' + sec.sub + '</div>' +
+      '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function tkRenderDetail() {
+  var el = document.getElementById('tk-detail');
+  if (!el) return;
+  var sec = TK_SECTIONS.find(function(s){ return s.id === tkSelId; });
+  if (!sec) return;
+
+  var html = '<div class="tk-det-hdr" style="position:relative;min-height:90px;box-sizing:border-box;padding:18px 24px 14px;border-bottom:1px solid var(--border-lt)">' +
+    '<div class="tk-det-title" style="max-width:calc(100% - 200px)">' + sec.name + '</div>' +
+    '<div class="tk-det-def" style="max-width:calc(100% - 200px)">' + sec.def + '</div>' +
+    (sec.docUrl ? '<a href="' + sec.docUrl + '" target="_blank" rel="noopener" style="position:absolute;top:18px;right:24px;display:inline-flex;align-items:center;gap:6px;background:#EEF7FF;color:#0057B8;border:1px solid #AACEF5;border-radius:999px;font-size:12px;font-weight:800;padding:5px 13px;text-decoration:none;white-space:nowrap" onmouseover="this.style.background=\'#D9EEFF\'" onmouseout="this.style.background=\'#EEF7FF\'"><svg width=\"13\" height=\"13\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-3\" stroke=\"#0057B8\" stroke-width=\"1.5\" stroke-linecap=\"round\"/><path d=\"M9 2h5v5M14 2L8 8\" stroke=\"#0057B8\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>System Documentation</a>' : '') +
+    '</div>';
+
+  html += '<div style="display:flex;align-items:center;padding:7px 16px;border-bottom:2px solid var(--border-lt);background:var(--surface)">' +
+    '<div style="width:20px;flex-shrink:0"></div>' +
+    '<div style="flex:1;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-left:10px">Procedure</div>' +
+    '<div style="width:172px;flex-shrink:0;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);text-align:right">Responsible Party</div>' +
+    '</div>';
+
+  sec.tasks.forEach(function(t) {
+    var partyHtml = t.parties.map(function(p){
+      return '<div class="tk-party-chip ' + p.cls + '">' + p.label + '</div>';
+    }).join('');
+    if (t.deadline) {
+      partyHtml += '<div class="tk-deadline-badge">' + t.deadline + '</div>';
+    }
+    html += '<div class="tk-task-row">' +
+      '<div style="width:20px;height:20px;border-radius:50%;background:var(--fb);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">' + t.num + '</div>' +
+      '<div class="tk-task-body">' +
+        '<div class="tk-task-title">' + t.title + '</div>' +
+        '<div class="tk-task-desc">' + t.desc + '</div>' +
+      '</div>' +
+      '<div class="tk-task-party">' + partyHtml + '</div>' +
+      '</div>';
+  });
+
+  el.innerHTML = html;
+}
+
 
 document.addEventListener('DOMContentLoaded', function() {
   storageLoadAll(); // Restore persisted state before rendering anything
