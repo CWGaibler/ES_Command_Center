@@ -81,6 +81,11 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 /* KPI Workspace */
 .kpi-workspace{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 140px);gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .kpi-sidebar{border-right:1px solid var(--border);overflow-y:auto;background:var(--white)}
+.kpi-layout{display:grid;grid-template-columns:calc((100% - 10px) / 4) 1fr;gap:10px;height:calc(100vh - 130px);min-height:320px}
+.kpi-sidebar-panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto}
+.kpi-sidebar-hdr{padding:9px 13px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center}
+.kpi-sidebar-title{font-size:12px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.kpi-detail-panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto}
 .kpi-detail{overflow-y:auto;background:var(--white)}
 .kpi-sidebar-card{padding:14px 16px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .12s}
 .kpi-sidebar-card:hover{background:var(--fb-xlt)}
@@ -1141,10 +1146,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <span class="page-title">Today's Priorities</span>
       <span class="page-sub" id="today-date"></span>
     </div>
-    <div class="kpi-strip" id="kpi-strip">
-      <!-- Populated by renderKpiStrip() -->
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;height:calc(100vh - 280px);min-height:320px">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;height:calc(100vh - 180px);min-height:320px">
       <div style="display:flex;flex-direction:column;min-height:0">
         <div class="el-section-div">Active Events</div>
         <div class="panel" style="flex:1;min-height:0">
@@ -1363,58 +1365,16 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="page" id="page-kpis">
     <div class="page-hdr">
       <span class="page-title">KPIs</span>
-      <span class="page-sub">Look up any Key Performance Indicator by name</span>
+      <span class="page-sub" id="kpis-sub">FY26 Key Performance Indicators</span>
     </div>
-    <div class="kpi-search-row" id="kpi-search-row">
-      <div class="kpi-dropdown-box" id="kpi-dropdown-box" onclick="kpiToggleDrop()">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--muted)" stroke-width="1.5" style="flex-shrink:0"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
-        <span class="kpi-dd-label" id="kpi-dd-label">Select a KPI...</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" id="kpi-dd-chevron" class="kpi-dd-chevron"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
-      <div class="el-search-dropdown" id="kpi-dd-menu">
-        <div class="el-dd-item" onclick="kpiPickKpi('css')"><div class="el-dd-name">ES Customer Service Score</div><div class="el-dd-meta">Goal: 90% &middot; All ES Teams &middot; On Track</div></div>
-        <div class="el-dd-item" onclick="kpiPickKpi('nps')"><div class="el-dd-name">Post-Show Exhibitor NPS</div><div class="el-dd-meta">Goal: 55 &middot; All ES Teams &middot; On Track</div></div>
-        <div class="el-dd-item" onclick="kpiPickKpi('collections')"><div class="el-dd-name">Collections Percentage</div><div class="el-dd-meta">Goal: 82% &middot; All ES Teams &middot; Near Goal</div></div>
-        <div class="el-dd-item" onclick="kpiPickKpi('per')"><div class="el-dd-name">Priority Empty Return Sales</div><div class="el-dd-meta">Goal: $65K &middot; All ES Teams &middot; Below Goal</div></div>
-        <div class="el-dd-item" onclick="kpiPickKpi('invoicing')"><div class="el-dd-name">Invoice Timing</div><div class="el-dd-meta">Goal: 95% &middot; All ES Teams &middot; On Track</div></div>
-        <div class="el-dd-item" onclick="kpiPickKpi('feedback')"><div class="el-dd-name">ES Post-Show Feedback</div><div class="el-dd-meta">Goal: 85% &middot; On-Site ES Teams &middot; On Track</div></div>
-        <div class="el-dd-item" onclick="kpiPickKpi('emailq')"><div class="el-dd-name">ES Email Queue Time</div><div class="el-dd-meta">Goal: 3.0 hrs &middot; Off-Site ES Team &middot; Near Goal</div></div>
-        <div class="el-dd-item" onclick="kpiPickKpi('emailh')"><div class="el-dd-name">ES Email Handle Time</div><div class="el-dd-meta">Goal: 15 min &middot; Off-Site ES Team &middot; On Track</div></div>
-        <div class="el-dd-item" onclick="kpiPickKpi('training')"><div class="el-dd-name">Training Completion</div><div class="el-dd-meta">Goal: 90% &middot; All ES Teams &middot; On Track</div></div>
-      </div>
-    </div>
-    <div id="kpi-lens-detail" style="display:none">
-      <div class="kpi-id-hdr">
-        <div class="kpi-id-bar"></div>
-        <div class="kpi-id-inner" id="kpi-id-inner">
-          <div id="kpi-icon-slot" style="width:136px;height:136px;border-radius:50%;flex-shrink:0;overflow:hidden;background-color:var(--surface);background-size:cover;background-position:center center;background-repeat:no-repeat"></div>
-          <div style="flex:1;min-width:0">
-            <div class="tl-id-name" id="kpi-lens-name"></div>
-            <div class="tl-id-title" id="kpi-lens-val"></div>
-            <div class="tl-id-chips" id="kpi-lens-chips"></div>
-          </div>
+    <div class="kpi-layout">
+      <div class="kpi-sidebar-panel">
+        <div class="kpi-sidebar-hdr">
+          <span class="kpi-sidebar-title">FY26 KPIs</span>
         </div>
+        <div id="kpi-sidebar"></div>
       </div>
-      <div id="kpi-lens-breakdown" style="display:none">
-        <div class="el-section-div">Regional Breakdown</div>
-        <div class="tl-card-full">
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="kpi-lens-grid"></div>
-        </div>
-      </div>
-      <div>
-        <div class="el-section-div">Historical Trend</div>
-        <div class="tl-card-full" style="margin-bottom:0">
-        <div class="tl-not-connected">
-          <div class="tl-nc-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
-          <div><div class="tl-nc-title">Not yet connected</div><div class="tl-nc-sub">Monthly trend data &mdash; requires live data source integration</div></div>
-        </div>
-        </div>
-      </div>
-    </div>
-    <div id="kpi-lens-empty" class="el-empty">
-      <div class="el-empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-      <div class="el-empty-msg">Select a KPI to view details</div>
-      <div class="el-empty-sub">Choose a metric from the dropdown above to explore year-to-date results and scope breakdowns</div>
+      <div class="kpi-detail-panel" id="kpi-detail"></div>
     </div>
   </div>
   <div class="page" id="page-team">
@@ -1621,7 +1581,7 @@ function showPage(id, el) {
   if (el) el.classList.add('active');
   // Reset stale selections before rendering the new page
   resetWorkspaceState();
-  if (id === 'today')       { renderKpiStrip(); renderActiveEvents(); renderNeedsAttention(); }
+  if (id === 'today')       { renderActiveEvents(); renderNeedsAttention(); }
   if (id === 'recruiting')  { initRecruiting(); }
   if (id === 'onboarding')  { initOnboarding(); }
   if (id === 'transitions') { initTransitions(); }
@@ -1731,9 +1691,6 @@ function onScopeDropdownChange() {
 }
 
 function onScopeChanged() {
-  // Always re-render KPI strip (visible on Today's Priorities)
-  renderKpiStrip();
-
   var activePage = document.querySelector('.page.active');
   if (!activePage) return;
   var pid = activePage.id;
@@ -1893,7 +1850,7 @@ function setIdentity(key) {
   var activePage = document.querySelector('.page.active');
   if (activePage) {
     var pid = activePage.id;
-    if (pid === 'page-today')       { renderKpiStrip(); renderActiveEvents(); renderNeedsAttention(); }
+    if (pid === 'page-today')       { renderActiveEvents(); renderNeedsAttention(); }
     if (pid === 'page-recruiting')  { initRecruiting(); }
     if (pid === 'page-onboarding')  { initOnboarding(); }
     if (pid === 'page-transitions') { initTransitions(); }
@@ -4973,7 +4930,6 @@ function kpiCardClick(id) {
       }
     });
   }
-  renderKpiStrip();
   renderKpiSidebar();
   renderKpiDetail();
 }
@@ -4981,19 +4937,21 @@ function kpiCardClick(id) {
 function renderKpiSidebar() {
   var el = document.getElementById('kpi-sidebar');
   if (!el) return;
-  var html = '<div style="padding:10px 14px 6px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">FY26 KPIs</div>';
+  var html = '';
   KPI_DATA.forEach(function(kpi) {
     var val = getKpiScopeValue(kpi);
     var status = kpiStatus(kpi, val);
     var color = kpiColor(status);
     var barPct = kpiBarPct(kpi, val);
     var sel = kpi.id === kpiSelId ? ' kpi-sel' : '';
-    html += '<div class="kpi-sidebar-card' + sel + '" onclick="kpiSelId=\'' + kpi.id + '\';renderKpiSidebar();renderKpiDetail();renderKpiStrip()">' +
+    html += '<div class="kpi-sidebar-card' + sel + '" onclick="kpiSelId=\'' + kpi.id + '\';renderKpiSidebar();renderKpiDetail()">' +
       '<div class="kscard-name">' + kpi.fullName + '</div>' +
-      '<div class="kscard-row" style="margin-bottom:5px">' +
+      '<div class="kscard-row">' +
         '<div class="kscard-val" style="color:' + color + '">' + kpiFmt(kpi, val) + '</div>' +
+        '<div style="font-size:11px;font-weight:700;color:' + color + ';text-align:right">' + (status === 'green' ? '✓ On Track' : status === 'amber' ? '⚠ Near Goal' : '↓ Below Goal') + '</div>' +
       '</div>' +
-      kpiChipHtml(kpi, status) +
+      '<div class="kscard-bar"><div class="kscard-fill" style="width:' + barPct + '%;background:' + color + '"></div></div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:5px">Goal: ' + kpi.goal + '</div>' +
       '</div>';
   });
   el.innerHTML = html;
@@ -5089,7 +5047,6 @@ document.addEventListener('DOMContentLoaded', function() {
   var firstNav = document.querySelector('.nav-item');
   if(firstNav) showPage('today', firstNav);
   renderNeedsAttention();
-  renderKpiStrip();
 });
 
 
