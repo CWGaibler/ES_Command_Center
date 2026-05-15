@@ -98,9 +98,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kscard-bar{height:4px;background:var(--border-lt);border-radius:2px;margin-top:6px}
 .kscard-fill{height:100%;border-radius:2px}
 /* KPI Detail Panel */
-.kpi-det-hdr{padding:20px 24px 16px;border-bottom:1px solid var(--border-lt)}
+.kpi-det-hdr{padding:20px 24px 16px;border-bottom:1px solid var(--border-lt);min-height:110px;box-sizing:border-box}
 .kpi-det-title{font-size:20px;font-weight:900;color:var(--fb);margin-bottom:3px}
-.kpi-det-def{font-size:13px;color:var(--muted);line-height:1.5}
+.kpi-det-def{font-size:13px;color:var(--muted);line-height:1.5;max-width:calc(100% - 180px)}
 .kpi-det-score-row{display:flex;gap:24px;padding:20px 24px;border-bottom:1px solid var(--border-lt);align-items:flex-start}
 .kpi-det-score-box{text-align:center;padding:16px 24px;border-radius:12px;min-width:120px}
 .kpi-det-score-num{font-size:48px;font-weight:900;line-height:1}
@@ -5148,7 +5148,7 @@ function renderKpiDetail() {
   html += '<div class="kpi-det-hdr" style="position:relative">' +
     '<div class="kpi-det-title">' + kpi.fullName + '</div>' +
     '<div class="kpi-det-def">' + kpi.def + '</div>' +
-    (kpi.docUrl ? '<a href="' + kpi.docUrl + '" target="_blank" rel="noopener" style="position:absolute;top:0;right:0;display:inline-flex;align-items:center;gap:6px;background:#EEF7FF;color:#0057B8;border:1px solid #AACEF5;border-radius:999px;font-size:12px;font-weight:800;padding:5px 13px;text-decoration:none;letter-spacing:.01em;white-space:nowrap;transition:background .15s" onmouseover="this.style.background=\'#D9EEFF\'" onmouseout="this.style.background=\'#EEF7FF\'"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-3" stroke="#0057B8" stroke-width="1.5" stroke-linecap="round"/><path d="M9 2h5v5M14 2L8 8" stroke="#0057B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>KPI Documentation</a>' : '') +
+    (kpi.docUrl ? '<a href="' + kpi.docUrl + '" target="_blank" rel="noopener" style="position:absolute;top:20px;right:24px;display:inline-flex;align-items:center;gap:6px;background:#EEF7FF;color:#0057B8;border:1px solid #AACEF5;border-radius:999px;font-size:12px;font-weight:800;padding:5px 13px;text-decoration:none;letter-spacing:.01em;white-space:nowrap;transition:background .15s" onmouseover="this.style.background=\'#D9EEFF\'" onmouseout="this.style.background=\'#EEF7FF\'"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-3" stroke="#0057B8" stroke-width="1.5" stroke-linecap="round"/><path d="M9 2h5v5M14 2L8 8" stroke="#0057B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>KPI Documentation</a>' : '') +
     '</div>';
 
   // Score row
