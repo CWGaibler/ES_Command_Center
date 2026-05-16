@@ -94,7 +94,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-sidebar-card.kpi-sel .kscard-name{color:var(--mb)}
 .kscard-name{font-size:14.4px;font-weight:700;color:var(--fb);margin-bottom:1px}
 .kscard-row{display:flex;align-items:center;justify-content:space-between;margin-top:1px}
-.kscard-val{font-size:13.5px;font-weight:700;color:var(--muted)}
+.kscard-val{font-size:20px;font-weight:900;line-height:1;color:var(--muted)}
 .kscard-goal{font-size:13.5px;color:var(--muted)}
 .kscard-bar{height:4px;background:var(--border-lt);border-radius:2px;margin-top:5px}
 .kscard-fill{height:100%;border-radius:2px}
@@ -5479,7 +5479,7 @@ function renderKpiSidebar() {
     html += '<div class="kpi-sidebar-card' + sel + '" onclick="kpiSelId=\'' + kpi.id + '\';renderKpiSidebar();renderKpiDetail()">' +
       '<div class="kscard-name">' + kpi.fullName + '</div>' +
       '<div class="kscard-row">' +
-        '<div class="kscard-val" style="color:var(--fb)">' + kpiFmt(kpi, val) + '</div>' +
+        '<div class="kscard-val">' + kpiFmt(kpi, val) + '</div>' +
         '<div style="font-size:13.5px;font-weight:700;color:' + color + ';text-align:right">' + kpiStatusLabel(status) + '</div>' +
       '</div>' +
       '<div style="font-size:13.5px;color:var(--muted);margin-top:1px">Goal: ' + kpi.goal + '</div>' +
