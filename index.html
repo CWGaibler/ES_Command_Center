@@ -3784,8 +3784,8 @@ function renderSfStats() {
   });
   strip.innerHTML =
     "<div class=\"rh-stat\"><div class=\"rh-stat-lbl\">Total Shows</div><div class=\"rh-stat-val\">" + total + "</div><div class=\"rh-stat-sub\">in scope</div></div>" +
-    "<div class=\"rh-stat\"><div class=\"rh-stat-lbl\">Unstaffed</div><div class=\"rh-stat-val\" style=\"color:var(--orange)\">" + unstaffed + "</div><div class=\"rh-stat-sub\">need a plan</div></div>" +
-    "<div class=\"rh-stat\"><div class=\"rh-stat-lbl\">Confirmed</div><div class=\"rh-stat-val\" style=\"color:var(--green)\">" + confirmed + "</div><div class=\"rh-stat-sub\">plans locked</div></div>" +
+    "<div class=\"rh-stat\"><div class=\"rh-stat-lbl\">Unstaffed</div><div class=\"rh-stat-val\">" + unstaffed + "</div><div class=\"rh-stat-sub\">need a plan</div></div>" +
+    "<div class=\"rh-stat\"><div class=\"rh-stat-lbl\">Confirmed</div><div class=\"rh-stat-val\">" + confirmed + "</div><div class=\"rh-stat-sub\">plans locked</div></div>" +
     "<div class=\"rh-stat\"><div class=\"rh-stat-lbl\">Confirmed Reps</div><div class=\"rh-stat-val\">" + totalReps + "</div><div class=\"rh-stat-sub\">ES reps planned</div></div>";
 }
 
@@ -8082,9 +8082,9 @@ function scUpdateStats() {
   }).length;
   strip.innerHTML =
     '<div class="rh-stat"><div class="rh-stat-lbl">Staffed Shows</div><div class="rh-stat-val">' + total + '</div><div class="rh-stat-sub">ready to schedule</div></div>' +
-    '<div class="rh-stat"><div class="rh-stat-lbl">Needs Scheduling</div><div class="rh-stat-val" style="color:var(--orange)">' + needsScheduling + '</div><div class="rh-stat-sub">no schedule yet</div></div>' +
-    '<div class="rh-stat"><div class="rh-stat-lbl">Traveler(s) Pending</div><div class="rh-stat-val" style="color:var(--gold)">' + travelersPending + '</div><div class="rh-stat-sub">open travel needs</div></div>' +
-    '<div class="rh-stat"><div class="rh-stat-lbl">Fully Scheduled</div><div class="rh-stat-val" style="color:var(--green)">' + fullyScheduled + '</div><div class="rh-stat-sub">confirmed</div></div>';
+    '<div class="rh-stat"><div class="rh-stat-lbl">Needs Scheduling</div><div class="rh-stat-val">' + needsScheduling + '</div><div class="rh-stat-sub">no schedule yet</div></div>' +
+    '<div class="rh-stat"><div class="rh-stat-lbl">Traveler(s) Pending</div><div class="rh-stat-val">' + travelersPending + '</div><div class="rh-stat-sub">open travel needs</div></div>' +
+    '<div class="rh-stat"><div class="rh-stat-lbl">Fully Scheduled</div><div class="rh-stat-val">' + fullyScheduled + '</div><div class="rh-stat-sub">confirmed</div></div>';
 }
 
 function initScheduling() {
