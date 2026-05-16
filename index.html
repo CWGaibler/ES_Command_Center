@@ -62,7 +62,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .main{flex:1;overflow:visible;padding:22px;display:flex;flex-direction:column;gap:14px}
 .page{display:none}
 .page.active{display:flex;flex-direction:column;flex:1;min-height:0}
-.page.active.page-lens{display:block;flex:1;min-height:0;overflow-y:auto}
+.page.active.page-lens{display:flex;flex-direction:column;flex:1;min-height:0}
+.lens-sticky{flex-shrink:0;padding:0 0 12px;border-bottom:1px solid var(--border-lt);margin-bottom:14px}
+.lens-scroll{flex:1;min-height:0;overflow-y:auto;padding-bottom:22px}
 .page-hdr{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
 .page-title{font-size:21.6px;font-weight:800}
 .page-sub{font-size:14px;color:var(--muted)}
@@ -654,7 +656,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .el-empty-icon{font-size:32px;margin-bottom:12px}
 .el-empty-msg{font-size:15px;font-weight:800;color:var(--fb);margin-bottom:6px}
 .el-empty-sub{font-size:13px;color:var(--muted)}
-.el-id-card{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:14px}.el-id-card-bar{height:4px;background:#00BDF6;border-radius:9px 9px 0 0;margin:-1px -1px 0 -1px}.el-id-card-body{padding:22px 24px}.el-id-card-chips{padding:0 22px 14px;display:flex;flex-wrap:wrap;gap:4px}.el-show-title{font-size:21.6px;font-weight:800;color:var(--fb);margin-bottom:2px}
+.el-id-card{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:0}.el-id-card-bar{height:4px;background:#00BDF6;border-radius:9px 9px 0 0;margin:-1px -1px 0 -1px}.el-id-card-body{padding:22px 24px}.el-id-card-chips{padding:0 22px 14px;display:flex;flex-wrap:wrap;gap:4px}.el-show-title{font-size:21.6px;font-weight:800;color:var(--fb);margin-bottom:2px}
 .el-show-meta{font-size:13.5px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px}
 .el-show-meta span{display:flex;align-items:center;gap:4px}
 .el-flags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
@@ -790,7 +792,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 
 /* ── TEAM LENS ─────────────────────────────────────────────────────────── */
 /* tl-workspace sidebar styles removed — Team Lens now uses Events Lens layout */
-.tl-id-hdr{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden}.tl-id-hdr-bar{height:4px;background:#00BDF6;border-radius:10px 10px 0 0}.tl-id-hdr-inner{display:flex;gap:24px;align-items:center;padding:22px 24px}
+.tl-id-hdr{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:0;overflow:hidden}.tl-id-hdr-bar{height:4px;background:#00BDF6;border-radius:10px 10px 0 0}.tl-id-hdr-inner{display:flex;gap:24px;align-items:center;padding:22px 24px}
 .tl-photo{width:136px;height:136px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:800;overflow:hidden}
 .tl-photo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .tl-photo-placeholder{width:136px;height:136px;border-radius:50%;flex-shrink:0;border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;background:var(--surface);overflow:hidden;padding:0}
@@ -1479,18 +1481,21 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="page" id="page-servicerequests"><div class="page-hdr"><span class="page-title">Service Requests</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div><div class="cs-title">Service Requests</div><div class="cs-sub">Open service request queue, escalation flags, and resolution tracking by event and branch.</div></div></div>
   <div class="page" id="page-career"><div class="page-hdr"><span class="page-title">Career Development</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div><div class="cs-title">Career Development</div><div class="cs-sub">IDP status, development conversations, and live training completion.</div></div></div>
   <div class="page page-lens" id="page-events">
-    <div class="page-hdr">
-      <span class="page-title">Events</span>
-      <span class="page-sub">Look up any show by job number</span>
-    </div>
-    <div class="el-search-row">
-      <div class="el-search-box">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--muted)" stroke-width="1.5" style="flex-shrink:0"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
-        <input id="el-search-input" type="text" placeholder="Search by show name or job number..." autocomplete="off" spellcheck="false" oninput="elSearchInput(this.value)" />
-        <div id="el-search-results" class="el-search-dropdown"></div>
+    <div class="lens-sticky">
+      <div class="page-hdr">
+        <span class="page-title">Events</span>
+        <span class="page-sub">Look up any show by job number</span>
       </div>
+      <div class="el-search-row">
+        <div class="el-search-box">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--muted)" stroke-width="1.5" style="flex-shrink:0"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+          <input id="el-search-input" type="text" placeholder="Search by show name or job number..." autocomplete="off" spellcheck="false" oninput="elSearchInput(this.value)" />
+          <div id="el-search-results" class="el-search-dropdown"></div>
+        </div>
+      </div>
+      <div id="el-id-anchor"></div>
     </div>
-    <div id="el-content" style="padding-bottom:22px">
+    <div class="lens-scroll" id="el-content">
       <div class="el-empty">
         <div class="el-empty-icon">🗓</div>
         <div class="el-empty-msg">Select a show to view its event profile</div>
@@ -1517,18 +1522,21 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     </div>
   </div>
   <div class="page page-lens" id="page-team">
-    <div class="page-hdr">
-      <span class="page-title">Team Members</span>
-      <span class="page-sub">Look up any team member by name</span>
-    </div>
-    <div class="el-search-row">
-      <div class="el-search-box">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--muted)" stroke-width="1.5" style="flex-shrink:0"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
-        <input id="tl-search-input" type="text" placeholder="Search by name..." autocomplete="off" spellcheck="false" oninput="tlSearchInput(this.value)" />
-        <div id="tl-search-results" class="el-search-dropdown"></div>
+    <div class="lens-sticky">
+      <div class="page-hdr">
+        <span class="page-title">Team Members</span>
+        <span class="page-sub">Look up any team member by name</span>
       </div>
+      <div class="el-search-row">
+        <div class="el-search-box">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--muted)" stroke-width="1.5" style="flex-shrink:0"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+          <input id="tl-search-input" type="text" placeholder="Search by name..." autocomplete="off" spellcheck="false" oninput="tlSearchInput(this.value)" />
+          <div id="tl-search-results" class="el-search-dropdown"></div>
+        </div>
+      </div>
+      <div id="tl-id-anchor"></div>
     </div>
-    <div id="tl-content" style="padding-bottom:22px">
+    <div class="lens-scroll" id="tl-content">
       <div class="el-empty">
         <div class="el-empty-icon">&#128101;</div>
         <div class="el-empty-msg">Select a team member to view their profile</div>
@@ -7428,9 +7436,11 @@ function elSurveyCardHtml(showId) {
 // ======================================================
 function elRenderShow() {
   var el = document.getElementById('el-content');
+  var anchor = document.getElementById('el-id-anchor');
   if (!el) return;
   if (!elSelId || !SHOWS[elSelId]) {
     el.innerHTML = '<div class="el-empty"><div class="el-empty-icon">&#128197;</div><div class="el-empty-msg">Select a show to view its event profile</div><div class="el-empty-sub">Search by show name or job number above, or click any show in Active Events.</div></div>';
+    if (anchor) anchor.innerHTML = '';
     return;
   }
   var s = SHOWS[elSelId];
@@ -7503,6 +7513,9 @@ function elRenderShow() {
       '</div>' +
     '</div>' +
   '</div>';
+
+  if (anchor) { anchor.innerHTML = html; }
+  var html = '';
 
   // --------------------------------------------------
   // EVENT TIMELINE — unchanged
@@ -9727,10 +9740,12 @@ function tlEsc(s) {
 
 function tlRenderDetail() {
   var el = document.getElementById('tl-content');
+  var anchor = document.getElementById('tl-id-anchor');
   if (!el) return;
 
   if (!tlSelName || !PEOPLE[tlSelName]) {
     el.innerHTML = '<div class="el-empty"><div class="el-empty-icon">&#128101;</div><div class="el-empty-msg">Select a team member to view their profile</div><div class="el-empty-sub">Search by name above</div></div>';
+    if (anchor) anchor.innerHTML = '';
     return;
   }
 
@@ -9900,6 +9915,9 @@ function tlRenderDetail() {
       '</div>' +
     '</div>' +
   '</div>';
+
+  if (anchor) { anchor.innerHTML = html; }
+  var html = '';
 
   // Event Assignments + Lifecycle — stacked
 
