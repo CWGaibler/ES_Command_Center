@@ -62,7 +62,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .main{flex:1;overflow:visible;padding:22px;display:flex;flex-direction:column;gap:14px}
 .page{display:none}
 .page.active{display:flex;flex-direction:column;flex:1;min-height:0}
-.page.active.page-lens{display:block;flex:1;min-height:0;overflow-y:auto;padding-bottom:22px}
+.page.active.page-lens{display:block;flex:1;min-height:0;overflow-y:auto}
 .page-hdr{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
 .page-title{font-size:21.6px;font-weight:800}
 .page-sub{font-size:14px;color:var(--muted)}
@@ -1490,7 +1490,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         <div id="el-search-results" class="el-search-dropdown"></div>
       </div>
     </div>
-    <div id="el-content">
+    <div id="el-content" style="padding-bottom:22px">
       <div class="el-empty">
         <div class="el-empty-icon">🗓</div>
         <div class="el-empty-msg">Select a show to view its event profile</div>
@@ -1528,7 +1528,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         <div id="tl-search-results" class="el-search-dropdown"></div>
       </div>
     </div>
-    <div id="tl-content">
+    <div id="tl-content" style="padding-bottom:22px">
       <div class="el-empty">
         <div class="el-empty-icon">&#128101;</div>
         <div class="el-empty-msg">Select a team member to view their profile</div>
