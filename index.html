@@ -169,8 +169,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .rh-date-tile-val.overdue{color:var(--orange)}
 .rh-date-edit-btn{position:absolute;top:8px;right:10px;background:none;border:none;cursor:pointer;color:var(--mb);font-size:14px;padding:2px 4px;border-radius:4px;opacity:.7;transition:opacity .15s}
 .rh-date-edit-btn:hover{opacity:1;background:var(--fb-xlt)}
-.rh-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px}
-.rh-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;border-top:4px solid var(--mb)}
+.rh-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px;height:calc(100vh - 290px);min-height:320px}
+.rh-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto;border-top:4px solid var(--mb)}
 .rh-sidebar-hdr{display:none}
 .rh-sidebar-title{font-size:12px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .new-hire-btn{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:3px 11px;border-radius:999px;border:1.5px solid var(--mb);background:transparent;color:var(--mb);cursor:pointer}
@@ -185,7 +185,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .hire-prog-wrap{flex:1;height:4px;background:var(--border-lt);border-radius:2px;overflow:hidden}
 .hire-prog-fill{height:100%;background:var(--mb);border-radius:2px;transition:width .3s}
 .hire-prog-pct{font-size:14px;font-weight:800;color:var(--muted)}
-.rh-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:visible;border-top:4px solid var(--mb)}
+.rh-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto;border-top:4px solid var(--mb)}
 /* ── TIMEKEEPING & UTILIZATION ─────────────────────────────────────────────── */
 .tk-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px}
 .tk-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;border-top:4px solid var(--mb)}
@@ -1253,15 +1253,15 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       </div>
     </div>
     <div class="rh-layout">
-      <div>
+      <div style="display:flex;flex-direction:column;min-height:0">
         <div class="el-section-div">Open Positions</div>
-        <div class="rh-sidebar">
+        <div class="rh-sidebar" style="flex:1;min-height:0">
           <div id="hire-list"></div>
         </div>
       </div>
-      <div>
+      <div style="display:flex;flex-direction:column;min-height:0">
         <div class="el-section-div">Position Details</div>
-        <div id="rh-detail" class="rh-detail"></div>
+        <div id="rh-detail" class="rh-detail" style="flex:1;min-height:0"></div>
       </div>
     </div>
 
