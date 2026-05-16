@@ -91,7 +91,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-sidebar-card{padding:9px 13px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .12s}
 .kpi-sidebar-card:hover{background:var(--fb-xlt)}
 .kpi-sidebar-card.kpi-sel{background:var(--fb-xlt);border-left:3px solid var(--mb)}
-.kpi-sidebar-card.kpi-sel .kscard-name{color:var(--mb)}
+
 .kscard-name{font-size:14.4px;font-weight:700;color:var(--fb);margin-bottom:1px}
 .kscard-row{display:flex;align-items:center;justify-content:space-between;margin-top:1px}
 .kscard-val{font-size:20px;font-weight:900;line-height:1;color:var(--muted)}
@@ -5477,7 +5477,7 @@ function renderKpiSidebar() {
     var barPct = kpiBarPct(kpi, val);
     var sel = kpi.id === kpiSelId ? ' kpi-sel' : '';
     html += '<div class="kpi-sidebar-card' + sel + '" onclick="kpiSelId=\'' + kpi.id + '\';renderKpiSidebar();renderKpiDetail()">' +
-      '<div class="kscard-name">' + kpi.fullName + '</div>' +
+      '<div class="kscard-name">' + kpi.name + '</div>' +
       '<div class="kscard-row">' +
         '<div class="kscard-val">' + kpiFmt(kpi, val) + '</div>' +
         '<div style="font-size:13.5px;font-weight:700;color:' + color + ';text-align:right">' + kpiStatusLabel(status) + '</div>' +
