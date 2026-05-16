@@ -1322,14 +1322,18 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="page-sub">Promotions, title changes, and internal transfers</div>
     </div>
     <div class="lc-stats">
+      <div class="rh-action-tile" onclick="lcNewRecord('tr')" title="Start a transition">
+        <div class="rh-action-tile-lbl">Start a Transition</div>
+        <div class="rh-action-tile-icon">＋</div>
+        <div class="rh-action-tile-sub">Submit details for a team member in transition</div>
+      </div>
       <div class="lc-stat"><div class="lc-stat-lbl">In Progress</div><div class="lc-stat-val" id="tr-stat-total">0</div><div class="lc-stat-sub">Active transitions</div></div>
       <div class="lc-stat"><div class="lc-stat-lbl">Promotions</div><div class="lc-stat-val" id="tr-stat-promo">0</div><div class="lc-stat-sub">Title / org changes</div></div>
       <div class="lc-stat"><div class="lc-stat-lbl">Transfers Out</div><div class="lc-stat-val" id="tr-stat-transfer">0</div><div class="lc-stat-sub">Leaving ES</div></div>
-      <div class="lc-stat"><div class="lc-stat-lbl">Backfills Pending</div><div class="lc-stat-val" id="tr-stat-backfill" style="color:var(--gold)">0</div><div class="lc-stat-sub">Awaiting decision</div></div>
     </div>
     <div class="lc-layout">
       <div style="display:flex;flex-direction:column;min-height:0">
-        <div class="el-section-div" style="display:flex;align-items:center;justify-content:space-between"><span>Active Transitions</span><button class="lc-new-btn" onclick="lcNewRecord('tr')">+ New</button></div>
+        <div class="el-section-div">Active Transitions</div>
         <div class="lc-sidebar" style="flex:1">
           <div id="tr-person-list"></div>
         </div>
@@ -1348,14 +1352,18 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="page-sub">Departure workflows — resignations and terminations</div>
     </div>
     <div class="lc-stats">
+      <div class="rh-action-tile" onclick="lcNewRecord('off')" title="Start an offboard">
+        <div class="rh-action-tile-lbl">Start an Offboard</div>
+        <div class="rh-action-tile-icon">＋</div>
+        <div class="rh-action-tile-sub">Submit details for a departing team member</div>
+      </div>
       <div class="lc-stat"><div class="lc-stat-lbl">Active Departures</div><div class="lc-stat-val" id="off-stat-total">0</div><div class="lc-stat-sub">In process</div></div>
       <div class="lc-stat"><div class="lc-stat-lbl">Resignations</div><div class="lc-stat-val" id="off-stat-resign">0</div><div class="lc-stat-sub">Voluntary</div></div>
       <div class="lc-stat"><div class="lc-stat-lbl">Terminations</div><div class="lc-stat-val" id="off-stat-term">0</div><div class="lc-stat-sub">Involuntary</div></div>
-      <div class="lc-stat"><div class="lc-stat-lbl">Backfills Pending</div><div class="lc-stat-val" id="off-stat-backfill" style="color:var(--gold)">0</div><div class="lc-stat-sub">Decision needed</div></div>
     </div>
     <div class="lc-layout">
       <div style="display:flex;flex-direction:column;min-height:0">
-        <div class="el-section-div" style="display:flex;align-items:center;justify-content:space-between"><span>Departures</span><button class="lc-new-btn" onclick="lcNewRecord('off')">+ New</button></div>
+        <div class="el-section-div">Departures</div>
         <div class="lc-sidebar" style="flex:1">
           <div id="off-person-list"></div>
         </div>
@@ -1363,7 +1371,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div style="display:flex;flex-direction:column;min-height:0">
         <div class="el-section-div">Offboarding Details</div>
         <div class="lc-detail" id="off-detail" style="flex:1">
-        <div class="lc-empty"><div class="lc-empty-icon">👋</div><div class="lc-empty-msg">Select a departure to view details</div><div class="lc-empty-sub">Offboarding records are created when a resignation or termination is initiated. Completed records marked Backfill Needed will automatically create a Recruiting requisition.</div></div>
+        <div class="lc-empty"><div class="lc-empty-icon">👋</div><div class="lc-empty-msg">Select a departure to view details</div><div class="lc-empty-sub">Offboarding records are created when a resignation or termination is initiated.</div></div>
       </div>
       </div>
     </div>
@@ -6270,7 +6278,6 @@ function updateTrStats() {
   document.getElementById('tr-stat-total').textContent = vis.length;
   document.getElementById('tr-stat-promo').textContent = vis.filter(function(r){ return r.transitionType==='promotion'; }).length;
   document.getElementById('tr-stat-transfer').textContent = vis.filter(function(r){ return r.transitionType==='transfer'; }).length;
-  document.getElementById('tr-stat-backfill').textContent = trRecords.filter(function(r){ return !r.backfillDecision && r.transitionType==='transfer'; }).length;
 }
 
 function renderTrList() {
@@ -6490,7 +6497,6 @@ function updateOffStats() {
   document.getElementById('off-stat-total').textContent = vis.length;
   document.getElementById('off-stat-resign').textContent = vis.filter(function(r){ return r.departureType==='resignation'; }).length;
   document.getElementById('off-stat-term').textContent = vis.filter(function(r){ return r.departureType==='termination'; }).length;
-  document.getElementById('off-stat-backfill').textContent = offRecords.filter(function(r){ return !r.backfillDecision; }).length;
 }
 
 
