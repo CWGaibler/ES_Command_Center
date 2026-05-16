@@ -157,6 +157,18 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .rh-stat-lbl{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:3px}
 .rh-stat-val{font-size:26.4px;font-weight:800;color:var(--fb);line-height:1}
 .rh-stat-sub{font-size:14px;color:var(--muted);margin-top:2px}
+.rh-action-tile{background:var(--fb);border:2.5px solid var(--fb);border-radius:10px;padding:10px 13px;cursor:pointer;transition:background .15s,transform .1s;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:4px}
+.rh-action-tile:hover{background:#002f8a;border-color:#002f8a;transform:translateY(-1px)}
+.rh-action-tile-icon{font-size:20px;line-height:1;margin-bottom:2px}
+.rh-action-tile-lbl{font-size:14.4px;font-weight:800;color:#fff;line-height:1.2}
+.rh-action-tile-sub{font-size:12px;color:rgba(255,255,255,.7)}
+.rh-date-tile{background:var(--white);border:2.5px solid var(--mb);border-radius:10px;padding:10px 13px;position:relative}
+.rh-date-tile-lbl{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:3px}
+.rh-date-tile-val{font-size:20px;font-weight:800;color:var(--fb);line-height:1.2}
+.rh-date-tile-val.tbd{color:var(--gold)}
+.rh-date-tile-val.overdue{color:var(--orange)}
+.rh-date-edit-btn{position:absolute;top:8px;right:10px;background:none;border:none;cursor:pointer;color:var(--mb);font-size:14px;padding:2px 4px;border-radius:4px;opacity:.7;transition:opacity .15s}
+.rh-date-edit-btn:hover{opacity:1;background:var(--fb-xlt)}
 .rh-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px}
 .rh-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;border-top:4px solid var(--mb)}
 .rh-sidebar-hdr{display:none}
@@ -173,7 +185,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .hire-prog-wrap{flex:1;height:4px;background:var(--border-lt);border-radius:2px;overflow:hidden}
 .hire-prog-fill{height:100%;background:var(--mb);border-radius:2px;transition:width .3s}
 .hire-prog-pct{font-size:14px;font-weight:800;color:var(--muted)}
-.rh-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:visible}
+.rh-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:visible;border-top:4px solid var(--mb)}
 /* ── TIMEKEEPING & UTILIZATION ─────────────────────────────────────────────── */
 .tk-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px}
 .tk-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;border-top:4px solid var(--mb)}
@@ -1223,20 +1235,57 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <span class="page-sub" id="recruiting-sub"></span>
     </div>
     <div class="rh-stats">
+      <div class="rh-action-tile" onclick="openModal()" title="Request a new position">
+        <div class="rh-action-tile-icon">＋</div>
+        <div class="rh-action-tile-lbl">Request a Position</div>
+        <div class="rh-action-tile-sub">Open a new requisition</div>
+      </div>
       <div class="rh-stat"><div class="rh-stat-lbl">Open Requisitions</div><div class="rh-stat-val" id="stat-open">—</div><div class="rh-stat-sub">Pending or posted</div></div>
-      <div class="rh-stat"><div class="rh-stat-lbl">In Process</div><div class="rh-stat-val" id="stat-proc">—</div><div class="rh-stat-sub">Interviewing</div></div>
-      <div class="rh-stat"><div class="rh-stat-lbl">Offer Stage</div><div class="rh-stat-val" id="stat-offer">—</div><div class="rh-stat-sub">Awaiting signature</div></div>
-      <div class="rh-stat"><div class="rh-stat-lbl">Tasks Overdue</div><div class="rh-stat-val" id="stat-over" style="color:var(--orange)">—</div><div class="rh-stat-sub">Across all hires</div></div>
+      <div class="rh-date-tile" id="tile-es-start">
+        <div class="rh-date-tile-lbl">Next ES Start Date</div>
+        <div class="rh-date-tile-val tbd" id="tile-es-start-val">TBD</div>
+        <button class="rh-date-edit-btn" id="btn-edit-es-start" onclick="openEsDateModal('start')" style="display:none" title="Set date">✏</button>
+      </div>
+      <div class="rh-date-tile" id="tile-es-net">
+        <div class="rh-date-tile-lbl">Next ES NET Class</div>
+        <div class="rh-date-tile-val tbd" id="tile-es-net-val">TBD</div>
+        <button class="rh-date-edit-btn" id="btn-edit-es-net" onclick="openEsDateModal('net')" style="display:none" title="Set date">✏</button>
+      </div>
     </div>
     <div class="rh-layout">
-      <div class="rh-sidebar">
-        <div class="rh-sidebar-hdr">
-          <span class="rh-sidebar-title">Active Pipeline</span>
-          <button class="new-hire-btn" onclick="openModal()">+ New</button>
+      <div>
+        <div class="el-section-div">Open Positions</div>
+        <div class="rh-sidebar">
+          <div id="hire-list"></div>
         </div>
-        <div id="hire-list"></div>
       </div>
-      <div id="rh-detail" class="rh-detail"></div>
+      <div>
+        <div class="el-section-div">Position Details</div>
+        <div id="rh-detail" class="rh-detail"></div>
+      </div>
+    </div>
+
+    <!-- ES Date Modal -->
+    <div id="es-date-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center">
+      <div style="background:var(--white);border-radius:14px;padding:28px 28px 22px;width:360px;max-width:92vw;box-shadow:0 8px 40px rgba(0,0,50,.18)">
+        <div style="font-size:16.8px;font-weight:800;color:var(--fb);margin-bottom:6px" id="es-date-modal-title">Set Date</div>
+        <div style="font-size:13.5px;color:var(--muted);margin-bottom:18px" id="es-date-modal-sub">Select a date or mark as TBD.</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+            <input type="radio" name="es-date-choice" id="es-date-radio-date" value="date" style="accent-color:var(--mb)">
+            <span style="font-size:13.5px;font-weight:700;color:var(--fb)">Specific date:</span>
+            <input type="date" id="es-date-picker" style="font-family:'Nunito Sans',sans-serif;font-size:13.5px;padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;color:var(--fb)">
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+            <input type="radio" name="es-date-choice" id="es-date-radio-tbd" value="tbd" style="accent-color:var(--mb)">
+            <span style="font-size:13.5px;font-weight:700;color:var(--fb)">TBD — date not yet confirmed</span>
+          </label>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
+          <button onclick="closeEsDateModal()" style="font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:7px 18px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">Cancel</button>
+          <button onclick="saveEsDate()" style="font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:7px 20px;border-radius:999px;border:none;background:var(--mb);color:#fff;cursor:pointer">Save</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2348,8 +2397,18 @@ function renderNeedsAttention() {
     }
   }
 
+  // ── ES Date TBD: notify Craig & Nesana when Start Date or NET Class is TBD ──
+  var esDateItems = esDateNeedsAttentionItems();
+  html += esDateItems.map(function(item) {
+    return '<div class="na-card" onclick="(function(){var nav=document.querySelector(\'.nav-item[onclick*=recruiting]\');if(nav){showPage(\'recruiting\',nav);}setTimeout(function(){openEsDateModal(\''+item.type+'\');},150);})()">' +
+      '<div class="na-card-title">Set ' + item.label + '</div>' +
+      '<div class="na-card-meta">Date is TBD &mdash; update when confirmed</div>' +
+      '<div class="na-card-tags"><span class="chip chip-amber">Action Required</span><span class="chip chip-ghost">Recruiting</span></div>' +
+    '</div>';
+  }).join('');
+
   // Empty state
-  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length + travelerItems.length + (tkDueTasks.filter(function(t){return !tkIsTaskDone(t);}).length);
+  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length + travelerItems.length + esDateItems.length + (tkDueTasks.filter(function(t){return !tkIsTaskDone(t);}).length);
   if (totalItems === 0) {
     html = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No items need your attention right now.</div>';
   }
@@ -2859,7 +2918,117 @@ function resubmit(hireId) {
   renderList(); renderDetail();
 }
 
-function updateStats(){
+// ── ES Date Tiles (Next ES Start Date / Next ES NET Class) ───────────────────
+var ES_DATE_KEYS = { start: 'escc_esStartDate', net: 'escc_esNetClass' };
+var ES_DATE_LABELS = { start: 'Next ES Start Date', net: 'Next ES NET Class' };
+var _esDateModalType = null;
+
+function esDateIsEditable() {
+  return CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana';
+}
+
+function esDateGet(type) {
+  try { return localStorage.getItem(ES_DATE_KEYS[type]) || null; } catch(e){ return null; }
+}
+
+function esDateSet(type, val) {
+  try { localStorage.setItem(ES_DATE_KEYS[type], val); } catch(e){}
+}
+
+function esDateFmtDisplay(val) {
+  if (!val || val === 'tbd') return 'TBD';
+  var parts = val.split('-');
+  if (parts.length !== 3) return val;
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[parseInt(parts[1],10)-1] + ' ' + parseInt(parts[2],10) + ', ' + parts[0];
+}
+
+function esDateIsExpired(val) {
+  if (!val || val === 'tbd') return false;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var d = new Date(val + 'T00:00:00');
+  return d < today;
+}
+
+function renderEsDates() {
+  ['start','net'].forEach(function(type) {
+    var raw = esDateGet(type);
+    var expired = esDateIsExpired(raw);
+    // Auto-reset if expired
+    if (expired) {
+      esDateSet(type, 'tbd');
+      raw = 'tbd';
+    }
+    var valEl = document.getElementById('tile-es-' + (type==='start'?'start':'net') + '-val');
+    var btnEl = document.getElementById('btn-edit-es-' + (type==='start'?'start':'net'));
+    if (valEl) {
+      var display = esDateFmtDisplay(raw);
+      valEl.textContent = display;
+      valEl.className = 'rh-date-tile-val' + ((!raw || raw==='tbd') ? ' tbd' : '');
+    }
+    if (btnEl) {
+      btnEl.style.display = esDateIsEditable() ? '' : 'none';
+    }
+  });
+}
+
+function openEsDateModal(type) {
+  if (!esDateIsEditable()) return;
+  _esDateModalType = type;
+  var raw = esDateGet(type);
+  var titleEl = document.getElementById('es-date-modal-title');
+  var subEl   = document.getElementById('es-date-modal-sub');
+  var radioDate = document.getElementById('es-date-radio-date');
+  var radioTbd  = document.getElementById('es-date-radio-tbd');
+  var picker    = document.getElementById('es-date-picker');
+  if (titleEl) titleEl.textContent = 'Set ' + ES_DATE_LABELS[type];
+  if (subEl)   subEl.textContent = 'Choose a specific date or mark as TBD. If TBD, a Needs Attention task will appear until a date is set.';
+  if (!raw || raw === 'tbd') {
+    if (radioTbd) radioTbd.checked = true;
+    if (picker) picker.value = '';
+  } else {
+    if (radioDate) radioDate.checked = true;
+    if (picker) picker.value = raw;
+  }
+  var modal = document.getElementById('es-date-modal');
+  if (modal) { modal.style.display = 'flex'; }
+}
+
+function closeEsDateModal() {
+  var modal = document.getElementById('es-date-modal');
+  if (modal) modal.style.display = 'none';
+  _esDateModalType = null;
+}
+
+function saveEsDate() {
+  var type = _esDateModalType;
+  if (!type) return;
+  var radioDate = document.getElementById('es-date-radio-date');
+  var picker    = document.getElementById('es-date-picker');
+  var isTbd = !radioDate || !radioDate.checked;
+  var val = isTbd ? 'tbd' : (picker ? picker.value : 'tbd');
+  if (!isTbd && !val) { alert('Please select a date, or choose TBD.'); return; }
+  esDateSet(type, val || 'tbd');
+  closeEsDateModal();
+  renderEsDates();
+  renderNeedsAttention();
+}
+
+function esDateNeedsAttentionItems() {
+  // Returns array of {type, label} for TBD dates — only shown to craig/nesana
+  if (!esDateIsEditable()) return [];
+  var items = [];
+  ['start','net'].forEach(function(type) {
+    var raw = esDateGet(type);
+    if (!raw || raw === 'tbd') items.push({ type: type, label: ES_DATE_LABELS[type] });
+  });
+  return items;
+}
+
+function openModalFromTile() { openModal(); }
+
+
+function updateStats() {
   var visible = hires.filter(canView);
   var open=0, pending=0, inproc=0, offer=0, ov=0;
   visible.forEach(function(h){
@@ -2875,6 +3044,7 @@ function updateStats(){
   e=document.getElementById('stat-proc');    if(e) e.textContent=inproc;
   e=document.getElementById('stat-offer');   if(e) e.textContent=offer;
   e=document.getElementById('stat-over');    if(e) e.textContent=ov;
+  renderEsDates();
 }
 
 function getRecruitingScopeLabel() {
