@@ -1247,13 +1247,13 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       </div>
       <div class="rh-stat"><div class="rh-stat-lbl">Open Requisitions</div><div class="rh-stat-val" id="stat-open">—</div><div class="rh-stat-sub">Pending or posted</div></div>
       <div class="rh-date-tile" id="tile-es-start">
-        <div class="rh-date-tile-lbl">Next ES Start Date</div>
+        <div class="rh-date-tile-lbl" id="tile-es-start-lbl">Next ES Start Date</div>
         <div class="rh-date-tile-val tbd" id="tile-es-start-val">TBD</div>
         <div class="rh-date-tile-confirmed" id="tile-es-start-confirmed"></div>
         <button class="rh-date-edit-btn" id="btn-edit-es-start" onclick="openEsDateModal('start')" style="display:none" title="Set date">✏</button>
       </div>
       <div class="rh-date-tile" id="tile-es-net">
-        <div class="rh-date-tile-lbl">Next ES NET Class</div>
+        <div class="rh-date-tile-lbl" id="tile-es-net-lbl">Next ES NET Class</div>
         <div class="rh-date-tile-val tbd" id="tile-es-net-val">TBD</div>
         <div class="rh-date-tile-confirmed" id="tile-es-net-confirmed"></div>
         <button class="rh-date-edit-btn" id="btn-edit-es-net" onclick="openEsDateModal('net')" style="display:none" title="Set date">✏</button>
@@ -2981,11 +2981,51 @@ function esDateFmtDisplay(val) {
   return months[parseInt(parts[1],10)-1] + ' ' + parseInt(parts[2],10) + ', ' + parts[0];
 }
 
+// Returns the date 3 calendar weeks (21 days) after the NET class date, or null if unset.
+function esNetExpiry() {
+  var netRaw = esDateGet('net');
+  if (!netRaw || netRaw === 'tbd') return null;
+  var d = new Date(netRaw + 'T00:00:00');
+  d.setDate(d.getDate() + 21);
+  return d;
+}
+
+// True only after 3 weeks have passed since the NET class date.
+// Both tiles share this same expiry point.
 function esDateIsExpired(val) {
   if (!val || val === 'tbd') return false;
   var today = new Date(); today.setHours(0,0,0,0);
+  var expiry = esNetExpiry();
+  // If we have a NET class date, use the 3-week post-NET expiry for both tiles
+  if (expiry) return today > expiry;
+  // No NET class date set — fall back to day-after behaviour for that tile's own date
   var d = new Date(val + 'T00:00:00');
   return d < today;
+}
+
+// Returns the contextual label for a tile based on today relative to the cohort window.
+// Window = from start date through 3 weeks after NET class date.
+function esDateGetLabel(type) {
+  var today = new Date(); today.setHours(0,0,0,0);
+  var startRaw = esDateGet('start');
+  var netRaw   = esDateGet('net');
+  var startDate = (startRaw && startRaw !== 'tbd') ? new Date(startRaw + 'T00:00:00') : null;
+  var expiry    = esNetExpiry(); // 21 days after NET, or null
+
+  if (type === 'start') {
+    // "Recent ES Start Date" from start date through 3 weeks after NET class date
+    if (startDate && expiry && today >= startDate && today <= expiry) {
+      return 'Recent ES Start Date';
+    }
+    return 'Next ES Start Date';
+  } else {
+    // "Current ES NET Class" from NET class date through 3 weeks after it
+    var netDate = (netRaw && netRaw !== 'tbd') ? new Date(netRaw + 'T00:00:00') : null;
+    if (netDate && expiry && today >= netDate && today <= expiry) {
+      return 'Current ES NET Class';
+    }
+    return 'Next ES NET Class';
+  }
 }
 
 function rhConfirmedCountForDate(isoDate, countType) {
@@ -3013,14 +3053,18 @@ function renderEsDates() {
   ['start','net'].forEach(function(type) {
     var raw = esDateGet(type);
     var expired = esDateIsExpired(raw);
-    // Auto-reset if expired
+    // Auto-reset only after 3 weeks post-NET-class-date have elapsed
     if (expired) {
       esDateSet(type, 'tbd');
       raw = 'tbd';
     }
-    var valEl = document.getElementById('tile-es-' + (type==='start'?'start':'net') + '-val');
-    var btnEl = document.getElementById('btn-edit-es-' + (type==='start'?'start':'net'));
-    var confEl = document.getElementById('tile-es-' + (type==='start'?'start':'net') + '-confirmed');
+    var key     = type === 'start' ? 'start' : 'net';
+    var valEl   = document.getElementById('tile-es-' + key + '-val');
+    var lblEl   = document.getElementById('tile-es-' + key + '-lbl');
+    var btnEl   = document.getElementById('btn-edit-es-' + key);
+    var confEl  = document.getElementById('tile-es-' + key + '-confirmed');
+    var label   = esDateGetLabel(type);
+    if (lblEl)  { lblEl.textContent = label; }
     if (valEl) {
       var display = esDateFmtDisplay(raw);
       valEl.textContent = display;
@@ -3045,7 +3089,7 @@ function openEsDateModal(type) {
   var radioDate = document.getElementById('es-date-radio-date');
   var radioTbd  = document.getElementById('es-date-radio-tbd');
   var picker    = document.getElementById('es-date-picker');
-  if (titleEl) titleEl.textContent = 'Set ' + ES_DATE_LABELS[type];
+  if (titleEl) titleEl.textContent = 'Set ' + esDateGetLabel(type);
   if (subEl)   subEl.textContent = 'Choose a specific date or mark as TBD. If TBD, a Needs Attention task will appear until a date is set.';
   if (!raw || raw === 'tbd') {
     if (radioTbd) radioTbd.checked = true;
