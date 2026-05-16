@@ -65,8 +65,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .page.active.page-lens{display:flex;flex-direction:column;flex:1;min-height:0}
 .lens-sticky{flex-shrink:0;padding:0 0 12px;border-bottom:1px solid var(--border-lt);margin-bottom:14px}
 .lens-scroll{flex:1;min-height:0;overflow-y:auto;padding-bottom:22px}
-.el-search-row{margin-bottom:14px;position:relative;max-height:60px;opacity:1;overflow:hidden;transition:max-height .28s ease,opacity .2s ease,margin-bottom .28s ease}
-.lens-sticky.search-hidden .el-search-row{max-height:0;opacity:0;margin-bottom:0}
+.el-search-row{margin-bottom:14px;position:relative;transition:margin-bottom .28s ease}
+.lens-sticky.search-hidden .el-search-row{margin-bottom:0}
+.el-search-box{display:flex;align-items:center;gap:10px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;position:relative;max-height:60px;opacity:1;overflow:visible;transition:max-height .28s ease,opacity .2s ease,padding .28s ease}
+.lens-sticky.search-hidden .el-search-box{max-height:0;opacity:0;padding-top:0;padding-bottom:0;border-width:0;overflow:hidden}
 .page-hdr{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
 .page-title{font-size:21.6px;font-weight:800}
 .page-sub{font-size:14px;color:var(--muted)}
@@ -642,7 +644,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 /* v6-fix cache-bust: 2111000001 */
 
 /* ══ EVENTS LENS ═══════════════════════════════════════════════════════════ */
-.el-search-box{display:flex;align-items:center;gap:10px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;position:relative}
 .el-search-box input{border:none;outline:none;background:transparent;font-family:'Nunito Sans',sans-serif;font-size:14px;color:var(--fb);flex:1}
 .el-search-box input::placeholder{color:var(--muted)}
 .el-search-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--white);border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 16px rgba(0,31,95,.10);z-index:100;display:none;max-height:280px;overflow-y:auto}
