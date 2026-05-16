@@ -75,4 +75,11 @@ var TASKS = [
    title:'Background check clears — hire date confirmed',
    desc:'HR Business Partner completes background screening. Hire date is confirmed with Hiring Manager once cleared.',
    owner:'anyone', ownerLabel:'HR Business Partner', off:-11, links:[]},
+
+  {phase:'Job Offer', id:'t14',
+   title:'Confirm NET class attendance',
+   desc:'Does this hire need to attend the next NET class? Returning employees who have previously completed NET may not require attendance. Hiring Manager determines and confirms.',
+   owner:'hm', ownerLabel:'Hiring Manager', off:-10, links:[],
+   gatedBehind:'t13', netConfirmStep:true},
 ];
+
