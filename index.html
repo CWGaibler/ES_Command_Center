@@ -92,11 +92,11 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-sidebar-card:hover{background:var(--fb-xlt)}
 .kpi-sidebar-card.kpi-sel{background:var(--fb-xlt);border-left:3px solid var(--mb)}
 
-.kscard-name{font-size:14.4px;font-weight:700;color:var(--fb);margin-bottom:1px}
-.kscard-row{display:flex;align-items:center;justify-content:space-between;margin-top:1px}
-.kscard-val{font-size:20px;font-weight:900;line-height:1;color:var(--muted)}
+.kscard-name{font-size:14.4px;font-weight:700;color:var(--fb);margin-bottom:3px}
+.kscard-row{display:flex;align-items:baseline;justify-content:space-between;margin-top:0}
+.kscard-val{font-size:26px;font-weight:900;line-height:1;color:var(--muted)}
 .kscard-goal{font-size:13.5px;color:var(--muted)}
-.kscard-bar{height:4px;background:var(--border-lt);border-radius:2px;margin-top:5px}
+.kscard-bar{height:4px;background:var(--border-lt);border-radius:2px;margin-top:7px}
 .kscard-fill{height:100%;border-radius:2px}
 /* KPI Detail Panel */
 .kpi-det-hdr{padding:20px 24px 16px;border-bottom:1px solid var(--border-lt);min-height:110px;box-sizing:border-box}
@@ -5478,11 +5478,11 @@ function renderKpiSidebar() {
     var sel = kpi.id === kpiSelId ? ' kpi-sel' : '';
     html += '<div class="kpi-sidebar-card' + sel + '" onclick="kpiSelId=\'' + kpi.id + '\';renderKpiSidebar();renderKpiDetail()">' +
       '<div class="kscard-name">' + kpi.name + '</div>' +
+      '<div class="kscard-val">' + kpiFmt(kpi, val) + '</div>' +
       '<div class="kscard-row">' +
-        '<div class="kscard-val">' + kpiFmt(kpi, val) + '</div>' +
+        '<div class="kscard-goal">Goal: ' + kpi.goal + '</div>' +
         '<div style="font-size:13.5px;font-weight:700;color:' + color + ';text-align:right">' + kpiStatusLabel(status) + '</div>' +
       '</div>' +
-      '<div style="font-size:13.5px;color:var(--muted);margin-top:1px">Goal: ' + kpi.goal + '</div>' +
       '<div class="kscard-bar"><div class="kscard-fill" style="width:' + barPct + '%;background:' + color + '"></div></div>' +
       '</div>';
   });
