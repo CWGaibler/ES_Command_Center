@@ -62,6 +62,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .main{flex:1;overflow:hidden;padding:22px;display:flex;flex-direction:column;gap:14px}
 .page{display:none}
 .page.active{display:flex;flex-direction:column;flex:1;min-height:0}
+.page.active.page-lens{display:block;flex:1;min-height:0;overflow-y:auto}
 .page-hdr{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
 .page-title{font-size:21.6px;font-weight:800}
 .page-sub{font-size:14px;color:var(--muted)}
@@ -1477,7 +1478,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="page" id="page-surveys"><div class="page-hdr"><span class="page-title">Customer Surveys</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="cs-title">Customer Surveys</div><div class="cs-sub">Post-show Qualtrics survey results, NPS trends, and closed-loop follow-up tracking.</div></div></div>
   <div class="page" id="page-servicerequests"><div class="page-hdr"><span class="page-title">Service Requests</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div><div class="cs-title">Service Requests</div><div class="cs-sub">Open service request queue, escalation flags, and resolution tracking by event and branch.</div></div></div>
   <div class="page" id="page-career"><div class="page-hdr"><span class="page-title">Career Development</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div><div class="cs-title">Career Development</div><div class="cs-sub">IDP status, development conversations, and live training completion.</div></div></div>
-  <div class="page" id="page-events">
+  <div class="page page-lens" id="page-events">
     <div class="page-hdr">
       <span class="page-title">Events</span>
       <span class="page-sub">Look up any show by job number</span>
@@ -1515,7 +1516,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       </div>
     </div>
   </div>
-  <div class="page" id="page-team">
+  <div class="page page-lens" id="page-team">
     <div class="page-hdr">
       <span class="page-title">Team Members</span>
       <span class="page-sub">Look up any team member by name</span>
