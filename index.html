@@ -1424,12 +1424,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="page-title">Scheduling</div>
       <div class="page-sub" id="sc-sub">Shows ready to schedule — staffing confirmed, scheduling pending</div>
     </div>
-    <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0;padding:0 20px">
-      <button id="sc-tab-queue" onclick="scSwitchTab('queue')" style="background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:800;color:var(--fb);cursor:pointer;border-bottom:2px solid var(--fb);margin-bottom:-2px">Scheduling Queue</button>
-      <button id="sc-tab-travel" onclick="scSwitchTab('travel')" style="background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">Open Travel Needs <span id="sc-travel-badge" style="display:none;margin-left:4px;background:var(--gold);color:#5A3A00;border-radius:999px;padding:1px 7px;font-size:11px;font-weight:900"></span></button>
-    </div>
     <div class="sf-stats" id="sc-stats-strip"></div>
-    <div id="sc-panel-queue" style="display:flex;flex-direction:column;flex:1;min-height:0">
     <div class="rh-layout" id="sc-layout">
       <div style="display:flex;flex-direction:column;min-height:0">
         <div class="el-section-div">Events to Schedule</div>
@@ -1440,17 +1435,13 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div style="display:flex;flex-direction:column;min-height:0">
         <div class="el-section-div">Scheduling Details</div>
         <div class="rh-detail" id="sc-detail" style="flex:1">
-        <div class="sf-empty">
-          <div class="sf-empty-icon">&#128203;</div>
-          <div class="sf-empty-msg">Select a show</div>
-          <div class="sf-empty-sub">Choose a show from the left to work through its scheduling tasks</div>
+          <div class="sf-empty">
+            <div class="sf-empty-icon">&#128203;</div>
+            <div class="sf-empty-msg">Select a show</div>
+            <div class="sf-empty-sub">Choose a show from the left to work through its scheduling tasks</div>
+          </div>
         </div>
       </div>
-      </div>
-    </div>
-    </div>
-    <div id="sc-panel-travel" style="display:none;padding:20px">
-      <div id="sc-travel-board"></div>
     </div>
   </div>
   <div class="page" id="page-timekeeping">
@@ -1868,7 +1859,7 @@ function onScopeChanged() {
     sfSelId = null; initStaffing(); return;
   }
   if (pid === 'page-scheduling') {
-    scUpdateStats(); renderScList(); renderTravelBadge(); return;
+    scUpdateStats(); renderScList(); return;
   }
   if (pid === 'page-kpis') {
     renderKpiSidebar(); renderKpiDetail(); return;
@@ -8072,81 +8063,7 @@ function goToSchedulingFromStaffing(showId) {
 
 // ── Scheduling workspace functions ───────────────────────────────────────
 
-function scSwitchTab(tab) {
-  var qPanel = document.getElementById('sc-panel-queue');
-  var tPanel = document.getElementById('sc-panel-travel');
-  var qTab   = document.getElementById('sc-tab-queue');
-  var tTab   = document.getElementById('sc-tab-travel');
-  if (!qPanel || !tPanel) return;
-  if (tab === 'queue') {
-    qPanel.style.display = '';
-    tPanel.style.display = 'none';
-    qTab.style.cssText = 'background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:800;color:var(--fb);cursor:pointer;border-bottom:2px solid var(--fb);margin-bottom:-2px';
-    tTab.style.cssText = 'background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px';
-  } else {
-    qPanel.style.display = 'none';
-    tPanel.style.display = '';
-    qTab.style.cssText = 'background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px';
-    tTab.style.cssText = 'background:none;border:none;padding:8px 16px 10px;font-size:13px;font-weight:800;color:var(--fb);cursor:pointer;border-bottom:2px solid var(--fb);margin-bottom:-2px';
-    renderTravelBoard();
-  }
-}
 
-function renderTravelBoard() {
-  var board = document.getElementById('sc-travel-board');
-  if (!board) return;
-  var items = scGetTravelerNeededShows();
-  // Update badge
-  var badge = document.getElementById('sc-travel-badge');
-  if (badge) {
-    if (items.length) { badge.textContent = items.length; badge.style.display = ''; }
-    else { badge.style.display = 'none'; }
-  }
-  if (!items.length) {
-    board.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px"><div style="font-size:32px;margin-bottom:10px">&#x2705;</div><div style="font-weight:800;color:var(--fb);margin-bottom:6px">No open travel needs</div><div>All scheduling positions are filled across all branches.</div></div>';
-    return;
-  }
-  var html = '<div style="margin-bottom:14px">' +
-    '<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px">Showing all open traveler-needed positions across the organization &mdash; enterprise-wide, read-only.</div>' +
-    '<div style="font-size:12px;color:var(--muted)">Use the monthly collaborative scheduling meeting to determine assignments. Positions are filled by the show-owning leader in their Scheduling queue.</div>' +
-  '</div>';
-  items.forEach(function(item) {
-    var s = item.show;
-    var rec = sfCalcRec ? sfCalcRec(s) : {};
-    html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">';
-    html += '<div><span style="font-size:14px;font-weight:800;color:var(--fb)">' + s.name + '</span><span style="margin:0 6px;color:var(--border)">|</span><span style="font-size:13px;font-weight:700;color:var(--mb)">Job #' + item.showId + '</span></div>';
-    html += '<span style="font-size:11px;font-weight:700;background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;border-radius:999px;padding:2px 8px">' + item.slots.length + ' Traveler' + (item.slots.length > 1 ? 's' : '') + ' Needed</span>';
-    html += '</div>';
-    html += '<div style="font-size:12px;color:var(--muted);margin-bottom:8px">' +
-      (s.facility || s.city || '') + ' &middot; Move-in ' + sfFmtDate(s.moveInStart) + ' &ndash; Clear ' + sfFmtDate(s.clearDate) + ' &middot; ' +
-      '<strong style="color:var(--fb)">' + (s.producingBranch || s.region || '') + '</strong>' +
-    '</div>';
-    item.slots.forEach(function(sl) {
-      var roleTypeCounts3 = {};
-      var ra3 = ROLE_ASSIGNMENTS[item.showId];
-      if (ra3) ra3.slots.forEach(function(s3) { roleTypeCounts3[s3.type] = (roleTypeCounts3[s3.type]||0)+1; });
-      var roleTypeCounters3 = {};
-      var slLabel3 = sl.label;
-      if (ra3) ra3.slots.forEach(function(s3) {
-        roleTypeCounters3[s3.type] = (roleTypeCounters3[s3.type]||0)+1;
-        if (s3 === sl) slLabel3 = roleTypeCounts3[s3.type] > 1 ? s3.label + ' ' + roleTypeCounters3[s3.type] : s3.label;
-      });
-      var escData3 = scGetEscData(item.showId);
-      var escLine3 = escData3.count > 1 && sl.escAssignment && escData3.names[sl.escAssignment-1]
-        ? ' &middot; <span style="color:var(--mb)">' + escData3.names[sl.escAssignment-1] + '</span>' : '';
-      html += '<div style="display:flex;align-items:flex-start;gap:10px;background:var(--surface);border:1px solid var(--border-lt);border-radius:8px;padding:8px 12px;margin-bottom:6px">';
-      html += '<div style="font-size:11px;background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;border-radius:999px;padding:2px 8px;font-weight:700;white-space:nowrap">&#9873; ' + slLabel3 + '</div>';
-      html += '<div style="flex:1;font-size:12px;color:var(--fb)">';
-      if (sl.coverageNote) html += '<div><strong>Coverage:</strong> ' + sl.coverageNote + '</div>';
-      if (sl.travelerNote)  html += '<div style="color:var(--muted)"><strong>Requirements:</strong> ' + sl.travelerNote + '</div>';
-      html += escLine3;
-      html += '</div></div>';
-    });
-    html += '</div>';
-  });
-  board.innerHTML = html;
-}
 
 function scUpdateStats() {
   var strip = document.getElementById('sc-stats-strip');
@@ -8171,19 +8088,11 @@ function scUpdateStats() {
 function initScheduling() {
   scSelId = null;
   scUpdateStats();
-  scSwitchTab('queue');
   renderScList();
   renderScEmptyDetail();
-  renderTravelBadge();
 }
 
-function renderTravelBadge() {
-  var badge = document.getElementById('sc-travel-badge');
-  if (!badge) return;
-  var items = scGetTravelerNeededShows();
-  if (items.length) { badge.textContent = items.length; badge.style.display = ''; }
-  else { badge.style.display = 'none'; }
-}
+
 
 function getScScopeShows() {
   var scopeShows = getAllScopeShows();
@@ -9491,7 +9400,6 @@ function scDoConfirm(showId) {
   storageSaveSchedulingPlans();
   storageSaveRoleAssignments();
   renderScList();
-  renderTravelBadge();
   renderNeedsAttention();
 }
 
