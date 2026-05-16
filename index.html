@@ -119,7 +119,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 
 /* COCKPIT */
 
-.panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:0;border-top:3px solid var(--mb)}
+.panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:0;border-top:4px solid var(--mb)}
 .panel-hdr{display:none}
 .panel-hdr.gold{border-top-color:var(--gold)}
 .panel-hdr.orange{border-top-color:var(--orange)}
@@ -134,6 +134,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .chip-red{background:#FFEDE7;color:var(--orange);border-color:rgba(251,71,31,.2)}
 .chip-ghost{background:transparent;color:var(--muted);border-color:var(--border)}
 .chip-orange{background:#FFF0EB;color:#7A2A00;border-color:rgba(251,71,31,.25)}
+.chip-ft{background:var(--fb-lt);color:var(--fb);border-color:rgba(0,31,95,.15)}
 
 /* EVENT CARDS */
 .event-card{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
@@ -219,7 +220,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .det-prog-wrap{height:5px;background:var(--border-lt);border-radius:3px;overflow:hidden;margin-top:7px;max-width:300px}
 .det-prog-fill{height:100%;background:var(--mb);transition:width .3s}
 .det-prog-lbl{font-size:14px;color:var(--muted);margin-top:3px}
-.det-scroll{max-height:calc(100vh - 340px);overflow-y:auto}
+.det-scroll{overflow-y:visible}
 .phase-sec{border-bottom:1px solid var(--border-lt)}
 .phase-hdr{padding:7px 16px;display:flex;align-items:center;gap:8px;background:var(--fb-xlt);cursor:pointer;border-bottom:1px solid var(--border-lt);user-select:none}
 .phase-hdr:hover{background:var(--fb-lt)}
@@ -558,7 +559,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .sf-show-prog-pct{font-size:14px;font-weight:800;color:var(--muted);pointer-events:none}
 .lc-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto;display:flex;flex-direction:column;border-top:4px solid var(--mb)}
 /* detail header */
-.lc-det-hdr{padding:13px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-top:3px solid var(--mb)}
+.lc-det-hdr{padding:13px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .lc-det-name{font-size:19.2px;font-weight:800}
 .lc-det-sub{font-size:13.5px;color:var(--muted);margin-top:2px}
 .lc-det-prog-wrap{height:5px;background:var(--border-lt);border-radius:3px;overflow:hidden;margin-top:7px;max-width:300px}
@@ -567,7 +568,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .lc-det-prog-fill.tr{background:var(--gold)}
 .lc-det-prog-fill.off{background:var(--orange)}
 .lc-det-prog-lbl{font-size:14px;color:var(--muted);margin-top:3px}
-.lc-det-scroll{max-height:calc(100vh - 340px);overflow-y:auto}
+.lc-det-scroll{overflow-y:visible}
 /* owner badge on tasks */
 
 
@@ -1190,7 +1191,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <span class="page-title">Today's Priorities</span>
       <span class="page-sub" id="today-date"></span>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;height:calc(100vh - 180px);min-height:320px">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;height:calc(100vh - 210px);min-height:320px">
       <div style="display:flex;flex-direction:column;min-height:0">
         <div class="el-section-div">Active Events</div>
         <div class="panel" style="flex:1;min-height:0">
@@ -1303,7 +1304,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     </div>
     <div class="lc-layout">
       <div style="display:flex;flex-direction:column;min-height:0">
-        <div class="el-section-div">New Hires</div>
+        <div class="el-section-div">Active New Hires</div>
         <div class="lc-sidebar" style="flex:1">
           <div id="ob-person-list"></div>
         </div>
@@ -1321,15 +1322,15 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="page-title">Transitions</div>
       <div class="page-sub">Promotions, title changes, and internal transfers</div>
     </div>
-    <div class="lc-stats">
-      <div class="rh-action-tile" onclick="lcNewRecord('tr')" title="Start a transition">
+    <div class="rh-stats">
+      <div class="rh-action-tile" onclick="lcNewRecord('tr')' title="Start a transition">
         <div class="rh-action-tile-lbl">Start a Transition</div>
         <div class="rh-action-tile-icon">＋</div>
         <div class="rh-action-tile-sub">Submit details for a team member in transition</div>
       </div>
-      <div class="lc-stat"><div class="lc-stat-lbl">In Progress</div><div class="lc-stat-val" id="tr-stat-total">0</div><div class="lc-stat-sub">Active transitions</div></div>
-      <div class="lc-stat"><div class="lc-stat-lbl">Promotions</div><div class="lc-stat-val" id="tr-stat-promo">0</div><div class="lc-stat-sub">Title / org changes</div></div>
-      <div class="lc-stat"><div class="lc-stat-lbl">Transfers Out</div><div class="lc-stat-val" id="tr-stat-transfer">0</div><div class="lc-stat-sub">Leaving ES</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">In Progress</div><div class="rh-stat-val" id="tr-stat-total">0</div><div class="rh-stat-sub">Active transitions</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">Promotions</div><div class="rh-stat-val" id="tr-stat-promo">0</div><div class="rh-stat-sub">Title / org changes</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">Transfers Out</div><div class="rh-stat-val" id="tr-stat-transfer">0</div><div class="rh-stat-sub">Leaving ES</div></div>
     </div>
     <div class="lc-layout">
       <div style="display:flex;flex-direction:column;min-height:0">
@@ -1351,15 +1352,15 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="page-title">Offboarding</div>
       <div class="page-sub">Departure workflows — resignations and terminations</div>
     </div>
-    <div class="lc-stats">
-      <div class="rh-action-tile" onclick="lcNewRecord('off')" title="Start an offboard">
+    <div class="rh-stats">
+      <div class="rh-action-tile" onclick="lcNewRecord('off')' title="Start an offboard">
         <div class="rh-action-tile-lbl">Start an Offboard</div>
         <div class="rh-action-tile-icon">＋</div>
         <div class="rh-action-tile-sub">Submit details for a departing team member</div>
       </div>
-      <div class="lc-stat"><div class="lc-stat-lbl">Active Departures</div><div class="lc-stat-val" id="off-stat-total">0</div><div class="lc-stat-sub">In process</div></div>
-      <div class="lc-stat"><div class="lc-stat-lbl">Resignations</div><div class="lc-stat-val" id="off-stat-resign">0</div><div class="lc-stat-sub">Voluntary</div></div>
-      <div class="lc-stat"><div class="lc-stat-lbl">Terminations</div><div class="lc-stat-val" id="off-stat-term">0</div><div class="lc-stat-sub">Involuntary</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">Active Departures</div><div class="rh-stat-val" id="off-stat-total">0</div><div class="rh-stat-sub">In process</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">Resignations</div><div class="rh-stat-val" id="off-stat-resign">0</div><div class="rh-stat-sub">Voluntary</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">Terminations</div><div class="rh-stat-val" id="off-stat-term">0</div><div class="rh-stat-sub">Involuntary</div></div>
     </div>
     <div class="lc-layout">
       <div style="display:flex;flex-direction:column;min-height:0">
@@ -1385,7 +1386,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div class="sf-stats" id="sf-stats-strip"></div>
     <div class="rh-layout" id="sf-layout">
       <div style="display:flex;flex-direction:column;min-height:0">
-        <div class="el-section-div"><span id="sf-sidebar-count">Shows Needing Action</span></div>
+        <div class="el-section-div">Events to Staff</div>
         <div class="rh-sidebar" style="flex:1">
           <div id="sf-show-list" style="overflow-y:auto"></div>
         </div>
@@ -1415,7 +1416,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div id="sc-panel-queue">
     <div class="rh-layout" id="sc-layout" style="height:calc(100vh - 310px)">
       <div style="display:flex;flex-direction:column;min-height:0">
-        <div class="el-section-div"><span id="sc-sidebar-count">Shows to Schedule</span></div>
+        <div class="el-section-div">Events to Schedule</div>
         <div class="rh-sidebar" style="flex:1">
           <div id="sc-show-list" style="overflow-y:auto"></div>
         </div>
@@ -2312,7 +2313,7 @@ function renderNeedsAttention() {
     return '<div class="na-card" data-na-ws="transitions" data-na-id="'+rec.id+'" onclick="naCardClick(this)">'+
       '<div class="na-card-title">'+rec.firstName+' '+rec.lastName+' &mdash; Transition</div>'+
       '<div class="na-card-meta">'+item.pendingCount+' task'+(item.pendingCount>1?'s':'')+' waiting &middot; Next: '+item.nextTask.substring(0,60)+(item.nextTask.length>60?'...':'')+'</div>'+
-      '<div class="na-card-tags"><span class="chip chip-ft">Transition</span><span class="chip chip-ghost">'+rec.branch+'</span></div>'+
+      '<div class="na-card-tags"><span class="chip chip-mb">Transition</span><span class="chip chip-ghost">'+rec.branch+'</span></div>'+
     '</div>';
   }).join('');
 
@@ -3641,10 +3642,10 @@ function renderSfStats() {
 
 function renderSfList() {
   var list = document.getElementById("sf-show-list");
-  var countEl = document.getElementById("sf-sidebar-count");
+  
   if (!list) return;
   var shows = getFilteredShows();
-  if (countEl) countEl.textContent = shows.length + " Show" + (shows.length !== 1 ? "s" : "") + " to Staff";
+  
 
   // Clear the list
   list.innerHTML = "";
@@ -3941,7 +3942,7 @@ function renderSfDetail() {
     ? '<span class="chip chip-green">\u2713 Plan Confirmed</span>'
     : '<span class="chip chip-amber">Needs Plan</span>';
   var html = buildEventDetailHeader({ showId: sfSelId, statusHtml: sfStatusHtml });
-  html += "<div class=\"det-scroll\" style=\"max-height:calc(100vh - 300px);overflow-y:auto;padding-top:8px\">";
+  html += "<div class=\"det-scroll\" style=\"padding-top:8px\">";
 
   // ── Staffing steps — new 5-step flow ────────────────────────────────────
 
@@ -8040,16 +8041,12 @@ function getScScopeShows() {
 
 function renderScList() {
   var list = document.getElementById('sc-show-list');
-  var countEl = document.getElementById('sc-sidebar-count');
+  
   if (!list) return;
 
   var shows = getScScopeShows();
-  if (countEl) {
-    countEl.textContent = shows.length + ' Show' + (shows.length !== 1 ? 's' : '') + ' to Schedule';
-  }
 
   list.innerHTML = '';
-
   if (!shows.length) {
     var empty = document.createElement('div');
     empty.style.cssText = 'padding:20px;text-align:center;color:var(--muted);font-size:12px';
@@ -8273,7 +8270,7 @@ function renderScDetail() {
   var html = buildEventDetailHeader({ showId: scSelId, statusHtml: scStatusHtml, extraChips: scExtraChips });
 
 
-  html += '<div class="det-scroll" style="max-height:calc(100vh - 300px);overflow-y:auto;padding-top:8px">';
+  html += '<div class="det-scroll" style="padding-top:8px">';
 
   // ── TASK 1 — Add to ES Regional Schedule ──
   var t1chkCls = 'task-chk' + (sc1done ? ' checked' : '') + (scConfirmed ? ' locked' : '');
