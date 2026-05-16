@@ -1303,10 +1303,20 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="page-sub">New hire readiness — from offer accepted to end of NET</div>
     </div>
     <div class="lc-stats">
-      <div class="lc-stat"><div class="lc-stat-lbl">In Progress</div><div class="lc-stat-val" id="ob-stat-total">0</div><div class="lc-stat-sub">Active new hires</div></div>
       <div class="lc-stat"><div class="lc-stat-lbl">Pre-Start</div><div class="lc-stat-val" id="ob-stat-prestart">0</div><div class="lc-stat-sub">Before Day 1</div></div>
       <div class="lc-stat"><div class="lc-stat-lbl">First Week</div><div class="lc-stat-val" id="ob-stat-week1">0</div><div class="lc-stat-sub">Currently in week 1</div></div>
-      <div class="lc-stat"><div class="lc-stat-lbl">In NET</div><div class="lc-stat-val" id="ob-stat-net">0</div><div class="lc-stat-sub">In training</div></div>
+      <div class="rh-date-tile" id="ob-tile-es-start">
+        <div class="rh-date-tile-lbl" id="ob-tile-es-start-lbl">Next ES Start Date</div>
+        <div class="rh-date-tile-val tbd" id="ob-tile-es-start-val">TBD</div>
+        <div class="rh-date-tile-confirmed" id="ob-tile-es-start-confirmed"></div>
+        <button class="rh-date-edit-btn" id="ob-btn-edit-es-start" onclick="openEsDateModal('start')" style="display:none" title="Set date">✏</button>
+      </div>
+      <div class="rh-date-tile" id="ob-tile-es-net">
+        <div class="rh-date-tile-lbl" id="ob-tile-es-net-lbl">Next ES NET Class</div>
+        <div class="rh-date-tile-val tbd" id="ob-tile-es-net-val">TBD</div>
+        <div class="rh-date-tile-confirmed" id="ob-tile-es-net-confirmed"></div>
+        <button class="rh-date-edit-btn" id="ob-btn-edit-es-net" onclick="openEsDateModal('net')" style="display:none" title="Set date">✏</button>
+      </div>
     </div>
     <div class="lc-layout">
       <div style="display:flex;flex-direction:column;min-height:0">
@@ -3049,6 +3059,19 @@ function rhConfirmedCountForDate(isoDate, countType) {
   }).length;
 }
 
+function obActiveHiresForDate(isoDate, type) {
+  // Count non-closed onboarding records matching the tile's date
+  if (!isoDate || isoDate === 'tbd') return 0;
+  return obRecords.filter(function(r) {
+    if (r.closed) return false;
+    if (type === 'start') {
+      return (r.startDate || '') === isoDate;
+    } else {
+      return (r.netDate || '') === isoDate;
+    }
+  }).length;
+}
+
 function renderEsDates() {
   ['start','net'].forEach(function(type) {
     var raw = esDateGet(type);
@@ -3058,24 +3081,37 @@ function renderEsDates() {
       esDateSet(type, 'tbd');
       raw = 'tbd';
     }
-    var key     = type === 'start' ? 'start' : 'net';
-    var valEl   = document.getElementById('tile-es-' + key + '-val');
-    var lblEl   = document.getElementById('tile-es-' + key + '-lbl');
-    var btnEl   = document.getElementById('btn-edit-es-' + key);
-    var confEl  = document.getElementById('tile-es-' + key + '-confirmed');
-    var label   = esDateGetLabel(type);
-    if (lblEl)  { lblEl.textContent = label; }
-    if (valEl) {
-      var display = esDateFmtDisplay(raw);
-      valEl.textContent = display;
-      valEl.className = 'rh-date-tile-val' + ((!raw || raw==='tbd') ? ' tbd' : '');
-    }
-    if (btnEl) {
-      btnEl.style.display = esDateIsEditable() ? '' : 'none';
-    }
-    if (confEl) {
+    var key    = type === 'start' ? 'start' : 'net';
+    var label  = esDateGetLabel(type);
+    var display = esDateFmtDisplay(raw);
+    var isTbd  = (!raw || raw === 'tbd');
+    var valCls = 'rh-date-tile-val' + (isTbd ? ' tbd' : '');
+    var editable = esDateIsEditable();
+
+    // ── Recruiting & Hiring tiles ──
+    var rhLbl  = document.getElementById('tile-es-' + key + '-lbl');
+    var rhVal  = document.getElementById('tile-es-' + key + '-val');
+    var rhBtn  = document.getElementById('btn-edit-es-' + key);
+    var rhConf = document.getElementById('tile-es-' + key + '-confirmed');
+    if (rhLbl)  { rhLbl.textContent = label; }
+    if (rhVal)  { rhVal.textContent = display; rhVal.className = valCls; }
+    if (rhBtn)  { rhBtn.style.display = editable ? '' : 'none'; }
+    if (rhConf) {
       var cnt = rhConfirmedCountForDate(raw, type);
-      confEl.textContent = cnt + ' confirmed team member' + (cnt !== 1 ? 's' : '');
+      rhConf.textContent = cnt + ' confirmed team member' + (cnt !== 1 ? 's' : '');
+    }
+
+    // ── Onboarding tiles ──
+    var obLbl  = document.getElementById('ob-tile-es-' + key + '-lbl');
+    var obVal  = document.getElementById('ob-tile-es-' + key + '-val');
+    var obBtn  = document.getElementById('ob-btn-edit-es-' + key);
+    var obConf = document.getElementById('ob-tile-es-' + key + '-confirmed');
+    if (obLbl)  { obLbl.textContent = label; }
+    if (obVal)  { obVal.textContent = display; obVal.className = valCls; }
+    if (obBtn)  { obBtn.style.display = editable ? '' : 'none'; }
+    if (obConf) {
+      var obCnt = obActiveHiresForDate(raw, type);
+      obConf.textContent = obCnt + ' active new hire' + (obCnt !== 1 ? 's' : '');
     }
   });
 }
@@ -6193,10 +6229,8 @@ function obOwnerLabel(owner) {
 
 function updateObStats() {
   var visible = lcScopeFilter(obRecords);
-  document.getElementById('ob-stat-total').textContent = visible.length;
   document.getElementById('ob-stat-prestart').textContent = visible.filter(function(r){ return r.phase==='Before Start Date'; }).length;
   document.getElementById('ob-stat-week1').textContent = visible.filter(function(r){ return r.phase==='First Week'; }).length;
-  document.getElementById('ob-stat-net').textContent = visible.filter(function(r){ return r.phase==='During NET'; }).length;
 }
 
 function renderObList() {
@@ -6335,6 +6369,7 @@ function initOnboarding() {
   updateObStats();
   renderObList();
   renderObDetail();
+  renderEsDates();
 }
 
 // ══════════════════════════════════════════════════════════════════════════
