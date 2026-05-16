@@ -65,6 +65,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .page.active.page-lens{display:flex;flex-direction:column;flex:1;min-height:0}
 .lens-sticky{flex-shrink:0;padding:0 0 12px;border-bottom:1px solid var(--border-lt);margin-bottom:14px}
 .lens-scroll{flex:1;min-height:0;overflow-y:auto;padding-bottom:22px}
+.el-search-row{margin-bottom:14px;position:relative;max-height:60px;opacity:1;overflow:hidden;transition:max-height .28s ease,opacity .2s ease,margin-bottom .28s ease}
+.lens-sticky.search-hidden .el-search-row{max-height:0;opacity:0;margin-bottom:0}
 .page-hdr{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
 .page-title{font-size:21.6px;font-weight:800}
 .page-sub{font-size:14px;color:var(--muted)}
@@ -640,7 +642,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 /* v6-fix cache-bust: 2111000001 */
 
 /* ══ EVENTS LENS ═══════════════════════════════════════════════════════════ */
-.el-search-row{margin-bottom:14px;position:relative}
+.el-search-row{position:relative}
 .el-search-box{display:flex;align-items:center;gap:10px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;position:relative}
 .el-search-box input{border:none;outline:none;background:transparent;font-family:'Nunito Sans',sans-serif;font-size:14px;color:var(--fb);flex:1}
 .el-search-box input::placeholder{color:var(--muted)}
@@ -1740,6 +1742,35 @@ function showPage(id, el) {
   if (id === 'timekeeping')  { initTimekeeping(); }
   if (id === 'events')      { initEvents(); }
   if (id === 'team')        { initTeam(); }
+  // Attach scroll-aware search collapse for lens pages
+  lensScrollInit(id);
+}
+
+// Scroll-aware search bar: collapses after 40px scroll, reappears on scroll back up
+var _lensScrollListeners = {};
+function lensScrollInit(pageId) {
+  var lensIds = ['events','team'];
+  lensIds.forEach(function(lid) {
+    var scrollEl = lid === 'events' ? document.getElementById('el-content') : document.getElementById('tl-content');
+    var sticky = scrollEl ? scrollEl.parentElement.querySelector('.lens-sticky') : null;
+    if (!scrollEl || !sticky) return;
+    // Remove old listener if present
+    if (_lensScrollListeners[lid]) {
+      scrollEl.removeEventListener('scroll', _lensScrollListeners[lid]);
+    }
+    // Reset state when switching pages
+    sticky.classList.remove('search-hidden');
+    scrollEl.scrollTop = 0;
+    var handler = function() {
+      if (scrollEl.scrollTop > 40) {
+        sticky.classList.add('search-hidden');
+      } else {
+        sticky.classList.remove('search-hidden');
+      }
+    };
+    _lensScrollListeners[lid] = handler;
+    scrollEl.addEventListener('scroll', handler);
+  });
 }
 
 
