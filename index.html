@@ -164,6 +164,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .rh-action-tile-lbl{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:3px}
 .rh-action-tile-sub{font-size:14px;color:var(--muted);margin-top:2px}
 .rh-date-tile{background:var(--white);border:2.5px solid var(--mb);border-radius:10px;padding:10px 13px;position:relative}
+.rh-date-tile-confirmed{font-size:12px;color:var(--muted);margin-top:5px;min-height:16px}
+.btn-net-choice{font-size:12px;font-weight:700;font-family:inherit;padding:3px 12px;border-radius:6px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s}
+.btn-net-choice:hover{border-color:var(--mb);color:var(--mb)}
+.btn-net-choice.net-selected{background:var(--mb);border-color:var(--mb);color:var(--white)}
 .rh-date-tile-lbl{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:3px}
 .rh-date-tile-val{font-size:26.4px;font-weight:800;color:var(--fb);line-height:1}
 .rh-date-tile-val.tbd{color:var(--fb)}
@@ -1245,11 +1249,13 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="rh-date-tile" id="tile-es-start">
         <div class="rh-date-tile-lbl">Next ES Start Date</div>
         <div class="rh-date-tile-val tbd" id="tile-es-start-val">TBD</div>
+        <div class="rh-date-tile-confirmed" id="tile-es-start-confirmed"></div>
         <button class="rh-date-edit-btn" id="btn-edit-es-start" onclick="openEsDateModal('start')" style="display:none" title="Set date">✏</button>
       </div>
       <div class="rh-date-tile" id="tile-es-net">
         <div class="rh-date-tile-lbl">Next ES NET Class</div>
         <div class="rh-date-tile-val tbd" id="tile-es-net-val">TBD</div>
+        <div class="rh-date-tile-confirmed" id="tile-es-net-confirmed"></div>
         <button class="rh-date-edit-btn" id="btn-edit-es-net" onclick="openEsDateModal('net')" style="display:none" title="Set date">✏</button>
       </div>
     </div>
@@ -2084,9 +2090,9 @@ var APPROVAL_STAGES = {
 var TASK_STAGE_MAP = {
   'approved-not-posted': ['t1','t2','t3'],
   'posted':              ['t1','t2','t3','t4','t5','t6','t7','t8','t9'],
-  'interviewing':        ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],
-  'offer':               ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],
-  'complete':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13'],
+  'interviewing':        ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
+  'offer':               ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
+  'complete':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
 };
 
 function addDays(s,n){if(!s)return new Date('2099-01-01');var d=new Date(s);if(isNaN(d.getTime()))return new Date('2099-01-01');d.setDate(d.getDate()+n);return d;}
@@ -2711,6 +2717,8 @@ function renderDetail(){
         t13FieldsComplete = !!(h.proposedStart && h.confirmedStart && h.confirmedNet &&
           h.proposedNet && h.firstName && h.lastName && h.reqNum);
       }
+      // t14 (NET confirmation) is gated behind t13 being checked
+      if (t.id === 't14' && h.checked.indexOf('t13') < 0) { locked = true; }
       var canInteract = !locked && t13FieldsComplete && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
       var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'') + (!locked&&!canInteract?' not-owner':'');
       var chkAttrs = locked ? '' : ' data-hire="'+h.id+'" data-task="'+t.id+'" data-owner="'+t.owner+'"' + (!canInteract?' data-readonly="1"':'');
@@ -2720,6 +2728,27 @@ function renderDetail(){
         rcHintHtml = t13FieldsComplete
           ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Position details complete \u2014 check this box when you are ready to move on.</div>'
           : '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in all required Position Details above, then check this box when ready.</div>';
+      }
+      // t14: show NET yes/no selector (gated behind t13), lock checkbox until selection made
+      if (t.id === 't14' && !ck && h.checked.indexOf('t13') >= 0) {
+        var netVal = h.netRequired;
+        var netYesCls = 'btn-net-choice' + (netVal==='yes' ? ' net-selected' : '');
+        var netNoCls  = 'btn-net-choice' + (netVal==='no'  ? ' net-selected' : '');
+        rcHintHtml = '<div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+          '<span style="font-size:12px;color:var(--muted);font-style:italic">Does this hire need to attend NET class?</span>' +
+          '<button class="' + netYesCls + '" onclick="rhSetNetRequired(\'' + h.id + '\',\'yes\')">Yes</button>' +
+          '<button class="' + netNoCls  + '" onclick="rhSetNetRequired(\'' + h.id + '\',\'no\')">No</button>' +
+        '</div>';
+        if (netVal) {
+          rcHintHtml += '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">' +
+            (netVal==='yes' ? 'Confirmed: will attend NET class.' : 'Confirmed: NET class not required for this hire.') +
+            ' Check this box when ready.</div>';
+        } else {
+          rcHintHtml += '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Select Yes or No above, then check this box when ready.</div>';
+          locked = true;
+          chkCls = 'task-chk locked';
+          chkAttrs = '';
+        }
       }
       clHtml+='<div class="task-row'+(locked?' step-locked':'')+'">'+
         '<div class="'+chkCls+'"'+chkAttrs+'><span class="chk-mark">&#10003;</span></div>'+
@@ -2763,7 +2792,7 @@ function renderDetail(){
       }
     } else if(phase === 'Job Offer') {
       var t13Rdy = !!(h.proposedStart && h.confirmedStart && h.confirmedNet && h.proposedNet && h.firstName && h.lastName && h.reqNum);
-      var p3Done = t13Rdy && ['t10','t11','t12','t13'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
+      var p3Done = t13Rdy && ['t10','t11','t12','t13','t14'].every(function(tid){ return h.checked.indexOf(tid) >= 0; }) && !!(h.netRequired);
       var canAdv3 = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
       if(p3Done && canAdv3 && h.stage === 'interviewing') {
         phaseAdvBtn = '<div class="phase-advance-bar">'+
@@ -2814,7 +2843,7 @@ function renderDetail(){
       '</div>';
     }
   } else if(h.stage === 'interviewing') {
-    var phase3Done = ['t10','t11','t12','t13'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
+    var phase3Done = ['t10','t11','t12','t13','t14'].every(function(tid){ return h.checked.indexOf(tid) >= 0; }) && !!(h.netRequired);
     var t13RequiredFilled = !!(h.proposedStart && h.confirmedStart && h.confirmedNet &&
       h.proposedNet && h.firstName && h.lastName && h.reqNum);
     // t13 is HRBP (anyone) — HM confirms hire date, so HM or ES Leadership can advance
@@ -2959,6 +2988,27 @@ function esDateIsExpired(val) {
   return d < today;
 }
 
+function rhConfirmedCountForDate(isoDate, countType) {
+  // Count hires where t13+t14 are checked AND the relevant date matches isoDate
+  if (!isoDate || isoDate === 'tbd') return 0;
+  return hires.filter(function(h) {
+    var t13done = h.checked.indexOf('t13') >= 0;
+    var t14done = h.checked.indexOf('t14') >= 0;
+    if (!t13done || !t14done) return false;
+    if (countType === 'start') {
+      var hDate = h.confirmedStart || h.proposedStart || '';
+      return hDate === isoDate;
+    } else {
+      // NET: only count hires where netRequired='yes' and their start date cohort aligns
+      if (h.netRequired !== 'yes') return false;
+      var hDate2 = h.confirmedStart || h.proposedStart || '';
+      // Align by start date cohort — hire's start date must match the start tile date
+      var startRaw = esDateGet('start');
+      return startRaw && startRaw !== 'tbd' && hDate2 === startRaw;
+    }
+  }).length;
+}
+
 function renderEsDates() {
   ['start','net'].forEach(function(type) {
     var raw = esDateGet(type);
@@ -2970,6 +3020,7 @@ function renderEsDates() {
     }
     var valEl = document.getElementById('tile-es-' + (type==='start'?'start':'net') + '-val');
     var btnEl = document.getElementById('btn-edit-es-' + (type==='start'?'start':'net'));
+    var confEl = document.getElementById('tile-es-' + (type==='start'?'start':'net') + '-confirmed');
     if (valEl) {
       var display = esDateFmtDisplay(raw);
       valEl.textContent = display;
@@ -2977,6 +3028,10 @@ function renderEsDates() {
     }
     if (btnEl) {
       btnEl.style.display = esDateIsEditable() ? '' : 'none';
+    }
+    if (confEl) {
+      var cnt = rhConfirmedCountForDate(raw, type);
+      confEl.textContent = cnt + ' confirmed team member' + (cnt !== 1 ? 's' : '');
     }
   });
 }
@@ -3036,6 +3091,14 @@ function esDateNeedsAttentionItems() {
 
 function openModalFromTile() { openModal(); }
 
+
+function rhSetNetRequired(hireId, val) {
+  var h = hires.find(function(x){ return x.id === hireId; });
+  if (!h) return;
+  h.netRequired = val;
+  storageSaveHires();
+  renderDetail();
+}
 
 function updateStats() {
   var visible = hires.filter(canView);
@@ -3159,6 +3222,19 @@ function openModal(){
   ['m-role','m-ftpt','m-branch','m-hm','m-start','m-net'].forEach(function(id){
     var el = document.getElementById(id); if(el) el.value = '';
   });
+  // Pre-fill start date from Craig/Nesana's tile (fall back to today)
+  var startEl = document.getElementById('m-start');
+  var netEl   = document.getElementById('m-net');
+  if (startEl) {
+    var esStart = esDateGet('start');
+    if (esStart && esStart !== 'tbd') { startEl.value = esStart; }
+    else { startEl.value = new Date().toISOString().slice(0,10); }
+  }
+  if (netEl) {
+    var esNet = esDateGet('net');
+    if (esNet && esNet !== 'tbd') { netEl.value = esNet; }
+    else { netEl.value = new Date().toISOString().slice(0,10); }
+  }
   document.getElementById('modal-bg').classList.add('open');
   document.getElementById('m-role').focus();
   onModalBranchChange();
@@ -3182,7 +3258,7 @@ function createHire(){
     hireType:'new', backfillFor:'',
     proposedStart:start, proposedNet:net,
     reqNum:'', hrRecruiter:'Megan Wierick', firstName:'', lastName:'',
-    confirmedStart:'', confirmedNet:'',
+    confirmedStart:'', confirmedNet:'', netRequired:'',
     stage:'approved-not-posted', checked:['t1'], open:{}
   });
   selId = hires[0].id;
