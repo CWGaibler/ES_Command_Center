@@ -82,8 +82,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .kpi-workspace{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 140px);gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .kpi-sidebar{border-right:1px solid var(--border);overflow-y:auto;background:var(--white)}
 .kpi-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px;height:calc(100vh - 130px);min-height:320px}
-.kpi-sidebar-panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto}
-.kpi-sidebar-hdr{padding:9px 13px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center}
+.kpi-sidebar-panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto;border-top:4px solid var(--mb)}
+.kpi-sidebar-hdr{display:none}
 .kpi-sidebar-title{font-size:12px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .kpi-detail-panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto;border-top:4px solid var(--mb)}
 .kpi-detail{overflow-y:auto;background:var(--white)}
@@ -158,8 +158,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .rh-stat-val{font-size:26.4px;font-weight:800;color:var(--fb);line-height:1}
 .rh-stat-sub{font-size:14px;color:var(--muted);margin-top:2px}
 .rh-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px}
-.rh-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.rh-sidebar-hdr{padding:9px 13px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center;justify-content:space-between}
+.rh-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;border-top:4px solid var(--mb)}
+.rh-sidebar-hdr{display:none}
 .rh-sidebar-title{font-size:12px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .new-hire-btn{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:3px 11px;border-radius:999px;border:1.5px solid var(--mb);background:transparent;color:var(--mb);cursor:pointer}
 .new-hire-btn:hover{background:var(--mb);color:#fff}
@@ -176,7 +176,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .rh-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:visible}
 /* ── TIMEKEEPING & UTILIZATION ─────────────────────────────────────────────── */
 .tk-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px}
-.tk-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.tk-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;border-top:4px solid var(--mb)}
 .tk-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:visible;border-top:4px solid var(--mb)}
 .tk-section-tile{padding:12px 16px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .12s}
 .tk-section-tile:hover{background:var(--fb-xlt)}
@@ -517,8 +517,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .lc-stat-val{font-size:26.4px;font-weight:800;color:var(--fb);line-height:1}
 .lc-stat-sub{font-size:14px;color:var(--muted);margin-top:2px}
 .lc-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px}
-.lc-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.lc-sidebar-hdr{padding:9px 13px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center;justify-content:space-between}
+.lc-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;border-top:4px solid var(--mb)}
+.lc-sidebar-hdr{display:none}
 .lc-sidebar-title{font-size:12px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .lc-new-btn{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:3px 11px;border-radius:999px;border:1.5px solid var(--mb);background:transparent;color:var(--mb);cursor:pointer}
 .lc-new-btn:hover{background:var(--mb);color:#fff}
@@ -1253,14 +1253,15 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="lc-stat"><div class="lc-stat-lbl">In NET</div><div class="lc-stat-val" id="ob-stat-net">0</div><div class="lc-stat-sub">In training</div></div>
     </div>
     <div class="lc-layout">
-      <div class="lc-sidebar">
-        <div class="lc-sidebar-hdr">
-          <span class="lc-sidebar-title">New Hires</span>
-          <span style="display:inline-block;height:28px"></span>
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div">New Hires</div>
+        <div class="lc-sidebar" style="flex:1">
+          <div id="ob-person-list"></div>
         </div>
-        <div id="ob-person-list"></div>
       </div>
-      <div class="lc-detail" id="ob-detail">
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div">Onboarding Details</div>
+        <div class="lc-detail" id="ob-detail" style="flex:1">
         <div class="lc-empty"><div class="lc-empty-icon">📋</div><div class="lc-empty-msg">Select a new hire to view their onboarding checklist</div><div class="lc-empty-sub">Onboarding records are created automatically when a candidate accepts an offer in Recruiting &amp; Hiring.</div></div>
       </div>
     </div>
@@ -1277,14 +1278,15 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="lc-stat"><div class="lc-stat-lbl">Backfills Pending</div><div class="lc-stat-val" id="tr-stat-backfill" style="color:var(--gold)">0</div><div class="lc-stat-sub">Awaiting decision</div></div>
     </div>
     <div class="lc-layout">
-      <div class="lc-sidebar">
-        <div class="lc-sidebar-hdr">
-          <span class="lc-sidebar-title">Active Transitions</span>
-          <button class="lc-new-btn" onclick="lcNewRecord('tr')">+ New</button>
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div" style="display:flex;align-items:center;justify-content:space-between"><span>Active Transitions</span><button class="lc-new-btn" onclick="lcNewRecord('tr')">+ New</button></div>
+        <div class="lc-sidebar" style="flex:1">
+          <div id="tr-person-list"></div>
         </div>
-        <div id="tr-person-list"></div>
       </div>
-      <div class="lc-detail" id="tr-detail">
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div">Transition Details</div>
+        <div class="lc-detail" id="tr-detail" style="flex:1">
         <div class="lc-empty"><div class="lc-empty-icon">🔄</div><div class="lc-empty-msg">Select a transition to view details</div><div class="lc-empty-sub">Transition records are created automatically when an employee is promoted or transferred.</div></div>
       </div>
     </div>
@@ -1301,14 +1303,15 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="lc-stat"><div class="lc-stat-lbl">Backfills Pending</div><div class="lc-stat-val" id="off-stat-backfill" style="color:var(--gold)">0</div><div class="lc-stat-sub">Decision needed</div></div>
     </div>
     <div class="lc-layout">
-      <div class="lc-sidebar">
-        <div class="lc-sidebar-hdr">
-          <span class="lc-sidebar-title">Departures</span>
-          <button class="lc-new-btn" onclick="lcNewRecord('off')">+ New</button>
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div" style="display:flex;align-items:center;justify-content:space-between"><span>Departures</span><button class="lc-new-btn" onclick="lcNewRecord('off')">+ New</button></div>
+        <div class="lc-sidebar" style="flex:1">
+          <div id="off-person-list"></div>
         </div>
-        <div id="off-person-list"></div>
       </div>
-      <div class="lc-detail" id="off-detail">
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div">Offboarding Details</div>
+        <div class="lc-detail" id="off-detail" style="flex:1">
         <div class="lc-empty"><div class="lc-empty-icon">👋</div><div class="lc-empty-msg">Select a departure to view details</div><div class="lc-empty-sub">Offboarding records are created when a resignation or termination is initiated. Completed records marked Backfill Needed will automatically create a Recruiting requisition.</div></div>
       </div>
     </div>
@@ -1321,13 +1324,15 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     </div>
     <div class="sf-stats" id="sf-stats-strip"></div>
     <div class="rh-layout" id="sf-layout">
-      <div class="rh-sidebar">
-        <div class="rh-sidebar-hdr">
-          <span class="rh-sidebar-title" id="sf-sidebar-count">Shows Needing Action</span>
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div"><span id="sf-sidebar-count">Shows Needing Action</span></div>
+        <div class="rh-sidebar" style="flex:1">
+          <div id="sf-show-list" style="overflow-y:auto;max-height:calc(100vh - 310px)"></div>
         </div>
-        <div id="sf-show-list" style="overflow-y:auto;max-height:calc(100vh - 295px)"></div>
       </div>
-      <div class="rh-detail" id="sf-detail">
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div">Staffing Details</div>
+        <div class="rh-detail" id="sf-detail" style="flex:1">
         <div class="sf-empty">
           <div class="sf-empty-icon">📅</div>
           <div class="sf-empty-msg">Select a show</div>
@@ -1348,13 +1353,15 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div class="sf-stats" id="sc-stats-strip"></div>
     <div id="sc-panel-queue">
     <div class="rh-layout" id="sc-layout">
-      <div class="rh-sidebar">
-        <div class="rh-sidebar-hdr">
-          <span class="rh-sidebar-title" id="sc-sidebar-count">Shows to Schedule</span>
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div"><span id="sc-sidebar-count">Shows to Schedule</span></div>
+        <div class="rh-sidebar" style="flex:1">
+          <div id="sc-show-list" style="overflow-y:auto;max-height:calc(100vh - 315px)"></div>
         </div>
-        <div id="sc-show-list" style="overflow-y:auto;max-height:calc(100vh - 300px)"></div>
       </div>
-      <div class="rh-detail" id="sc-detail">
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div">Scheduling Details</div>
+        <div class="rh-detail" id="sc-detail" style="flex:1">
         <div class="sf-empty">
           <div class="sf-empty-icon">&#128203;</div>
           <div class="sf-empty-msg">Select a show</div>
@@ -1374,11 +1381,15 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     </div>
     <div class="rh-stats" id="tk-stats-strip"></div>
     <div class="tk-layout">
-      <div class="tk-sidebar">
-        <div class="rh-sidebar-hdr"><span class="rh-sidebar-title">Procedure Sections</span></div>
-        <div id="tk-section-list"></div>
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div">Procedure Sections</div>
+        <div class="tk-sidebar" style="flex:1">
+          <div id="tk-section-list"></div>
+        </div>
       </div>
-      <div class="tk-detail" id="tk-detail">
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div">Procedure Details</div>
+        <div class="tk-detail" id="tk-detail" style="flex:1">
         <div class="sf-empty">
           <div class="sf-empty-icon">⏱</div>
           <div class="sf-empty-msg">Select a section</div>
@@ -1420,13 +1431,16 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <span class="page-sub" id="kpis-sub">FY26 Key Performance Indicators</span>
     </div>
     <div class="kpi-layout">
-      <div class="kpi-sidebar-panel">
-        <div class="kpi-sidebar-hdr">
-          <span class="kpi-sidebar-title">FY26 KPIs</span>
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div">Current KPIs</div>
+        <div class="kpi-sidebar-panel" style="flex:1">
+          <div id="kpi-sidebar"></div>
         </div>
-        <div id="kpi-sidebar"></div>
       </div>
-      <div class="kpi-detail-panel" id="kpi-detail"></div>
+      <div style="display:flex;flex-direction:column">
+        <div class="el-section-div">KPI Details</div>
+        <div class="kpi-detail-panel" id="kpi-detail" style="flex:1"></div>
+      </div>
     </div>
   </div>
   <div class="page" id="page-team">
