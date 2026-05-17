@@ -2697,6 +2697,9 @@ function rhDenyRequisition(hId) {
 
 function renderDetail(){
   var panel=document.getElementById('rh-detail'); if(!panel)return;
+  var savedScroll = 0;
+  var existingScroll = panel.querySelector('.det-scroll');
+  if (existingScroll) savedScroll = existingScroll.scrollTop;
   // Use canViewInScope for stale guard — matches what's visible in the sidebar list
   // canView() is only used for task ownership gating (checkbox interactivity) below
   var visH = hires.filter(canViewInScope);
@@ -3016,6 +3019,8 @@ function renderDetail(){
     '<div class="det-sticky">'+posHtml+'</div>'+
     '<div class="det-process-label">Recruiting &amp; Hiring Process</div>'+
     '<div class="det-scroll"><div class="el-id-card" style="border-top:none;margin-bottom:0">'+approvalBarHtml+clHtml+'</div>'+handoffBar+'</div>';
+
+      if (savedScroll > 0) { var ns = panel.querySelector('.det-scroll'); if (ns) ns.scrollTop = savedScroll; }
 
     // Attach phase toggle listeners
   panel.querySelectorAll('.phase-hdr').forEach(function(hdr){
