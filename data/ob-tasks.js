@@ -1,7 +1,6 @@
 /* OB_TASKS — extracted from index.html */
 var OB_TASKS = [
   // Phase 1: Before Start Date
-  {id:'ob1', phase:'Before Start Date', title:'Confirm all Recruiting & Hiring procedures are complete', owner:'hm', links:[]},
   {id:'ob2', phase:'Before Start Date', title:'Complete CX Team Member Contact Info Smartsheet (include full mailing address with apt/suite)', owner:'hm', links:[]},
   {id:'ob3', phase:'Before Start Date', title:'Add employee to bulk CARF spreadsheet and Laptop Request Form (at least 2 weeks prior)', owner:'admin', links:[]},
   {id:'ob4', phase:'Before Start Date', title:'Send Laptop Request spreadsheet to ITEquipmentRequest@freeman.com', owner:'admin', links:[]},
