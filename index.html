@@ -379,6 +379,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .chip-approved-np{background:#EAFAF0;color:#1A6B35;border-color:rgba(66,187,55,.3);font-style:italic}
 .chip-posted{background:rgba(0,189,246,.1);color:#006A8A;border-color:rgba(0,189,246,.3)}
 .chip-approved{background:rgba(66,187,55,.1);color:#1A6B14;border-color:rgba(66,187,55,.3)}
+.chip-teal{background:rgba(0,189,246,.1);color:#005A75;border-color:rgba(0,189,246,.35);font-style:italic}
 .chip-rejected{background:#FFEDE7;color:var(--orange);border-color:rgba(251,71,31,.2)}
 .approval-bar{display:flex;align-items:flex-start;gap:8px;padding:12px 16px;border-top:1px solid var(--border-lt);border-radius:0 0 10px 10px;flex-wrap:wrap}
 .approval-bar.needs-action{background:#FFF8E6;border-top-color:rgba(255,181,0,.25)}
@@ -2136,8 +2137,8 @@ var VIEW_AS_NAMES = {'hm':'Hiring Manager','rd':'Regional Director','es':'ES Lea
 
 var APPROVAL_STAGES = {
   'approved-not-posted': {label:'Requested',    cls:'chip-approved-np', nextStage:'approved',     stagePhase:1},
-  'approved':            {label:'Approved',      cls:'chip-approved',    nextStage:'interviewing', stagePhase:2},
-  'interviewing':        {label:'Interviewing',  cls:'chip-amber',       nextStage:'offer',        stagePhase:3},
+  'approved':            {label:'Approved',      cls:'chip-approved',    nextStage:'candidate-selected', stagePhase:2},
+  'candidate-selected':  {label:'Candidate Selected', cls:'chip-teal',   nextStage:'offer',        stagePhase:3},
   'offer':               {label:'Offer Stage',   cls:'chip-green',       nextStage:'complete',     stagePhase:3},
   'complete':            {label:'Complete',      cls:'chip-ghost',       nextStage:null,           stagePhase:4},
   'rejected':            {label:'Rejected',      cls:'chip-rejected',    nextStage:null,           stagePhase:0},
@@ -2149,7 +2150,7 @@ var APPROVAL_STAGES = {
 var TASK_STAGE_MAP = {
   'approved-not-posted': ['t1','t2','t3'],
   'approved':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9'],
-  'interviewing':        ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
+  'candidate-selected':  ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
   'offer':               ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
   'complete':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
 };
@@ -2648,6 +2649,27 @@ function rhAdvanceStage(hId) {
   renderList(); renderDetail(); updateStats();
 }
 
+function rhConfirmCandidate(hId) {
+  var hire = hires.find(function(x){ return x.id === hId; });
+  if (!hire) return;
+  var isHM = currentIdentity().name === hire.hiringManager;
+  var isES = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
+  if (!isHM && !isES) return;
+  var firstEl = document.getElementById('rh-cand-first-' + hId);
+  var lastEl  = document.getElementById('rh-cand-last-'  + hId);
+  var first = firstEl ? firstEl.value.trim() : '';
+  var last  = lastEl  ? lastEl.value.trim()  : '';
+  if (!first || !last) {
+    alert('Please enter both a first and last name before confirming.');
+    return;
+  }
+  hire.firstName = first;
+  hire.lastName  = last;
+  hire.stage = 'candidate-selected';
+  storageSaveHires();
+  renderList(); renderDetail(); updateStats();
+}
+
 function rhDenyRequisition(hId) {
   var hire = hires.find(function(x){ return x.id === hId; });
   if (!hire) return;
@@ -2857,16 +2879,20 @@ function renderDetail(){
       var p2Done = ['t4','t5','t6','t7','t8','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
       var canAdv2 = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
       if(p2Done && canAdv2 && h.stage === 'approved') {
-        phaseAdvBtn = '<div class="phase-advance-bar">'+
-          '<span class="phase-advance-msg">&#10003; Recruiting & Interviewing complete &mdash; ready to advance</span>'+
-          '<button onclick="rhAdvanceStage(\''+ h.id +'\')" class="btn-phase-advance">Mark as Interviewing &rarr;</button>'+
+        phaseAdvBtn = '<div class="phase-advance-bar" style="flex-direction:column;align-items:flex-start;gap:10px">'+
+          '<span class="phase-advance-msg">&#10003; Recruiting &amp; Interviewing complete &mdash; enter selected candidate\'s name to confirm</span>'+
+          '<div style="display:flex;gap:8px;align-items:center;width:100%">'+
+            '<input id="rh-cand-first-'+h.id+'" type="text" placeholder="First name" value="'+(h.firstName||'')+'" style="font-family:\'Nunito Sans\',sans-serif;font-size:13px;font-weight:700;color:var(--fb);border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;outline:none;flex:1;background:var(--white)" />'+
+            '<input id="rh-cand-last-'+h.id+'" type="text" placeholder="Last name" value="'+(h.lastName||'')+'" style="font-family:\'Nunito Sans\',sans-serif;font-size:13px;font-weight:700;color:var(--fb);border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;outline:none;flex:1;background:var(--white)" />'+
+            '<button onclick="rhConfirmCandidate(\''+h.id+'\')" class="btn-phase-advance">Candidate Selected &rarr;</button>'+
+          '</div>'+
         '</div>';
       }
     } else if(phase === 'Job Offer') {
       var t13Rdy = !!(h.proposedStart && h.confirmedStart && h.confirmedNet && h.proposedNet && h.firstName && h.lastName && h.reqNum);
       var p3Done = t13Rdy && ['t10','t11','t12','t13','t14'].every(function(tid){ return h.checked.indexOf(tid) >= 0; }) && !!(h.netRequired);
       var canAdv3 = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
-      if(p3Done && canAdv3 && h.stage === 'interviewing') {
+      if(p3Done && canAdv3 && h.stage === 'candidate-selected') {
         phaseAdvBtn = '<div class="phase-advance-bar">'+
           '<span class="phase-advance-msg">&#10003; Job Offer complete &mdash; background check cleared</span>'+
           '<button onclick="rhAdvanceStage(\''+ h.id +'\')" class="btn-phase-advance">Mark as Offer Stage &rarr;</button>'+
@@ -2913,7 +2939,7 @@ function renderDetail(){
         '<span class="chip chip-approved">Approved</span>'+
       '</div>';
     }
-  } else if(h.stage === 'interviewing') {
+  } else if(h.stage === 'candidate-selected') {
     var phase3Done = ['t10','t11','t12','t13','t14'].every(function(tid){ return h.checked.indexOf(tid) >= 0; }) && !!(h.netRequired);
     var t13RequiredFilled = !!(h.proposedStart && h.confirmedStart && h.confirmedNet &&
       h.proposedNet && h.firstName && h.lastName && h.reqNum);
@@ -2932,9 +2958,10 @@ function renderDetail(){
         '<div class="sub" style="color:var(--muted)">Still needed: '+missingFields.join(', ')+'</div></div>'+
       '</div>';
     } else if(phase3Done) {
+      var candName = (h.firstName && h.lastName) ? h.firstName + ' ' + h.lastName : 'Candidate';
       approvalBarHtml = '<div class="approval-bar">'+
-        '<div class="approval-msg">&#10003; Interviewing in progress<div class="sub">Complete all Job Offer steps below to advance to Offer Stage.</div></div>'+
-        '<span class="chip chip-amber">Interviewing</span>'+
+        '<div class="approval-msg">&#10003; Candidate selected: '+candName+'<div class="sub">Complete all Job Offer steps below to advance to Offer Stage.</div></div>'+
+        '<span class="chip chip-teal">Candidate Selected</span>'+
       '</div>';
     }
   } else if(h.stage === 'rejected') {
@@ -3251,7 +3278,7 @@ function updateStats() {
   visible.forEach(function(h){
     if(['approved-not-posted','draft','pending-rd','pending-es','approved'].indexOf(h.stage)>=0) open++;
     if(needsMyAction(h)) pending++;
-    if(['approved','interviewing'].indexOf(h.stage)>=0) inproc++;
+    if(['approved','candidate-selected'].indexOf(h.stage)>=0) inproc++;
     if(h.stage==='offer') offer++;
     ov+=countOverdue(h);
   });
