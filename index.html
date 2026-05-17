@@ -3002,7 +3002,6 @@ function renderDetail(){
     } else if (h.stage === 'offer' || h.stage === 'complete' || (h.firstName && h.lastName)) {
       var missingRH = [];
       if (!h.firstName || !h.lastName) missingRH.push('enter candidate first and last name');
-      if (!h.confirmedStart) missingRH.push('confirm start date');
       if (!rhAllTasksDone(h)) missingRH.push('complete all HM tasks');
       if (missingRH.length) {
         handoffBar = '<div class="rh-handoff-bar" style="background:var(--fb-xlt);border-top-color:var(--border-lt)">' +
@@ -3321,7 +3320,7 @@ function rhAllTasksDone(h) {
   return hmTasks.every(function(t){ return h.checked.indexOf(t.id) >= 0; });
 }
 function rhIsOfferAccepted(h) {
-  return (h.firstName && h.lastName && h.confirmedStart) || h.stage === 'complete';
+  return (h.firstName && h.lastName && (h.confirmedStart || h.proposedStart)) || h.stage === 'complete';
 }
 function rhMoveToOnboarding(hireId) {
   var h = hires.find(function(x){ return x.id === hireId; }); if (!h) return;
