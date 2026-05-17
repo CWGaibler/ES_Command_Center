@@ -2675,8 +2675,10 @@ function rhSaveReqNum(hId, val) {
   if (!hire) return;
   hire.reqNum = val.trim();
   storageSaveHires();
-  // Re-render list so req # shows on sidebar card; don't re-render detail (user is typing)
   renderList(); updateStats();
+  // Debounce detail re-render so checkbox lock state updates after typing stops
+  clearTimeout(rhSaveReqNum._t);
+  rhSaveReqNum._t = setTimeout(function() { renderDetail(); }, 400);
 }
 
 function rhDenyRequisition(hId) {
