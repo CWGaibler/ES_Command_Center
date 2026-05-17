@@ -330,7 +330,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .hire-type-btn:hover:not(.active){border-color:var(--fb);color:var(--fb)}
 
 /* POSITION DETAIL CARD */
-.pos-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.pos-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:0}
 .pos-card-hdr{padding:10px 16px;border-bottom:1px solid var(--border-lt);border-top:3px solid var(--mb);display:flex;align-items:center;justify-content:space-between}.lc-edit-btn{font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:700;padding:3px 12px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;margin-right:4px}.lc-edit-btn:hover{border-color:var(--mb);color:var(--mb)}
 .pos-card-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
 .pos-card-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
@@ -343,6 +343,22 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .pos-field-val.editable:hover{border-bottom-color:var(--mb);color:var(--mb)}
 .pos-field-val.editable.empty:hover{color:var(--mb)}
 .pos-field-input{font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:700;color:var(--fb);border:none;border-bottom:1.5px solid var(--mb);outline:none;background:transparent;width:100%;padding:0}
+.det-sticky{flex-shrink:0;padding-bottom:10px;border-bottom:1px solid var(--border-lt);margin-bottom:10px}
+.det-scroll{flex:1;min-height:0;overflow-y:auto;padding-bottom:22px}
+.rh-detail.det-split{display:flex;flex-direction:column;overflow:hidden;padding:14px 14px 0}
+.det-process-label{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding-bottom:6px;border-bottom:1px solid var(--border-lt);margin-bottom:10px}
+.rh-pos-id-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.rh-pos-id-bar{height:4px;background:var(--mb)}
+.rh-pos-id-body{display:flex;gap:14px;align-items:center;padding:12px 14px}
+.rh-pos-avatar{width:52px;height:52px;border-radius:50%;background:var(--fb);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rh-pos-role{font-size:16px;font-weight:800;color:var(--fb);margin-bottom:2px}
+.rh-pos-meta{font-size:13px;color:var(--muted);margin-bottom:5px}
+.rh-pos-dates{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+.rh-pos-date-pill{font-size:12px;font-weight:700;color:var(--fb);background:var(--fb-xlt);border:1px solid var(--border-lt);border-radius:6px;padding:2px 8px}
+.rh-pos-prog{padding:6px 14px 10px;border-top:1px solid var(--border-lt);margin-top:2px}
+.rh-pos-prog-bar{height:4px;background:var(--border-lt);border-radius:2px;margin-bottom:4px}
+.rh-pos-prog-fill{height:100%;background:var(--mb);border-radius:2px}
+.rh-pos-prog-lbl{font-size:12px;color:var(--muted)}
 .pos-tag{display:inline-flex;gap:5px;flex-wrap:wrap;margin-top:2px}
 /* inline edit overlay */
 .edit-overlay{display:none;position:fixed;inset:0;z-index:998}
@@ -2680,32 +2696,40 @@ function renderDetail(){
   var ftptChip = h.ftpt==='Part-Time'
     ? '<span class="chip chip-orange">Part-Time</span>'
     : '<span class="chip chip-green">Full-Time</span>';
+  var trackChip = ov>0 ? '<span class="chip chip-red">'+ov+' Overdue</span>' : '<span class="chip chip-green">On Track</span>';
 
-  var posHtml = '<div class="pos-card">'+
-    '<div class="pos-card-hdr">'+
-      '<span class="pos-card-title">Position Details</span>'+
-      '<div style="display:flex;gap:5px">'+typeChip+ftptChip+(ov>0?'<span class="chip chip-red">'+ov+' Overdue</span>':'<span class="chip chip-green">On Track</span>')+'</div>'+
-    '</div>'+
-    '<div class="pos-card-body">'+
-      fieldStatic('Role', h.role)+
-      fieldStatic('Branch / Team', h.branch)+
-      fieldStatic('Hiring Manager', (h.hiringManagerFirst && h.hiringManagerLast) ? h.hiringManagerFirst + ' ' + h.hiringManagerLast : h.hiringManager || '')+
-      (h.hireType==='backfill' ? fieldStatic('Backfilling For', (h.backfillForFirst||'') + ' ' + (h.backfillForLast||'') + (h.whyBackfill ? ' <span style="color:var(--muted);font-size:12px">(' + h.whyBackfill + ')</span>' : '')) : fieldStatic('Type', 'Net New Position'))+
-      field('Req # (5 digits)', h.reqNum, 'reqNum', 'text')+
-      field('HR Recruiter', h.hrRecruiter, 'hrRecruiter', 'select-recruiter')+
-      field('Candidate First Name', h.firstName||'', 'firstName', 'text')+
-      field('Candidate Last Name', h.lastName||'', 'lastName', 'text')+
-      field('Confirmed Start Date', h.confirmedStart ? fmtDateStr(h.confirmedStart) : '', 'confirmedStart', 'date')+
-      field('Confirmed NET Class Start', h.confirmedNet ? fmtDateStr(h.confirmedNet) : '', 'confirmedNet', 'date')+
-      field('Proposed Start Date', h.proposedStart ? fmtDateStr(h.proposedStart) : '', 'proposedStart', 'date')+
-      field('Proposed NET Class', h.proposedNet ? fmtDateStr(h.proposedNet) : '', 'proposedNet', 'date')+
-      fieldStatic('Phone Stipend', h.phoneStipend ? 'Yes' : 'No')+
-    '</div>'+
-    '<div style="padding:8px 14px;border-top:1px solid var(--border-lt)">'+
-      '<div class="det-prog-wrap" style="max-width:100%"><div class="det-prog-fill" style="width:'+pct+'%"></div></div>'+
-      '<div class="det-prog-lbl" style="margin-top:4px">'+done+'/'+total+' checklist tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
-    '</div>'+
-  '</div>';
+  // Avatar: initials from role
+  var initials = (h.role||'').split(' ').filter(function(w){return w.length>0;}).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase() || 'PO';
+
+  // Meta line: Branch | Type | Hiring Manager
+  var typeLabel = h.hireType==='backfill' ? 'Backfill' : 'Net New';
+  var hmName = (h.hiringManagerFirst && h.hiringManagerLast) ? h.hiringManagerFirst+' '+h.hiringManagerLast : (h.hiringManager||'');
+  var metaParts = [h.branch, typeLabel, hmName ? 'HM: '+hmName : ''].filter(Boolean);
+
+  // Proposed dates as pills
+  var propStart = h.proposedStart ? fmtDateStr(h.proposedStart) : null;
+  var propNet   = h.proposedNet   ? fmtDateStr(h.proposedNet)   : null;
+  var datePills = '';
+  if (propStart) datePills += '<span class="rh-pos-date-pill">&#128197; Start: '+propStart+'</span>';
+  if (propNet)   datePills += '<span class="rh-pos-date-pill">&#127979; NET: '+propNet+'</span>';
+
+  var posHtml =
+    '<div class="rh-pos-id-card">'+
+      '<div class="rh-pos-id-bar"></div>'+
+      '<div class="rh-pos-id-body">'+
+        '<div class="rh-pos-avatar">'+initials+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="rh-pos-role">'+h.role+'</div>'+
+          '<div class="rh-pos-meta">'+metaParts.join('<span style="color:var(--border);margin:0 6px">|</span>')+'</div>'+
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:'+(datePills?'4px':'0')+'">'+typeChip+ftptChip+trackChip+'</div>'+
+          (datePills ? '<div class="rh-pos-dates">'+datePills+'</div>' : '')+
+        '</div>'+
+      '</div>'+
+      '<div class="rh-pos-prog">'+
+        '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:'+pct+'%"></div></div>'+
+        '<div class="rh-pos-prog-lbl">'+done+'/'+total+' checklist tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
+      '</div>'+
+    '</div>';
 
   // -- Checklist --
   var phases=[]; var seen={};
@@ -2950,7 +2974,11 @@ function renderDetail(){
     }
   }
 
-  panel.innerHTML = '<div style="overflow-y:auto;max-height:calc(100vh - 220px);padding-right:2px">'+posHtml+approvalBarHtml+clHtml+handoffBar+'</div>';
+  panel.className = 'rh-detail det-split';
+  panel.innerHTML =
+    '<div class="det-sticky">'+posHtml+'</div>'+
+    '<div class="det-process-label">Recruiting &amp; Hiring Process</div>'+
+    '<div class="det-scroll">'+approvalBarHtml+clHtml+handoffBar+'</div>';
 
     // Attach phase toggle listeners
   panel.querySelectorAll('.phase-hdr').forEach(function(hdr){
@@ -4130,8 +4158,9 @@ function renderSfDetail() {
   var sfStatusHtml = confirmed
     ? '<span class="chip chip-green">\u2713 Plan Confirmed</span>'
     : '<span class="chip chip-amber">Needs Plan</span>';
-  var html = buildEventDetailHeader({ showId: sfSelId, statusHtml: sfStatusHtml });
-  html += "<div class=\"det-scroll\" style=\"padding-top:8px\">";
+  var html = '<div class="det-sticky">'+buildEventDetailHeader({ showId: sfSelId, statusHtml: sfStatusHtml })+'</div>'+
+    '<div class="det-process-label">Staffing Process</div>';
+  html += "<div class=\"det-scroll\" style=\"padding-top:0\">";
 
   // ── Staffing steps — new 5-step flow ────────────────────────────────────
 
@@ -4242,6 +4271,7 @@ function renderSfDetail() {
       '</div>';
   }
 
+  det.className = 'rh-detail det-split';
   det.innerHTML = html;
 
   // ── Inject staffing panels into anchors ──────────────────────────────────
@@ -8378,10 +8408,10 @@ function renderScDetail() {
   var scExtraChips = '';
   if (scLead) scExtraChips += '<span class="chip" style="background:#E6F7FD;color:#005A75;border:1.5px solid #7DD9F3">\u25b6 Lead: ' + scLead + '</span>';
   if (scSup)  scExtraChips += '<span class="chip chip-ghost">\u25b6 Sup: ' + scSup + '</span>';
-  var html = buildEventDetailHeader({ showId: scSelId, statusHtml: scStatusHtml, extraChips: scExtraChips });
+  var html = '<div class="det-sticky">'+buildEventDetailHeader({ showId: scSelId, statusHtml: scStatusHtml, extraChips: scExtraChips })+'</div>'+
+    '<div class="det-process-label">Scheduling Process</div>';
 
-
-  html += '<div class="det-scroll" style="padding-top:8px">';
+  html += '<div class="det-scroll" style="padding-top:0">';
 
   // ── TASK 1 — Add to ES Regional Schedule ──
   var t1chkCls = 'task-chk' + (sc1done ? ' checked' : '') + (scConfirmed ? ' locked' : '');
@@ -8476,6 +8506,7 @@ function renderScDetail() {
     }
   }
 
+  det.className = 'rh-detail det-split';
   det.innerHTML = html;
 
   // ── INJECT PANELS INTO ANCHORS ──
