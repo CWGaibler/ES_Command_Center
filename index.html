@@ -362,6 +362,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .chip-approved{background:#EAFAF0;color:#1A6B35;border-color:rgba(66,187,55,.3)}
 .chip-approved-np{background:#EAFAF0;color:#1A6B35;border-color:rgba(66,187,55,.3);font-style:italic}
 .chip-posted{background:rgba(0,189,246,.1);color:#006A8A;border-color:rgba(0,189,246,.3)}
+.chip-approved{background:rgba(66,187,55,.1);color:#1A6B14;border-color:rgba(66,187,55,.3)}
 .chip-rejected{background:#FFEDE7;color:var(--orange);border-color:rgba(251,71,31,.2)}
 .approval-bar{display:flex;align-items:flex-start;gap:8px;padding:12px 16px;border-top:1px solid var(--border-lt);border-radius:0 0 10px 10px;flex-wrap:wrap}
 .approval-bar.needs-action{background:#FFF8E6;border-top-color:rgba(255,181,0,.25)}
@@ -1251,7 +1252,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         <div class="rh-action-tile-icon">＋</div>
         <div class="rh-action-tile-sub">Open a new requisition</div>
       </div>
-      <div class="rh-stat"><div class="rh-stat-lbl">Open Requisitions</div><div class="rh-stat-val" id="stat-open">—</div><div class="rh-stat-sub">Pending or posted</div></div>
+      <div class="rh-stat"><div class="rh-stat-lbl">Open Requisitions</div><div class="rh-stat-val" id="stat-open">—</div><div class="rh-stat-sub">Pending or approved</div></div>
       <div class="rh-date-tile" id="tile-es-start">
         <div class="rh-date-tile-lbl" id="tile-es-start-lbl">Next ES Start Date</div>
         <div class="rh-date-tile-val tbd" id="tile-es-start-val">TBD</div>
@@ -2118,8 +2119,8 @@ var pendingRejectId = null;
 var VIEW_AS_NAMES = {'hm':'Hiring Manager','rd':'Regional Director','es':'ES Leadership'};
 
 var APPROVAL_STAGES = {
-  'approved-not-posted': {label:'Requested',    cls:'chip-approved-np', nextStage:'posted',       stagePhase:1},
-  'posted':              {label:'Posted',        cls:'chip-posted',      nextStage:'interviewing', stagePhase:2},
+  'approved-not-posted': {label:'Requested',    cls:'chip-approved-np', nextStage:'approved',     stagePhase:1},
+  'approved':            {label:'Approved',      cls:'chip-approved',    nextStage:'interviewing', stagePhase:2},
   'interviewing':        {label:'Interviewing',  cls:'chip-amber',       nextStage:'offer',        stagePhase:3},
   'offer':               {label:'Offer Stage',   cls:'chip-green',       nextStage:'complete',     stagePhase:3},
   'complete':            {label:'Complete',      cls:'chip-ghost',       nextStage:null,           stagePhase:4},
@@ -2131,7 +2132,7 @@ var APPROVAL_STAGES = {
 // Tasks are grouped by phase; phases unlock as position advances
 var TASK_STAGE_MAP = {
   'approved-not-posted': ['t1','t2','t3'],
-  'posted':              ['t1','t2','t3','t4','t5','t6','t7','t8','t9'],
+  'approved':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9'],
   'interviewing':        ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
   'offer':               ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
   'complete':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
@@ -2820,13 +2821,13 @@ function renderDetail(){
         phaseAdvBtn = '<div class="phase-advance-bar">'+
           '<span class="phase-advance-msg">&#10003; Job Requisition complete &mdash; ready to post</span>'+
           '<button onclick="rhDenyRequisition(\''+ h.id +'\')" class="btn-phase-advance" style="background:var(--orange);margin-right:6px">Mark as Denied ✕</button>'+
-          '<button onclick="rhAdvanceStage(\''+ h.id +'\')" class="btn-phase-advance">Mark as Posted &rarr;</button>'+
+          '<button onclick="rhAdvanceStage(\''+ h.id +'\')" class="btn-phase-advance">Mark as Approved &rarr;</button>'+
         '</div>';
       }
     } else if(phase === 'Recruiting & Interviewing') {
       var p2Done = ['t4','t5','t6','t7','t8','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
       var canAdv2 = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
-      if(p2Done && canAdv2 && h.stage === 'posted') {
+      if(p2Done && canAdv2 && h.stage === 'approved') {
         phaseAdvBtn = '<div class="phase-advance-bar">'+
           '<span class="phase-advance-msg">&#10003; Recruiting & Interviewing complete &mdash; ready to advance</span>'+
           '<button onclick="rhAdvanceStage(\''+ h.id +'\')" class="btn-phase-advance">Mark as Interviewing &rarr;</button>'+
@@ -2859,7 +2860,7 @@ function renderDetail(){
     var canPost = (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
     if(phase1Done) {
       approvalBarHtml = '<div class="approval-bar">'+
-        '<div class="approval-msg">&#10003; Requisition approved &mdash; awaiting ES Leadership to post<div class="sub">Craig Gaibler or Nesana Wieger will mark this as posted when submitted to HR.</div></div>'+
+        '<div class="approval-msg">&#10003; Requisition submitted &mdash; awaiting ES Leadership approval<div class="sub">Craig Gaibler or Nesana Wieger will mark this as Approved or Denied.</div></div>'+
         '<span class="chip chip-approved-np">Requested</span>'+
       '</div>';
     } else {
@@ -2874,14 +2875,14 @@ function renderDetail(){
         '<span class="chip chip-approved-np">Requested</span>'+
       '</div>';
     }
-  } else if(h.stage === 'posted') {
+  } else if(h.stage === 'approved') {
     var phase2Done = ['t4','t5','t6','t7','t8','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
     // t9 is owned by the HM — they or ES Leadership can advance
     var canAdv = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
     if(phase2Done) {
       approvalBarHtml = '<div class="approval-bar">'+
-        '<div class="approval-msg">&#10003; Position posted &mdash; recruiting in progress<div class="sub">Complete all Recruiting &amp; Interviewing steps to advance.</div></div>'+
-        '<span class="chip chip-posted">Posted</span>'+
+        '<div class="approval-msg">&#10003; Position approved &mdash; recruiting in progress<div class="sub">Complete all Recruiting &amp; Interviewing steps to advance.</div></div>'+
+        '<span class="chip chip-approved">Approved</span>'+
       '</div>';
     }
   } else if(h.stage === 'interviewing') {
@@ -3218,7 +3219,7 @@ function updateStats() {
   visible.forEach(function(h){
     if(['approved-not-posted','draft','pending-rd','pending-es','approved'].indexOf(h.stage)>=0) open++;
     if(needsMyAction(h)) pending++;
-    if(['posted','interviewing'].indexOf(h.stage)>=0) inproc++;
+    if(['approved','interviewing'].indexOf(h.stage)>=0) inproc++;
     if(h.stage==='offer') offer++;
     ov+=countOverdue(h);
   });
