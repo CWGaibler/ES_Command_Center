@@ -2816,24 +2816,15 @@ function renderDetail(){
         t.links.forEach(function(l){lnks+='<a class="tlink" href="'+l.url+'" target="_blank">'+l.label+' &#8599;</a>';});
         lnks+='</div>';
       }
-      // t13 (background check) requires all key position fields to be filled first
+      // t13 (background check) — no longer gated on position fields; those are captured in earlier steps
       var t13FieldsComplete = true;
-      if (t.id === 't13') {
-        t13FieldsComplete = !!(h.proposedStart && h.confirmedStart && h.confirmedNet &&
-          h.proposedNet && h.firstName && h.lastName && h.reqNum);
-      }
       // t14 (NET confirmation) is gated behind t13 being checked
       if (t.id === 't14' && h.checked.indexOf('t13') < 0) { locked = true; }
       var canInteract = !locked && t13FieldsComplete && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
       var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'') + (!locked&&!canInteract?' not-owner':'');
       var chkAttrs = locked ? '' : ' data-hire="'+h.id+'" data-task="'+t.id+'" data-owner="'+t.owner+'"' + (!canInteract?' data-readonly="1"':'');
-      // t13 hint: muted when position fields are missing, blue when complete
+
       var rcHintHtml = '';
-      if (!ck && !locked && t.id === 't13') {
-        rcHintHtml = t13FieldsComplete
-          ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Position details complete \u2014 check this box when you are ready to move on.</div>'
-          : '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in all required Position Details above, then check this box when ready.</div>';
-      }
       // t14: show NET yes/no selector (gated behind t13), lock checkbox until selection made
       if (t.id === 't14' && !ck && h.checked.indexOf('t13') >= 0) {
         var netVal = h.netRequired;
@@ -2971,23 +2962,9 @@ function renderDetail(){
     }
   } else if(h.stage === 'candidate-selected') {
     var phase3Done = ['t10','t11','t12','t13','t14'].every(function(tid){ return h.checked.indexOf(tid) >= 0; }) && !!(h.netRequired);
-    var t13RequiredFilled = !!(h.proposedStart && h.confirmedStart && h.confirmedNet &&
-      h.proposedNet && h.firstName && h.lastName && h.reqNum);
     // t13 is HRBP (anyone) — HM confirms hire date, so HM or ES Leadership can advance
     var canAdv2 = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
-    if(!t13RequiredFilled) {
-      var missingFields = [];
-      if(!h.reqNum) missingFields.push('Req #');
-      if(!h.firstName || !h.lastName) missingFields.push('Candidate Name (first + last)');
-      if(!h.proposedStart) missingFields.push('Proposed Start Date');
-      if(!h.confirmedStart) missingFields.push('Confirmed Start Date');
-      if(!h.proposedNet) missingFields.push('Proposed NET Class');
-      if(!h.confirmedNet) missingFields.push('Confirmed NET Class Start');
-      approvalBarHtml = '<div class="approval-bar" style="background:#FFF8E6;border-top-color:rgba(255,181,0,.25)">'+
-        '<div class="approval-msg" style="color:var(--orange)">&#9888; Complete all Position Details before the final step can be checked'+
-        '<div class="sub" style="color:var(--muted)">Still needed: '+missingFields.join(', ')+'</div></div>'+
-      '</div>';
-    } else if(phase3Done) {
+    if(phase3Done) {
       var candName = (h.firstName && h.lastName) ? h.firstName + ' ' + h.lastName : 'Candidate';
       approvalBarHtml = '<div class="approval-bar">'+
         '<div class="approval-msg">&#10003; Candidate selected: '+candName+'<div class="sub">Complete all Job Offer steps below to advance to Offer Stage.</div></div>'+
