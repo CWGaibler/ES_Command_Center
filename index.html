@@ -2839,12 +2839,7 @@ function renderDetail(){
           '<button class="' + netYesCls + '" onclick="rhSetNetRequired(\'' + h.id + '\',\'yes\')">Yes</button>' +
           '<button class="' + netNoCls  + '" onclick="rhSetNetRequired(\'' + h.id + '\',\'no\')">No</button>' +
         '</div>';
-        if (netVal) {
-          rcHintHtml += '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">' +
-            (netVal==='yes' ? 'Confirmed: will attend NET class.' : 'Confirmed: NET class not required for this hire.') +
-            ' Check this box when ready.</div>';
-        } else {
-          rcHintHtml += '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Select Yes or No above, then check this box when ready.</div>';
+        if (!netVal) {
           locked = true;
           chkCls = 'task-chk locked';
           chkAttrs = '';
@@ -2852,15 +2847,12 @@ function renderDetail(){
       }
       // t5: req # input — must be filled before checkbox is checkable
       if (t.id === 't5' && !locked) {
-        if (ck && h.reqNum) {
-          rcHintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:4px">Req # recorded: <strong>' + h.reqNum + '</strong></div>';
-        } else if (!ck) {
+        if (!ck) {
           var reqFilled = !!(h.reqNum && h.reqNum.trim().length > 0);
-          rcHintHtml = '<div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+          rcHintHtml = '<div style="margin-top:8px;display:flex;gap:8px;align-items:center">' +
             '<input id="rh-req-'+h.id+'" type="text" maxlength="10" placeholder="Req # (e.g. 12345)" value="'+(h.reqNum||'')+'" ' +
             'style="font-family:\'Nunito Sans\',sans-serif;font-size:13px;font-weight:700;color:var(--fb);border:1.5px solid var(--border);border-radius:8px;padding:4px 10px;outline:none;width:180px;background:var(--white)" ' +
             'oninput="rhSaveReqNum(\''+h.id+'\',this.value)" />' +
-            '<span style="font-size:12px;color:var(--muted);font-style:italic">Enter the requisition number provided by the recruiter before checking this step.</span>' +
           '</div>';
           if (!reqFilled) {
             locked = true;
@@ -6394,9 +6386,7 @@ function renderObDetail() {
       var chkCls = isChecked ? 'checked' : (seqLocked ? 'locked' : (!canCheck ? 'readonly' : ''));
       var titleCls = isChecked ? 'done' : (seqLocked ? 'muted' : '');
       var clickAttr = (canCheck && !seqLocked) ? 'onclick="obToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
-      var obHintHtml = (!isChecked && !seqLocked && canCheck)
-        ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Check this box when complete.</div>'
-        : '';
+      var obHintHtml = '';
       return '<div class="task-row' + (seqLocked ? ' task-locked' : '') + '">' +
         '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
         '<div class="task-body">' +
