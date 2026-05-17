@@ -588,6 +588,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .sf-show-prog-fill.sc-progress{background:var(--mb)}
 .sf-show-prog-pct{font-size:14px;font-weight:800;color:var(--muted);pointer-events:none}
 .lc-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto;display:flex;flex-direction:column;border-top:4px solid var(--mb)}
+.lc-detail.det-split{background:transparent;border:none;border-radius:0;border-top:none;overflow:hidden}
 /* detail header */
 .lc-det-hdr{padding:13px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .lc-det-name{font-size:19.2px;font-weight:800}
@@ -1350,7 +1351,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
         </div>
       </div>
       <div style="display:flex;flex-direction:column;min-height:0">
-        <div class="el-section-div">Onboarding Details</div>
+        <div class="el-section-div">New Hire Details</div>
         <div class="lc-detail" id="ob-detail" style="flex:1">
         <div class="lc-empty"><div class="lc-empty-icon">📋</div><div class="lc-empty-msg">Select a new hire to view their onboarding checklist</div><div class="lc-empty-sub">Onboarding records are created automatically when a candidate accepts an offer in Recruiting &amp; Hiring.</div></div>
       </div>
@@ -3334,6 +3335,7 @@ function rhMoveToOnboarding(hireId) {
     id: 'ob-r' + Date.now(),
     firstName: h.firstName || '', lastName: h.lastName || '',
     role: h.role, branch: h.branch, ftpt: h.ftpt, hiringManager: h.hiringManager,
+    hireType: h.hireType || 'net-new', reqNum: h.reqNum || '',
     startDate: h.confirmedStart || h.proposedStart || 'TBD',
     netDate: h.confirmedNet || h.proposedNet || 'TBD',
     phase: 'Before Start Date', checked: {}, backfillDecision: null, closed: false
@@ -6432,30 +6434,65 @@ function renderObDetail() {
       ' remaining before onboarding can be closed.</div></div>';
   }
 
-  var ftChip = rec.ftpt === 'Full-Time' ?
-    '<span class="chip chip-ft">Full-Time</span>' :
-    '<span class="chip chip-pt">Part-Time</span>';
+  // Identity card — mirrors RH pos-id-card exactly
+  var obInitials = (rec.role||'').split(' ').filter(function(w){return w.length>0;}).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase()||'NH';
+  var obTypeChip = rec.hireType==='backfill'
+    ? '<span class="chip chip-amber">Backfill</span>'
+    : '<span class="chip chip-mb">Net New</span>';
+  var obFtptChip = rec.ftpt==='Part-Time'
+    ? '<span class="chip chip-orange">Part-Time</span>'
+    : '<span class="chip chip-green">Full-Time</span>';
+  var obTrackChip = obAllDone
+    ? '<span class="chip chip-green">Complete</span>'
+    : '<span class="chip chip-approved">In Progress</span>';
+  var obHmName = rec.hiringManager || '';
+  var obMetaParts = [rec.branch, rec.hireType==='backfill'?'Backfill':'Net New', obHmName?'HM: '+obHmName:''].filter(Boolean);
+  var obDatePills = '';
+  if (rec.startDate && rec.startDate !== 'TBD') obDatePills += '<span class="rh-pos-date-pill">Start: '+rec.startDate+'</span>';
+  if (rec.netDate  && rec.netDate  !== 'TBD') obDatePills += '<span class="rh-pos-date-pill">NET: '+rec.netDate+'</span>';
+
+  var obIdCard =
+    '<div class="rh-pos-id-card">'+
+      '<div class="rh-pos-id-bar"></div>'+
+      '<div class="rh-pos-id-body">'+
+        '<div class="rh-pos-avatar">'+obInitials+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="rh-pos-role">'+rec.role+
+            '<span style="font-weight:400;color:var(--border);margin:0 10px">|</span>'+
+            '<span style="color:var(--mb);font-size:18px;font-weight:700">'+rec.firstName+' '+rec.lastName+'</span>'+
+          '</div>'+
+          '<div class="rh-pos-meta">'+obMetaParts.join('<span style="color:var(--border);margin:0 6px">|</span>')+(rec.reqNum?'<span style="color:var(--border);margin:0 6px">|</span>Req #'+rec.reqNum:'')+'</div>'+
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:'+(obDatePills?'5px':'0')+'">'+obTypeChip+obFtptChip+obTrackChip+'</div>'+
+          (obDatePills?'<div class="rh-pos-dates">'+obDatePills+'</div>':'')+
+        '</div>'+
+      '</div>'+
+      '<div class="rh-pos-prog">'+
+        '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:'+pct+'%"></div></div>'+
+        '<div class="rh-pos-prog-lbl">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div>'+
+      '</div>'+
+    '</div>';
+
+  // Save scroll before re-render
+  var obSavedScroll = 0;
+  var obExistingScroll = el.querySelector('.det-scroll');
+  if (obExistingScroll) obSavedScroll = obExistingScroll.scrollTop;
+
+  el.className = 'lc-detail det-split';
   el.innerHTML =
-    '<div class="pos-card">'+
-      '<div class="pos-card-hdr">'+
-        '<span class="pos-card-title">Employee Details</span>'+
-        '<div style="display:flex;gap:5px">'+ftChip+'<span class="chip chip-mb">Onboarding</span></div>'+
+    '<div class="det-sticky">'+obIdCard+'</div>'+
+    '<div class="det-process-label">Onboarding Process</div>'+
+    '<div class="det-scroll">'+
+      '<div class="el-id-card" style="border-top:none;margin-bottom:0">'+
+        viewNote+
+        '<div class="lc-det-scroll" style="overflow:visible;padding:0">'+phaseSections+'</div>'+
       '</div>'+
-      '<div class="pos-card-body">'+
-        '<div class="pos-field"><div class="pos-field-lbl">Name</div><div class="pos-field-val">'+rec.firstName+' '+rec.lastName+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Role</div><div class="pos-field-val">'+rec.role+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Branch / Team</div><div class="pos-field-val">'+rec.branch+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Hiring Manager</div><div class="pos-field-val">'+rec.hiringManager+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Start Date</div><div class="pos-field-val">'+rec.startDate+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">NET Class Date</div><div class="pos-field-val">'+rec.netDate+'</div></div>'+
-      '</div>'+
-      '<div style="padding:8px 16px 12px">'+
-        '<div class="lc-det-prog-wrap" style="max-width:100%;margin-top:0"><div class="lc-det-prog-fill ob" style="width:'+pct+'%"></div></div>'+
-        '<div class="lc-det-prog-lbl" style="margin-top:4px">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div>'+
-      '</div>'+
-    '</div>'
-    + viewNote +
-    '<div class="lc-det-scroll">'+phaseSections+'</div>'+obCloseBar;
+      obCloseBar+
+    '</div>';
+
+  if (obSavedScroll > 0) {
+    var obNewScroll = el.querySelector('.det-scroll');
+    if (obNewScroll) obNewScroll.scrollTop = obSavedScroll;
+  }
 }
 
 
