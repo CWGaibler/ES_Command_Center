@@ -343,10 +343,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .pos-field-val.editable:hover{border-bottom-color:var(--mb);color:var(--mb)}
 .pos-field-val.editable.empty:hover{color:var(--mb)}
 .pos-field-input{font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:700;color:var(--fb);border:none;border-bottom:1.5px solid var(--mb);outline:none;background:transparent;width:100%;padding:0}
-.det-sticky{flex-shrink:0;padding-bottom:10px;border-bottom:1px solid var(--border-lt);margin-bottom:10px}
+.det-sticky{flex-shrink:0}
 .det-scroll{flex:1;min-height:0;overflow-y:auto;padding-bottom:22px}
-.rh-detail.det-split{display:flex;flex-direction:column;overflow:hidden;padding:14px 14px 0}
-.det-process-label{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding-bottom:6px;border-bottom:1px solid var(--border-lt);margin-bottom:10px}
+.rh-detail.det-split{display:flex;flex-direction:column;overflow:hidden;padding:0;background:transparent;border:none;border-radius:0;border-top:none}
+.det-process-label{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding:14px 0 7px;border-bottom:1px solid var(--border-lt);margin-bottom:12px}
 .rh-pos-id-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .rh-pos-id-bar{height:4px;background:var(--mb)}
 .rh-pos-id-body{display:flex;gap:16px;align-items:center;padding:14px 18px}
@@ -2739,7 +2739,7 @@ function renderDetail(){
   // -- Checklist --
   var phases=[]; var seen={};
   TASKS.forEach(function(t){if(!seen[t.phase]){seen[t.phase]=true;phases.push(t.phase);}});
-  var clHtml='<div class="rh-detail" style="margin-top:0">';
+  var clHtml='';
   // hmIsRD and activeTasks computed once, used in both the task loop and approval bar
   var hmIsRD = (function(){ var hmId=null; Object.keys(IDENTITY_DIRECTORY).forEach(function(k){ if(IDENTITY_DIRECTORY[k].name===h.hiringManager) hmId=k; }); return hmId && IDENTITY_DIRECTORY[hmId] && IDENTITY_DIRECTORY[hmId].level==='region'; })();
   var activeTasks = TASK_STAGE_MAP[h.stage] || TASK_STAGE_MAP['approved-not-posted'];
@@ -2876,7 +2876,6 @@ function renderDetail(){
     clHtml += phaseAdvBtn;
 
   });
-  clHtml+='</div>';
 
   // Build approval action bar
   var approvalBarHtml = '';
@@ -2983,7 +2982,7 @@ function renderDetail(){
   panel.innerHTML =
     '<div class="det-sticky">'+posHtml+'</div>'+
     '<div class="det-process-label">Recruiting &amp; Hiring Process</div>'+
-    '<div class="det-scroll">'+approvalBarHtml+clHtml+handoffBar+'</div>';
+    '<div class="det-scroll"><div class="el-id-card" style="border-top:none;margin-bottom:0">'+approvalBarHtml+clHtml+'</div>'+handoffBar+'</div>';
 
     // Attach phase toggle listeners
   panel.querySelectorAll('.phase-hdr').forEach(function(hdr){
@@ -4165,7 +4164,7 @@ function renderSfDetail() {
     : '<span class="chip chip-amber">Needs Plan</span>';
   var html = '<div class="det-sticky">'+buildEventDetailHeader({ showId: sfSelId, statusHtml: sfStatusHtml })+'</div>'+
     '<div class="det-process-label">Staffing Process</div>';
-  html += "<div class=\"det-scroll\" style=\"padding-top:0\">";
+  html += "<div class=\"det-scroll\" style=\"padding-top:0\"><div class=\"el-id-card\" style=\"border-top:none;margin-bottom:0\">";
 
   // ── Staffing steps — new 5-step flow ────────────────────────────────────
 
@@ -4252,7 +4251,7 @@ function renderSfDetail() {
       '</div>';
   });
 
-  html += '</div>'; // close det-scroll
+  html += '</div></div>'; // close card + det-scroll
 
   // ── Confirm bar ──────────────────────────────────────────────────────────
   var allTasksChecked = STAFFING_TASKS.every(function(t) { return plan.checked.indexOf(t.id) >= 0; });
@@ -8416,7 +8415,7 @@ function renderScDetail() {
   var html = '<div class="det-sticky">'+buildEventDetailHeader({ showId: scSelId, statusHtml: scStatusHtml, extraChips: scExtraChips })+'</div>'+
     '<div class="det-process-label">Scheduling Process</div>';
 
-  html += '<div class="det-scroll" style="padding-top:0">';
+  html += '<div class="det-scroll" style="padding-top:0"><div class="el-id-card" style="border-top:none;margin-bottom:0">';
 
   // ── TASK 1 — Add to ES Regional Schedule ──
   var t1chkCls = 'task-chk' + (sc1done ? ' checked' : '') + (scConfirmed ? ' locked' : '');
@@ -8470,7 +8469,7 @@ function renderScDetail() {
     '</div>' +
     '</div>';
 
-  html += '</div>'; // close det-scroll
+  html += '</div></div>'; // close card + det-scroll
 
   // ── CONFIRM BAR ──
   var hasTravelerBar = ra && ra.slots && ra.slots.some(function(sl){return sl.travelerNeeded;});
