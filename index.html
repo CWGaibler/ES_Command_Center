@@ -6481,7 +6481,7 @@ function pmRenderStats() {
       '<div class="rh-date-tile-lbl">' + label + '</div>' +
       '<div class="' + valClass + '">' + display + '</div>' +
       '<div class="rh-date-tile-confirmed">' + (raw ? 'Deadline set' : 'Not yet set') + '</div>' +
-      '<button class="rh-date-edit-btn" id="' + editId + '" onclick="pmOpenDeadlineModal(\'' + type + '\')" style="display:' + (canEdit?'block':'none') + '" title="Set deadline">✏</button>' +
+      '<button class="rh-date-edit-btn" id="' + editId + '" onclick="pmOpenDeadlineModal(&apos;' + type + '&apos;)" style="display:' + (canEdit?'block':'none') + '" title="Set deadline">✏</button>' +
     '</div>';
   }
 
@@ -6525,7 +6525,7 @@ function pmRenderRecordList() {
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
     var dateStr = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
 
-    return '<div class="pm-person-card' + sel + '" onclick="pmSelectRecord(\' + r.id + \')">' +
+    return '<div class="pm-person-card' + sel + '" onclick="pmSelectRecord(&apos;' + r.id + '&apos;)">' +
       '<div style="display:flex;align-items:center;gap:9px">' +
         '<div style="width:34px;height:34px;border-radius:50%;background:var(--fb);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + initials + '</div>' +
         '<div style="min-width:0;flex:1">' +
@@ -6585,12 +6585,12 @@ function pmRenderWorkspace() {
           '<span class="chip chip-ghost" style="font-size:11px">FY' + (pmFiscalYear()%100) + '</span>' +
         '</div>' +
       '</div>' +
-      '<button onclick="pmDeleteRecord(\'' + rec.id + '\')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px;border:1.5px solid var(--border);margin-left:auto;align-self:flex-start;white-space:nowrap" title="Remove this record">Remove</button>' +
+      '<button onclick="pmDeleteRecord(&apos;' + rec.id + '&apos;)" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px;border:1.5px solid var(--border);margin-left:auto;align-self:flex-start;white-space:nowrap" title="Remove this record">Remove</button>' +
     '</div>' +
     '<div class="rh-pos-prog">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">' +
         '<div class="rh-pos-prog-lbl">' + done + ' of ' + tasks.length + ' steps complete (' + pct + '%)</div>' +
-        (rec.type !== 'pip' ? '<button class="pm-reset-btn" onclick="pmResetRecord(\'' + rec.id + '\')">Reset Steps</button>' : '') +
+        (rec.type !== 'pip' ? '<button class="pm-reset-btn" onclick="pmResetRecord(&apos;' + rec.id + '&apos;)">Reset Steps</button>' : '') +
       '</div>' +
       '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:' + pct + '%;background:' + (pct===100?'var(--green)':'var(--mb)') + '"></div></div>' +
     '</div>';
