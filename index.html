@@ -391,7 +391,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .pos-field-input{font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:700;color:var(--fb);border:none;border-bottom:1.5px solid var(--mb);outline:none;background:transparent;width:100%;padding:0}
 .det-sticky{flex-shrink:0}
 .det-scroll{flex:1;min-height:0;overflow-y:auto;padding-bottom:22px}
-.rh-detail.det-split{display:flex;flex-direction:column;overflow:hidden;padding:0;background:transparent;border:none;border-radius:0;border-top:none}
+.rh-detail.det-split{display:flex;flex-direction:column;overflow:hidden;padding:0;background:transparent;border:none;border-radius:0;border-top:none}.pm-detail.det-split{display:flex;flex-direction:column;overflow:hidden;padding:0;background:transparent;border:none;border-radius:0;border-top:none}
 .det-process-label{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:14px 0 12px;display:flex;align-items:center;gap:8px}.det-process-label::after{content:"";flex:1;height:1px;background:var(--border)}
 .rh-pos-id-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .rh-pos-id-bar{height:4px;background:var(--mb)}
@@ -6437,7 +6437,7 @@ function initPerformance() {
     pmRenderWorkspace();
   } else {
     pmSelRecordId = null;
-    if (det) det.innerHTML = pmEmptyWorkspace();
+    if (det) { det.className = 'pm-detail'; det.innerHTML = pmEmptyWorkspace(); }
   }
   // Show edit pencil on deadline tiles only for enterprise identity
   var canEdit = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
@@ -6551,75 +6551,81 @@ function pmSelectRecord(id) {
 function pmRenderWorkspace() {
   var det = document.getElementById('pm-detail');
   if (!det || !pmSelRecordId) return;
+
+  // Preserve scroll position across re-renders
+  var savedScroll = 0;
+  var existingScroll = det.querySelector('.det-scroll');
+  if (existingScroll) savedScroll = existingScroll.scrollTop;
+
   var rec = pmRecords.find(function(r){ return r.id === pmSelRecordId; });
-  if (!rec) { det.innerHTML = pmEmptyWorkspace(); return; }
+  if (!rec) { det.className = 'pm-detail'; det.innerHTML = pmEmptyWorkspace(); return; }
 
   var p = findTeamMember(rec.personName);
   var initials = p ? p.initials : rec.personName.split(' ').map(function(w){ return w[0]; }).join('').substring(0,2);
   var tasks = PM_TASKS[rec.type] || [];
   var checked = rec.checked || {};
   var done = tasks.filter(function(t){ return checked[t.id]; }).length;
+  var pct = tasks.length ? Math.round((done/tasks.length)*100) : 0;
   var d = new Date(rec.startDate + 'T00:00:00');
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
   var dateStr = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
 
-  var html = '';
-
-  // Identity card
-  html += '<div class="pm-id-card">' +
-    '<div class="pm-id-avatar">' + initials + '</div>' +
-    '<div style="flex:1;min-width:0">' +
-      '<div class="pm-id-name">' + rec.personName +
-        ' <a href="#" class="pm-profile-link" data-person="' + rec.personName.replace(/"/g,'&quot;') + '" style="font-size:12px;font-weight:700;color:var(--mb);text-decoration:none;margin-left:4px">↗ Profile</a>' +
+  // ── STICKY: Identity card + progress bar ──────────────────────────────
+  var stickyHtml =
+    '<div class="pm-id-card">' +
+      '<div class="pm-id-avatar">' + initials + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div class="pm-id-name">' + rec.personName +
+          ' <a href="#" class="pm-profile-link" data-person="' + rec.personName.replace(/"/g,'&quot;') + '" style="font-size:12px;font-weight:700;color:var(--mb);text-decoration:none;margin-left:4px">↗ Profile</a>' +
+        '</div>' +
+        (p ? '<div class="pm-id-title">' + p.title + (p.branch && p.branch !== 'Enterprise' ? ' &nbsp;·&nbsp; ' + p.branch : '') + '</div>' : '') +
+        '<div class="pm-id-chips">' +
+          '<span class="chip chip-ghost" style="font-size:11px">' + PM_TYPE_LABELS[rec.type] + '</span>' +
+          '<span class="chip chip-ghost" style="font-size:11px">Started ' + dateStr + '</span>' +
+          '<span class="chip chip-ghost" style="font-size:11px">FY' + (pmFiscalYear()%100) + '</span>' +
+        '</div>' +
       '</div>' +
-      (p ? '<div class="pm-id-title">' + p.title + (p.branch && p.branch !== 'Enterprise' ? ' &nbsp;·&nbsp; ' + p.branch : '') + '</div>' : '') +
-      '<div class="pm-id-chips">' +
-        '<span class="chip chip-ghost" style="font-size:11px">' + PM_TYPE_LABELS[rec.type] + '</span>' +
-        '<span class="chip chip-ghost" style="font-size:11px">Started ' + dateStr + '</span>' +
-        '<span class="chip chip-ghost" style="font-size:11px">FY' + (pmFiscalYear()%100) + '</span>' +
-      '</div>' +
+      '<button onclick="pmDeleteRecord(\'' + rec.id + '\')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px;border:1.5px solid var(--border);margin-left:auto;align-self:flex-start;white-space:nowrap" title="Remove this record">Remove</button>' +
     '</div>' +
-    '<button onclick="pmDeleteRecord(\' + rec.id + \')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px;border:1.5px solid var(--border);margin-left:auto;align-self:flex-start;white-space:nowrap" title="Remove this record">Remove</button>' +
-  '</div>';
-
-  // PIP placeholder
-  if (rec.type === 'pip') {
-    html += '<div style="padding:24px 20px;text-align:center">' +
-      '<div style="font-size:15px;font-weight:800;color:var(--fb);margin-bottom:8px">Performance Improvement Plan</div>' +
-      '<div style="font-size:13px;color:var(--muted);max-width:320px;margin:0 auto 16px;line-height:1.5">The full PIP process will be built out once details are confirmed. Contact your HR Business Partner to begin.</div>' +
-      '<div class="pm-hrbp-card" style="max-width:360px;margin:0 auto">' +
-        '<div class="pm-hrbp-avatar">CA</div>' +
-        '<div><div class="pm-hrbp-name">Chastity Austin</div><div class="pm-hrbp-role">HR Business Partner &nbsp;·&nbsp; <a href="mailto:Chastity.Austin@freeman.com" style="color:var(--mb);font-size:11px">Chastity.Austin@freeman.com</a></div></div>' +
+    '<div class="rh-pos-prog">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">' +
+        '<div class="rh-pos-prog-lbl">' + done + ' of ' + tasks.length + ' steps complete (' + pct + '%)</div>' +
+        (rec.type !== 'pip' ? '<button class="pm-reset-btn" onclick="pmResetRecord(\'' + rec.id + '\')">Reset Steps</button>' : '') +
       '</div>' +
+      '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:' + pct + '%;background:' + (pct===100?'var(--green)':'var(--mb)') + '"></div></div>' +
     '</div>';
-    det.innerHTML = html;
+
+  // ── PIP placeholder — sticky identity + scroll with placeholder content ──
+  if (rec.type === 'pip') {
+    var pipScrollHtml =
+      '<div style="padding:24px 20px;text-align:center">' +
+        '<div style="font-size:15px;font-weight:800;color:var(--fb);margin-bottom:8px">Performance Improvement Plan</div>' +
+        '<div style="font-size:13px;color:var(--muted);max-width:320px;margin:0 auto 16px;line-height:1.5">The full PIP process will be built out once details are confirmed. Contact your HR Business Partner to begin.</div>' +
+        '<div class="pm-hrbp-card" style="max-width:360px;margin:0 auto">' +
+          '<div class="pm-hrbp-avatar">CA</div>' +
+          '<div><div class="pm-hrbp-name">Chastity Austin</div><div class="pm-hrbp-role">HR Business Partner &nbsp;·&nbsp; <a href="mailto:Chastity.Austin@freeman.com" style="color:var(--mb);font-size:11px">Chastity.Austin@freeman.com</a></div></div>' +
+        '</div>' +
+      '</div>';
+    det.className = 'pm-detail det-split';
+    det.innerHTML =
+      '<div class="det-sticky">' + stickyHtml + '</div>' +
+      '<div class="det-process-label">Performance Improvement Plan</div>' +
+      '<div class="det-scroll">' + pipScrollHtml + '</div>';
     return;
   }
 
-  // Progress bar
-  var pct = tasks.length ? Math.round((done/tasks.length)*100) : 0;
-  html += '<div style="padding:10px 20px 0;border-bottom:1px solid var(--border-lt)">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">' +
-      '<div style="font-size:12px;font-weight:700;color:var(--muted)">' + done + ' of ' + tasks.length + ' steps complete (' + pct + '%)</div>' +
-      '<button class="pm-reset-btn" onclick="pmResetRecord(\' + rec.id + \')">Reset Steps</button>' +
-    '</div>' +
-    '<div style="height:5px;background:var(--border-lt);border-radius:3px;margin-bottom:10px;overflow:hidden">' +
-      '<div style="height:100%;background:' + (pct===100?'var(--green)':'var(--mb)') + ';border-radius:3px;width:' + pct + '%;transition:width .3s"></div>' +
-    '</div>' +
-  '</div>';
-
-  // Task section label
-  html += '<div style="padding:14px 20px 0"><div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:10px">' + PM_TYPE_LABELS[rec.type] + ' — Steps</div></div>';
+  // ── SCROLL: Process label + tasks + reference blocks ──────────────────
+  var scrollHtml = '';
 
   // Tasks
   var shownParallel = false;
   tasks.forEach(function(t) {
     var isDone = !!checked[t.id];
     if (t.parallelWith && !shownParallel) {
-      html += '<div style="margin:0 20px 4px"><div class="pm-parallel-note">↕ Steps 2 & 3 can proceed simultaneously</div></div>';
+      scrollHtml += '<div style="margin:0 20px 4px"><div class="pm-parallel-note">↕ Steps 2 & 3 can proceed simultaneously</div></div>';
       shownParallel = true;
     }
-    html += '<div class="pm-task-row" style="margin:0 20px;' + (isDone?'opacity:.5':'') + '">' +
+    scrollHtml += '<div class="pm-task-row" style="margin:0 20px;' + (isDone?'opacity:.5':'') + '">' +
       '<div style="display:flex;align-items:flex-start;gap:9px;min-width:0">' +
         '<div class="task-chk' + (isDone?' checked':'') + '" data-pm-rec="' + rec.id + '" data-pm-task="' + t.id + '" style="margin-top:2px;flex-shrink:0"><span class="chk-mark">✓</span></div>' +
         '<div style="min-width:0">' +
@@ -6638,7 +6644,7 @@ function pmRenderWorkspace() {
 
   // Reference blocks
   if (rec.type === 'year') {
-    html += '<div style="padding:14px 20px 16px">' +
+    scrollHtml += '<div style="padding:14px 20px 16px">' +
       '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px">Performance Rating Guide</div>' +
       '<table class="pm-ref-table"><thead><tr><th>Rating</th><th>Definition</th></tr></thead><tbody>' +
       PM_RATINGS.map(function(r){ return '<tr><td><strong>' + r.r + '</strong></td><td>' + r.d + '</td></tr>'; }).join('') +
@@ -6648,13 +6654,20 @@ function pmRenderWorkspace() {
       '</div></div>';
   }
   if (rec.type === 'mid') {
-    html += '<div style="padding:6px 20px 16px">' +
+    scrollHtml += '<div style="padding:6px 20px 16px">' +
       '<div class="pm-ref-block"><div class="pm-ref-block-title">Best Practices for People Leaders</div>' +
       ['Make it personal. Keep the conversation two-way and focused on connection.','Be specific. Use examples to recognize contributions and identify opportunities.','Model Freeman\'s values. Lead with empathy, integrity, and enthusiasm.','Follow through. Complete agreed actions after the conversation.'].map(function(i){ return '<div class="pm-ref-block-item">' + i + '</div>'; }).join('') +
       '</div></div>';
   }
 
-  det.innerHTML = html;
+  // ── Assemble det-split layout ──────────────────────────────────────────
+  det.className = 'pm-detail det-split';
+  det.innerHTML =
+    '<div class="det-sticky">' + stickyHtml + '</div>' +
+    '<div class="det-process-label">' + PM_TYPE_LABELS[rec.type] + ' — Steps</div>' +
+    '<div class="det-scroll">' + scrollHtml + '</div>';
+
+  if (savedScroll > 0) { var ns = det.querySelector('.det-scroll'); if (ns) ns.scrollTop = savedScroll; }
 }
 
 // ── CHECKBOX & LINK DELEGATION ────────────────────────────────────────────
@@ -6701,11 +6714,11 @@ function pmArchiveRecord(rec) {
   pmRenderStats();
   pmRenderRecordList();
   var det = document.getElementById('pm-detail');
-  if (det) det.innerHTML = '<div class="sf-empty" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px">' +
+  if (det) { det.className = 'pm-detail'; det.innerHTML = '<div class="sf-empty" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px">' +
     '<div style="font-size:32px;margin-bottom:12px">✅</div>' +
     '<div class="sf-empty-msg">' + rec.personName.split(' ')[0] + '\'s ' + PM_TYPE_LABELS[rec.type] + ' is complete</div>' +
     '<div class="sf-empty-sub">This record has been archived and is now visible on their Team Members profile</div>' +
-  '</div>';
+  '</div>'; }
 }
 
 // ── DELETE / RESET ─────────────────────────────────────────────────────────
@@ -6717,7 +6730,7 @@ function pmDeleteRecord(id) {
   pmRenderStats();
   pmRenderRecordList();
   var det = document.getElementById('pm-detail');
-  if (det) det.innerHTML = pmEmptyWorkspace();
+  if (det) { det.className = 'pm-detail'; det.innerHTML = pmEmptyWorkspace(); }
 }
 
 function pmResetRecord(id) {
