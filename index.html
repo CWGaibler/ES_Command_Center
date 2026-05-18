@@ -222,6 +222,51 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .tk-task-title{font-size:14.4px;font-weight:700;line-height:1.4;color:var(--fb)}
 .tk-task-desc{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
 
+/* ── PERFORMANCE MANAGEMENT ─────────────────────────────────────── */
+.pm-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px;flex:1;min-height:0}
+.pm-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto;border-top:4px solid var(--mb);flex:1;min-height:0}
+.pm-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto;border-top:4px solid var(--mb)}
+.pm-person-card{padding:10px 13px;border-bottom:1px solid var(--border-lt);cursor:pointer;border-left:3px solid transparent;transition:background .1s}
+.pm-person-card:hover{background:var(--fb-xlt)}
+.pm-person-card.sel{background:var(--fb-xlt);border-left-color:var(--mb)}
+.pm-person-card:last-child{border-bottom:none}
+.pm-person-name{font-size:14.4px;font-weight:700;color:var(--fb)}
+.pm-person-role{font-size:12px;color:var(--muted);margin-top:1px}
+.pm-person-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.pm-id-card{padding:18px 22px;border-bottom:1px solid var(--border-lt);display:flex;align-items:center;gap:16px}
+.pm-id-avatar{width:52px;height:52px;border-radius:50%;background:var(--fb);color:#fff;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pm-id-name{font-size:18px;font-weight:800;color:var(--fb);line-height:1.2}
+.pm-id-title{font-size:13px;color:var(--muted);margin-top:2px}
+.pm-id-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.pm-section{border-bottom:1px solid var(--border-lt)}
+.pm-section:last-child{border-bottom:none}
+.pm-sec-hdr{display:flex;align-items:center;gap:8px;padding:13px 18px;cursor:pointer;user-select:none;transition:background .1s}
+.pm-sec-hdr:hover{background:var(--fb-xlt)}
+.pm-sec-label{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);flex:1}
+.pm-sec-chevron{color:var(--muted);transition:transform .2s;flex-shrink:0}
+.pm-sec-chevron.open{transform:rotate(90deg)}
+.pm-sec-body{padding:0 18px 16px}
+.pm-task-row{display:grid;grid-template-columns:1fr 180px;align-items:start;padding:9px 0;border-bottom:1px solid var(--border-lt)}
+.pm-task-row:last-child{border-bottom:none}
+.pm-task-row:hover{background:var(--fb-xlt);margin:0 -18px;padding:9px 18px}
+.pm-callout{background:var(--surface);border-left:3px solid var(--mb);padding:6px 10px;border-radius:0 6px 6px 0;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.4;font-style:italic}
+.pm-ref-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+.pm-ref-table th{background:var(--fb);color:#fff;padding:7px 10px;text-align:left;font-weight:800;font-size:12px}
+.pm-ref-table td{padding:7px 10px;border-bottom:1px solid var(--border-lt);vertical-align:top}
+.pm-ref-table tr:last-child td{border-bottom:none}
+.pm-ref-table tr:nth-child(even) td{background:var(--surface)}
+.pm-ref-block{background:var(--surface);border:1px solid var(--border-lt);border-radius:8px;padding:12px 14px;margin-top:12px}
+.pm-ref-block-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+.pm-ref-block-item{font-size:13px;color:var(--fb);padding:3px 0;display:flex;gap:7px;align-items:flex-start}
+.pm-ref-block-item::before{content:'•';color:var(--mb);font-weight:900;flex-shrink:0}
+.pm-parallel-note{font-size:12px;color:var(--green);font-weight:700;margin:4px 0 2px;padding:4px 8px;background:rgba(66,187,55,.08);border-radius:4px;display:inline-block}
+.pm-hrbp-card{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface);border:1px solid var(--border-lt);border-radius:8px;margin-top:10px}
+.pm-hrbp-avatar{width:36px;height:36px;border-radius:50%;background:var(--fb);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pm-hrbp-name{font-size:13.5px;font-weight:800;color:var(--fb)}
+.pm-hrbp-role{font-size:12px;color:var(--muted);margin-top:1px}
+.pm-reset-btn{font-family:'Nunito Sans',sans-serif;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;margin-left:auto}
+.pm-reset-btn:hover{border-color:var(--orange);color:var(--orange)}
+/* ── END PERFORMANCE MANAGEMENT ─────────────────────────────────── */
 
 .det-hdr{padding:13px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .det-name-row{display:flex;align-items:baseline;gap:0;flex-wrap:nowrap;min-width:0}
@@ -1496,7 +1541,75 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     </div>
   </div>
   <div class="page" id="page-teambuilding"><div class="page-hdr"><span class="page-title">Team Building & Collaboration</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="cs-title">Team Building & Collaboration</div><div class="cs-sub">Meeting cascade, recognition activity, and Managers' Minutes.</div></div></div>
-  <div class="page" id="page-performance"><div class="page-hdr"><span class="page-title">Performance Management</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div class="cs-title">Performance Management</div><div class="cs-sub">Five9 QA, On-Site evaluations, annual review cycle tracking.</div></div></div>
+  <div class="page" id="page-performance">
+    <div class="page-hdr">
+      <span class="page-title">Performance Management</span>
+      <span class="page-sub">Mid-year discussions, year-end assessments, and performance improvement</span>
+    </div>
+    <div class="rh-stats" id="pm-stats-strip"></div>
+    <div class="pm-layout">
+      <div style="display:flex;flex-direction:column;min-height:0">
+        <div class="el-section-div">Active Actions</div>
+        <div class="pm-sidebar" style="flex:1">
+          <div id="pm-record-list"></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;min-height:0">
+        <div class="el-section-div">Performance Workspace</div>
+        <div class="pm-detail" id="pm-detail" style="flex:1"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PM: Initiate Performance Action Modal -->
+  <div id="pm-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:14px;padding:28px 28px 22px;width:440px;max-width:94vw;box-shadow:0 8px 40px rgba(0,0,0,.18)">
+      <div class="modal-title">Initiate a Performance Action</div>
+      <div id="pm-modal-error" style="display:none;background:#FFF0EC;border:1.5px solid var(--orange);border-radius:7px;padding:8px 12px;font-size:13px;font-weight:700;color:var(--orange);margin-bottom:12px"></div>
+      <div class="modal-grid">
+        <div class="mf" style="grid-column:1/-1">
+          <label class="ml">Action Type</label>
+          <select class="mi" id="pm-modal-type">
+            <option value="">— Select type —</option>
+            <option value="mid">Mid-Year Performance Discussion</option>
+            <option value="year">Year-End Performance Assessment</option>
+            <option value="pip">Performance Improvement Plan</option>
+          </select>
+        </div>
+        <div class="mf" style="grid-column:1/-1">
+          <label class="ml">Direct Report</label>
+          <select class="mi" id="pm-modal-person">
+            <option value="">— Select team member —</option>
+          </select>
+        </div>
+        <div class="mf" style="grid-column:1/-1">
+          <label class="ml">Start Date</label>
+          <input type="date" class="mi" id="pm-modal-date">
+        </div>
+        <div class="modal-actions">
+          <button class="m-cancel" onclick="pmModalClose()">Cancel</button>
+          <button class="m-submit" onclick="pmModalSubmit()">Initiate Action</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PM: Deadline Modal -->
+  <div id="pm-deadline-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:14px;padding:28px 28px 22px;width:380px;max-width:94vw">
+      <div class="modal-title" id="pm-deadline-modal-title">Set Deadline</div>
+      <div class="modal-grid">
+        <div class="mf" style="grid-column:1/-1">
+          <label class="ml">Deadline Date</label>
+          <input type="date" class="mi" id="pm-deadline-input">
+        </div>
+        <div class="modal-actions">
+          <button class="m-cancel" onclick="pmDeadlineModalClose()">Cancel</button>
+          <button class="m-submit" onclick="pmDeadlineModalSave()">Save Deadline</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="page" id="page-bbr"><div class="page-hdr"><span class="page-title">BBB Responses</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="cs-title">BBB Responses</div><div class="cs-sub">Better Business Bureau complaint tracking, response deadlines, and resolution status.</div></div></div>
   <div class="page" id="page-socialmedia"><div class="page-hdr"><span class="page-title">Social Media Responses</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="cs-title">Social Media Responses</div><div class="cs-sub">Social media escalation tracking, response assignments, and resolution management.</div></div></div>
   <div class="page" id="page-surveys"><div class="page-hdr"><span class="page-title">Customer Surveys</span><span class="page-sub">Coming soon</span></div><div class="coming-soon"><div class="cs-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="cs-title">Customer Surveys</div><div class="cs-sub">Post-show Qualtrics survey results, NPS trends, and closed-loop follow-up tracking.</div></div></div>
@@ -1759,7 +1872,8 @@ function showPage(id, el) {
   if (id === 'staffing')    { initStaffing(); }
   if (id === 'scheduling')  { initScheduling(); }
   if (id === 'kpis')        { initKpis(); }
-  if (id === 'timekeeping')  { initTimekeeping(); }
+  if (id === 'timekeeping') { initTimekeeping(); }
+  if (id === 'performance') { initPerformance(); }
   if (id === 'events')      { initEvents(); }
   if (id === 'team')        { initTeam(); }
   // Attach scroll-aware search collapse for lens pages
@@ -2057,7 +2171,8 @@ function setIdentity(key) {
     if (pid === 'page-offboarding') { initOffboarding(); }
     if (pid === 'page-staffing')    { initStaffing(); }
     if (pid === 'page-kpis')        { initKpis(); }
-    if (pid === 'page-timekeeping') { initTimekeeping(); }
+    if (pid === 'page-timekeeping')  { initTimekeeping(); }
+    if (pid === 'page-performance')  { initPerformance(); }
   }
   renderNeedsAttention();
 }
@@ -3676,6 +3791,8 @@ function storageLoadAll() {
   staffingPlans     = storageLoad('staffingPlans',      {});
   schedulingPlans   = storageLoad('schedulingPlans',    {});
   ROLE_ASSIGNMENTS  = storageLoad('roleAssignments',    {});
+  pmRecords         = storageLoad('pmRecords',          []);
+  pmArchivedRecords = storageLoad('pmArchivedRecords',  []);
   // Seed default staffing plans for any show not yet touched by a leader
   var seeded = 0;
   Object.keys(DEFAULT_STAFFING_PLANS).forEach(function(id) {
@@ -4120,9 +4237,7 @@ function buildEventDetailHeader(opts) {
   var chipsHtml = isNext
     ? '<span class="chip" style="background:#CBF0FC;color:#005A75;border:1.5px solid #7DD9F3;font-weight:700">Freeman Next</span>'
     : '<span class="chip" style="background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;font-weight:700">Freeman Now</span>';
-  chipsHtml += '<span class="chip chip-ghost">' + Math.round(rec.booths) + ' booths</span>';
-  chipsHtml += '<span class="chip chip-ghost">' + sfFmt(rec.revenue) + ' revenue</span>';
-  if (s.serviceModel && s.serviceModel !== '') chipsHtml += '<span class="chip chip-mb">' + s.serviceModel + '</span>';
+
   if (s.perLbMH === 'N' && !s.freemanElectricalOnly) chipsHtml += '<span class="chip chip-ghost">Non-Standard MH</span>';
   if (s.freemanAV === 'Yes') chipsHtml += '<span class="chip chip-mb">AV</span>';
   var ecomUrl = isNext
@@ -6178,7 +6293,7 @@ function tkRenderDetail() {
           '<span class="chk-mark">\u2713</span>' +
         '</div>' +
         '<div style="min-width:0">' +
-          '<div style="font-size:14px;font-weight:700;line-height:1.4;color:' + (done||gated?'var(--muted)':'var(--fb)') + (done?';text-decoration:line-through':'') + '">' + t.title + '</div>' +
+          '<div style="font-size:14px;font-weight:700;line-height:1.4;color:' + (done||gated?'var(--muted)':'var(--fb)') + '">' + t.title + '</div>' +
           '<div style="font-size:13.5px;color:var(--muted);margin-top:2px;line-height:1.4' + (done?';opacity:.5':'') + '">' + t.desc + '</div>' +
           gateHintHtml +
         '</div>' +
@@ -6200,6 +6315,531 @@ function tkRenderDetail() {
     });
   });
 }
+
+
+// ══════════════════════════════════════════════════════════════════════════
+// PERFORMANCE MANAGEMENT
+// Record-based: Initiate → Active Queue → Archive to Team Members profile
+// ══════════════════════════════════════════════════════════════════════════
+
+// ── STORAGE ───────────────────────────────────────────────────────────────
+var pmRecords = []; // active performance action records
+var pmArchivedRecords = []; // completed/archived records
+
+function storageSavePmRecords()         { storageSave('pmRecords',         pmRecords); }
+function storageSavePmArchivedRecords() { storageSave('pmArchivedRecords', pmArchivedRecords); }
+
+// Deadline keys — same pattern as ES_DATE_KEYS (direct localStorage, not versioned)
+var PM_DEADLINE_KEYS = { mid: 'escc_pmMidDeadline', year: 'escc_pmYearDeadline' };
+function pmDeadlineGet(type) { try { return localStorage.getItem(PM_DEADLINE_KEYS[type]) || null; } catch(e){ return null; } }
+function pmDeadlineSet(type, val) { try { localStorage.setItem(PM_DEADLINE_KEYS[type], val); } catch(e){} }
+
+// ── FISCAL YEAR ────────────────────────────────────────────────────────────
+// Freeman FY starts Oct 1. FY26 = Oct 2025 – Sep 2026.
+function pmFiscalYear() {
+  var now = new Date();
+  return now.getMonth() >= 9 ? now.getFullYear() + 1 : now.getFullYear();
+}
+
+// ── RECORD ID ─────────────────────────────────────────────────────────────
+function pmMakeId() { return 'pm_' + Date.now() + '_' + Math.floor(Math.random()*9999); }
+
+// ── TYPE META ─────────────────────────────────────────────────────────────
+var PM_TYPE_LABELS = { mid: 'Mid-Year Discussion', year: 'Year-End Assessment', pip: 'Performance Improvement Plan' };
+var PM_TYPE_COLORS = { mid: 'var(--mb)', year: 'var(--green)', pip: 'var(--orange)' };
+var PM_TYPE_CHIP   = { mid: 'chip-mb', year: 'chip-green', pip: 'chip-orange' };
+
+// ── TASK DATA ──────────────────────────────────────────────────────────────
+var PM_MID_TASKS = [
+  { id:'mid1', title:'Prepare for the Process',
+    desc:'Review HR\'s Mid-Year Performance Discussions page on Freeway. Gather notes, KPIs, and recognition examples. Block time for 1:1 meetings.',
+    who:'ES People Leader', timing:'Q3', extUrl:'https://freemanco.sharepoint.com/teams/HumanResources/SitePages/Mid-Year-Performance-Discussions.aspx', extLabel:'HR Mid-Year Page' },
+  { id:'mid2', title:'Schedule the Conversation',
+    desc:'Plan the mid-year discussion during Q3. Allow at least 30–45 minutes. Keep it conversational and focused on connection, not evaluation.',
+    who:'ES People Leader', timing:'Q3' },
+  { id:'mid3', title:'Prepare for the Discussion',
+    desc:'Review the employee\'s OKRs, prior accomplishments, and development goals. Note achievements and areas where support may be helpful.',
+    who:'ES People Leader', timing:'Q3' },
+  { id:'mid4', title:'Open with Recognition',
+    desc:'Begin by celebrating successes and contributions. Recognize specific examples that demonstrate impact, teamwork, or alignment with Freeman\'s values.',
+    who:'ES People Leader & Employee', timing:'Q3',
+    callout:'Ask: "What accomplishments are you most proud of so far this year?"' },
+  { id:'mid5', title:'Discuss Opportunities & Challenges',
+    desc:'Talk about areas for growth, skills to develop, or obstacles the employee is facing. Focus on support and coaching rather than evaluation.',
+    who:'ES People Leader & Employee', timing:'Q3',
+    callout:'Ask: "What could make it easier for you to be even more successful?"' },
+  { id:'mid6', title:'Review & Update OKRs',
+    desc:'Review each OKR for accuracy in MCC. Update status (On Track / Completed / At Risk), edit goals as priorities shift, and add progress notes.',
+    who:'ES People Leader & Employee', timing:'Q3',
+    callout:'Tip: Keeping OKRs current throughout the year makes year-end assessments easier and more accurate.' },
+  { id:'mid7', title:'Revisit Career & Development Goals',
+    desc:'Discuss career aspirations or development interests. Review and refine goals in MCC, or encourage the employee to draft new ones.',
+    who:'ES People Leader & Employee', timing:'Q3' },
+  { id:'mid8', title:'Summarize & Close the Discussion',
+    desc:'Thank the employee for the conversation. Summarize agreed actions, confirm who will update OKRs in MCC, and document key notes in MCC\'s CPM feature.',
+    who:'ES People Leader', timing:'Q3' }
+];
+
+var PM_YEAR_TASKS = [
+  { id:'yr1', title:'Prepare for the Process',
+    desc:'Review HR\'s annual performance cycle communication on Freeway. Confirm eligible team members. Gather notes, KPIs, and recognition examples.',
+    who:'ES People Leader', timing:'Late Q4',
+    extUrl:'https://freemanco.sharepoint.com/teams/HumanResources/SitePages/Performance-Cycle-Resources-for-Employees.aspx', extLabel:'Freeway Performance Cycle' },
+  { id:'yr2', title:'Employee: Reflect Upon the Year',
+    desc:'Employee completes self-assessment in MCC — reviewing OKRs, documenting accomplishments, and adding development goals.',
+    who:'Employee', timing:'June', isEmployee:true,
+    callout:'Leader\'s role: Encourage timely completion, provide support, and review submissions for insight into each employee\'s perspective.' },
+  { id:'yr3', title:'Gather Broader Feedback',
+    desc:'Use MCC\'s "Ask for Feedback" function to request input from peers, project leads, or previous leaders (typically 3–6 individuals).',
+    who:'ES People Leader', timing:'June', parallelWith:true,
+    callout:'Tip: Gathering multiple viewpoints creates a more balanced assessment.' },
+  { id:'yr4', title:'Assess and Document Performance',
+    desc:'Rate each OKR, add comments in Continue and Consider sections, and assign an Overall Performance Rating using Freeman\'s four-tier scale. Submit by the communicated deadline.',
+    who:'ES People Leader', timing:'Late June / July' },
+  { id:'yr5', title:'Calibrate for Consistency',
+    desc:'HR facilitates calibration to ensure fair and consistent rating application. Attend if requested, be open to discussion, and adjust ratings only if directed by HR.',
+    who:'ES Leadership / HR', timing:'Late July' },
+  { id:'yr6', title:'Hold Meaningful 1:1 Discussions',
+    desc:'Meet individually with each team member to discuss results. Recognize accomplishments, discuss development opportunities, confirm ratings, and outline goals for next year.',
+    who:'ES People Leader & Employee', timing:'Aug–Sep' },
+  { id:'yr7', title:'Finalize & Sign Off',
+    desc:'Route the assessment to the employee for acknowledgment. Both the employee and leader must sign by the published HR deadline, typically in late September.',
+    who:'ES People Leader & Employee', timing:'Late Sep' },
+  { id:'yr8', title:'Set Goals for the Year Ahead',
+    desc:'Collaboratively create measurable OKRs for the new fiscal year. Document both Performance Goals and Development Goals in MCC.',
+    who:'ES People Leader & Employee', timing:'Q4 / Q1' }
+];
+
+var PM_TASKS = { mid: PM_MID_TASKS, year: PM_YEAR_TASKS, pip: [] };
+
+var PM_RATINGS = [
+  { r:'Exceptional Impact', d:'Consistently exceeded expectations; modeled Freeman values and led by example.' },
+  { r:'Significant Impact',  d:'Often exceeded expectations; made strong, measurable contributions.' },
+  { r:'Successful Impact',   d:'Met goals and expectations; dependable, consistent performer.' },
+  { r:'Inconsistent Impact', d:'Did not consistently meet expectations or results varied.' }
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+var pmSelRecordId = null;
+var pmDeadlineEditType = null;
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+function initPerformance() {
+  // Load from storage if not already loaded
+  if (!pmRecords.length && !pmArchivedRecords.length) {
+    pmRecords         = storageLoad('pmRecords',         []);
+    pmArchivedRecords = storageLoad('pmArchivedRecords', []);
+  }
+  pmRenderStats();
+  pmRenderRecordList();
+  var det = document.getElementById('pm-detail');
+  if (pmSelRecordId && pmRecords.find(function(r){ return r.id === pmSelRecordId; })) {
+    pmRenderWorkspace();
+  } else {
+    pmSelRecordId = null;
+    if (det) det.innerHTML = pmEmptyWorkspace();
+  }
+  // Show edit pencil on deadline tiles only for enterprise identity
+  var canEdit = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
+  ['pm-mid-edit','pm-year-edit'].forEach(function(id){
+    var btn = document.getElementById(id);
+    if (btn) btn.style.display = canEdit ? 'block' : 'none';
+  });
+}
+
+function pmEmptyWorkspace() {
+  return '<div class="sf-empty" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px">' +
+    '<div style="font-size:36px;margin-bottom:12px;opacity:.35">📋</div>' +
+    '<div class="sf-empty-msg">No action selected</div>' +
+    '<div class="sf-empty-sub">Initiate a performance action or select one from the active queue on the left</div>' +
+  '</div>';
+}
+
+// ── STATS STRIP ────────────────────────────────────────────────────────────
+function pmRenderStats() {
+  var strip = document.getElementById('pm-stats-strip');
+  if (!strip) return;
+  var me = currentIdentity().name;
+  var myRecords = pmRecords.filter(function(r){ return r.initiatedBy === me || r.personMgr === me; });
+  var total = myRecords.length;
+  var canEdit = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
+
+  // Deadline tile rendering
+  function deadlineTile(type, label, tileId, editId) {
+    var raw = pmDeadlineGet(type);
+    var display = 'TBD';
+    var valClass = 'rh-date-tile-val tbd';
+    if (raw) {
+      var d = new Date(raw + 'T00:00:00');
+      var now = new Date(); now.setHours(0,0,0,0);
+      var diff = Math.round((d - now) / 86400000);
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      display = months[d.getMonth()] + ' ' + d.getDate();
+      if (diff < 0) valClass = 'rh-date-tile-val overdue';
+    }
+    return '<div class="rh-date-tile" id="' + tileId + '">' +
+      '<div class="rh-date-tile-lbl">' + label + '</div>' +
+      '<div class="' + valClass + '">' + display + '</div>' +
+      '<div class="rh-date-tile-confirmed" style="font-size:12px;color:var(--muted)">' + (raw ? 'Deadline set' : 'Not yet set') + '</div>' +
+      '<button class="rh-date-edit-btn" id="' + editId + '" onclick="pmOpenDeadlineModal(\'' + type + '\')" style="display:' + (canEdit?'block':'none') + '" title="Set deadline">✏</button>' +
+    '</div>';
+  }
+
+  strip.innerHTML =
+    '<div class="rh-action-tile" onclick="pmModalOpen()" title="Initiate a performance action">' +
+      '<div class="rh-action-tile-lbl">Initiate Action</div>' +
+      '<div class="rh-action-tile-icon">＋</div>' +
+      '<div class="rh-action-tile-sub">Start a performance process</div>' +
+    '</div>' +
+    '<div class="rh-stat"><div class="rh-stat-lbl">Active Actions</div><div class="rh-stat-val" style="color:' + (total > 0 ? 'var(--mb)' : 'var(--fb)') + '">' + total + '</div><div class="rh-stat-sub">Currently in progress</div></div>' +
+    deadlineTile('mid',  'Mid-Year Deadline',  'pm-tile-mid',  'pm-mid-edit') +
+    deadlineTile('year', 'Year-End Deadline',  'pm-tile-year', 'pm-year-edit');
+}
+
+// ── RECORD LIST ────────────────────────────────────────────────────────────
+function pmRenderRecordList() {
+  var el = document.getElementById('pm-record-list');
+  if (!el) return;
+  var me = currentIdentity().name;
+  var myRecords = pmRecords.filter(function(r){ return r.personMgr === me; });
+  myRecords.sort(function(a,b){ return new Date(b.startDate) - new Date(a.startDate); });
+
+  if (!myRecords.length) {
+    el.innerHTML = '<div class="sf-empty" style="padding:32px 16px;text-align:center">' +
+      '<div style="font-size:28px;opacity:.3;margin-bottom:8px">📋</div>' +
+      '<div style="font-size:13.5px;font-weight:800;color:var(--fb);margin-bottom:4px">No active actions</div>' +
+      '<div style="font-size:12.5px;color:var(--muted);line-height:1.5">Use the tile above to initiate<br>a performance process</div>' +
+    '</div>';
+    return;
+  }
+
+  el.innerHTML = myRecords.map(function(r) {
+    var sel = r.id === pmSelRecordId ? ' sel' : '';
+    var tasks = PM_TASKS[r.type] || [];
+    var done = tasks.filter(function(t){ return r.checked && r.checked[t.id]; }).length;
+    var total = tasks.length;
+    var pct = total ? Math.round((done/total)*100) : 0;
+    var p = findTeamMember(r.personName);
+    var initials = p ? p.initials : r.personName.split(' ').map(function(w){ return w[0]; }).join('').substring(0,2);
+    var d = new Date(r.startDate + 'T00:00:00');
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var dateStr = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+
+    return '<div class="pm-person-card' + sel + '" onclick="pmSelectRecord(\' + r.id + \')">' +
+      '<div style="display:flex;align-items:center;gap:9px">' +
+        '<div style="width:34px;height:34px;border-radius:50%;background:var(--fb);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + initials + '</div>' +
+        '<div style="min-width:0;flex:1">' +
+          '<div class="pm-person-name">' + r.personName + '</div>' +
+          '<div class="pm-person-role">' + PM_TYPE_LABELS[r.type] + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="pm-person-chips" style="margin-top:6px">' +
+        '<span class="chip chip-ghost" style="font-size:11px">Started ' + dateStr + '</span>' +
+        (total ? '<span class="chip ' + (pct===100?'chip-green':pct>0?'chip-amber':'chip-ghost') + '" style="font-size:11px">' + done + '/' + total + ' steps</span>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function pmSelectRecord(id) {
+  pmSelRecordId = id;
+  pmRenderRecordList();
+  pmRenderWorkspace();
+}
+
+// ── WORKSPACE ──────────────────────────────────────────────────────────────
+function pmRenderWorkspace() {
+  var det = document.getElementById('pm-detail');
+  if (!det || !pmSelRecordId) return;
+  var rec = pmRecords.find(function(r){ return r.id === pmSelRecordId; });
+  if (!rec) { det.innerHTML = pmEmptyWorkspace(); return; }
+
+  var p = findTeamMember(rec.personName);
+  var initials = p ? p.initials : rec.personName.split(' ').map(function(w){ return w[0]; }).join('').substring(0,2);
+  var tasks = PM_TASKS[rec.type] || [];
+  var checked = rec.checked || {};
+  var done = tasks.filter(function(t){ return checked[t.id]; }).length;
+  var d = new Date(rec.startDate + 'T00:00:00');
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var dateStr = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+
+  var html = '';
+
+  // Identity card
+  html += '<div class="pm-id-card">' +
+    '<div class="pm-id-avatar">' + initials + '</div>' +
+    '<div style="flex:1;min-width:0">' +
+      '<div class="pm-id-name">' + rec.personName +
+        ' <a href="#" class="pm-profile-link" data-person="' + rec.personName.replace(/"/g,'&quot;') + '" style="font-size:12px;font-weight:700;color:var(--mb);text-decoration:none;margin-left:4px">↗ Profile</a>' +
+      '</div>' +
+      (p ? '<div class="pm-id-title">' + p.title + (p.branch && p.branch !== 'Enterprise' ? ' &nbsp;·&nbsp; ' + p.branch : '') + '</div>' : '') +
+      '<div class="pm-id-chips">' +
+        '<span class="chip chip-ghost" style="font-size:11px">' + PM_TYPE_LABELS[rec.type] + '</span>' +
+        '<span class="chip chip-ghost" style="font-size:11px">Started ' + dateStr + '</span>' +
+        '<span class="chip chip-ghost" style="font-size:11px">FY' + (pmFiscalYear()%100) + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<button onclick="pmDeleteRecord(\' + rec.id + \')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px;border:1.5px solid var(--border);margin-left:auto;align-self:flex-start;white-space:nowrap" title="Remove this record">Remove</button>' +
+  '</div>';
+
+  // PIP placeholder
+  if (rec.type === 'pip') {
+    html += '<div style="padding:24px 20px;text-align:center">' +
+      '<div style="font-size:15px;font-weight:800;color:var(--fb);margin-bottom:8px">Performance Improvement Plan</div>' +
+      '<div style="font-size:13px;color:var(--muted);max-width:320px;margin:0 auto 16px;line-height:1.5">The full PIP process will be built out once details are confirmed. Contact your HR Business Partner to begin.</div>' +
+      '<div class="pm-hrbp-card" style="max-width:360px;margin:0 auto">' +
+        '<div class="pm-hrbp-avatar">CA</div>' +
+        '<div><div class="pm-hrbp-name">Chastity Austin</div><div class="pm-hrbp-role">HR Business Partner &nbsp;·&nbsp; <a href="mailto:Chastity.Austin@freeman.com" style="color:var(--mb);font-size:11px">Chastity.Austin@freeman.com</a></div></div>' +
+      '</div>' +
+    '</div>';
+    det.innerHTML = html;
+    return;
+  }
+
+  // Progress bar
+  var pct = tasks.length ? Math.round((done/tasks.length)*100) : 0;
+  html += '<div style="padding:10px 20px 0;border-bottom:1px solid var(--border-lt)">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">' +
+      '<div style="font-size:12px;font-weight:700;color:var(--muted)">' + done + ' of ' + tasks.length + ' steps complete (' + pct + '%)</div>' +
+      '<button class="pm-reset-btn" onclick="pmResetRecord(\' + rec.id + \')">Reset Steps</button>' +
+    '</div>' +
+    '<div style="height:5px;background:var(--border-lt);border-radius:3px;margin-bottom:10px;overflow:hidden">' +
+      '<div style="height:100%;background:' + (pct===100?'var(--green)':'var(--mb)') + ';border-radius:3px;width:' + pct + '%;transition:width .3s"></div>' +
+    '</div>' +
+  '</div>';
+
+  // Task section label
+  html += '<div style="padding:14px 20px 0"><div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:10px">' + PM_TYPE_LABELS[rec.type] + ' — Steps</div></div>';
+
+  // Tasks
+  var shownParallel = false;
+  tasks.forEach(function(t) {
+    var isDone = !!checked[t.id];
+    if (t.parallelWith && !shownParallel) {
+      html += '<div style="margin:0 20px 4px"><div class="pm-parallel-note">↕ Steps 2 & 3 can proceed simultaneously</div></div>';
+      shownParallel = true;
+    }
+    html += '<div class="pm-task-row" style="margin:0 20px;' + (isDone?'opacity:.5':'') + '">' +
+      '<div style="display:flex;align-items:flex-start;gap:9px;min-width:0">' +
+        '<div class="task-chk' + (isDone?' checked':'') + '" data-pm-rec="' + rec.id + '" data-pm-task="' + t.id + '" style="margin-top:2px;flex-shrink:0"><span class="chk-mark">✓</span></div>' +
+        '<div style="min-width:0">' +
+          '<div style="font-size:14px;font-weight:700;line-height:1.4;color:' + (isDone?'var(--muted)':'var(--fb)') + '">' + t.title + '</div>' +
+          '<div style="font-size:13px;color:var(--muted);margin-top:2px;line-height:1.4">' + t.desc + '</div>' +
+          (t.callout ? '<div class="pm-callout">' + t.callout + '</div>' : '') +
+          (t.extUrl ? '<div style="margin-top:5px"><a href="' + t.extUrl + '" target="_blank" rel="noopener" style="font-size:12px;font-weight:700;color:var(--mb);text-decoration:none">↗ ' + t.extLabel + '</a></div>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div style="padding-left:10px;padding-top:2px;text-align:right;flex-shrink:0">' +
+        '<div style="font-size:12px;font-weight:700;color:' + (t.isEmployee?'var(--mb)':'var(--fb)') + '">' + t.who + '</div>' +
+        '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + t.timing + '</div>' +
+      '</div>' +
+    '</div>';
+  });
+
+  // Reference blocks
+  if (rec.type === 'year') {
+    html += '<div style="padding:14px 20px 16px">' +
+      '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px">Performance Rating Guide</div>' +
+      '<table class="pm-ref-table"><thead><tr><th>Rating</th><th>Definition</th></tr></thead><tbody>' +
+      PM_RATINGS.map(function(r){ return '<tr><td><strong>' + r.r + '</strong></td><td>' + r.d + '</td></tr>'; }).join('') +
+      '</tbody></table>' +
+      '<div class="pm-ref-block" style="margin-top:12px"><div class="pm-ref-block-title">Key Reminders</div>' +
+      ['Start early — each phase builds on the last.','Be fair and factual — evaluate the entire year.','Consult your HR Business Partner for guidance throughout.','Make it meaningful — coach, recognize, and inspire your team.'].map(function(i){ return '<div class="pm-ref-block-item">' + i + '</div>'; }).join('') +
+      '</div></div>';
+  }
+  if (rec.type === 'mid') {
+    html += '<div style="padding:6px 20px 16px">' +
+      '<div class="pm-ref-block"><div class="pm-ref-block-title">Best Practices for People Leaders</div>' +
+      ['Make it personal. Keep the conversation two-way and focused on connection.','Be specific. Use examples to recognize contributions and identify opportunities.','Model Freeman\'s values. Lead with empathy, integrity, and enthusiasm.','Follow through. Complete agreed actions after the conversation.'].map(function(i){ return '<div class="pm-ref-block-item">' + i + '</div>'; }).join('') +
+      '</div></div>';
+  }
+
+  det.innerHTML = html;
+}
+
+// ── CHECKBOX & LINK DELEGATION ────────────────────────────────────────────
+document.addEventListener('click', function(e) {
+  // Profile link (data-attribute pattern avoids complex inline onclick)
+  var profileLink = e.target.closest('.pm-profile-link');
+  if (profileLink) {
+    e.preventDefault();
+    var pname = profileLink.getAttribute('data-person');
+    if (pname) pmGoToProfile(pname);
+    return;
+  }
+  var chk = e.target.closest('.task-chk[data-pm-rec]');
+  if (!chk) return;
+  var recId  = chk.getAttribute('data-pm-rec');
+  var taskId = chk.getAttribute('data-pm-task');
+  var rec = pmRecords.find(function(r){ return r.id === recId; });
+  if (!rec) return;
+  if (!rec.checked) rec.checked = {};
+  rec.checked[taskId] = !rec.checked[taskId];
+  storageSavePmRecords();
+
+  // Check if ALL steps are now complete — auto-archive
+  var tasks = PM_TASKS[rec.type] || [];
+  if (tasks.length && tasks.every(function(t){ return rec.checked[t.id]; })) {
+    pmArchiveRecord(rec);
+    return;
+  }
+
+  pmRenderWorkspace();
+  pmRenderRecordList();
+  pmRenderStats();
+});
+
+// ── ARCHIVE ON COMPLETE ────────────────────────────────────────────────────
+function pmArchiveRecord(rec) {
+  rec.completedDate = new Date().toISOString().slice(0,10);
+  rec.fiscalYear = pmFiscalYear();
+  pmArchivedRecords.push(rec);
+  pmRecords = pmRecords.filter(function(r){ return r.id !== rec.id; });
+  storageSavePmRecords();
+  storageSavePmArchivedRecords();
+  pmSelRecordId = null;
+  pmRenderStats();
+  pmRenderRecordList();
+  var det = document.getElementById('pm-detail');
+  if (det) det.innerHTML = '<div class="sf-empty" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px">' +
+    '<div style="font-size:32px;margin-bottom:12px">✅</div>' +
+    '<div class="sf-empty-msg">' + rec.personName.split(' ')[0] + '\'s ' + PM_TYPE_LABELS[rec.type] + ' is complete</div>' +
+    '<div class="sf-empty-sub">This record has been archived and is now visible on their Team Members profile</div>' +
+  '</div>';
+}
+
+// ── DELETE / RESET ─────────────────────────────────────────────────────────
+function pmDeleteRecord(id) {
+  if (!confirm('Remove this performance action record? This cannot be undone.')) return;
+  pmRecords = pmRecords.filter(function(r){ return r.id !== id; });
+  storageSavePmRecords();
+  pmSelRecordId = null;
+  pmRenderStats();
+  pmRenderRecordList();
+  var det = document.getElementById('pm-detail');
+  if (det) det.innerHTML = pmEmptyWorkspace();
+}
+
+function pmResetRecord(id) {
+  var rec = pmRecords.find(function(r){ return r.id === id; });
+  if (!rec) return;
+  if (!confirm('Reset all step checkboxes for ' + rec.personName + '\'s ' + PM_TYPE_LABELS[rec.type] + '?')) return;
+  rec.checked = {};
+  storageSavePmRecords();
+  pmRenderWorkspace();
+}
+
+// ── MODAL: INITIATE ────────────────────────────────────────────────────────
+function pmModalOpen() {
+  var personSel = document.getElementById('pm-modal-person');
+  if (personSel) {
+    var me = currentIdentity().name;
+    var reports = TEAM_MEMBERS.filter(function(e){ return e.mgr === me; });
+    reports.sort(function(a,b){ return a.name.localeCompare(b.name); });
+    personSel.innerHTML = '<option value="">— Select team member —</option>' +
+      reports.map(function(p){ return '<option value="' + p.name + '">' + p.name + '</option>'; }).join('');
+  }
+  var today = new Date().toISOString().slice(0,10);
+  var dateEl = document.getElementById('pm-modal-date');
+  if (dateEl) dateEl.value = today;
+  var typeEl = document.getElementById('pm-modal-type');
+  if (typeEl) typeEl.value = '';
+  var errEl = document.getElementById('pm-modal-error');
+  if (errEl) errEl.style.display = 'none';
+  var modal = document.getElementById('pm-modal-bg');
+  if (modal) modal.style.display = 'flex';
+}
+
+function pmModalClose() {
+  var modal = document.getElementById('pm-modal-bg');
+  if (modal) modal.style.display = 'none';
+}
+
+function pmModalSubmit() {
+  var type   = document.getElementById('pm-modal-type').value;
+  var person = document.getElementById('pm-modal-person').value;
+  var date   = document.getElementById('pm-modal-date').value;
+  var errEl  = document.getElementById('pm-modal-error');
+
+  if (!type || !person || !date) {
+    errEl.textContent = 'Please complete all fields.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Block duplicate: same type + same person in active records
+  var duplicate = pmRecords.find(function(r){ return r.personName === person && r.type === type; });
+  if (duplicate) {
+    errEl.textContent = PM_TYPE_LABELS[type] + ' is already active for ' + person + '. Only one active record per type per person is allowed.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  var me = currentIdentity().name;
+  var newRec = {
+    id: pmMakeId(),
+    type: type,
+    personName: person,
+    personMgr: me,
+    initiatedBy: me,
+    startDate: date,
+    fiscalYear: pmFiscalYear(),
+    checked: {}
+  };
+  pmRecords.push(newRec);
+  storageSavePmRecords();
+  pmModalClose();
+  pmSelRecordId = newRec.id;
+  pmRenderStats();
+  pmRenderRecordList();
+  pmRenderWorkspace();
+}
+
+// ── MODAL: DEADLINE ────────────────────────────────────────────────────────
+function pmOpenDeadlineModal(type) {
+  pmDeadlineEditType = type;
+  var label = type === 'mid' ? 'Mid-Year Discussion Deadline' : 'Year-End Assessment Deadline';
+  var titleEl = document.getElementById('pm-deadline-modal-title');
+  if (titleEl) titleEl.textContent = 'Set ' + label;
+  var input = document.getElementById('pm-deadline-input');
+  if (input) input.value = pmDeadlineGet(type) || '';
+  var modal = document.getElementById('pm-deadline-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function pmDeadlineModalClose() {
+  var modal = document.getElementById('pm-deadline-modal');
+  if (modal) modal.style.display = 'none';
+  pmDeadlineEditType = null;
+}
+
+function pmDeadlineModalSave() {
+  var input = document.getElementById('pm-deadline-input');
+  if (!input || !pmDeadlineEditType) return;
+  pmDeadlineSet(pmDeadlineEditType, input.value);
+  pmDeadlineModalClose();
+  pmRenderStats();
+}
+
+// ── CLOSE MODALS ON BACKDROP CLICK ────────────────────────────────────────
+document.addEventListener('click', function(e) {
+  var pmBg = document.getElementById('pm-modal-bg');
+  if (pmBg && e.target === pmBg) pmModalClose();
+  var dlBg = document.getElementById('pm-deadline-modal');
+  if (dlBg && e.target === dlBg) pmDeadlineModalClose();
+});
+
+// ── PROFILE LINK ───────────────────────────────────────────────────────────
+function pmGoToProfile(name) {
+  tlSelName = name;
+  showPage('team', document.querySelector('.nav-item[onclick*="team"]'));
+  tnSetActive('team');
+  tlRenderProfile(name);
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// END PERFORMANCE MANAGEMENT
+// ══════════════════════════════════════════════════════════════════════════
 
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -6436,7 +7076,7 @@ function renderObDetail() {
     ? '<span class="chip chip-green">Complete</span>'
     : '<span class="chip chip-approved">In Progress</span>';
   var obHmName = rec.hiringManager || '';
-  var obMetaParts = [rec.branch, rec.hireType==='backfill'?'Backfill':'Net New', obHmName?'HM: '+obHmName:''].filter(Boolean);
+  var obMetaParts = [rec.branch, obHmName?'HM: '+obHmName:''].filter(Boolean);
   var obDatePills = '';
   if (rec.startDate && rec.startDate !== 'TBD') obDatePills += '<span class="rh-pos-date-pill">Start: '+rec.startDate+'</span>';
   if (rec.netDate  && rec.netDate  !== 'TBD') obDatePills += '<span class="rh-pos-date-pill">NET: '+rec.netDate+'</span>';
@@ -10152,6 +10792,57 @@ function tlRenderDetail() {
       '<div><div class="tl-dev-section-lbl">Performance Improvement Plans</div>' + ncSmall('Offline process') + '</div>' +
       '<div><div class="tl-dev-section-lbl">Individual Development Plans</div>' + ncSmall('Offline process') + '</div>' +
     '</div></div>';
+
+  // Performance History — access-controlled
+  // Rule: Nesana Wieger sees all. Everyone else sees only records for people
+  // in their direct reporting chain (viewer === mgr, mgr2, or mgr3 of the
+  // person being viewed, OR viewer was the one who initiated the record).
+  var viewer = currentIdentity().name;
+  var nesana = 'Nesana Wieger';
+  var viewerCanSeeHistory = (viewer === nesana) ||
+    (p.mgr  && p.mgr  === viewer) ||
+    (p.mgr2 && p.mgr2 === viewer) ||
+    (p.mgr3 && p.mgr3 === viewer);
+
+  if (viewerCanSeeHistory && typeof pmArchivedRecords !== 'undefined') {
+    // Filter to records for this person, further allowing initiator access
+    // even if org structure changed since the record was created
+    var pmHistory = pmArchivedRecords.filter(function(r) {
+      if (r.personName !== p.name) return false;
+      // Nesana always passes — already gated above
+      if (viewer === nesana) return true;
+      // Initiator always sees their own records
+      if (r.initiatedBy === viewer) return true;
+      // Chain access: viewer must be in person's mgr/mgr2/mgr3
+      return (p.mgr === viewer || p.mgr2 === viewer || p.mgr3 === viewer);
+    });
+    pmHistory.sort(function(a,b){ return (b.completedDate||'').localeCompare(a.completedDate||''); });
+
+    var pmHistHtml = '';
+    if (pmHistory.length) {
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      pmHistHtml = pmHistory.map(function(r) {
+        var cd = r.completedDate ? new Date(r.completedDate + 'T00:00:00') : null;
+        var dateStr = cd ? months[cd.getMonth()] + ' ' + cd.getDate() + ', ' + cd.getFullYear() : '';
+        var tasks = (typeof PM_TASKS !== 'undefined' ? PM_TASKS[r.type] : null) || [];
+        var typeLabel = (typeof PM_TYPE_LABELS !== 'undefined' ? PM_TYPE_LABELS[r.type] : r.type) || r.type;
+        return '<div style="padding:8px 0;border-bottom:1px solid var(--border-lt)">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">' +
+            '<div style="font-size:13.5px;font-weight:700;color:var(--fb)">' + typeLabel + '</div>' +
+            '<div style="display:flex;gap:5px;align-items:center">' +
+              '<span class="chip chip-ghost" style="font-size:11px">FY' + ((r.fiscalYear||'')+'').slice(-2) + '</span>' +
+              '<span class="chip chip-green" style="font-size:11px">Completed</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="font-size:12px;color:var(--muted);margin-top:2px">Completed ' + dateStr + (tasks.length ? ' &nbsp;·&nbsp; ' + tasks.length + ' steps' : '') + '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      pmHistHtml = '<div class="tl-no-data">No completed performance records on file.</div>';
+    }
+    html += '<div class="el-section-div">Performance History</div><div class="tl-card-full">' + pmHistHtml + '</div>';
+  }
+  // If viewerCanSeeHistory is false — section is completely omitted. No trace.
 
   el.innerHTML = html;
 
