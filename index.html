@@ -6749,34 +6749,61 @@ function pmRenderWorkspace() {
   }
 
   // ── SCROLL: Process label + tasks + reference blocks ──────────────────
-  var scrollHtml = '';
+  var taskHtml = '';
 
-  // Tasks
+  // Tasks — sequential locking, shared CSS classes, step numbers
   var shownParallel = false;
-  tasks.forEach(function(t) {
+  tasks.forEach(function(t, idx) {
     var isDone = !!checked[t.id];
+
+    // Sequential locking: locked if any prior non-parallel task is unchecked.
+    // Steps marked parallelWith share their unlock condition with the step before them
+    // (both become available once the step before the pair is done).
+    var locked = false;
+    if (!isDone && idx > 0) {
+      // Find the last non-parallelWith task before this one as the gate
+      var gateIdx = idx - 1;
+      // If this task itself is parallelWith, it shares a gate with the previous task:
+      // both unlock once the task before the pair is done
+      if (t.parallelWith) {
+        // Both this task and the previous are "parallel" — gate on the task before the pair
+        gateIdx = idx - 2;
+      }
+      for (var pi = 0; pi <= gateIdx; pi++) {
+        if (!checked[tasks[pi].id]) { locked = true; break; }
+      }
+    }
+
+    // Parallel note — inject before the first of the pair
     if (t.parallelWith && !shownParallel) {
-      scrollHtml += '<div style="padding:0 16px 4px"><div class="pm-parallel-note">⇕ Steps 2 & 3 can proceed simultaneously</div></div>';
+      taskHtml += '<div style="padding:0 16px 4px"><div class="pm-parallel-note">⇕ Steps ' + idx + ' &amp; ' + (idx+1) + ' can proceed simultaneously</div></div>';
       shownParallel = true;
     }
-    scrollHtml += '<div class="pm-task-row"' + (isDone?' style="opacity:.5"':'') + '>' +
-      '<div class="task-chk' + (isDone?' checked':'') + '" data-pm-rec="' + rec.id + '" data-pm-task="' + t.id + '" style="margin-top:2px;flex-shrink:0"><span class="chk-mark">✓</span></div>' +
-      '<div style="min-width:0;flex:1">' +
-        '<div style="font-size:14px;font-weight:700;line-height:1.4;color:' + (isDone?'var(--muted)':'var(--fb)') + '">' + t.title + '</div>' +
-        '<div style="font-size:13px;color:var(--muted);margin-top:2px;line-height:1.4">' + t.desc + '</div>' +
-        (t.callout ? '<div class="pm-callout">' + t.callout + '</div>' : '') +
-        (t.extUrl ? '<div style="margin-top:5px"><a href="' + t.extUrl + '" target="_blank" rel="noopener" style="font-size:12px;font-weight:700;color:var(--mb);text-decoration:none">↗ ' + t.extLabel + '</a></div>' : '') +
+
+    var rowCls  = 'task-row' + (locked ? ' task-locked' : '');
+    var chkCls  = 'task-chk' + (isDone ? ' checked' : '') + (locked ? ' locked' : '');
+    var chkAttrs = locked ? '' : ' data-pm-rec="' + rec.id + '" data-pm-task="' + t.id + '"';
+    var titleCls = 'task-title' + (isDone ? ' done' : '') + (locked ? ' muted' : '');
+
+    taskHtml += '<div class="' + rowCls + '">' +
+      '<div class="' + chkCls + '"' + chkAttrs + '><span class="chk-mark">✓</span></div>' +
+      '<div class="task-body">' +
+        '<div class="' + titleCls + '"' + (locked ? ' style="opacity:.35"' : '') + '>' + (idx+1) + '. ' + t.title + '</div>' +
+        '<div class="task-desc"' + (locked ? ' style="opacity:.5"' : '') + '>' + t.desc + '</div>' +
+        (t.callout && !locked ? '<div class="pm-callout">' + t.callout + '</div>' : '') +
+        (t.extUrl && !locked ? '<div style="margin-top:5px"><a href="' + t.extUrl + '" target="_blank" rel="noopener" class="tlink">↗ ' + t.extLabel + '</a></div>' : '') +
       '</div>' +
-      '<div style="margin-left:auto;padding-left:10px;padding-top:2px;text-align:right;flex-shrink:0">' +
-        '<div style="font-size:12px;font-weight:700;color:' + (t.isEmployee?'var(--mb)':'var(--fb)') + '">' + t.who + '</div>' +
-        '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + t.timing + '</div>' +
+      '<div class="task-right">' +
+        '<span class="task-owner" style="color:' + (t.isEmployee ? 'var(--mb)' : 'var(--muted)') + ';font-size:12px' + (locked ? ';opacity:.35' : '') + '">' + t.who + '</span>' +
+        '<span class="task-due due-' + (isDone ? 'done' : 'upcoming') + '" style="font-size:11px' + (locked ? ';opacity:.35' : '') + '">' + t.timing + '</span>' +
       '</div>' +
     '</div>';
   });
 
-  // Reference blocks
+  // Reference blocks (inside the card, after tasks)
+  var refHtml = '';
   if (rec.type === 'year') {
-    scrollHtml += '<div style="padding:14px 20px 16px">' +
+    refHtml = '<div style="padding:14px 20px 16px">' +
       '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px">Performance Rating Guide</div>' +
       '<table class="pm-ref-table"><thead><tr><th>Rating</th><th>Definition</th></tr></thead><tbody>' +
       PM_RATINGS.map(function(r){ return '<tr><td><strong>' + r.r + '</strong></td><td>' + r.d + '</td></tr>'; }).join('') +
@@ -6786,10 +6813,27 @@ function pmRenderWorkspace() {
       '</div></div>';
   }
   if (rec.type === 'mid') {
-    scrollHtml += '<div style="padding:6px 20px 16px">' +
+    refHtml = '<div style="padding:6px 20px 16px">' +
       '<div class="pm-ref-block"><div class="pm-ref-block-title">Best Practices for People Leaders</div>' +
       ['Make it personal. Keep the conversation two-way and focused on connection.','Be specific. Use examples to recognize contributions and identify opportunities.','Model Freeman\'s values. Lead with empathy, integrity, and enthusiasm.','Follow through. Complete agreed actions after the conversation.'].map(function(i){ return '<div class="pm-ref-block-item">' + i + '</div>'; }).join('') +
       '</div></div>';
+  }
+
+  // ── Complete / confirm bar ─────────────────────────────────────────────
+  var allDone = tasks.length > 0 && tasks.every(function(t){ return !!checked[t.id]; });
+  var completeBar;
+  if (allDone) {
+    completeBar = '<div class="lc-complete-bar">' +
+      '<div class="lc-complete-msg">All ' + tasks.length + ' steps complete' +
+        '<div class="sub">Archive this record to mark ' + rec.personName.split(' ')[0] + '\'s ' + PM_TYPE_LABELS[rec.type] + ' as complete.</div>' +
+      '</div>' +
+      '<button class="btn-close-record" onclick="pmConfirmComplete(\'' + rec.id + '\')">Archive Record ✓</button>' +
+    '</div>';
+  } else {
+    var remaining = tasks.length - tasks.filter(function(t){ return !!checked[t.id]; }).length;
+    completeBar = '<div class="lc-complete-bar blocked">' +
+      '<div class="lc-complete-msg" style="color:var(--muted)">' + remaining + ' step' + (remaining !== 1 ? 's' : '') + ' remaining before this record can be archived.</div>' +
+    '</div>';
   }
 
   // ── Assemble det-split layout ──────────────────────────────────────────
@@ -6797,7 +6841,9 @@ function pmRenderWorkspace() {
   det.innerHTML =
     '<div class="det-sticky">' + stickyHtml + '</div>' +
     '<div class="det-process-label">' + PM_TYPE_LABELS[rec.type] + ' — Steps</div>' +
-    '<div class="det-scroll">' + scrollHtml + '</div>';
+    '<div class="det-scroll" style="padding-top:0"><div class="el-id-card" style="border-top:none;margin-bottom:0">' +
+      taskHtml + refHtml +
+    '</div>' + completeBar + '</div>';
 
   if (savedScroll > 0) { var ns = det.querySelector('.det-scroll'); if (ns) ns.scrollTop = savedScroll; }
 }
@@ -6819,20 +6865,44 @@ document.addEventListener('click', function(e) {
   var rec = pmRecords.find(function(r){ return r.id === recId; });
   if (!rec) return;
   if (!rec.checked) rec.checked = {};
-  rec.checked[taskId] = !rec.checked[taskId];
-  storageSavePmRecords();
 
-  // Check if ALL steps are now complete — auto-archive
   var tasks = PM_TASKS[rec.type] || [];
-  if (tasks.length && tasks.every(function(t){ return rec.checked[t.id]; })) {
-    pmArchiveRecord(rec);
-    return;
+  var taskIdx = -1;
+  for (var ti = 0; ti < tasks.length; ti++) { if (tasks[ti].id === taskId) { taskIdx = ti; break; } }
+
+  var alreadyChecked = !!rec.checked[taskId];
+
+  // Block checking if a prior non-parallel step is unchecked
+  if (!alreadyChecked && taskIdx > 0) {
+    var gateIdx = tasks[taskIdx].parallelWith ? taskIdx - 2 : taskIdx - 1;
+    for (var pi = 0; pi <= gateIdx; pi++) {
+      if (!rec.checked[tasks[pi].id]) return; // prior step not done — ignore click
+    }
   }
+
+  // Block un-checking if a later step is already checked
+  if (alreadyChecked) {
+    for (var ki = taskIdx + 1; ki < tasks.length; ki++) {
+      if (rec.checked[tasks[ki].id]) return; // later step checked — can't uncheck this one
+    }
+  }
+
+  rec.checked[taskId] = !alreadyChecked;
+  storageSavePmRecords();
 
   pmRenderWorkspace();
   pmRenderRecordList();
   pmRenderStats();
 });
+
+// ── EXPLICIT ARCHIVE (replaces auto-archive) ───────────────────────────────
+function pmConfirmComplete(id) {
+  var rec = pmRecords.find(function(r){ return r.id === id; });
+  if (!rec) return;
+  var tasks = PM_TASKS[rec.type] || [];
+  if (!tasks.every(function(t){ return rec.checked[t.id]; })) return; // guard
+  pmArchiveRecord(rec);
+}
 
 // ── ARCHIVE ON COMPLETE ────────────────────────────────────────────────────
 function pmArchiveRecord(rec) {
