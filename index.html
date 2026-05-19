@@ -237,7 +237,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .pm-person-role{font-size:12px;color:var(--muted);margin-top:1px}
 .pm-person-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
 .pm-id-card{padding:18px 22px;border-bottom:1px solid var(--border-lt);display:flex;align-items:center;gap:16px}
-.pm-id-avatar{width:52px;height:52px;border-radius:50%;background:var(--fb);color:#fff;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pm-id-avatar{width:52px;height:52px;border-radius:50%;background:var(--fb);color:#fff;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
 .pm-id-name{font-size:18px;font-weight:800;color:var(--fb);line-height:1.2}
 .pm-id-title{font-size:13px;color:var(--muted);margin-top:2px}
 .pm-id-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
@@ -2131,15 +2131,28 @@ function resetWorkspaceState() {
 
 // ── HEADER AVATAR ───────────────────────────────────────────────────────
 function updateHeaderAvatar() {
-  var el = document.getElementById('hdr-avatar');
-  if (!el) return;
+  var wrap = document.getElementById('hdr-avatar-wrap');
+  if (!wrap) return;
   var p = currentIdentity();
   if (!p || !p.name) return;
-  var parts = p.name.trim().split(/\s+/);
-  var initials = parts.length >= 2
-    ? parts[0][0].toUpperCase() + parts[parts.length - 1][0].toUpperCase()
-    : parts[0][0].toUpperCase();
-  el.textContent = initials;
+  var photo = PEOPLE_PHOTOS[p.name];
+  var el = document.getElementById('hdr-avatar');
+  if (photo) {
+    if (el) {
+      el.style.backgroundImage = 'url(' + photo + ')';
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.textContent = '';
+    }
+  } else {
+    if (el) {
+      el.style.backgroundImage = '';
+      var parts = p.name.trim().split(/\s+/);
+      el.textContent = parts.length >= 2
+        ? parts[0][0].toUpperCase() + parts[parts.length - 1][0].toUpperCase()
+        : parts[0][0].toUpperCase();
+    }
+  }
 }
 
 function setIdentity(key) {
@@ -6567,7 +6580,7 @@ function pmRenderRecordList() {
 
     return '<div class="pm-person-card' + sel + '" onclick="pmSelectRecord(&apos;' + r.id + '&apos;)">' +
       '<div style="display:flex;align-items:center;gap:9px">' +
-        '<div style="width:34px;height:34px;border-radius:50%;background:var(--fb);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + initials + '</div>' +
+        personAvatar(r.personName, 34) +
         '<div style="min-width:0;flex:1">' +
           '<div class="pm-person-name">' + r.personName + '</div>' +
           '<div class="pm-person-role">' + PM_TYPE_LABELS[r.type] + '</div>' +
@@ -6613,7 +6626,7 @@ function pmRenderWorkspace() {
   // ── STICKY: Identity card + progress bar ──────────────────────────────
   var stickyHtml =
     '<div class="pm-id-card">' +
-      '<div class="pm-id-avatar">' + initials + '</div>' +
+      '<div class="pm-id-avatar">' + (PEOPLE_PHOTOS[rec.personName] ? '<img src="' + PEOPLE_PHOTOS[rec.personName] + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />' : initials) + '</div>' +
       '<div style="flex:1;min-width:0">' +
         '<div class="pm-id-name">' + rec.personName +
           ' <a href="#" class="pm-profile-link" data-person="' + rec.personName.replace(/"/g,'&quot;') + '" style="font-size:12px;font-weight:700;color:var(--mb);text-decoration:none;margin-left:4px">↗ Profile</a>' +
@@ -8563,7 +8576,7 @@ function elRenderShow() {
         var travelChip2 = sl.homeBranch ? '<span class="el-slot-travel">Traveling \u2014 '+sl.homeBranch+'</span>' : '';
         html += '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-lt);font-size:13px">' +
           '<span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);width:170px;flex-shrink:0">' + slLabel + '</span>' +
-          '<div style="width:26px;height:26px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:'+av.bg+';color:'+av.color+'">' + initials2 + '</div>' +
+          personAvatar(sl.person||'', 26, av.bg, av.color) +
           '<div><div style="font-weight:700;color:var(--fb)">' + (sl.person||'\u2014') + travelChip2 + '</div>' +
           '<div style="font-size:12px;color:var(--muted)">' + (sl.branch||'') + '</div></div>' +
         '</div>';
@@ -10911,6 +10924,29 @@ function tlHandleDetailClick(e) {
     var jobNum = link.getAttribute('data-job');
     if (jobNum) goToEventLens(jobNum);
   }
+}
+
+// ── PERSON AVATAR HELPER ──────────────────────────────────────────────────
+// Returns HTML for a circular avatar: photo if available, initials otherwise.
+// name    — full name string (matched against PEOPLE_PHOTOS)
+// size    — pixel size of the circle (number)
+// bg      — background colour for initials fallback (default navy)
+// color   — text colour for initials fallback (default white)
+function personAvatar(name, size, bg, color) {
+  size  = size  || 40;
+  bg    = bg    || 'var(--fb)';
+  color = color || '#fff';
+  var fontSize = Math.round(size * 0.35);
+  var photo = PEOPLE_PHOTOS[name];
+  if (photo) {
+    return '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;overflow:hidden;flex-shrink:0">' +
+           '<img src="' + photo + '" alt="' + name + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%" /></div>';
+  }
+  var parts = (name||'').trim().split(/\s+/);
+  var initials = parts.length >= 2
+    ? parts[0][0].toUpperCase() + parts[parts.length-1][0].toUpperCase()
+    : (parts[0]||'?')[0].toUpperCase();
+  return '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:' + bg + ';color:' + color + ';font-size:' + fontSize + 'px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-.01em">' + initials + '</div>';
 }
 
 // Photos object — populated as headshots are uploaded
