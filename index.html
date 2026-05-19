@@ -2031,11 +2031,18 @@ function onScopeChanged() {
 // Five leaders cover two branches/regions. This config layer sits on top of
 // the TEAM_MEMBERS feed and is never merged into employee records.
 var MULTI_SCOPE_OVERRIDES = {
+  // Multi-scope leaders (two regions or two branches)
   'Ellen Crowley': { regions: ['North Central', 'Las Vegas'] },
   'Maud Langlois':  { regions: ['Canada', 'Northeast'] },
   'Jose Medina':    { branches: ['Orlando', 'New Orleans'] },
   'Tricia Orme':    { branches: ['Nashville', 'Atlanta'] },
-  'T Lam':          { branches: ['Denver', 'Reno'] }
+  'T Lam':          { branches: ['Denver', 'Reno'] },
+  // Branch corrections: TEAM_MEMBERS stores physical location, not management scope.
+  // These will be removed once Workday data feed sets the correct branch field.
+  'Niall McCarthy':     { branches: ['San Francisco'] },
+  'Cassandra Karns':    { branches: ['Washington D.C.'] },
+  'Courtney Gonzalez':  { branches: ['Off-Site'] },
+  'Michelle Bogdan':    { branches: ['Off-Site'] }
 };
 
 // ── HARDCODED IDENTITY CONFIG ─────────────────────────────────────────────
