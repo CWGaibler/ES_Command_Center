@@ -228,7 +228,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 /* ── PERFORMANCE MANAGEMENT ─────────────────────────────────────── */
 .pm-layout{display:grid;grid-template-columns:calc((100% - 30px) / 4) 1fr;gap:10px;flex:1;min-height:0}
 .pm-sidebar{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto;border-top:4px solid var(--mb);flex:1;min-height:0}
-.pm-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto;border-top:4px solid var(--mb)}
+.pm-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto;border-top:4px solid var(--mb);min-height:0;min-width:0}
 .pm-person-card{padding:10px 13px;border-bottom:1px solid var(--border-lt);cursor:pointer;border-left:3px solid transparent;transition:background .1s}
 .pm-person-card:hover{background:var(--fb-xlt)}
 .pm-person-card.sel{background:var(--fb-xlt);border-left-color:var(--mb)}
@@ -249,9 +249,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .pm-sec-chevron{color:var(--muted);transition:transform .2s;flex-shrink:0}
 .pm-sec-chevron.open{transform:rotate(90deg)}
 .pm-sec-body{padding:0 18px 16px}
-.pm-task-row{display:grid;grid-template-columns:1fr 180px;align-items:start;padding:9px 0;border-bottom:1px solid var(--border-lt)}
+.pm-task-row{display:flex;align-items:flex-start;gap:9px;padding:9px 16px;border-bottom:1px solid var(--border-lt)}
 .pm-task-row:last-child{border-bottom:none}
-.pm-task-row:hover{background:var(--fb-xlt);margin:0 -18px;padding:9px 18px}
+.pm-task-row:hover{background:var(--fb-xlt)}
 .pm-callout{background:var(--surface);border-left:3px solid var(--mb);padding:6px 10px;border-radius:0 6px 6px 0;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.4;font-style:italic}
 .pm-ref-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
 .pm-ref-table th{background:var(--fb);color:#fff;padding:7px 10px;text-align:left;font-weight:800;font-size:12px}
@@ -1555,13 +1555,13 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     </div>
     <div class="rh-stats" id="pm-stats-strip"></div>
     <div class="pm-layout">
-      <div style="display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;flex-direction:column;min-height:0;min-width:0">
         <div class="el-section-div">Active Actions</div>
-        <div class="pm-sidebar" style="flex:1">
+        <div class="pm-sidebar" style="flex:1;min-height:0">
           <div id="pm-record-list"></div>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;flex-direction:column;min-height:0;min-width:0">
         <div class="el-section-div">Performance Workspace</div>
         <div class="pm-detail" id="pm-detail" style="flex:1"></div>
       </div>
@@ -6670,20 +6670,18 @@ function pmRenderWorkspace() {
   tasks.forEach(function(t) {
     var isDone = !!checked[t.id];
     if (t.parallelWith && !shownParallel) {
-      scrollHtml += '<div style="margin:0 20px 4px"><div class="pm-parallel-note">↕ Steps 2 & 3 can proceed simultaneously</div></div>';
+      scrollHtml += '<div style="padding:0 16px 4px"><div class="pm-parallel-note">⇕ Steps 2 & 3 can proceed simultaneously</div></div>';
       shownParallel = true;
     }
-    scrollHtml += '<div class="pm-task-row" style="margin:0 20px;' + (isDone?'opacity:.5':'') + '">' +
-      '<div style="display:flex;align-items:flex-start;gap:9px;min-width:0">' +
-        '<div class="task-chk' + (isDone?' checked':'') + '" data-pm-rec="' + rec.id + '" data-pm-task="' + t.id + '" style="margin-top:2px;flex-shrink:0"><span class="chk-mark">✓</span></div>' +
-        '<div style="min-width:0">' +
-          '<div style="font-size:14px;font-weight:700;line-height:1.4;color:' + (isDone?'var(--muted)':'var(--fb)') + '">' + t.title + '</div>' +
-          '<div style="font-size:13px;color:var(--muted);margin-top:2px;line-height:1.4">' + t.desc + '</div>' +
-          (t.callout ? '<div class="pm-callout">' + t.callout + '</div>' : '') +
-          (t.extUrl ? '<div style="margin-top:5px"><a href="' + t.extUrl + '" target="_blank" rel="noopener" style="font-size:12px;font-weight:700;color:var(--mb);text-decoration:none">↗ ' + t.extLabel + '</a></div>' : '') +
-        '</div>' +
+    scrollHtml += '<div class="pm-task-row"' + (isDone?' style="opacity:.5"':'') + '>' +
+      '<div class="task-chk' + (isDone?' checked':'') + '" data-pm-rec="' + rec.id + '" data-pm-task="' + t.id + '" style="margin-top:2px;flex-shrink:0"><span class="chk-mark">✓</span></div>' +
+      '<div style="min-width:0;flex:1">' +
+        '<div style="font-size:14px;font-weight:700;line-height:1.4;color:' + (isDone?'var(--muted)':'var(--fb)') + '">' + t.title + '</div>' +
+        '<div style="font-size:13px;color:var(--muted);margin-top:2px;line-height:1.4">' + t.desc + '</div>' +
+        (t.callout ? '<div class="pm-callout">' + t.callout + '</div>' : '') +
+        (t.extUrl ? '<div style="margin-top:5px"><a href="' + t.extUrl + '" target="_blank" rel="noopener" style="font-size:12px;font-weight:700;color:var(--mb);text-decoration:none">↗ ' + t.extLabel + '</a></div>' : '') +
       '</div>' +
-      '<div style="padding-left:10px;padding-top:2px;text-align:right;flex-shrink:0">' +
+      '<div style="margin-left:auto;padding-left:10px;padding-top:2px;text-align:right;flex-shrink:0">' +
         '<div style="font-size:12px;font-weight:700;color:' + (t.isEmployee?'var(--mb)':'var(--fb)') + '">' + t.who + '</div>' +
         '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + t.timing + '</div>' +
       '</div>' +
