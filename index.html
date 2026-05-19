@@ -1808,7 +1808,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 <script src="data/branch-logos.js"></script>
 <script src="data/survey-data.js"></script>
 <script src="data/branch-map.js"></script>
-<script src="data/identity-directory.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="data/kpi-data.js"></script>
 <script src="data/el-tasks.js"></script>
@@ -2025,8 +2024,6 @@ function onScopeChanged() {
 // task ownership, and sidebar visibility across all workspaces.
 // ══════════════════════════════════════════════════════════════════════════
 
-/* IDENTITY_DIRECTORY loaded from data/identity-directory.js — kept for Phase 1 fallback */
-
 // ── MULTI-SCOPE OVERRIDES ─────────────────────────────────────────────────
 // Five leaders cover two branches/regions. This config layer sits on top of
 // the TEAM_MEMBERS feed and is never merged into employee records.
@@ -2155,7 +2152,7 @@ function isESWithAuthority() {
 // Current active identity — defaults to Craig Gaibler (full name key)
 var CURRENT_IDENTITY_KEY = 'Craig Gaibler';
 function currentIdentity() {
-  return IDENTITY_FROM_TM[CURRENT_IDENTITY_KEY] || IDENTITY_DIRECTORY[CURRENT_IDENTITY_KEY] || {};
+  return IDENTITY_FROM_TM[CURRENT_IDENTITY_KEY] || {};
 }
 
 // ── IDENTITY SWITCH ──────────────────────────────────────────────────────
@@ -2242,7 +2239,7 @@ function updateHeaderAvatar() {
 
 function setIdentity(key) {
   CURRENT_IDENTITY_KEY = key;
-  var person = IDENTITY_FROM_TM[key] || IDENTITY_DIRECTORY[key];
+  var person = IDENTITY_FROM_TM[key];
   if (!person) return;
   updateHeaderAvatar();
 
