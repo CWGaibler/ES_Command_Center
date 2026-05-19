@@ -1107,44 +1107,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
     <div class="hdr-avatar-wrap">
       <div class="hdr-avatar" id="hdr-avatar">CG</div>
       <select id="identity-select" class="identity-select-overlay" onchange="setIdentity(this.value)">
-      <option value="amber">Amber Segura</option>
-      <option value="anne">Anne Wolkenhauer</option>
-      <option value="cassandra">Cassandra Karns</option>
-      <option value="chenille">Chenille Book</option>
-      <option value="cory">Cory Marin</option>
-      <option value="courtney">Courtney Gonzalez</option>
-      <option value="craig" selected>Craig Gaibler</option>
-      <option value="elaine">Elaine Yesh</option>
-      <option value="ellen">Ellen Crowley</option>
-      <option value="emily">Emily Dodd</option>
-      <option value="erica">Erica Cochran</option>
-      <option value="erii">Erii Rodriguez</option>
-      <option value="gina">Gina Alberto</option>
-      <option value="jennifer_p">Jennifer Pearson</option>
-      <option value="jennifer_v">Jennifer Vaughan</option>
-      <option value="jessica">Jessica Montoro</option>
-      <option value="joan">Joan Davis</option>
-      <option value="joanne">Joanne Peau</option>
-      <option value="jose">Jose Medina</option>
-      <option value="kacie">Kacie Kugel</option>
-      <option value="laura">Laura Ewell</option>
-      <option value="lauren">Lauren Medina</option>
-      <option value="leslie">Leslie Davis</option>
-      <option value="lisette">Lisette Bergeron</option>
-      <option value="lisa">Lisa Park</option>
-      <option value="lubi">Lubi Garza</option>
-      <option value="lymari">Lymari Colon</option>
-      <option value="mary">Mary Ligammari</option>
-      <option value="maud">Maud Langlois</option>
-      <option value="michelle">Michelle Bogdan</option>
-      <option value="nesana">Nesana Wieger</option>
-      <option value="niall">Niall McCarthy</option>
-      <option value="nicole">Nicole Hanna</option>
-      <option value="regina">Regina Serigne</option>
-      <option value="tiffany">Tiffany Jarrett</option>
-      <option value="tlam">T Lam</option>
-      <option value="tricia">Tricia Orme</option>
-    </select>
+      </select>
     </div><!-- end hdr-avatar-wrap -->
   </div>
   </div><!-- end hdr-row1 -->
@@ -2062,11 +2025,131 @@ function onScopeChanged() {
 // task ownership, and sidebar visibility across all workspaces.
 // ══════════════════════════════════════════════════════════════════════════
 
-/* IDENTITY_DIRECTORY loaded from data/identity-directory.js */
+/* IDENTITY_DIRECTORY loaded from data/identity-directory.js — kept for Phase 1 fallback */
 
-// Current active identity — defaults to Craig
-var CURRENT_IDENTITY_KEY = 'craig';
-function currentIdentity() { return IDENTITY_DIRECTORY[CURRENT_IDENTITY_KEY]; }
+// ── MULTI-SCOPE OVERRIDES ─────────────────────────────────────────────────
+// Five leaders cover two branches/regions. This config layer sits on top of
+// the TEAM_MEMBERS feed and is never merged into employee records.
+var MULTI_SCOPE_OVERRIDES = {
+  'Ellen Crowley': { regions: ['North Central', 'Las Vegas'] },
+  'Maud Langlois':  { regions: ['Canada', 'Northeast'] },
+  'Jose Medina':    { branches: ['Orlando', 'New Orleans'] },
+  'Tricia Orme':    { branches: ['Nashville', 'Atlanta'] },
+  'T Lam':          { branches: ['Denver', 'Reno'] }
+};
+
+// ── HARDCODED IDENTITY CONFIG ─────────────────────────────────────────────
+// Laure Chachere: SVP, Customer Experience — not in ES TEAM_MEMBERS dataset.
+// Temporary entry until live Workday data feed is connected (her VP title
+// will auto-qualify her at that point).
+var HARDCODED_IDENTITY_CONFIG = [
+  { name: 'Laure Chachere', title: 'SVP, Customer Experience',
+    level: 'enterprise', taskRole: 'es', canCheckOwner: 'none',
+    branches: [], regions: [] }
+];
+
+// ── IDENTITY DERIVATION ───────────────────────────────────────────────────
+// Builds an identity object from a TEAM_MEMBERS record using title + mgr rules.
+// Returns null if the person does not have dashboard access.
+function buildIdentityFromTM(tm) {
+  var title = tm.title || '';
+  var mgr   = tm.mgr   || '';
+  var name  = tm.name;
+
+  // ── Level ──
+  var level;
+  if (title.indexOf('Vice President') >= 0) {
+    level = 'enterprise';
+  } else if (/Sr\.?\s*Director/i.test(title)) {
+    level = 'enterprise';
+  } else if (mgr === 'Nesana Wieger') {
+    level = 'enterprise';
+  } else if (title.indexOf('Training Supervisor') >= 0) {
+    level = 'enterprise';
+  } else if (title.indexOf('Regional Director') >= 0) {
+    level = 'region';
+  } else if (title.indexOf('Director') >= 0) {
+    level = 'branch';
+  } else if (title.indexOf('Manager') >= 0) {
+    level = 'branch';
+  } else if (mgr === 'Craig Gaibler') {
+    level = 'region'; // future-proof catch-all for non-titled Craig DRs
+  } else {
+    return null; // not eligible for dashboard access
+  }
+
+  // ── taskRole ──
+  var taskRole;
+  if (mgr === 'Nesana Wieger' && title.indexOf('Coordinator') >= 0) {
+    taskRole = 'admin'; // Erii Rodriguez
+  } else if (level === 'enterprise') {
+    taskRole = 'es';
+  } else if (level === 'region') {
+    taskRole = 'rd';
+  } else if (title.indexOf('Manager') >= 0) {
+    taskRole = 'hm';
+  } else {
+    taskRole = 'rd'; // Directors at branch level
+  }
+
+  // ── canCheckOwner ──
+  var canCheckOwner = taskRole === 'admin' ? 'admin' : taskRole === 'hm' ? 'hm' : 'none';
+
+  // ── Regions and branches ──
+  var regions = [];
+  var branches = [];
+  var ov = MULTI_SCOPE_OVERRIDES[name];
+
+  if (level === 'enterprise') {
+    // sees everything — no filter arrays needed
+  } else if (level === 'region') {
+    regions = (ov && ov.regions) ? ov.regions : (tm.region ? [tm.region] : []);
+    regions.forEach(function(r) {
+      (BRANCH_MAP[r] || []).forEach(function(b) {
+        if (branches.indexOf(b) < 0) branches.push(b);
+      });
+    });
+  } else {
+    branches = (ov && ov.branches) ? ov.branches : (tm.branch ? [tm.branch] : []);
+  }
+
+  return { name: name, title: title, level: level, taskRole: taskRole,
+           canCheckOwner: canCheckOwner, regions: regions, branches: branches };
+}
+
+// ── IDENTITY_FROM_TM — derived lookup keyed by full name ─────────────────
+var IDENTITY_FROM_TM = {};
+TEAM_MEMBERS.forEach(function(tm) {
+  var id = buildIdentityFromTM(tm);
+  if (id) IDENTITY_FROM_TM[tm.name] = id;
+});
+HARDCODED_IDENTITY_CONFIG.forEach(function(h) {
+  IDENTITY_FROM_TM[h.name] = h;
+});
+
+// ── DROPDOWN BUILDER ──────────────────────────────────────────────────────
+function buildIdentityDropdown() {
+  var sel = document.getElementById('identity-select');
+  if (!sel) return;
+  var names = Object.keys(IDENTITY_FROM_TM).sort();
+  sel.innerHTML = names.map(function(n) {
+    return '<option value="' + n + '"' + (n === CURRENT_IDENTITY_KEY ? ' selected' : '') + '>' + n + '</option>';
+  }).join('');
+}
+
+// ── ES AUTHORITY CHECK ────────────────────────────────────────────────────
+// Returns true for VP and Sr. Director only — replaces all
+// CURRENT_IDENTITY_KEY==='craig'||...'nesana' checks throughout the app.
+function isESWithAuthority() {
+  var t = currentIdentity().title || '';
+  return t.indexOf('Vice President') >= 0 || /Sr\.?\s*Director/i.test(t);
+}
+
+// Current active identity — defaults to Craig Gaibler (full name key)
+var CURRENT_IDENTITY_KEY = 'Craig Gaibler';
+function currentIdentity() {
+  return IDENTITY_FROM_TM[CURRENT_IDENTITY_KEY] || IDENTITY_DIRECTORY[CURRENT_IDENTITY_KEY] || {};
+}
 
 // ── IDENTITY SWITCH ──────────────────────────────────────────────────────
 
@@ -2152,7 +2235,7 @@ function updateHeaderAvatar() {
 
 function setIdentity(key) {
   CURRENT_IDENTITY_KEY = key;
-  var person = IDENTITY_DIRECTORY[key];
+  var person = IDENTITY_FROM_TM[key] || IDENTITY_DIRECTORY[key];
   if (!person) return;
   updateHeaderAvatar();
 
@@ -2235,9 +2318,9 @@ function identityCanCheckTask(owner, recordHiringManager, hireBranch) {
     return p.level === 'region' && p.branches.indexOf(hireBranch) >= 0;
   }
 
-  // ES Leadership tasks — Craig or Nesana only; either can complete
+  // ES Leadership tasks — VP or Sr. Director only
   if (owner === 'es') {
-    return CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana';
+    return isESWithAuthority();
   }
 
   // HR tasks (owner='anyone') — anyone can complete; HR won't use the system
@@ -2245,9 +2328,9 @@ function identityCanCheckTask(owner, recordHiringManager, hireBranch) {
     return true;
   }
 
-  // Admin tasks (Erii only)
+  // Admin tasks (Erii only — taskRole 'admin')
   if (owner === 'admin') {
-    return CURRENT_IDENTITY_KEY === 'erii';
+    return currentIdentity().taskRole === 'admin';
   }
 
   return false;
@@ -2336,10 +2419,9 @@ function getRecruitingScope() {
 
 function canView(h) {
   var p = currentIdentity();
-  // Managers (canCheckOwner === 'hm' and level === 'branch' with no directReports)
-  // see ONLY their own positions in Recruiting — not all positions in their branch.
+  // Managers (taskRole 'hm') see ONLY their own positions in Recruiting.
   // Directors, RDs, and ES Leadership see all positions within their scope.
-  if (p.level === 'branch' && p.taskRole === 'hm' && !p.directReports) {
+  if (p.level === 'branch' && p.taskRole === 'hm') {
     return h.hiringManager === p.name;
   }
   return identityCanSeeBranch(h.branch);
@@ -2807,7 +2889,7 @@ function rhAdvanceStage(hId) {
   if (!stg || !stg.nextStage) return;
   // Gate: HM on this record or ES Leadership can advance stage
   var isHM = currentIdentity().name === hire.hiringManager;
-  var isES = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
+  var isES = isESWithAuthority();
   if (!isHM && !isES) return;
   hire.stage = stg.nextStage;
   storageSaveHires();
@@ -2818,7 +2900,7 @@ function rhConfirmCandidate(hId) {
   var hire = hires.find(function(x){ return x.id === hId; });
   if (!hire) return;
   var isHM = currentIdentity().name === hire.hiringManager;
-  var isES = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
+  var isES = isESWithAuthority();
   if (!isHM && !isES) return;
   var firstEl = document.getElementById('rh-cand-first-' + hId);
   var lastEl  = document.getElementById('rh-cand-last-'  + hId);
@@ -2849,7 +2931,7 @@ function rhSaveReqNum(hId, val) {
 function rhDenyRequisition(hId) {
   var hire = hires.find(function(x){ return x.id === hId; });
   if (!hire) return;
-  var isES = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
+  var isES = isESWithAuthority();
   if (!isES) return;
   if (!confirm('Mark this requisition as Denied? It will be removed from the active pipeline and archived. This cannot be undone.')) return;
   hire.stage = 'denied';
@@ -2942,7 +3024,7 @@ function renderDetail(){
   TASKS.forEach(function(t){if(!seen[t.phase]){seen[t.phase]=true;phases.push(t.phase);}});
   var clHtml='';
   // hmIsRD and activeTasks computed once, used in both the task loop and approval bar
-  var hmIsRD = (function(){ var hmId=null; Object.keys(IDENTITY_DIRECTORY).forEach(function(k){ if(IDENTITY_DIRECTORY[k].name===h.hiringManager) hmId=k; }); return hmId && IDENTITY_DIRECTORY[hmId] && IDENTITY_DIRECTORY[hmId].level==='region'; })();
+  var hmIsRD = (function(){ var hmId = IDENTITY_FROM_TM[h.hiringManager]; return hmId && hmId.level === 'region'; })();
   var activeTasks = TASK_STAGE_MAP[h.stage] || TASK_STAGE_MAP['approved-not-posted'];
 
   phases.forEach(function(phase){
@@ -3047,7 +3129,7 @@ function renderDetail(){
         if(tid==='t2' && hmIsRD) return true;
         return h.checked.indexOf(tid) >= 0;
       });
-      var canPost2 = (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
+      var canPost2 = isESWithAuthority();
       if(p1Done && canPost2 && h.stage === 'approved-not-posted') {
         phaseAdvBtn = '<div class="phase-advance-bar">'+
           '<span class="phase-advance-msg">&#10003; Job Requisition complete &mdash; ready to post</span>'+
@@ -3057,7 +3139,7 @@ function renderDetail(){
       }
     } else if(phase === 'Recruiting & Interviewing') {
       var p2Done = ['t4','t5','t6','t7','t8','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
-      var canAdv2 = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
+      var canAdv2 = (currentIdentity().name === h.hiringManager) || isESWithAuthority();
       if(p2Done && canAdv2 && h.stage === 'approved') {
         phaseAdvBtn = '<div class="phase-advance-bar" style="flex-direction:column;align-items:flex-start;gap:10px">'+
           '<span class="phase-advance-msg">&#10003; Recruiting &amp; Interviewing complete &mdash; enter selected candidate\'s name to confirm</span>'+
@@ -3071,7 +3153,7 @@ function renderDetail(){
     } else if(phase === 'Job Offer') {
       var t13Rdy = !!(h.proposedStart && h.confirmedStart && h.confirmedNet && h.proposedNet && h.firstName && h.lastName && h.reqNum);
       var p3Done = t13Rdy && ['t10','t11','t12','t13','t14'].every(function(tid){ return h.checked.indexOf(tid) >= 0; }) && !!(h.netRequired);
-      var canAdv3 = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
+      var canAdv3 = (currentIdentity().name === h.hiringManager) || isESWithAuthority();
       if(p3Done && canAdv3 && h.stage === 'candidate-selected') {
         phaseAdvBtn = '<div class="phase-advance-bar">'+
           '<span class="phase-advance-msg">&#10003; Job Offer complete &mdash; background check cleared</span>'+
@@ -3091,7 +3173,7 @@ function renderDetail(){
       if(tid==='t2' && hmIsRD) return true;
       return h.checked.indexOf(tid) >= 0;
     });
-    var canPost = (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
+    var canPost = isESWithAuthority();
     if(phase1Done) {
       approvalBarHtml = '<div class="approval-bar">'+
         '<div class="approval-msg">&#10003; Requisition submitted &mdash; awaiting ES Leadership approval<div class="sub">Craig Gaibler or Nesana Wieger will mark this as Approved or Denied.</div></div>'+
@@ -3112,7 +3194,7 @@ function renderDetail(){
   } else if(h.stage === 'approved') {
     var phase2Done = ['t4','t5','t6','t7','t8','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
     // t9 is owned by the HM — they or ES Leadership can advance
-    var canAdv = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
+    var canAdv = (currentIdentity().name === h.hiringManager) || isESWithAuthority();
     if(phase2Done) {
       approvalBarHtml = '<div class="approval-bar">'+
         '<div class="approval-msg">&#10003; Position approved &mdash; recruiting in progress<div class="sub">Complete all Recruiting &amp; Interviewing steps to advance.</div></div>'+
@@ -3122,7 +3204,7 @@ function renderDetail(){
   } else if(h.stage === 'candidate-selected') {
     var phase3Done = ['t10','t11','t12','t13','t14'].every(function(tid){ return h.checked.indexOf(tid) >= 0; }) && !!(h.netRequired);
     // t13 is HRBP (anyone) — HM confirms hire date, so HM or ES Leadership can advance
-    var canAdv2 = (currentIdentity().name === h.hiringManager) || (CURRENT_IDENTITY_KEY==='craig' || CURRENT_IDENTITY_KEY==='nesana');
+    var canAdv2 = (currentIdentity().name === h.hiringManager) || isESWithAuthority();
     if(phase3Done) {
       var candName = (h.firstName && h.lastName) ? h.firstName + ' ' + h.lastName : 'Candidate';
       approvalBarHtml = '<div class="approval-bar">'+
@@ -3231,7 +3313,7 @@ var ES_DATE_LABELS = { start: 'Next ES Start Date', net: 'Next ES NET Class' };
 var _esDateModalType = null;
 
 function esDateIsEditable() {
-  return CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana';
+  return isESWithAuthority();
 }
 
 function esDateGet(type) {
@@ -6488,7 +6570,7 @@ function initPerformance() {
     if (det) { det.className = 'pm-detail'; det.innerHTML = pmEmptyWorkspace(); }
   }
   // Show edit pencil on deadline tiles only for enterprise identity
-  var canEdit = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
+  var canEdit = isESWithAuthority();
   ['pm-mid-edit','pm-year-edit'].forEach(function(id){
     var btn = document.getElementById(id);
     if (btn) btn.style.display = canEdit ? 'block' : 'none';
@@ -6510,7 +6592,7 @@ function pmRenderStats() {
   var me = currentIdentity().name;
   var myRecords = pmRecords.filter(function(r){ return r.initiatedBy === me || r.personMgr === me; });
   var total = myRecords.length;
-  var canEdit = (CURRENT_IDENTITY_KEY === 'craig' || CURRENT_IDENTITY_KEY === 'nesana');
+  var canEdit = isESWithAuthority();
 
   // Deadline tile rendering
   function deadlineTile(type, label, tileId, editId) {
@@ -6903,6 +6985,7 @@ function pmGoToProfile(name) {
 
 document.addEventListener('DOMContentLoaded', function() {
   storageLoadAll(); // Restore persisted state before rendering anything
+  buildIdentityDropdown(); // Populate identity switcher from IDENTITY_FROM_TM
   updateHeaderAvatar(); // Set initials in header avatar circle
   // Handle Prior Year jump: if opened from a Staffing/Scheduling header chip,
   // sessionStorage carries the job number to navigate Events Lens directly.
@@ -6964,10 +7047,8 @@ var obRecords = [];
 selObId = null;
 
 function obCanCheck(taskOwner) {
-  var key = CURRENT_IDENTITY_KEY;
-  var p   = currentIdentity();
-  // ES Admin (Erii) can check admin tasks
-  if (taskOwner === 'admin') return key === 'erii';
+  var p = currentIdentity();
+  if (taskOwner === 'admin') return p.taskRole === 'admin';
   // CX Enablement tasks — no dashboard user, anyone can check
   if (taskOwner === 'cx') return true;
   // HM tasks — only the identity whose name matches the record's HM
@@ -7216,10 +7297,9 @@ selTrId = null;
 function trTaskSet(rec) { return rec.transitionType === 'promotion' ? TR_TASKS_PROMOTION : TR_TASKS_TRANSFER; }
 
 function trCanCheck(taskOwner) {
-  var key = CURRENT_IDENTITY_KEY;
-  var p   = currentIdentity();
-  if (taskOwner === 'admin') return key === 'erii';
-  if (taskOwner === 'es')    return key === 'craig' || key === 'nesana';
+  var p = currentIdentity();
+  if (taskOwner === 'admin') return p.taskRole === 'admin';
+  if (taskOwner === 'es')    return isESWithAuthority();
   if (taskOwner === 'hm') {
     if (p.level === 'region' || p.level === 'enterprise') return false;
     return true;
@@ -7436,9 +7516,8 @@ selOffId = null;
 function offTaskSet(rec) { return rec.departureType === 'resignation' ? OFF_TASKS_RESIGNATION : OFF_TASKS_TERMINATION; }
 
 function offCanCheck(taskOwner) {
-  var key = CURRENT_IDENTITY_KEY;
-  var p   = currentIdentity();
-  if (taskOwner === 'admin') return key === 'erii';
+  var p = currentIdentity();
+  if (taskOwner === 'admin') return p.taskRole === 'admin';
   if (taskOwner === 'hm') {
     if (p.level === 'region' || p.level === 'enterprise') return false;
     return true;
