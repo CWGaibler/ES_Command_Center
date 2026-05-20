@@ -2644,21 +2644,35 @@ function renderNeedsAttention() {
   var el = document.getElementById('needs-attention-body'); if(!el) return;
   var html = '';
 
-  // ── Recruiting: offer stage positions ───────────────────────────────
+  // ── Recruiting: one card per hire showing the next actionable task ──
   var rhItems = hires.filter(needsMyAction);
-  html += rhItems.map(function(h){
-    var stg = APPROVAL_STAGES[h.stage] || {};
-    var isOverdue = countOverdue(h) > 0;
-    var statusChip = isOverdue
+  html += rhItems.map(function(h) {
+    var activeTasks = (TASK_STAGE_MAP[h.stage] || []).map(function(tid) {
+      return TASKS.find(function(t) { return t.id === tid; });
+    }).filter(Boolean);
+    var pendingTasks = activeTasks.filter(function(t) {
+      return identityCanCheckTask(t.owner, h.hiringManager, h.branch) &&
+             h.checked.indexOf(t.id) < 0;
+    });
+    if (!pendingTasks.length) return '';
+    var nextTask = pendingTasks[0];
+    var baseDate = h.start || h.proposedStart || '';
+    var taskDueDate = baseDate ? addDays(baseDate, nextTask.off) : null;
+    var taskStatus = taskDueDate ? dueStatus(taskDueDate, false) : 'upcoming';
+    var statusChip = taskStatus === 'overdue'
       ? '<span class="chip chip-overdue">Overdue</span>'
-      : '<span class="chip chip-amber">Due Next</span>';
-    var loc = h.branch || (currentIdentity().branches && currentIdentity().branches[0]) || '';
-    var taskTitle = isOverdue ? (countOverdue(h)+' task'+(countOverdue(h)>1?'s':'')+' overdue &mdash; '+h.role) : 'Complete job offer steps &mdash; '+h.role;
-    var taskMeta = (h.firstName && h.lastName) ? h.firstName+' '+h.lastName+' &middot; '+h.branch : h.branch;
-    return '<div class="na-card" data-gotohire="'+h.id+'" onclick="goToHire(this)">'+
-      '<div class="na-card-title">'+taskTitle+'</div>'+
-      '<div class="na-card-meta">'+taskMeta+'</div>'+
-      '<div class="na-card-tags">'+statusChip+'<span class="chip chip-info">Recruiting</span><span class="chip chip-location">'+loc+'</span></div>'+
+      : taskStatus === 'today'
+        ? '<span class="chip chip-urgent">Due Today</span>'
+        : '<span class="chip chip-amber">Due Next</span>';
+    var loc = h.branch || '';
+    var taskMeta = (h.firstName && h.lastName)
+      ? h.firstName + ' ' + h.lastName + ' &middot; ' + h.branch
+      : h.branch;
+    var taskDesc = nextTask.desc ? nextTask.desc.substring(0, 80) + (nextTask.desc.length > 80 ? '...' : '') : '';
+    return '<div class="na-card" data-gotohire="' + h.id + '" onclick="goToHire(this)">' +
+      '<div class="na-card-title">' + nextTask.title + ' &mdash; ' + h.role + '</div>' +
+      (taskMeta ? '<div class="na-card-meta">' + taskMeta + '</div>' : '') +
+      '<div class="na-card-tags">' + statusChip + '<span class="chip chip-info">Recruiting</span><span class="chip chip-location">' + loc + '</span></div>' +
     '</div>';
   }).join('');
 
