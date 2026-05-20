@@ -2258,6 +2258,7 @@ function setIdentity(key) {
 
   // Reset stale selection state, THEN re-render
   resetWorkspaceState();
+  tkUpdateNavVisibility();
   var activePage = document.querySelector('.page.active');
   if (activePage) {
     var pid = activePage.id;
@@ -2681,6 +2682,8 @@ function renderNeedsAttention() {
   }).join('');
 
   // ── Timekeeping & Utilization: overdue weekly + due today ───────────────────
+  // Only shown to leaders who have qualifying direct reports (reporting-structure gate)
+  if (tkIsVisible()) {
   var tkOverdueTasks = tkGetOverdueTasks();
   var tkDueTasks = tkGetTasksDueToday();
   var tkUndoneToday = tkDueTasks.filter(function(t){ return !tkIsTaskDone(t); });
@@ -2705,6 +2708,7 @@ function renderNeedsAttention() {
       '<div class="na-card-tags"><span class="chip chip-urgent">Due Today</span><span class="chip chip-info">Timekeeping</span><span class="chip chip-location">' + tkLoc + '</span></div>'+
     '</div>';
   });
+  } // end tkIsVisible()
 
     // ── ES Date TBD: notify Craig & Nesana when Start Date or NET Class is TBD ──
   var esDateItems = esDateNeedsAttentionItems();
@@ -2717,7 +2721,7 @@ function renderNeedsAttention() {
   }).join('');
 
   // Empty state
-  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length + travelerItems.length + esDateItems.length + tkUndoneToday.length + tkUndoneOverdue.length;
+  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length + travelerItems.length + esDateItems.length + (typeof tkUndoneToday !== 'undefined' ? tkUndoneToday.length : 0) + (typeof tkUndoneOverdue !== 'undefined' ? tkUndoneOverdue.length : 0);
   if (totalItems === 0) {
     html = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No items need your attention right now.</div>';
   }
@@ -6205,11 +6209,83 @@ var TK_SECTIONS = [
         title:'Audit and reinforce accountability',
         desc:'Confirm completion of weekly approvals across assigned branches and follow up with leaders who miss deadlines.',
         parties:['Regional Director'],
-        tier:'reference', weekday:null, deadline:'Weekly',
+        tier:'reference', weekday:null, deadline:'Best practice — ongoing',
         locked:false, lockedBy:null }
     ]
   }
 ];
+
+// ── T&U Visibility — reporting-structure-based access control ────────────────
+//
+// A leader sees the T&U workspace only if they have at least one qualifying
+// direct report — i.e. a team member in an hourly or supervisory role whose
+// timekeeping falls under ES leader responsibility.
+//
+// Qualifying titles:
+//   Exhibitor Services Specialist / Sr Specialist / Consultant / Coordinator /
+//   Event Experience Supervisor / Sr Event Experience Supervisor /
+//   Training Supervisor
+//
+// VP exception: A Vice President does not manually approve timecards for hourly
+// direct reports — that approval is handled by a person outside ES. The VP role
+// is therefore exempt from all timecard-approval tasks (Kronos review, approval,
+// payroll readiness, Workfront verification/approval). They retain only tasks
+// that do not involve timecard sign-off (e.g. managing time-off requests,
+// attendance oversight, compliance reference items).
+//
+// Coordinator exception: An Exhibitor Services Coordinator who reports directly
+// to a Vice President has their timecard managed outside ES. That Coordinator
+// does NOT count as a qualifying direct report for VP-level T&U task display.
+// Coordinators reporting to any other leader count normally.
+
+var TK_QUALIFYING_TITLES = [
+  'Exhibitor Services Specialist',
+  'Exhibitor Services Sr Specialist',
+  'Exhibitor Services Consultant',
+  'Exhibitor Services Coordinator',
+  'Exhibitor Services Event Experience Supervisor',
+  'Exhibitor Services Sr Event Experience Supervisor',
+  'Exhibitor Services Training Supervisor'
+];
+
+// Tasks exempt for VP-level leaders (timecard approval handled outside ES)
+var TK_VP_EXEMPT_TASK_IDS = ['k1','k2','k4','k5','k6','wf1','wf2','wf3','wf4'];
+
+function tkGetQualifyingDirectReports(leaderName) {
+  var leaderRec = TEAM_MEMBERS.find(function(t){ return t.name === leaderName; });
+  var leaderIsVP = leaderRec && leaderRec.title && leaderRec.title.indexOf('Vice President') >= 0;
+  return TEAM_MEMBERS.filter(function(t) {
+    if (t.mgr !== leaderName) return false;
+    // Check qualifying title
+    var qualifies = TK_QUALIFYING_TITLES.indexOf(t.title) >= 0;
+    if (!qualifies) return false;
+    // VP/Coordinator exception: a Coordinator reporting to a VP is handled
+    // outside ES — does not count as qualifying for VP's T&U tasks
+    if (leaderIsVP && t.title.indexOf('Coordinator') >= 0) return false;
+    return true;
+  });
+}
+
+function tkIsVisible() {
+  var p = currentIdentity();
+  if (!p) return false;
+  // Enterprise-level leaders: check their own direct reports
+  // Region/branch leaders: same
+  var qualifying = tkGetQualifyingDirectReports(p.name);
+  return qualifying.length > 0;
+}
+
+function tkVisibleTasks(section) {
+  var p = currentIdentity();
+  if (!p) return section.tasks;
+  var leaderRec = TEAM_MEMBERS.find(function(t){ return t.name === p.name; });
+  var isVP = leaderRec && leaderRec.title && leaderRec.title.indexOf('Vice President') >= 0;
+  if (!isVP) return section.tasks;
+  // VP sees all tasks except timecard-approval tasks
+  return section.tasks.filter(function(t){
+    return TK_VP_EXEMPT_TASK_IDS.indexOf(t.id) < 0;
+  });
+}
 
 // ── TK Storage & Date Helpers ────────────────────────────────────────────────
 function tkDateKey() {
@@ -6335,7 +6411,23 @@ function tkGoToPage() {
   showPage('timekeeping', navItem);
 }
 
+function tkUpdateNavVisibility() {
+  var visible = tkIsVisible();
+  // Sidebar nav item
+  var navItem = document.querySelector('.nav-item[onclick*="timekeeping"]');
+  if (navItem) navItem.style.display = visible ? '' : 'none';
+  // Top-nav dropdown item
+  var dropItem = document.querySelector('.tn-drop-item[onclick*="timekeeping"]');
+  if (dropItem) dropItem.style.display = visible ? '' : 'none';
+}
+
 function initTimekeeping() {
+  // Reporting-structure gate: if this leader has no qualifying direct reports,
+  // the T&U workspace is not relevant to them — send them to Today's Priorities.
+  if (!tkIsVisible()) {
+    showPage('today', document.querySelector('.nav-item[onclick*="today"]'));
+    return;
+  }
   tkRenderStats();
   tkRenderSidebar();
   if (!tkSelId && TK_SECTIONS.length) { tkSelId = TK_SECTIONS[0].id; }
@@ -6377,6 +6469,9 @@ function tkRenderDetail() {
   var checkedIds = [];
   sec.tasks.forEach(function(t) { if (tkIsTaskDone(t)) checkedIds.push(t.id); });
 
+  // Filter tasks by identity (VP exception: timecard-approval tasks hidden)
+  var visibleTasks = tkVisibleTasks(sec);
+
   var html = '<div class="tk-det-hdr" style="position:relative;min-height:90px;box-sizing:border-box;padding:18px 24px 14px;border-bottom:1px solid var(--border-lt)">' +
     '<div class="tk-det-title" style="max-width:calc(100% - 200px)">' + sec.name + '</div>' +
     '<div class="tk-det-def" style="max-width:calc(100% - 200px)">' + sec.def + '</div>' +
@@ -6385,7 +6480,7 @@ function tkRenderDetail() {
 
   var tierColors = { daily:'var(--green)', weekly:'var(--mb)', monthend:'var(--orange)', reference:'var(--muted)' };
 
-  sec.tasks.forEach(function(t) {
+  visibleTasks.forEach(function(t) {
     var done = tkIsTaskDone(t);
 
     // Gating: task is locked if lockedBy task is not yet checked
@@ -7051,6 +7146,7 @@ document.addEventListener('DOMContentLoaded', function() {
   storageLoadAll(); // Restore persisted state before rendering anything
   buildIdentityDropdown(); // Populate identity switcher from IDENTITY_FROM_TM
   updateHeaderAvatar(); // Set initials in header avatar circle
+  tkUpdateNavVisibility(); // Hide T&U nav if current identity has no qualifying directs
   // Handle Prior Year jump: if opened from a Staffing/Scheduling header chip,
   // sessionStorage carries the job number to navigate Events Lens directly.
   var pyJump = sessionStorage.getItem('sfPyJumpTo');
