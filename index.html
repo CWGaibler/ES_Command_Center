@@ -138,13 +138,14 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 
 /* CHIPS */
 .chip{display:inline-flex;align-items:center;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;border:1.5px solid transparent;white-space:nowrap}
-.chip-mb{background:rgba(0,189,246,.1);color:#006A8A;border-color:rgba(0,189,246,.3)}
-.chip-amber{background:#FFF5D6;color:#7A5C00;border-color:rgba(255,181,0,.25)}
 .chip-green{background:#EAFAF0;color:#1A6B35;border-color:rgba(66,187,55,.25)}
-.chip-red{background:#FFEDE7;color:var(--orange);border-color:rgba(251,71,31,.2)}
+.chip-amber{background:#FFF5D6;color:#7A5C00;border-color:rgba(255,181,0,.3)}
+.chip-urgent{background:rgba(251,71,31,.12);color:#7A2A00;border-color:rgba(251,71,31,.35)}
+.chip-overdue{background:rgba(192,0,26,.1);color:#7A0010;border-color:rgba(192,0,26,.3)}
 .chip-ghost{background:transparent;color:var(--muted);border-color:var(--border)}
-.chip-orange{background:#FFF0EB;color:#7A2A00;border-color:rgba(251,71,31,.25)}
-.chip-ft{background:var(--fb-lt);color:var(--fb);border-color:rgba(0,31,95,.15)}
+.chip-info{background:rgba(0,189,246,.1);color:#005A75;border-color:rgba(0,189,246,.3)}
+.chip-location{background:rgba(255,3,115,.10);color:#99024A;border-color:rgba(255,3,115,.3)}
+.chip-now{background:rgba(0,31,95,.15);color:#001F5F;border-color:rgba(0,31,95,.35)}
 
 /* EVENT CARDS */
 .event-card{padding:9px 13px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .1s}
@@ -421,15 +422,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .view-as-btn.active{background:var(--fb);border-color:var(--fb);color:#fff}
 .view-as-name{font-size:13.5px;font-weight:700;color:var(--mb);margin-left:4px}
 .action-needed{border-left-color:var(--orange) !important}
-.chip-draft{background:#F2F4F8;color:var(--muted);border-color:var(--border)}
-.chip-pending-rd{background:#FFF0EB;color:#7A2A00;border-color:rgba(251,71,31,.25)}
-.chip-pending-es{background:#FFF5D6;color:#7A5C00;border-color:rgba(255,181,0,.3)}
-.chip-approved{background:#EAFAF0;color:#1A6B35;border-color:rgba(66,187,55,.3)}
-.chip-approved-np{background:#EAFAF0;color:#1A6B35;border-color:rgba(66,187,55,.3);font-style:italic}
-.chip-posted{background:rgba(0,189,246,.1);color:#006A8A;border-color:rgba(0,189,246,.3)}
-.chip-approved{background:rgba(66,187,55,.1);color:#1A6B14;border-color:rgba(66,187,55,.3)}
-.chip-teal{background:rgba(0,189,246,.1);color:#005A75;border-color:rgba(0,189,246,.35);font-style:italic}
-.chip-rejected{background:#FFEDE7;color:var(--orange);border-color:rgba(251,71,31,.2)}
+.chip-stage{background:transparent;color:var(--muted);border-color:var(--border)}
 .approval-bar{display:flex;align-items:flex-start;gap:8px;padding:12px 16px;border-top:1px solid var(--border-lt);border-radius:0 0 10px 10px;flex-wrap:wrap}
 .approval-bar.needs-action{background:#FFF8E6;border-top-color:rgba(255,181,0,.25)}
 .approval-bar.rejected-bar{background:#FFEDE7;border-top-color:rgba(251,71,31,.2)}
@@ -451,9 +444,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 /* ── STAFFING WORKSPACE ── */
 .sf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
 .sf-badge{display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
-.sf-badge-unstaffed{background:#FFEDE7;color:var(--orange);border:1.5px solid rgba(251,71,31,.2)}
-.sf-badge-review{background:#FFF5D6;color:#7A5C00;border:1.5px solid rgba(255,181,0,.25)}
-.sf-badge-confirmed{background:#EAFAF0;color:#1A6B35;border:1.5px solid rgba(66,187,55,.25)}
+
+
+
 .sf-show-item{padding:9px 13px;border-bottom:1px solid var(--border-lt);cursor:pointer;border-left:3px solid transparent;transition:background .1s}
 .sf-show-item:hover{background:var(--fb-xlt)}
 .sf-show-item.sel{background:var(--fb-xlt);border-left-color:var(--mb)}
@@ -533,19 +526,14 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .sf-calc-job-line{font-size:14px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.02em}
 .sf-calc-job-line span{color:var(--fb);font-weight:800}
 .sf-calc-indicator-pills{display:flex;flex-wrap:wrap;gap:4px}
-.sf-pill{font-size:13.5px;font-weight:800;padding:2px 7px;border-radius:999px;display:inline-flex;align-items:center}
-.sf-pill-blue{background:rgba(0,189,246,.12);color:#006ea8;border:1px solid rgba(0,189,246,.3)}
-.sf-pill-pink{background:rgba(255,100,150,.12);color:#b0004e;border:1px solid rgba(255,100,150,.3)}
-.sf-pill-gold{background:rgba(255,181,0,.15);color:#8a5d00;border:1px solid rgba(255,181,0,.35)}
-.sf-pill-green{background:rgba(66,187,55,.12);color:#2a7022;border:1px solid rgba(66,187,55,.3)}
-.sf-pill-orange{background:rgba(251,71,31,.1);color:#c13500;border:1px solid rgba(251,71,31,.25)}
+
 .sf-calc-data-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 12px}
 .sf-data-card{background:var(--white);border:1px solid var(--border);border-radius:7px;padding:8px 10px}
 .sf-data-card-lbl{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:3px}
 .sf-data-card-val{font-size:17px;font-weight:800;color:var(--fb);line-height:1.1}
 .sf-data-card-badge{display:inline-block;font-size:13.5px;font-weight:700;margin-top:3px;padding:1px 6px;border-radius:4px}
-.sf-badge-driving{background:rgba(66,187,55,.12);color:#2a7022;border:1px solid rgba(66,187,55,.28)}
-.sf-badge-ref{background:rgba(173,177,177,.12);color:#777;border:1px solid rgba(173,177,177,.3)}
+
+
 .sf-calc-roles{padding:8px 12px;border-top:1px solid var(--border-lt)}
 .sf-roles-lbl{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:7px}
 .sf-role-boxes{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:5px}
@@ -676,11 +664,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .btn-to-onboarding{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:5px 14px;border-radius:999px;border:none;background:var(--mb);color:#fff;cursor:pointer}
 .btn-to-onboarding:hover{opacity:.85}
 /* departure type chips */
-.chip-resignation{background:#FFF5D6;color:#7A5C00;border-color:rgba(255,181,0,.3)}
-.chip-termination{background:#FFEDE7;color:var(--orange);border-color:rgba(251,71,31,.2)}
-.chip-promotion{background:#EAFAF0;color:#1A6B35;border-color:rgba(66,187,55,.25)}
-.chip-transfer{background:rgba(0,189,246,.1);color:#006A8A;border-color:rgba(0,189,246,.3)}
-.chip-title-change{background:#F2F4F8;color:var(--fb);border-color:var(--border)}
+
 /* phase section header colour variants */
 .phase-hdr.tr-phase{background:rgba(255,181,0,.07)}
 .phase-hdr.off-phase{background:rgba(251,71,31,.05)}
@@ -887,9 +871,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .tl-nc-title{font-size:13px;font-weight:800;color:var(--fb)}
 .tl-nc-sub{font-size:12px;font-weight:700;color:var(--muted);margin-top:1px}
 .tl-lc-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1.5px solid transparent;margin-bottom:4px}
-.tl-lc-ob{background:#EAFAF0;color:#1A6B35;border-color:rgba(66,187,55,.25)}
-.tl-lc-tr{background:rgba(0,189,246,.1);color:#006A8A;border-color:rgba(0,189,246,.3)}
-.tl-lc-off{background:#FFEDE7;color:var(--orange);border-color:rgba(251,71,31,.2)}
+
 .tl-lc-link{font-size:12px;font-weight:700;color:var(--mb);display:block;margin-top:3px;cursor:pointer}
 .tl-lc-link:hover{text-decoration:underline}
 .tl-dev-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
@@ -1266,7 +1248,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
           <div class="event-card">
             <div class="event-name">SR #88142 — Freight Dispute</div>
             <div class="event-meta">SEMA Show · Opened 2 days ago</div>
-            <div class="event-tags"><span class="chip chip-orange">Open</span><span class="chip chip-ghost">Backroom</span></div>
+            <div class="event-tags"><span class="chip chip-amber">Open</span><span class="chip chip-ghost">Backroom</span></div>
           </div>
         </div>
         </div>
@@ -2368,13 +2350,13 @@ var pendingRejectId = null;
 var VIEW_AS_NAMES = {'hm':'Hiring Manager','rd':'Regional Director','es':'ES Leadership'};
 
 var APPROVAL_STAGES = {
-  'approved-not-posted': {label:'Requested',    cls:'chip-approved-np', nextStage:'approved',     stagePhase:1},
+  'approved-not-posted': {label:'Requested',    cls:'chip-stage', nextStage:'approved',     stagePhase:1},
   'approved':            {label:'Approved',      cls:'chip-approved',    nextStage:'candidate-selected', stagePhase:2},
-  'candidate-selected':  {label:'Candidate Selected', cls:'chip-teal',   nextStage:'offer',        stagePhase:3},
+  'candidate-selected':  {label:'Candidate Selected', cls:'chip-stage',   nextStage:'offer',        stagePhase:3},
   'offer':               {label:'Offer Stage',   cls:'chip-green',       nextStage:'complete',     stagePhase:3},
   'complete':            {label:'Complete',      cls:'chip-ghost',       nextStage:null,           stagePhase:4},
-  'rejected':            {label:'Rejected',      cls:'chip-rejected',    nextStage:null,           stagePhase:0},
-  'denied':              {label:'Denied',        cls:'chip-rejected',    nextStage:null,           stagePhase:0}
+  'rejected':            {label:'Rejected',      cls:'chip-urgent',    nextStage:null,           stagePhase:0},
+  'denied':              {label:'Denied',        cls:'chip-urgent',    nextStage:null,           stagePhase:0}
 };
 
 // Stage gate: which tasks are active at each pipeline stage?
@@ -2482,18 +2464,14 @@ function naCardClick(el) {
 
 function lcNeedsAction(records, taskSet, workspace) {
   var items = [];
-  // Determine which canCheck function to use for this workspace
   var canCheckFn = workspace === 'onboarding'  ? obCanCheck  :
                    workspace === 'transitions' ? trCanCheck  :
                    workspace === 'offboarding' ? offCanCheck : function(){ return false; };
 
   records.forEach(function(rec) {
     if (rec.closed) return;
-    // Only surface records that are in the current identity's scope
     if (!identityCanSeeBranch(rec.branch)) return;
-    // Get the task list for this record
     var tasks = typeof taskSet === 'function' ? taskSet(rec) : taskSet;
-    // Find unchecked tasks that the current identity CAN check
     var pendingTasks = tasks.filter(function(t) {
       return canCheckFn(t.owner) && !rec.checked[t.id];
     });
@@ -2502,7 +2480,8 @@ function lcNeedsAction(records, taskSet, workspace) {
         rec: rec,
         workspace: workspace,
         pendingCount: pendingTasks.length,
-        nextTask: pendingTasks[0].title
+        nextTask: pendingTasks[0].title,
+        nextTaskDesc: pendingTasks[0].desc || ''
       });
     }
   });
@@ -2576,8 +2555,8 @@ function renderActiveEvents() {
   el.innerHTML = shows.map(function(s) {
     var isNext = s.freemanPlatform === 'Freeman Next';
     var platformChip = isNext
-      ? '<span class="chip" style="background:#CBF0FC;color:#005A75;border:1.5px solid #7DD9F3;font-weight:700">Freeman Next</span>'
-      : '<span class="chip" style="background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;font-weight:700">Freeman Now</span>';
+      ? '<span class="chip chip-info">Freeman Next</span>'
+      : '<span class="chip chip-now">Freeman Now</span>';
     var moveInLabel = 'Move-in ' + fmtDate(s.moveInStart);
     var clearLabel  = 'Clear ' + fmtDate(s.clearDate);
     return '<div class="event-card" onclick="goToShow(\''+s.id+'\');" style="cursor:pointer">' +
@@ -2605,10 +2584,18 @@ function renderNeedsAttention() {
   // ── Recruiting: offer stage positions ───────────────────────────────
   var rhItems = hires.filter(needsMyAction);
   html += rhItems.map(function(h){
+    var stg = APPROVAL_STAGES[h.stage] || {};
+    var isOverdue = countOverdue(h) > 0;
+    var statusChip = isOverdue
+      ? '<span class="chip chip-overdue">Overdue</span>'
+      : '<span class="chip chip-amber">Due Next</span>';
+    var loc = h.branch || (currentIdentity().branches && currentIdentity().branches[0]) || '';
+    var taskTitle = isOverdue ? (countOverdue(h)+' task'+(countOverdue(h)>1?'s':'')+' overdue &mdash; '+h.role) : 'Complete job offer steps &mdash; '+h.role;
+    var taskMeta = (h.firstName && h.lastName) ? h.firstName+' '+h.lastName+' &middot; '+h.branch : h.branch;
     return '<div class="na-card" data-gotohire="'+h.id+'" onclick="goToHire(this)">'+
-      '<div class="na-card-title">Position: '+h.role+' &mdash; '+h.branch+'</div>'+
-      '<div class="na-card-meta">Requested by '+h.hiringManager+' &middot; '+h.ftpt+' &middot; Proposed start: '+(h.proposedStart||'TBD')+'</div>'+
-      '<div class="na-card-tags"><span class="chip chip-amber">Offer Stage</span><span class="chip chip-ghost">Recruiting</span></div>'+
+      '<div class="na-card-title">'+taskTitle+'</div>'+
+      '<div class="na-card-meta">'+taskMeta+'</div>'+
+      '<div class="na-card-tags">'+statusChip+'<span class="chip chip-info">Recruiting</span><span class="chip chip-location">'+loc+'</span></div>'+
     '</div>';
   }).join('');
 
@@ -2616,10 +2603,11 @@ function renderNeedsAttention() {
   var obItems = lcNeedsAction(obRecords, OB_TASKS, 'onboarding');
   html += obItems.map(function(item){
     var rec = item.rec;
+    var taskDesc = item.nextTaskDesc ? item.nextTaskDesc.substring(0,80)+(item.nextTaskDesc.length>80?'...':'') : '';
     return '<div class="na-card" data-na-ws="onboarding" data-na-id="'+rec.id+'" onclick="naCardClick(this)">'+
-      '<div class="na-card-title">'+rec.firstName+' '+rec.lastName+' &mdash; Onboarding</div>'+
-      '<div class="na-card-meta">'+item.pendingCount+' task'+(item.pendingCount>1?'s':'')+' waiting &middot; Next: '+item.nextTask.substring(0,60)+(item.nextTask.length>60?'...':'')+'</div>'+
-      '<div class="na-card-tags"><span class="chip chip-mb">Onboarding</span><span class="chip chip-ghost">'+rec.branch+'</span></div>'+
+      '<div class="na-card-title">'+item.nextTask+' &mdash; '+rec.firstName+' '+rec.lastName+'</div>'+
+      (taskDesc ? '<div class="na-card-meta">'+taskDesc+'</div>' : '')+
+      '<div class="na-card-tags"><span class="chip chip-amber">Due Next</span><span class="chip chip-info">Onboarding</span><span class="chip chip-location">'+rec.branch+'</span></div>'+
     '</div>';
   }).join('');
 
@@ -2627,10 +2615,11 @@ function renderNeedsAttention() {
   var trItems = lcNeedsAction(trRecords, function(rec){ return trTaskSet(rec); }, 'transitions');
   html += trItems.map(function(item){
     var rec = item.rec;
+    var taskDesc = item.nextTaskDesc ? item.nextTaskDesc.substring(0,80)+(item.nextTaskDesc.length>80?'...':'') : '';
     return '<div class="na-card" data-na-ws="transitions" data-na-id="'+rec.id+'" onclick="naCardClick(this)">'+
-      '<div class="na-card-title">'+rec.firstName+' '+rec.lastName+' &mdash; Transition</div>'+
-      '<div class="na-card-meta">'+item.pendingCount+' task'+(item.pendingCount>1?'s':'')+' waiting &middot; Next: '+item.nextTask.substring(0,60)+(item.nextTask.length>60?'...':'')+'</div>'+
-      '<div class="na-card-tags"><span class="chip chip-mb">Transition</span><span class="chip chip-ghost">'+rec.branch+'</span></div>'+
+      '<div class="na-card-title">'+item.nextTask+' &mdash; '+rec.firstName+' '+rec.lastName+'</div>'+
+      (taskDesc ? '<div class="na-card-meta">'+taskDesc+'</div>' : '')+
+      '<div class="na-card-tags"><span class="chip chip-amber">Due Next</span><span class="chip chip-info">Transitions</span><span class="chip chip-location">'+rec.branch+'</span></div>'+
     '</div>';
   }).join('');
 
@@ -2638,13 +2627,11 @@ function renderNeedsAttention() {
   var offItems = lcNeedsAction(offRecords, function(rec){ return offTaskSet(rec); }, 'offboarding');
   html += offItems.map(function(item){
     var rec = item.rec;
-    var typeChip = rec.departureType === 'resignation' ?
-      '<span class="chip chip-resignation">Resignation</span>' :
-      '<span class="chip chip-termination">Termination</span>';
+    var taskDesc = item.nextTaskDesc ? item.nextTaskDesc.substring(0,80)+(item.nextTaskDesc.length>80?'...':'') : '';
     return '<div class="na-card" data-na-ws="offboarding" data-na-id="'+rec.id+'" onclick="naCardClick(this)">'+
-      '<div class="na-card-title">'+rec.firstName+' '+rec.lastName+' &mdash; Offboarding</div>'+
-      '<div class="na-card-meta">'+item.pendingCount+' task'+(item.pendingCount>1?'s':'')+' waiting &middot; Next: '+item.nextTask.substring(0,60)+(item.nextTask.length>60?'...':'')+'</div>'+
-      '<div class="na-card-tags">'+typeChip+'<span class="chip chip-ghost">'+rec.branch+'</span></div>'+
+      '<div class="na-card-title">'+item.nextTask+' &mdash; '+rec.firstName+' '+rec.lastName+'</div>'+
+      (taskDesc ? '<div class="na-card-meta">'+taskDesc+'</div>' : '')+
+      '<div class="na-card-tags"><span class="chip chip-amber">Due Next</span><span class="chip chip-info">Offboarding</span><span class="chip chip-location">'+rec.branch+'</span></div>'+
     '</div>';
   }).join('');
 
@@ -2685,71 +2672,59 @@ function renderNeedsAttention() {
     });
   });
   html += travelerItems.map(function(item) {
+    var travLoc = item.show.producingBranch || item.show.region || '';
     return '<div class="na-card" onclick="(function(){var nav=document.querySelector(\'.nav-item[onclick*=scheduling]\');if(nav){showPage(\'scheduling\',nav);}setTimeout(function(){scSelectShow(\''+item.showId+'\');},100);})()">' +
-      '<div class="na-card-title">' + item.show.name + ' &mdash; ' + item.slotLabel + '</div>' +
-      '<div class="na-card-meta">Traveler needed &middot; Move-in ' + sfFmtDate(item.show.moveInStart) + ' &middot; ' + (item.show.producingBranch || item.show.region || '') + (item.slot.travelerNote ? ' &middot; ' + item.slot.travelerNote.substring(0,60) : '') + '</div>' +
-      '<div class="na-card-tags"><span class="chip" style="background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166">&#9873; Traveler Needed</span><span class="chip chip-ghost">Scheduling</span></div>' +
+      '<div class="na-card-title">' + item.show.name + ' &mdash; ' + item.slotLabel + ' traveler needed</div>' +
+      '<div class="na-card-meta">Assign traveler for move-in ' + sfFmtDate(item.show.moveInStart) + (item.slot.travelerNote ? ' &middot; ' + item.slot.travelerNote.substring(0,60) : '') + '</div>' +
+      '<div class="na-card-tags"><span class="chip chip-amber">Due Next</span><span class="chip chip-info">Scheduling</span><span class="chip chip-location">' + travLoc + '</span></div>' +
     '</div>';
   }).join('');
 
-  // ── Timekeeping & Utilization: daily/weekly tasks due today ─────────────
+  // ── Timekeeping & Utilization: overdue weekly + due today ───────────────────
+  var tkOverdueTasks = tkGetOverdueTasks();
   var tkDueTasks = tkGetTasksDueToday();
-  if (tkDueTasks.length > 0) {
-    var tkUndone = tkDueTasks.filter(function(t){ return !tkIsTaskDone(t); });
-    if (tkUndone.length > 0) {
-      html += '<div class="na-card" style="padding:0;overflow:hidden">' +
-        '<div style="padding:10px 14px 8px;border-bottom:1px solid var(--border-lt)">' +
-          '<div class="na-card-title" style="margin-bottom:2px">Timekeeping &amp; Utilization</div>' +
-          '<div class="na-card-meta">' + tkUndone.length + ' task' + (tkUndone.length>1?'s':'')+' due today</div>' +
-        '</div>';
-      tkUndone.forEach(function(task) {
-        var done = tkIsTaskDone(task);
-        var dueLabel = tkFormatDueLabel(task);
-        var isUrgent = task.tier === 'monthend' && dueLabel.indexOf('Closes today') >= 0;
-        html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border-lt)" id="tkna-row-'+task.id+'">' +
-          '<div class="task-chk' + (done?' checked':'') + '" data-tk-taskid="'+task.id+'" style="margin-top:2px;flex-shrink:0">' +
-            '<span class="chk-mark">✓</span>' +
-          '</div>' +
-          '<div style="flex:1;min-width:0">' +
-            '<div style="font-size:13.5px;font-weight:700;color:var(--fb)'+(done?';text-decoration:line-through;color:var(--muted)':'')+'">' + task.title + '</div>' +
-            '<div style="font-size:12px;color:'+(isUrgent?'var(--orange)':'var(--muted)')+';margin-top:1px;font-weight:'+(isUrgent?'800':'400')+'">' + dueLabel + '</div>' +
-          '</div>' +
-        '</div>';
-      });
-      html += '<div style="padding:8px 14px">' +
-        '<button onclick="tkGoToPage()" style="font-size:12px;font-weight:800;color:var(--mb);background:none;border:none;cursor:pointer;padding:0">View all procedures →</button>' +
-        '</div>' +
-        '</div>';
-    }
-  }
+  var tkUndoneToday = tkDueTasks.filter(function(t){ return !tkIsTaskDone(t); });
+  var tkUndoneOverdue = tkOverdueTasks.filter(function(t){ return !tkIsTaskDone(t); });
+  var tkLoc = (currentIdentity().branches && currentIdentity().branches[0]) || (currentIdentity().regions && currentIdentity().regions[0]) || 'Your Branch';
 
-  // ── ES Date TBD: notify Craig & Nesana when Start Date or NET Class is TBD ──
+  tkUndoneOverdue.forEach(function(task) {
+    var metaText = task.desc ? task.desc.substring(0,80)+(task.desc.length>80?'...':'') : (task.deadline || '');
+    html += '<div class="na-card" onclick="tkGoToPage()">'+
+      '<div class="na-card-title">' + task.title + '</div>'+
+      (metaText ? '<div class="na-card-meta">' + metaText + '</div>' : '')+
+      '<div class="na-card-tags"><span class="chip chip-overdue">Overdue</span><span class="chip chip-info">Timekeeping</span><span class="chip chip-location">' + tkLoc + '</span></div>'+
+    '</div>';
+  });
+
+  tkUndoneToday.forEach(function(task) {
+    if (tkUndoneOverdue.indexOf(task) >= 0) return;
+    var metaText = task.desc ? task.desc.substring(0,80)+(task.desc.length>80?'...':'') : (task.deadline || '');
+    html += '<div class="na-card" onclick="tkGoToPage()">'+
+      '<div class="na-card-title">' + task.title + '</div>'+
+      (metaText ? '<div class="na-card-meta">' + metaText + '</div>' : '')+
+      '<div class="na-card-tags"><span class="chip chip-urgent">Due Today</span><span class="chip chip-info">Timekeeping</span><span class="chip chip-location">' + tkLoc + '</span></div>'+
+    '</div>';
+  });
+
+    // ── ES Date TBD: notify Craig & Nesana when Start Date or NET Class is TBD ──
   var esDateItems = esDateNeedsAttentionItems();
+  var esScope = (currentIdentity().level === 'enterprise') ? 'Enterprise' : ((currentIdentity().regions && currentIdentity().regions[0]) || 'Enterprise');
   html += esDateItems.map(function(item) {
     return '<div class="na-card" onclick="(function(){var nav=document.querySelector(\'.nav-item[onclick*=recruiting]\');if(nav){showPage(\'recruiting\',nav);}setTimeout(function(){openEsDateModal(\''+item.type+'\');},150);})()">' +
       '<div class="na-card-title">Set ' + item.label + '</div>' +
-      '<div class="na-card-meta">Date is TBD &mdash; update when confirmed</div>' +
-      '<div class="na-card-tags"><span class="chip chip-amber">Action Required</span><span class="chip chip-ghost">Recruiting</span></div>' +
+      '<div class="na-card-tags"><span class="chip chip-amber">Due Next</span><span class="chip chip-info">Recruiting</span><span class="chip chip-location">'+esScope+'</span></div>' +
     '</div>';
   }).join('');
 
   // Empty state
-  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length + travelerItems.length + esDateItems.length + (tkDueTasks.filter(function(t){return !tkIsTaskDone(t);}).length);
+  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length + travelerItems.length + esDateItems.length + tkUndoneToday.length + tkUndoneOverdue.length;
   if (totalItems === 0) {
     html = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No items need your attention right now.</div>';
   }
 
   el.innerHTML = html;
 
-  // Wire TK checkboxes in needs-attention panel
-  el.querySelectorAll('.task-chk[data-tk-taskid]').forEach(function(chk) {
-    chk.addEventListener('click', function() {
-      var taskId = chk.getAttribute('data-tk-taskid');
-      var isDone = chk.classList.contains('checked');
-      tkMarkTaskDone(taskId, !isDone);
-      renderNeedsAttention();
-    });
-  });
+
 }
 
 function renderList(){
@@ -2770,7 +2745,7 @@ function renderList(){
       : '<div class="hire-role" style="margin-top:2px;font-style:italic;color:var(--muted)">Candidate TBD'+(h.reqNum?' <span style="font-style:normal">· Req #'+h.reqNum+'</span>':'')+'</div>';
     var typeChip = h.hireType==='backfill'
       ? '<span class="chip chip-amber" style="font-size:12px;padding:1px 5px">Backfill</span>'
-      : '<span class="chip chip-mb" style="font-size:12px;padding:1px 5px">Net New</span>';
+      : '<span class="chip chip-stage" style="font-size:12px;padding:1px 5px">Net New</span>';
     var ftLabel = h.ftpt==='Part-Time' ? 'PT' : 'FT';
     var dot = action?'<span style="width:7px;height:7px;background:var(--orange);border-radius:50%;display:inline-block;margin-left:4px;vertical-align:middle"></span>':'';
     d.innerHTML=
@@ -2979,11 +2954,11 @@ function renderDetail(){
 
   var typeChip = h.hireType==='backfill'
     ? '<span class="chip chip-amber">Backfill</span>'
-    : '<span class="chip chip-mb">Net New</span>';
+    : '<span class="chip chip-stage">Net New</span>';
   var ftptChip = h.ftpt==='Part-Time'
-    ? '<span class="chip chip-orange">Part-Time</span>'
+    ? '<span class="chip chip-ghost">Part-Time</span>'
     : '<span class="chip chip-green">Full-Time</span>';
-  var trackChip = ov>0 ? '<span class="chip chip-red">'+ov+' Overdue</span>' : '<span class="chip chip-green">On Track</span>';
+  var trackChip = ov>0 ? '<span class="chip chip-overdue">'+ov+' Overdue</span>' : '<span class="chip chip-green">On Track</span>';
 
   // Candidate name appended to title if available
   var candidateSuffix = (h.firstName && h.lastName)
@@ -3181,7 +3156,7 @@ function renderDetail(){
     if(phase1Done) {
       approvalBarHtml = '<div class="approval-bar">'+
         '<div class="approval-msg">&#10003; Requisition submitted &mdash; awaiting ES Leadership approval<div class="sub">Craig Gaibler or Nesana Wieger will mark this as Approved or Denied.</div></div>'+
-        '<span class="chip chip-approved-np">Requested</span>'+
+        '<span class="chip chip-stage">Requested</span>'+
       '</div>';
     } else {
       // Show which specific tasks remain and who needs to complete them
@@ -3192,7 +3167,7 @@ function renderDetail(){
       approvalBarHtml = '<div class="approval-bar">'+
         '<div class="approval-msg">&#9203; Requisition in progress &mdash; awaiting approvals'+
         '<div class="sub">'+pendingMsg+'</div></div>'+
-        '<span class="chip chip-approved-np">Requested</span>'+
+        '<span class="chip chip-stage">Requested</span>'+
       '</div>';
     }
   } else if(h.stage === 'approved') {
@@ -3202,7 +3177,7 @@ function renderDetail(){
     if(phase2Done) {
       approvalBarHtml = '<div class="approval-bar">'+
         '<div class="approval-msg">&#10003; Position approved &mdash; recruiting in progress<div class="sub">Complete all Recruiting &amp; Interviewing steps to advance.</div></div>'+
-        '<span class="chip chip-approved">Approved</span>'+
+        '<span class="chip chip-stage">Approved</span>'+
       '</div>';
     }
   } else if(h.stage === 'candidate-selected') {
@@ -3213,19 +3188,19 @@ function renderDetail(){
       var candName = (h.firstName && h.lastName) ? h.firstName + ' ' + h.lastName : 'Candidate';
       approvalBarHtml = '<div class="approval-bar">'+
         '<div class="approval-msg">&#10003; Candidate selected: '+candName+'<div class="sub">Complete all Job Offer steps below to advance to Offer Stage.</div></div>'+
-        '<span class="chip chip-teal">Candidate Selected</span>'+
+        '<span class="chip chip-stage">Candidate Selected</span>'+
       '</div>';
     }
   } else if(h.stage === 'rejected') {
     approvalBarHtml = '<div class="approval-bar rejected-bar">'+
       '<div class="approval-msg">&#10007; Request rejected<div class="sub">Reason: '+(h.rejectionNote||'See notes')+'</div></div>'+
-      '<span class="chip chip-rejected">Rejected</span>'+
+      '<span class="chip chip-urgent">Rejected</span>'+
     '</div>';
   } else if(h.stage === 'denied') {
     approvalBarHtml = '<div class="approval-bar rejected-bar">'+
       '<div class="approval-msg">&#10007; Requisition denied by Growth leadership &mdash; position will not be posted'+
       '<div class="sub">Denied by '+(h.deniedBy||'ES Leadership')+' on '+(h.deniedDate||'')+'.</div></div>'+
-      '<span class="chip chip-rejected">Denied</span>'+
+      '<span class="chip chip-urgent">Denied</span>'+
     '</div>';
   }
 
@@ -4219,7 +4194,7 @@ function renderSfList() {
     tagsDiv.className = "sf-show-tags";
 
     var badge = document.createElement("span");
-    badge.className = confirmed ? "sf-badge ss-badge-confirmed" : "sf-badge ss-badge-unstaffed";
+    badge.className = confirmed ? "chip chip-green" : "chip chip-amber";
     badge.textContent = confirmed ? "✓ Confirmed" : "Needs Plan";
 
     var regionChip = document.createElement("span");
@@ -4230,8 +4205,8 @@ function renderSfList() {
     sfPlatformChip.className = "chip";
     var sfIsNext = s.freemanPlatform === "Freeman Next";
     sfPlatformChip.style.cssText = sfIsNext
-      ? "background:#CBF0FC;color:#005A75;border:1.5px solid #7DD9F3;font-size:12px;font-weight:700"
-      : "background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;font-size:12px;font-weight:700";
+      ? "font-size:12px"
+      : "font-size:12px";
     sfPlatformChip.textContent = s.freemanPlatform || "";
 
     if (s.freemanPlatform) tagsDiv.appendChild(sfPlatformChip);
@@ -4369,15 +4344,15 @@ function buildEventDetailHeader(opts) {
   // Chip row — same logic as Events Lens flagsHtml
   var isNext = s.freemanPlatform === 'Freeman Next';
   var chipsHtml = isNext
-    ? '<span class="chip" style="background:#CBF0FC;color:#005A75;border:1.5px solid #7DD9F3;font-weight:700">Freeman Next</span>'
-    : '<span class="chip" style="background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;font-weight:700">Freeman Now</span>';
+    ? '<span class="chip chip-info">Freeman Next</span>'
+    : '<span class="chip chip-now">Freeman Now</span>';
 
   if (s.perLbMH === 'N' && !s.freemanElectricalOnly) chipsHtml += '<span class="chip chip-ghost">Non-Standard MH</span>';
-  if (s.freemanAV === 'Yes') chipsHtml += '<span class="chip chip-mb">AV</span>';
+  if (s.freemanAV === 'Yes') chipsHtml += '<span class="chip chip-info">AV</span>';
   var ecomUrl = isNext
     ? 'https://store.freeman.com/event-homepage?eventId=' + showId
     : 'https://www.freemanco.com/store/show/landing?showID=' + showId;
-  chipsHtml += '<a class="chip chip-mb" href="' + ecomUrl + '" target="_blank" style="text-decoration:none">Exhibitor Store \u2197</a>';
+  chipsHtml += '<a class="chip chip-info" href="' + ecomUrl + '" target="_blank" style="text-decoration:none">Exhibitor Store \u2197</a>';
   if (s.pyJobNumber) {
     var pyInShows = !!SHOWS[s.pyJobNumber];
     // Prior Year: real anchor — clicking opens the Events Lens in a new tab,
@@ -5131,12 +5106,12 @@ function renderSfCalcInline(s, rec, plan, stepNum) {
   // Build indicator pills
   var pills = "";
   var plat = s.freemanPlatform || "Freeman Now";
-  pills += "<span class=\"sf-pill sf-pill-blue\">" + plat + "</span>";
-  if (s.freemanAV === "Yes") pills += "<span class=\"sf-pill sf-pill-pink\">AV</span>";
-  if (s.freemanElectricalOnly) pills += "<span class=\"sf-pill sf-pill-gold\">Electrical Only</span>";
-  else if (s.freemanElectrical === "TRUE" || s.freemanElectrical === "True" || s.freemanElectrical === "true") pills += "<span class=\"sf-pill sf-pill-gold\">Electrical</span>";
-  if (s.fte === "Y") pills += "<span class=\"sf-pill sf-pill-green\">FTE</span>";
-  if (!s.freemanElectricalOnly && s.perLbMH === "N") pills += "<span class=\"sf-pill sf-pill-orange\">Non-Standard M/H</span>";
+  pills += "<span class=\"chip chip-info\" style=\"font-size:13px\">" + plat + "</span>";
+  if (s.freemanAV === "Yes") pills += "<span class=\"chip chip-info\" style=\"font-size:13px\">AV</span>";
+  if (s.freemanElectricalOnly) pills += "<span class=\"chip chip-ghost\" style=\"font-size:13px\">Electrical Only</span>";
+  else if (s.freemanElectrical === "TRUE" || s.freemanElectrical === "True" || s.freemanElectrical === "true") pills += "<span class=\"chip chip-ghost\" style=\"font-size:13px\">Electrical</span>";
+  if (s.fte === "Y") pills += "<span class=\"chip chip-green\" style=\"font-size:13px\">FTE</span>";
+  if (!s.freemanElectricalOnly && s.perLbMH === "N") pills += "<span class=\"chip chip-amber\" style=\"font-size:13px\">Non-Standard M/H</span>";
 
   // Data cards — booth driving logic
   var ab = sfActiveBooths(s), ar = sfActiveRevenue(s);
@@ -5148,22 +5123,22 @@ function renderSfCalcInline(s, rec, plan, stepNum) {
     "<div class=\"sf-data-card\">" +
       "<div class=\"sf-data-card-lbl\">Current Booths (TSS)</div>" +
       "<div class=\"sf-data-card-val\">" + (s.currentBooths || 0).toLocaleString() + "</div>" +
-      "<span class=\"sf-data-card-badge " + (boothsDriving ? "sf-badge-driving" : "sf-badge-ref") + "\">" + (boothsDriving ? "✓ Driving Recommendation" : "Reference Only") + "</span>" +
+      "<span class=\"sf-data-card-badge " + (boothsDriving ? "chip-green" : "chip-ghost") + "\">" + (boothsDriving ? "✓ Driving Recommendation" : "Reference Only") + "</span>" +
     "</div>" +
     "<div class=\"sf-data-card\">" +
       "<div class=\"sf-data-card-lbl\">Projected Booths</div>" +
       "<div class=\"sf-data-card-val\">" + (s.projectedBooths || 0).toLocaleString() + "</div>" +
-      "<span class=\"sf-data-card-badge " + (!boothsDriving ? "sf-badge-driving" : "sf-badge-ref") + "\">" + (!boothsDriving ? "✓ Driving Recommendation" : "Reference Only") + "</span>" +
+      "<span class=\"sf-data-card-badge " + (!boothsDriving ? "chip-green" : "chip-ghost") + "\">" + (!boothsDriving ? "✓ Driving Recommendation" : "Reference Only") + "</span>" +
     "</div>" +
     "<div class=\"sf-data-card\">" +
       "<div class=\"sf-data-card-lbl\">Revenue Actuals (TSS)</div>" +
       "<div class=\"sf-data-card-val\">" + sfFmt(s.revenueActuals) + "</div>" +
-      "<span class=\"sf-data-card-badge " + (revDriving ? "sf-badge-driving" : "sf-badge-ref") + "\">" + (revDriving ? "✓ Driving Recommendation" : "Reference Only") + "</span>" +
+      "<span class=\"sf-data-card-badge " + (revDriving ? "chip-green" : "chip-ghost") + "\">" + (revDriving ? "✓ Driving Recommendation" : "Reference Only") + "</span>" +
     "</div>" +
     "<div class=\"sf-data-card\">" +
       "<div class=\"sf-data-card-lbl\">Salesforce Projection</div>" +
       "<div class=\"sf-data-card-val\">" + sfFmt(s.sfRevenue) + "</div>" +
-      "<span class=\"sf-data-card-badge " + (!revDriving ? "sf-badge-driving" : "sf-badge-ref") + "\">" + (!revDriving ? "✓ Driving Recommendation" : "Reference Only") + "</span>" +
+      "<span class=\"sf-data-card-badge " + (!revDriving ? "chip-green" : "chip-ghost") + "\">" + (!revDriving ? "✓ Driving Recommendation" : "Reference Only") + "</span>" +
     "</div>" +
     "</div>";
 
@@ -6255,6 +6230,7 @@ function tkTaskStorageKey(task) {
   if (task.tier === 'daily')    return storageKey('tkDone_' + tkDateKey() + '_' + task.id);
   if (task.tier === 'weekly')   return storageKey('tkDone_' + tkWeekKey() + '_' + task.id);
   if (task.tier === 'monthend') return storageKey('tkDone_monthend_' + tkMonthKey());
+  if (task.tier === 'reference') return storageKey('tkDone_' + tkDateKey() + '_' + task.id);
   return null;
 }
 function tkIsTaskDone(task) {
@@ -6332,6 +6308,25 @@ function tkFormatDueLabel(task) {
   return task.deadline || '';
 }
 
+// ── TK Overdue: weekly tasks whose deadline day has passed this week uncompleted ──
+function tkGetOverdueTasks() {
+  var today = new Date(); today.setHours(0,0,0,0);
+  var dow = today.getDay();
+  if (dow === 0 || dow === 6) return [];
+  var overdue = [];
+  TK_SECTIONS.forEach(function(sec) {
+    sec.tasks.forEach(function(task) {
+      if (task.tier !== 'weekly') return;
+      if (task.weekday === null || task.weekday === undefined) return;
+      // Task deadline day has passed this week (weekday < today's dow) and not done
+      if (task.weekday < dow && !tkIsTaskDone(task)) {
+        overdue.push(task);
+      }
+    });
+  });
+  return overdue;
+}
+
 // ── TK Page ──────────────────────────────────────────────────────────────────
 var tkSelId = null;
 
@@ -6392,25 +6387,20 @@ function tkRenderDetail() {
 
   sec.tasks.forEach(function(t) {
     var done = tkIsTaskDone(t);
-    var isRef = t.tier === 'reference';
 
     // Gating: task is locked if lockedBy task is not yet checked
     var gated = t.lockedBy && checkedIds.indexOf(t.lockedBy) < 0;
 
-    // Party column — plain bold text matching EL el-task-person style
     var partyHtml = t.parties.map(function(p){
       return '<div style="font-size:13.5px;font-weight:700;color:var(--fb);line-height:1.4">' + p + '</div>';
     }).join('');
 
-    // Right column second line: deadline for timed tasks, deadline text for reference tasks
-    // Shows the actual deadline/cadence — replaces generic tier labels
     var rightMeta = t.deadline || '';
     var rightMetaColor = tierColors[t.tier] || 'var(--muted)';
     var rightMetaHtml = rightMeta
       ? '<div style="font-size:12px;color:' + rightMetaColor + ';margin-top:2px;text-align:right">' + rightMeta + '</div>'
       : '';
 
-    // Only hint shown: when task is gated (locked behind another step)
     var gateHintHtml = '';
     if (gated) {
       var gateTask = sec.tasks.find(function(x){ return x.id === t.lockedBy; });
@@ -6418,8 +6408,8 @@ function tkRenderDetail() {
     }
 
     var rowOpacity = gated ? ' style="opacity:.45"' : '';
-    var chkClass = 'task-chk' + (done?' checked':'') + (isRef||gated?' readonly':'');
-    var chkAttr = (!isRef && !gated) ? ' data-tk-id="' + t.id + '"' : '';
+    var chkClass = 'task-chk' + (done?' checked':'') + (gated?' readonly':'');
+    var chkAttr = !gated ? ' data-tk-id="' + t.id + '"' : '';
 
     html += '<div class="tk-task-grid-row' + (done?' step-locked':'') + '"' + rowOpacity + '>' +
       '<div style="display:flex;align-items:flex-start;gap:10px;min-width:0">' +
@@ -6481,7 +6471,7 @@ function pmMakeId() { return 'pm_' + Date.now() + '_' + Math.floor(Math.random()
 // ── TYPE META ─────────────────────────────────────────────────────────────
 var PM_TYPE_LABELS = { mid: 'Mid-Year Discussion', year: 'Year-End Assessment', pip: 'Performance Improvement Plan' };
 var PM_TYPE_COLORS = { mid: 'var(--mb)', year: 'var(--green)', pip: 'var(--orange)' };
-var PM_TYPE_CHIP   = { mid: 'chip-mb', year: 'chip-green', pip: 'chip-orange' };
+var PM_TYPE_CHIP   = { mid: 'chip-info', year: 'chip-green', pip: 'chip-urgent' };
 
 // ── TASK DATA ──────────────────────────────────────────────────────────────
 var PM_MID_TASKS = [
@@ -7196,7 +7186,7 @@ function renderObList() {
     var prog = obTotalProgress(rec);
     var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
     var sel = rec.id === selObId ? ' sel' : '';
-    var phaseChip = rec.phase === 'Before Start Date' ? 'chip-mb' : rec.phase === 'First Week' ? 'chip-amber' : 'chip-green';
+    var phaseChip = rec.phase === 'Before Start Date' ? 'chip-stage' : rec.phase === 'First Week' ? 'chip-stage' : 'chip-green';
     return '<div class="lc-person-item'+sel+'" onclick="obSelectPerson(\''+rec.id+'\')">' +
       '<div class="lc-person-name">'+rec.firstName+' '+rec.lastName+'</div>' +
       '<div class="lc-person-role">'+rec.role+' &mdash; '+rec.branch+'</div>' +
@@ -7283,13 +7273,13 @@ function renderObDetail() {
   var obInitials = (rec.role||'').split(' ').filter(function(w){return w.length>0;}).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase()||'NH';
   var obTypeChip = rec.hireType==='backfill'
     ? '<span class="chip chip-amber">Backfill</span>'
-    : '<span class="chip chip-mb">Net New</span>';
+    : '<span class="chip chip-stage">Net New</span>';
   var obFtptChip = rec.ftpt==='Part-Time'
-    ? '<span class="chip chip-orange">Part-Time</span>'
+    ? '<span class="chip chip-ghost">Part-Time</span>'
     : '<span class="chip chip-green">Full-Time</span>';
   var obTrackChip = obAllDone
     ? '<span class="chip chip-green">Complete</span>'
-    : '<span class="chip chip-approved">In Progress</span>';
+    : '<span class="chip chip-stage">In Progress</span>';
   var obHmName = rec.hiringManager || '';
   var obMetaParts = [rec.branch, obHmName?'HM: '+obHmName:''].filter(Boolean);
   var obDatePills = '';
@@ -7431,7 +7421,7 @@ function renderTrList() {
     var prog = trTotalProgress(rec);
     var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
     var sel = rec.id === selTrId ? ' sel' : '';
-    var typeChip = rec.transitionType === 'promotion' ? 'chip-promotion' : 'chip-transfer';
+    var typeChip = rec.transitionType === 'promotion' ? 'chip-stage' : 'chip-stage';
     var typeLabel = rec.transitionType === 'promotion' ? 'Promotion' : 'Transfer Out';
     return '<div class="lc-person-item'+sel+'" onclick="trSelectPerson(\''+rec.id+'\')">' +
       '<div class="lc-person-name">'+rec.firstName+' '+rec.lastName+'</div>' +
@@ -7467,7 +7457,7 @@ function renderTrDetail() {
   var prog = trTotalProgress(rec);
   var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
   var allDone = prog.done === prog.total;
-  var typeChip = rec.transitionType === 'promotion' ? '<span class="chip chip-promotion">Promotion / Title Change</span>' : '<span class="chip chip-transfer">Transfer Out of ES</span>';
+  var typeChip = rec.transitionType === 'promotion' ? '<span class="chip chip-stage">Promotion / Title Change</span>' : '<span class="chip chip-stage">Transfer Out of ES</span>';
   var taskHtml = tasks.map(function(t, idx) {
     var isChecked = !!rec.checked[t.id];
     var canCheck = trCanCheck(t.owner);
@@ -7522,7 +7512,7 @@ function renderTrDetail() {
   }
 
   var ftChipTr = rec.ftpt === 'Full-Time' ?
-    '<span class="chip chip-ft">Full-Time</span>' :
+    '<span class="chip chip-ghost">Full-Time</span>' :
     rec.ftpt === 'Part-Time' ? '<span class="chip chip-pt">Part-Time</span>' : '';
   el.innerHTML =
     '<div class="pos-card">'+
@@ -7659,7 +7649,7 @@ function renderOffList() {
     var prog = offTotalProgress(rec);
     var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
     var sel = rec.id === selOffId ? ' sel' : '';
-    var typeChip = rec.departureType === 'resignation' ? 'chip-resignation' : 'chip-termination';
+    var typeChip = rec.departureType === 'resignation' ? 'chip-stage' : 'chip-stage';
     var typeLabel = rec.departureType === 'resignation' ? 'Resignation' : 'Termination';
     var needsDecision = !rec.backfillDecision ? ' needs-attn' : '';
     return '<div class="lc-person-item'+sel+needsDecision+'" onclick="offSelectPerson(\''+rec.id+'\')">' +
@@ -7699,8 +7689,8 @@ function renderOffDetail() {
   var prog = offTotalProgress(rec);
   var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
   var typeChip = rec.departureType === 'resignation' ?
-    '<span class="chip chip-resignation">Resignation</span>' :
-    '<span class="chip chip-termination">Termination</span>';
+    '<span class="chip chip-stage">Resignation</span>' :
+    '<span class="chip chip-stage">Termination</span>';
   var taskHtml = tasks.map(function(t, idx) {
     var isChecked = !!rec.checked[t.id];
     var canCheck = offCanCheck(t.owner);
@@ -7753,7 +7743,7 @@ function renderOffDetail() {
   }
 
   var ftChipOff = rec.ftpt === 'Full-Time' ?
-    '<span class="chip chip-ft">Full-Time</span>' :
+    '<span class="chip chip-ghost">Full-Time</span>' :
     rec.ftpt === 'Part-Time' ? '<span class="chip chip-pt">Part-Time</span>' : '';
   var tenureStr = '';
   if (rec.hireDate) {
@@ -8449,11 +8439,11 @@ function elRenderShow() {
   var isNext = s.freemanPlatform === 'Freeman Next';
   flagsHtml += isNext
     ? '<span class="chip" style="background:#CBF0FC;color:#005A75;border:1.5px solid #7DD9F3;font-weight:700">Freeman Next</span> '
-    : '<span class="chip" style="background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166;font-weight:700">Freeman Now</span> ';
-  if (s.serviceModel && s.serviceModel !== '') flagsHtml += '<span class="chip chip-mb">' + s.serviceModel + '</span> ';
+    : '<span class="chip chip-now">Freeman Now</span> ';
+  if (s.serviceModel && s.serviceModel !== '') flagsHtml += '<span class="chip chip-stage">' + s.serviceModel + '</span> ';
   if (s.standardModel === 'No') flagsHtml += '<span class="chip chip-amber">Custom Staffing</span> ';
   if (s.fte === 'Y') flagsHtml += '<span class="chip chip-green">FTE</span> ';
-  if (s.freemanAV === 'Yes') flagsHtml += '<span class="chip chip-mb">Freeman AV</span> ';
+  if (s.freemanAV === 'Yes') flagsHtml += '<span class="chip chip-info">Freeman AV</span> ';
   if (s.freemanElectricalOnly) {
     flagsHtml += '<span class="chip chip-ghost">Electrical Only</span> ';
   } else if (s.freemanElectrical === 'TRUE' || s.freemanElectrical === 'True' || s.freemanElectrical === 'true') {
@@ -8463,7 +8453,7 @@ function elRenderShow() {
   var ecomUrl = isNext
     ? 'https://store.freeman.com/event-homepage?eventId=' + elSelId
     : 'https://www.freemanco.com/store/show/landing?showID=' + elSelId;
-  flagsHtml += '<a class="chip chip-mb" href="' + ecomUrl + '" target="_blank" style="text-decoration:none">Exhibitor Store ↗</a> ';
+  flagsHtml += '<a class="chip chip-info" href="' + ecomUrl + '" target="_blank" style="text-decoration:none">Exhibitor Store ↗</a> ';
   if (s.pyJobNumber) {
     var pyInShows = !!SHOWS[s.pyJobNumber];
     if (pyInShows) {
@@ -9171,7 +9161,7 @@ function renderScList() {
       badge.textContent = '\u2713 Fully Scheduled';
     } else if (scStatus === 'travelers-pending') {
       badge.className = 'sf-badge';
-      badge.style.cssText = 'background:#FFF4D6;color:#7A5200;border:1.5px solid #FFD166';
+      badge.className += ' chip-now';
       badge.textContent = '\u9873 Traveler(s) Pending';
     } else if (scStatus === 'in-progress') {
       badge.className = 'sf-badge sf-badge-in-progress';
@@ -10964,15 +10954,15 @@ function tlRenderDetail() {
   var lcHtml = '';
   if (typeof obRecords !== 'undefined') {
     var obMatch = obRecords.filter(function(r){ return r.name === p.name; });
-    if (obMatch.length) lcHtml += '<span class="tl-lc-badge tl-lc-ob">&#10133; Onboarding active</span><span class="tl-lc-link" onclick="showPage(\'onboarding\',null)">Open onboarding record &#8599;</span>';
+    if (obMatch.length) lcHtml += '<span class="chip chip-info" style="margin-bottom:4px">&#10133; Onboarding active</span><span class="tl-lc-link" onclick="showPage(\'onboarding\',null)">Open onboarding record &#8599;</span>';
   }
   if (typeof trRecords !== 'undefined') {
     var trMatch = trRecords.filter(function(r){ return r.name === p.name; });
-    if (trMatch.length) lcHtml += '<span class="tl-lc-badge tl-lc-tr">&#8644; Transition active</span><span class="tl-lc-link" onclick="showPage(\'transitions\',null)">Open transition record &#8599;</span>';
+    if (trMatch.length) lcHtml += '<span class="chip chip-stage" style="margin-bottom:4px">&#8644; Transition active</span><span class="tl-lc-link" onclick="showPage(\'transitions\',null)">Open transition record &#8599;</span>';
   }
   if (typeof offRecords !== 'undefined') {
     var offMatch = offRecords.filter(function(r){ return r.name === p.name; });
-    if (offMatch.length) lcHtml += '<span class="tl-lc-badge tl-lc-off">&#128683; Offboarding active</span><span class="tl-lc-link" onclick="showPage(\'offboarding\',null)">Open offboarding record &#8599;</span>';
+    if (offMatch.length) lcHtml += '<span class="chip chip-urgent" style="margin-bottom:4px">&#128683; Offboarding active</span><span class="tl-lc-link" onclick="showPage(\'offboarding\',null)">Open offboarding record &#8599;</span>';
   }
   if (!lcHtml) lcHtml = '<div class="tl-no-data">No active lifecycle records.</div>';
   html += lcHtml + '</div>';
@@ -11122,7 +11112,7 @@ var KPI_LENS_DATA = {
   collections:{name:'Collections Percentage',val:'78.2%',valColor:'var(--gold)',status:'Near Goal',stCls:'chip-amber',goal:'82%',resp:'All ES Teams',ref:'Weekly refresh',
     regions:{NE:'80.1%',SE:'79.4%',SC:'76.2%',NW:'81.3%',NC:'75.8%',LV:'82.1%',CA:'74.9%'},
     rc:{NE:'var(--gold)',SE:'var(--gold)',SC:'var(--orange)',NW:'var(--green)',NC:'var(--orange)',LV:'var(--green)',CA:'var(--orange)'}},
-  per:{name:'Priority Empty Return Sales',val:'$41K',valColor:'var(--orange)',status:'Below Goal',stCls:'chip-red',goal:'$65K',resp:'All ES Teams',ref:'Weekly refresh',
+  per:{name:'Priority Empty Return Sales',val:'$41K',valColor:'var(--orange)',status:'Below Goal',stCls:'chip-overdue',goal:'$65K',resp:'All ES Teams',ref:'Weekly refresh',
     regions:{NE:'$8.2K',SE:'$7.1K',SC:'$6.4K',NW:'$9.8K',NC:'$5.2K',LV:'$4.3K',CA:'$0'},
     rc:{NE:'var(--gold)',SE:'var(--gold)',SC:'var(--orange)',NW:'var(--green)',NC:'var(--orange)',LV:'var(--orange)',CA:'var(--orange)'}},
   invoicing:{name:'Invoice Timing',val:'96.1%',valColor:'var(--green)',status:'On Track',stCls:'chip-green',goal:'95%',resp:'All ES Teams',ref:'Monthly refresh',
