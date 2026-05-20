@@ -2404,11 +2404,11 @@ var APPROVAL_STAGES = {
 // Stage gate: which tasks are active at each pipeline stage?
 // Tasks are grouped by phase; phases unlock as position advances
 var TASK_STAGE_MAP = {
-  'approved-not-posted': ['t0a','t0b','t1','t2','t3'],
-  'approved':            ['t0a','t0b','t1','t2','t3','t4','t5','t6','t7','t8','t9'],
-  'candidate-selected':  ['t0a','t0b','t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
-  'offer':               ['t0a','t0b','t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
-  'complete':            ['t0a','t0b','t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
+  'approved-not-posted': ['t1','t2','t3'],
+  'approved':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9'],
+  'candidate-selected':  ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
+  'offer':               ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
+  'complete':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
 };
 
 function addDays(s,n){if(!s)return new Date('2099-01-01');var d=new Date(s);if(isNaN(d.getTime()))return new Date('2099-01-01');d.setDate(d.getDate()+n);return d;}
@@ -2645,36 +2645,59 @@ function renderNeedsAttention() {
   var html = '';
 
   // ── Recruiting: one card per hire showing the next actionable task ──
+  // Gate: if either ES date is TBD, positions are frozen — no task cards surface
+  var esDatesReady = (function() {
+    var s = esDateGet('start'); var n = esDateGet('net');
+    return s && s !== 'tbd' && n && n !== 'tbd';
+  })();
   var rhItems = hires.filter(needsMyAction);
-  html += rhItems.map(function(h) {
-    var activeTasks = (TASK_STAGE_MAP[h.stage] || []).map(function(tid) {
-      return TASKS.find(function(t) { return t.id === tid; });
-    }).filter(Boolean);
-    var pendingTasks = activeTasks.filter(function(t) {
-      return identityCanCheckTask(t.owner, h.hiringManager, h.branch) &&
-             h.checked.indexOf(t.id) < 0;
-    });
-    if (!pendingTasks.length) return '';
-    var nextTask = pendingTasks[0];
-    var baseDate = h.start || h.proposedStart || '';
-    var taskDueDate = baseDate ? addDays(baseDate, nextTask.off) : null;
-    var taskStatus = taskDueDate ? dueStatus(taskDueDate, false) : 'upcoming';
-    var statusChip = taskStatus === 'overdue'
-      ? '<span class="chip chip-overdue">Overdue</span>'
-      : taskStatus === 'today'
-        ? '<span class="chip chip-urgent">Due Today</span>'
-        : '<span class="chip chip-amber">Due Next</span>';
-    var loc = h.branch || '';
-    var taskMeta = (h.firstName && h.lastName)
-      ? h.firstName + ' ' + h.lastName + ' &middot; ' + h.branch
-      : h.branch;
-    var taskDesc = nextTask.desc ? nextTask.desc.substring(0, 80) + (nextTask.desc.length > 80 ? '...' : '') : '';
-    return '<div class="na-card" data-gotohire="' + h.id + '" onclick="goToHire(this)">' +
-      '<div class="na-card-title">' + nextTask.title + ' &mdash; ' + h.role + '</div>' +
-      (taskMeta ? '<div class="na-card-meta">' + taskMeta + '</div>' : '') +
-      '<div class="na-card-tags">' + statusChip + '<span class="chip chip-info">Recruiting</span><span class="chip chip-location">' + loc + '</span></div>' +
-    '</div>';
-  }).join('');
+  if (!esDatesReady) {
+    // Dates not yet set — show one frozen card per visible open position for Craig/Nesana
+    // (regular HMs see nothing until their positions unlock)
+    if (esDateIsEditable()) {
+      var frozenItems = hires.filter(function(h) {
+        return !h.closed && identityCanSeeBranch(h.branch) &&
+               ['approved-not-posted','approved','candidate-selected'].indexOf(h.stage) >= 0;
+      });
+      html += frozenItems.map(function(h) {
+        var loc = h.branch || '';
+        return '<div class="na-card" data-gotohire="' + h.id + '" onclick="goToHire(this)">' +
+          '<div class="na-card-title">' + h.role + '</div>' +
+          '<div class="na-card-meta">Awaiting confirmed start dates</div>' +
+          '<div class="na-card-tags"><span class="chip chip-ghost">On Hold</span><span class="chip chip-info">Recruiting</span><span class="chip chip-location">' + loc + '</span></div>' +
+        '</div>';
+      }).join('');
+    }
+  } else {
+    html += rhItems.map(function(h) {
+      var activeTasks = (TASK_STAGE_MAP[h.stage] || []).map(function(tid) {
+        return TASKS.find(function(t) { return t.id === tid; });
+      }).filter(Boolean);
+      var pendingTasks = activeTasks.filter(function(t) {
+        return identityCanCheckTask(t.owner, h.hiringManager, h.branch) &&
+               h.checked.indexOf(t.id) < 0;
+      });
+      if (!pendingTasks.length) return '';
+      var nextTask = pendingTasks[0];
+      var baseDate = h.start || h.proposedStart || '';
+      var taskDueDate = baseDate ? addDays(baseDate, nextTask.off) : null;
+      var taskStatus = taskDueDate ? dueStatus(taskDueDate, false) : 'upcoming';
+      var statusChip = taskStatus === 'overdue'
+        ? '<span class="chip chip-overdue">Overdue</span>'
+        : taskStatus === 'today'
+          ? '<span class="chip chip-urgent">Due Today</span>'
+          : '<span class="chip chip-amber">Due Next</span>';
+      var loc = h.branch || '';
+      var taskMeta = (h.firstName && h.lastName)
+        ? h.firstName + ' ' + h.lastName + ' &middot; ' + h.branch
+        : h.branch;
+      return '<div class="na-card" data-gotohire="' + h.id + '" onclick="goToHire(this)">' +
+        '<div class="na-card-title">' + nextTask.title + ' &mdash; ' + h.role + '</div>' +
+        (taskMeta ? '<div class="na-card-meta">' + taskMeta + '</div>' : '') +
+        '<div class="na-card-tags">' + statusChip + '<span class="chip chip-info">Recruiting</span><span class="chip chip-location">' + loc + '</span></div>' +
+      '</div>';
+    }).join('');
+  }
 
   // ── Onboarding: HM tasks pending ────────────────────────────────────
   var obItems = lcNeedsAction(obRecords, OB_TASKS, 'onboarding');
@@ -3091,6 +3114,19 @@ function renderDetail(){
   var hmIsRD = (function(){ var hmId = IDENTITY_FROM_TM[h.hiringManager]; return hmId && hmId.level === 'region'; })();
   var activeTasks = TASK_STAGE_MAP[h.stage] || TASK_STAGE_MAP['approved-not-posted'];
 
+  // Gate: if ES dates are not yet set, show a frozen state instead of the checklist
+  var esDatesReady = (function() {
+    var s = esDateGet('start'); var n = esDateGet('net');
+    return s && s !== 'tbd' && n && n !== 'tbd';
+  })();
+  if (!esDatesReady) {
+    clHtml = '<div style="padding:20px 16px;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.6">' +
+      '<div style="font-size:22px;margin-bottom:8px">&#128274;</div>' +
+      '<div style="font-weight:700;color:var(--fb);margin-bottom:4px">Awaiting confirmed start dates</div>' +
+      '<div>This position's checklist will unlock once Craig or Nesana sets the next ES Start Date and NET Class date.</div>' +
+    '</div>';
+  } else {
+
   phases.forEach(function(phase){
     var pt=TASKS.filter(function(t){
       if(t.phase!==phase) return false;
@@ -3134,8 +3170,7 @@ function renderDetail(){
       var t13FieldsComplete = true;
       // t14 (NET confirmation) is gated behind t13 being checked
       if (t.id === 't14' && h.checked.indexOf('t13') < 0) { locked = true; }
-      // t0b (Set Next ES NET Class) is gated behind t0a being checked
-      if (t.id === 't0b' && h.checked.indexOf('t0a') < 0) { locked = true; }
+
       var canInteract = !locked && t13FieldsComplete && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
       var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'') + (!locked&&!canInteract?' not-owner':'');
       var chkAttrs = locked ? '' : ' data-hire="'+h.id+'" data-task="'+t.id+'" data-owner="'+t.owner+'"' + (!canInteract?' data-readonly="1"':'');
@@ -3230,7 +3265,9 @@ function renderDetail(){
     }
     clHtml += phaseAdvBtn;
 
-  });
+  }); // end phases.forEach
+
+  } // end esDatesReady else
 
   // Build approval action bar
   var approvalBarHtml = '';
@@ -3356,13 +3393,7 @@ function renderDetail(){
       if (tId === 't1' && hire.checked.indexOf('t1') < 0) {
         openModal(); return;
       }
-      // t0a/t0b special cases: clicking opens the ES date modal
-      if (tId === 't0a' && hire.checked.indexOf('t0a') < 0) {
-        openEsDateModal('start'); return;
-      }
-      if (tId === 't0b' && hire.checked.indexOf('t0b') < 0) {
-        openEsDateModal('net'); return;
-      }
+      // t0a/t0b are enterprise-level tasks, not per-hire checklist items
       if (!canView(hire)) return;
       if (!identityCanCheckTask(tOwner, hire.hiringManager, hire.branch)) return;
       var i = hire.checked.indexOf(tId);
@@ -3568,14 +3599,6 @@ function saveEsDate() {
   var val = isTbd ? 'tbd' : (picker ? picker.value : 'tbd');
   if (!isTbd && !val) { alert('Please select a date, or choose TBD.'); return; }
   esDateSet(type, val || 'tbd');
-  // Sync t0a/t0b checkboxes on all hires to reflect date-set state
-  var taskId = (type === 'start') ? 't0a' : 't0b';
-  var dateIsSet = (!isTbd && val && val !== 'tbd');
-  hires.forEach(function(h) {
-    var idx = h.checked.indexOf(taskId);
-    if (dateIsSet && idx < 0) { h.checked.push(taskId); }
-    else if (!dateIsSet && idx >= 0) { h.checked.splice(idx, 1); }
-  });
   storageSaveHires();
   closeEsDateModal();
   renderEsDates();
