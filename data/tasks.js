@@ -1,5 +1,21 @@
 /* TASKS — extracted from index.html */
 var TASKS = [
+  // ── Phase 0: Hiring Setup ─────────────────────────────────────────────
+  // Stage gate: active at 'approved-not-posted' (always available)
+  // These two workspace-level steps must be confirmed before any hiring cycle begins.
+  {phase:'Hiring Setup', id:'t0a',
+   title:'Set Next ES Start Date',
+   desc:'Determine the next approved start date for Exhibitor Services open positions.',
+   subtitle:'Determine the next approved start date for Exhibitor Services open positions.',
+   owner:'es', ownerLabel:'ES Leadership', off:-90, links:[]},
+
+  {phase:'Hiring Setup', id:'t0b',
+   title:'Set Next ES NET Class',
+   desc:'Determine the start date for the next Exhibitor Services NET class.',
+   subtitle:'Determine the start date for the next Exhibitor Services NET class.',
+   owner:'es', ownerLabel:'ES Leadership', off:-85, links:[],
+   gatedBehind:'t0a'},
+
   // ── Phase 1: Job Requisition ──────────────────────────────────────────
   // Stage gate: active at 'approved-not-posted'
   // Step 1 auto-checked on position create; clicking checkbox opens +New modal

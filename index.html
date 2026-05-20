@@ -336,6 +336,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .task-title.done{color:var(--muted)}
 .task-desc{font-size:14.4px;font-weight:400;color:var(--fb);line-height:1.4}
 .task-desc.task-checked{font-weight:700;color:var(--muted)}
+.task-desc.task-subdesc{font-size:13px;color:var(--muted);margin-top:2px}
 .task-links{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
 .tlink{font-size:14px;font-weight:700;padding:2px 7px;border-radius:999px;border:1px solid rgba(0,189,246,.3);background:rgba(0,189,246,.07);color:#006A8A;text-decoration:none;display:inline-block}
 .tlink:hover{background:rgba(0,189,246,.2)}
@@ -2353,11 +2354,11 @@ var APPROVAL_STAGES = {
 // Stage gate: which tasks are active at each pipeline stage?
 // Tasks are grouped by phase; phases unlock as position advances
 var TASK_STAGE_MAP = {
-  'approved-not-posted': ['t1','t2','t3'],
-  'approved':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9'],
-  'candidate-selected':  ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
-  'offer':               ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
-  'complete':            ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
+  'approved-not-posted': ['t0a','t0b','t1','t2','t3'],
+  'approved':            ['t0a','t0b','t1','t2','t3','t4','t5','t6','t7','t8','t9'],
+  'candidate-selected':  ['t0a','t0b','t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
+  'offer':               ['t0a','t0b','t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
+  'complete':            ['t0a','t0b','t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
 };
 
 function addDays(s,n){if(!s)return new Date('2099-01-01');var d=new Date(s);if(isNaN(d.getTime()))return new Date('2099-01-01');d.setDate(d.getDate()+n);return d;}
@@ -2726,9 +2727,14 @@ function renderNeedsAttention() {
     // ── ES Date TBD: notify Craig & Nesana when Start Date or NET Class is TBD ──
   var esDateItems = esDateNeedsAttentionItems();
   var esScope = (currentIdentity().level === 'enterprise') ? 'Enterprise' : ((currentIdentity().regions && currentIdentity().regions[0]) || 'Enterprise');
+  var esDateSubtitles = {
+    start: 'Determine the next approved start date for Exhibitor Services open positions.',
+    net:   'Determine the start date for the next Exhibitor Services NET class.'
+  };
   html += esDateItems.map(function(item) {
     return '<div class="na-card" onclick="(function(){var nav=document.querySelector(\'.nav-item[onclick*=recruiting]\');if(nav){showPage(\'recruiting\',nav);}setTimeout(function(){openEsDateModal(\''+item.type+'\');},150);})()">' +
       '<div class="na-card-title">Set ' + item.label + '</div>' +
+      '<div class="na-card-meta">' + (esDateSubtitles[item.type]||'') + '</div>' +
       '<div class="na-card-tags"><span class="chip chip-amber">Due Next</span><span class="chip chip-info">Recruiting</span><span class="chip chip-location">'+esScope+'</span></div>' +
     '</div>';
   }).join('');
@@ -3066,6 +3072,8 @@ function renderDetail(){
       var t13FieldsComplete = true;
       // t14 (NET confirmation) is gated behind t13 being checked
       if (t.id === 't14' && h.checked.indexOf('t13') < 0) { locked = true; }
+      // t0b (Set Next ES NET Class) is gated behind t0a being checked
+      if (t.id === 't0b' && h.checked.indexOf('t0a') < 0) { locked = true; }
       var canInteract = !locked && t13FieldsComplete && canView(h) && identityCanCheckTask(t.owner, h.hiringManager, h.branch);
       var chkCls = 'task-chk' + (ck?' checked':'') + (!ck&&!locked&&st==='overdue'?' overdue-chk':'') + (locked?' locked':'') + (!locked&&!canInteract?' not-owner':'');
       var chkAttrs = locked ? '' : ' data-hire="'+h.id+'" data-task="'+t.id+'" data-owner="'+t.owner+'"' + (!canInteract?' data-readonly="1"':'');
@@ -3106,7 +3114,8 @@ function renderDetail(){
       clHtml+='<div class="task-row'+(locked?' step-locked':'')+'">'+
         '<div class="'+chkCls+'"'+chkAttrs+'><span class="chk-mark">&#10003;</span></div>'+
         '<div class="task-body">'+
-          '<div class="task-desc'+(ck?' task-checked':'')+'"'+(locked?' style="opacity:.35"':'')+'>'+t.desc+'</div>'+lnks+
+          (t.title?'<div class="task-title'+(ck?' done':'')+(locked?' muted':'')+'">'+t.title+'</div>':'')+
+          '<div class="task-desc'+(ck?' task-checked':'')+(t.title?' task-subdesc':'')+'"'+(locked?' style="opacity:.35"':'')+'>'+t.desc+'</div>'+lnks+
           rcHintHtml+
         '</div>'+
         '<div class="task-right">'+
@@ -3284,6 +3293,13 @@ function renderDetail(){
       // Step 1 special case: clicking opens the +New modal if not yet checked
       if (tId === 't1' && hire.checked.indexOf('t1') < 0) {
         openModal(); return;
+      }
+      // t0a/t0b special cases: clicking opens the ES date modal
+      if (tId === 't0a' && hire.checked.indexOf('t0a') < 0) {
+        openEsDateModal('start'); return;
+      }
+      if (tId === 't0b' && hire.checked.indexOf('t0b') < 0) {
+        openEsDateModal('net'); return;
       }
       if (!canView(hire)) return;
       if (!identityCanCheckTask(tOwner, hire.hiringManager, hire.branch)) return;
@@ -3490,9 +3506,19 @@ function saveEsDate() {
   var val = isTbd ? 'tbd' : (picker ? picker.value : 'tbd');
   if (!isTbd && !val) { alert('Please select a date, or choose TBD.'); return; }
   esDateSet(type, val || 'tbd');
+  // Sync t0a/t0b checkboxes on all hires to reflect date-set state
+  var taskId = (type === 'start') ? 't0a' : 't0b';
+  var dateIsSet = (!isTbd && val && val !== 'tbd');
+  hires.forEach(function(h) {
+    var idx = h.checked.indexOf(taskId);
+    if (dateIsSet && idx < 0) { h.checked.push(taskId); }
+    else if (!dateIsSet && idx >= 0) { h.checked.splice(idx, 1); }
+  });
+  storageSaveHires();
   closeEsDateModal();
   renderEsDates();
   renderNeedsAttention();
+  renderList(); renderDetail();
 }
 
 function esDateNeedsAttentionItems() {
@@ -7171,6 +7197,21 @@ function pmGoToProfile(name) {
 
 document.addEventListener('DOMContentLoaded', function() {
   storageLoadAll(); // Restore persisted state before rendering anything
+  // Sync t0a/t0b checked state on all hires to match current ES date settings
+  (function() {
+    var startSet = (function(){ var v=esDateGet('start'); return !!(v && v !== 'tbd'); })();
+    var netSet   = (function(){ var v=esDateGet('net');   return !!(v && v !== 'tbd'); })();
+    var changed = false;
+    hires.forEach(function(h) {
+      ['t0a','t0b'].forEach(function(tid, i) {
+        var shouldBeChecked = i === 0 ? startSet : netSet;
+        var idx = h.checked.indexOf(tid);
+        if (shouldBeChecked && idx < 0) { h.checked.push(tid); changed = true; }
+        else if (!shouldBeChecked && idx >= 0) { h.checked.splice(idx, 1); changed = true; }
+      });
+    });
+    if (changed) storageSaveHires();
+  })();
   buildIdentityDropdown(); // Populate identity switcher from IDENTITY_FROM_TM
   updateHeaderAvatar(); // Set initials in header avatar circle
   tkUpdateNavVisibility(); // Hide T&U nav if current identity has no qualifying directs
