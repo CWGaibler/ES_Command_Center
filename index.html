@@ -2556,8 +2556,7 @@ function renderActiveEvents() {
         '<span class="event-name-sep">|</span>' +
         '<span class="event-job-num" style="color:var(--mb);font-weight:700">Job #' + s.id + '</span>' +
       '</div>' +
-      '<div class="event-meta">' + (s.facility || s.city) + ' · ' + dateRange + '</div>' +
-      '<div class="event-meta">' + Math.round(s.currentBooths || s.projectedBooths || 0) + ' booths</div>' +
+      '<div class="event-meta">' + (s.facility || s.city) + ' · ' + dateRange + ' · ' + Math.round(s.currentBooths || s.projectedBooths || 0) + ' booths</div>' +
       '<div class="event-tags">' + platformChip + '</div>' +
     '</div>';
   }).join('');
