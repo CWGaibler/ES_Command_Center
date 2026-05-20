@@ -1239,18 +1239,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div style="display:flex;flex-direction:column;min-height:0;min-width:0">
         <div class="el-section-div">Customer Resolution</div>
         <div class="panel" style="flex:1;min-height:0">
-          <div class="panel-body">
-          <div class="event-card">
-            <div class="event-name">BBB Complaint — Booth 4412</div>
-            <div class="event-meta">Response due May 10 · 7 days remaining</div>
-            <div class="event-tags"><span class="chip chip-amber">In Progress</span><span class="chip chip-ghost">Elaine Yesh</span></div>
-          </div>
-          <div class="event-card">
-            <div class="event-name">SR #88142 — Freight Dispute</div>
-            <div class="event-meta">SEMA Show · Opened 2 days ago</div>
-            <div class="event-tags"><span class="chip chip-amber">Open</span><span class="chip chip-ghost">Backroom</span></div>
-          </div>
-        </div>
+          <div class="panel-body" id="cr-placeholder-body"></div>
         </div>
       </div>
     </div>
@@ -1710,6 +1699,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
           <input class="lc-mi" id="m-net" type="date" />
         </div>
       </div>
+      <div id="rh-modal-error" style="display:none;background:#FFF0EC;border:1.5px solid var(--orange);border-radius:7px;padding:8px 12px;font-size:13px;font-weight:700;color:var(--orange);margin-bottom:4px"></div>
       <div class="lc-modal-actions">
         <button class="m-cancel" onclick="closeModal()">Cancel</button>
         <button class="m-submit" onclick="createHire()">Open Position</button>
@@ -2576,6 +2566,29 @@ function renderActiveEvents() {
 function goToShow(showId) {
   // Navigate to Events Lens — the show home base
   goToEventLens(showId);
+}
+
+function renderCrPlaceholder() {
+  var el = document.getElementById('cr-placeholder-body'); if (!el) return;
+  var today = new Date();
+  var MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // BBB: due 5 days from today — always upcoming for demo
+  var due = new Date(today); due.setDate(due.getDate() + 5);
+  var dueStr = MO[due.getMonth()] + ' ' + due.getDate();
+  // Freight: opened 2 days ago
+  var opened = new Date(today); opened.setDate(opened.getDate() - 2);
+  var openedStr = MO[opened.getMonth()] + ' ' + opened.getDate();
+  el.innerHTML =
+    '<div class="event-card">' +
+      '<div class="event-name">BBB Complaint — Booth 4412</div>' +
+      '<div class="event-meta">Response due ' + dueStr + ' · 5 days remaining</div>' +
+      '<div class="event-tags"><span class="chip chip-amber">In Progress</span><span class="chip chip-ghost">Elaine Yesh</span></div>' +
+    '</div>' +
+    '<div class="event-card">' +
+      '<div class="event-name">SR #88142 — Freight Dispute</div>' +
+      '<div class="event-meta">SEMA Show · Opened ' + openedStr + '</div>' +
+      '<div class="event-tags"><span class="chip chip-amber">Open</span><span class="chip chip-ghost">Backroom</span></div>' +
+    '</div>';
 }
 
 function renderNeedsAttention() {
@@ -3625,8 +3638,10 @@ function onModalBranchChange() {
 }
 function openModal(){
   ['m-role','m-ftpt','m-branch','m-hm','m-start','m-net'].forEach(function(id){
-    var el = document.getElementById(id); if(el) el.value = '';
+    var el = document.getElementById(id); if(el) { el.value = ''; el.style.borderColor = ''; }
   });
+  var errEl = document.getElementById('rh-modal-error');
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
   // Pre-fill start date from Craig/Nesana's tile (fall back to today)
   var startEl = document.getElementById('m-start');
   var netEl   = document.getElementById('m-net');
@@ -3655,8 +3670,20 @@ function createHire(){
   var start = document.getElementById('m-start').value;
   var net = document.getElementById('m-net').value;
   if(!role || !ftpt || !branch || !hm || !start){
-    alert('Please fill in all required fields.');return;
+    var errEl = document.getElementById('rh-modal-error');
+    if (errEl) { errEl.textContent = 'Please fill in all required fields.'; errEl.style.display = 'block'; }
+    ['m-role','m-ftpt','m-branch','m-hm'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.style.borderColor = el.value ? '' : 'var(--orange)';
+    });
+    if (!start) { var el = document.getElementById('m-start'); if (el) el.style.borderColor = 'var(--orange)'; }
+    return;
   }
+  var errEl = document.getElementById('rh-modal-error');
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+  ['m-role','m-ftpt','m-branch','m-hm','m-start'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.style.borderColor = '';
+  });
   hires.unshift({
     id:'h'+Date.now(),
     role:role, ftpt:ftpt, branch:branch, hiringManager:hm,
@@ -7160,6 +7187,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if(firstNav) showPage('today', firstNav);
   }
   renderNeedsAttention();
+  renderCrPlaceholder();
 });
 
 
