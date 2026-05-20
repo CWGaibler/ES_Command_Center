@@ -148,15 +148,15 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .chip-now{background:#C2D8F8;color:#1A40A6;border-color:#8AAEE8}
 
 /* EVENT CARDS */
-.event-card{padding:9px 13px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .1s}
+.event-card{height:110px;box-sizing:border-box;padding:14px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .1s;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
 .event-card:hover{background:var(--fb-xlt)}
 .event-card:last-child{border-bottom:none}
-.event-name-row{display:flex;align-items:baseline;gap:0;flex-wrap:nowrap;min-width:0}
+.event-name-row{display:flex;align-items:baseline;gap:0;flex-wrap:nowrap;min-width:0;overflow:hidden}
 .event-name{font-size:14.4px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0}
 .event-name-sep{font-size:14.4px;font-weight:400;color:var(--border);margin:0 7px;flex-shrink:0}
 .event-job-num{font-size:14.4px;font-weight:700;color:var(--mb);white-space:nowrap;flex-shrink:0}
-.event-meta{font-size:12px;color:var(--muted);margin-top:2px}
-.event-tags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.event-meta{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.event-tags{display:flex;gap:5px;flex-wrap:nowrap;overflow:hidden}
 
 /* COMING SOON */
 .coming-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center;background:var(--white);border:1px solid var(--border);border-radius:10px;flex:1;min-height:0}
@@ -434,12 +434,12 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .btn-reject:hover{background:var(--orange);color:#fff}
 .btn-submit{font-family:'Nunito Sans',sans-serif;font-size:13.5px;font-weight:700;padding:5px 14px;border-radius:999px;border:none;background:var(--mb);color:#fff;cursor:pointer}
 .btn-submit:hover{opacity:.85}
-.na-card{padding:9px 13px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .1s}
+.na-card{height:110px;box-sizing:border-box;padding:14px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .1s;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
 .na-card:hover{background:var(--fb-xlt)}
 .na-card:last-child{border-bottom:none}
-.na-card-title{font-size:14.4px;font-weight:700;color:var(--fb)}
-.na-card-meta{font-size:14px;color:var(--muted);margin-top:2px;line-height:1.4}
-.na-card-tags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.na-card-title{font-size:14.4px;font-weight:700;color:var(--fb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.na-card-meta{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.na-card-tags{display:flex;gap:5px;flex-wrap:nowrap;overflow:hidden}
 
 /* ── STAFFING WORKSPACE ── */
 .sf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
@@ -2567,7 +2567,7 @@ function renderActiveEvents() {
         '<span class="event-job-num" style="color:var(--mb);font-weight:700">Job #' + s.id + '</span>' +
       '</div>' +
       '<div class="event-meta">' + (s.facility || s.city) + ' · ' + moveInLabel + ' – ' + clearLabel + '</div>' +
-      '<div class="event-meta" style="margin-top:2px">' + s.producingBranch + ' · ' + Math.round(s.currentBooths || s.projectedBooths || 0) + ' booths</div>' +
+      '<div class="event-meta">' + s.producingBranch + ' · ' + Math.round(s.currentBooths || s.projectedBooths || 0) + ' booths</div>' +
       '<div class="event-tags">' + platformChip + '</div>' +
     '</div>';
   }).join('');
