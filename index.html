@@ -5869,9 +5869,9 @@ function kpiColor(status) {
 }
 
 function kpiStatusLabel(status) {
-  if (status === 'exceeds') return '↑ Exceeds Goal';
-  if (status === 'meets') return '= Meets Goal';
-  return '↓ Below Goal';
+  if (status === 'exceeds') return 'Exceeds Goal';
+  if (status === 'meets') return 'Meets Goal';
+  return 'Below Goal';
 }
 
 function kpiChipHtml(kpi, status) {
@@ -5945,14 +5945,16 @@ function renderKpiSidebar() {
     var color = kpiColor(status);
     var barPct = kpiBarPct(kpi, val);
     var sel = kpi.id === kpiSelId ? ' kpi-sel' : '';
+    var chipBg = status==='exceeds'?'#EAF3DE':status==='meets'?'#FAEEDA':'#FCEBEB';
+    var chipColor = status==='exceeds'?'#27500A':status==='meets'?'#633806':'#A32D2D';
+    var chipBorder = status==='exceeds'?'#97C459':status==='meets'?'#FAC775':'#F09595';
     html += '<div class="kpi-sidebar-card' + sel + '" onclick="kpiSelId=\'' + kpi.id + '\';renderKpiSidebar();renderKpiDetail()">' +
       '<div class="kscard-name">' + kpi.name + '</div>' +
       '<div class="kscard-val">' + kpiFmt(kpi, val) + '</div>' +
-      '<div class="kscard-row">' +
-        '<div class="kscard-goal">Goal: ' + kpi.goal + '</div>' +
-        '<div style="font-size:13.5px;font-weight:700;color:' + color + ';text-align:right">' + kpiStatusLabel(status) + '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px">' +
+        '<div style="font-size:13px;color:#7A8099;font-weight:400">Goal: ' + kpi.goal + '</div>' +
+        '<span style="font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;background:' + chipBg + ';color:' + chipColor + ';border:1.5px solid ' + chipBorder + ';white-space:nowrap">' + kpiStatusLabel(status) + '</span>' +
       '</div>' +
-      '<div class="kscard-bar"><div class="kscard-fill" style="width:' + barPct + '%;background:' + color + '"></div></div>' +
       '</div>';
   });
   el.innerHTML = html;
