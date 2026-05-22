@@ -2853,7 +2853,9 @@ function renderList(){
     var hmName = (h.hiringManagerFirst||'') + (h.hiringManagerLast ? ' '+h.hiringManagerLast : '') || h.hiringManager || '';
     var candidateLine = (h.firstName||h.lastName)
       ? '<div class="hire-role" style="margin-top:2px">&#128100; '+(h.firstName||'')+(h.lastName?' '+h.lastName:'')+(h.reqNum?' <span style="color:var(--muted)">· Req #'+h.reqNum+'</span>':'')+'</div>'
-      : '<div class="hire-role" style="margin-top:2px;font-style:italic;color:var(--muted)">Candidate TBD'+(h.reqNum?' <span style="font-style:normal">· Req #'+h.reqNum+'</span>':'')+'</div>';
+      : (h.hireType==='backfill' && h.backfillFor)
+        ? '<div class="hire-role" style="margin-top:2px;color:var(--muted)">Backfill for <strong style="color:var(--fb)">'+h.backfillFor+'</strong>'+(h.reqNum?' <span style="color:var(--muted);font-weight:400">· Req #'+h.reqNum+'</span>':'')+'</div>'
+        : '<div class="hire-role" style="margin-top:2px;font-style:italic;color:var(--muted)">Candidate TBD'+(h.reqNum?' <span style="font-style:normal">· Req #'+h.reqNum+'</span>':'')+'</div>';
     var typeChip = h.hireType==='backfill'
       ? '<span class="chip chip-amber" style="font-size:12px;padding:1px 5px">Backfill</span>'
       : '<span class="chip chip-stage" style="font-size:12px;padding:1px 5px">Net New</span>';
@@ -3071,10 +3073,12 @@ function renderDetail(){
     : '<span class="chip chip-green">Full-Time</span>';
   var trackChip = ov>0 ? '<span class="chip chip-overdue">'+ov+' Overdue</span>' : '<span class="chip chip-green">On Track</span>';
 
-  // Candidate name appended to title if available
+  // Candidate name appended to title if available; backfill-for shown when no candidate yet
   var candidateSuffix = (h.firstName && h.lastName)
     ? '<span style="font-weight:400;color:var(--border);margin:0 10px">|</span><span style="color:var(--mb);font-size:18px;font-weight:700">'+h.firstName+' '+h.lastName+'</span>'
-    : '';
+    : (h.hireType==='backfill' && h.backfillFor)
+      ? '<span style="font-weight:400;color:var(--border);margin:0 10px">|</span><span style="color:var(--muted);font-size:15px;font-weight:700">Backfill for '+h.backfillFor+'</span>'
+      : '';
 
   // Avatar: initials from role
   var initials = (h.role||'').split(' ').filter(function(w){return w.length>0;}).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase() || 'PO';
