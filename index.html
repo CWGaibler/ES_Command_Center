@@ -7733,15 +7733,6 @@ function renderTrDetail() {
   var prog = trTotalProgress(rec);
   var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
   var trAllDone = prog.done === prog.total;
-  var ov = (function() {
-    var today = new Date(); today.setHours(0,0,0,0);
-    if (!rec.effectiveDate) return 0;
-    return tasks.filter(function(t) {
-      if (rec.checked[t.id]) return false;
-      var due = new Date(rec.effectiveDate + 'T00:00:00');
-      return due < today;
-    }).length;
-  })();
 
   // ── Identity card chips ────────────────────────────────────────────────
   var typeChip = rec.transitionType === 'promotion'
@@ -7750,9 +7741,9 @@ function renderTrDetail() {
   var ftptChip = rec.ftpt === 'Part-Time'
     ? '<span class="chip chip-ghost">Part-Time</span>'
     : '<span class="chip chip-green">Full-Time</span>';
-  var trackChip = ov > 0
-    ? '<span class="chip chip-overdue">'+ov+' Overdue</span>'
-    : '<span class="chip chip-green">On Track</span>';
+  var trackChip = trAllDone
+    ? '<span class="chip chip-green">Complete</span>'
+    : '<span class="chip chip-stage">In Progress</span>';
 
   // Avatar initials from role
   var trInitials = (rec.role||'').split(' ').filter(function(w){return w.length>0;}).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase() || 'ES';
@@ -7794,7 +7785,7 @@ function renderTrDetail() {
       '</div>'+
       '<div class="rh-pos-prog">'+
         '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:'+pct+'%"></div></div>'+
-        '<div class="rh-pos-prog-lbl">'+prog.done+'/'+prog.total+' tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
+        '<div class="rh-pos-prog-lbl">'+prog.done+'/'+prog.total+' tasks complete</div>'+
       '</div>'+
     '</div>';
 
@@ -8019,15 +8010,6 @@ function renderOffDetail() {
   var prog = offTotalProgress(rec);
   var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
   var offAllDone = offAllTasksDone(rec);
-  var ov = (function() {
-    var today = new Date(); today.setHours(0,0,0,0);
-    if (!rec.lastDay) return 0;
-    return tasks.filter(function(t) {
-      if (rec.checked[t.id]) return false;
-      var due = new Date(rec.lastDay + 'T00:00:00');
-      return due < today;
-    }).length;
-  })();
 
   // ── Identity card chips ────────────────────────────────────────────────
   var typeChip = rec.departureType === 'resignation'
@@ -8036,8 +8018,9 @@ function renderOffDetail() {
   var ftptChip = rec.ftpt === 'Part-Time'
     ? '<span class="chip chip-ghost">Part-Time</span>'
     : '<span class="chip chip-green">Full-Time</span>';
-  var trackChip = ov > 0
-    ? '<span class="chip chip-overdue">'+ov+' Overdue</span>'
+  var trackChip = offAllDone
+    ? '<span class="chip chip-green">Complete</span>'
+    : '<span class="chip chip-stage">In Progress</span>';
     : '<span class="chip chip-green">On Track</span>';
 
   // Avatar initials from role
@@ -8082,7 +8065,7 @@ function renderOffDetail() {
       '</div>'+
       '<div class="rh-pos-prog">'+
         '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:'+pct+'%"></div></div>'+
-        '<div class="rh-pos-prog-lbl">'+prog.done+'/'+prog.total+' tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
+        '<div class="rh-pos-prog-lbl">'+prog.done+'/'+prog.total+' tasks complete</div>'+
       '</div>'+
     '</div>';
 
