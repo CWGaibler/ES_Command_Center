@@ -1327,7 +1327,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="page" id="page-onboarding">
     <div class="page-hdr">
       <div class="page-title">Onboarding</div>
-      <div class="page-sub">New hire readiness — from offer accepted to end of NET</div>
+      <div class="page-sub" id="ob-sub">New hire readiness — from offer accepted to end of NET</div>
     </div>
     <div class="el-section-div">Onboarding by the Numbers</div>
     <div class="lc-stats">
@@ -1364,7 +1364,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="page" id="page-transitions">
     <div class="page-hdr">
       <div class="page-title">Transitions</div>
-      <div class="page-sub">Promotions, title changes, and internal transfers</div>
+      <div class="page-sub" id="tr-sub">Promotions, title changes, and internal transfers</div>
     </div>
     <div class="el-section-div">Transitions by the Numbers</div>
     <div class="rh-stats">
@@ -1395,7 +1395,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="page" id="page-offboarding">
     <div class="page-hdr">
       <div class="page-title">Offboarding</div>
-      <div class="page-sub">Departure workflows — resignations and terminations</div>
+      <div class="page-sub" id="off-sub">Departure workflows — resignations and terminations</div>
     </div>
     <div class="el-section-div">Offboarding by the Numbers</div>
     <div class="rh-stats">
@@ -1479,7 +1479,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="page" id="page-timekeeping">
     <div class="page-hdr">
       <span class="page-title">Timekeeping &amp; Utilization</span>
-      <span class="page-sub">Kronos timekeeping, Workfront utilization, and attendance oversight</span>
+      <span class="page-sub" id="tk-sub">Timekeeping &amp; Utilization</span>
     </div>
     <div class="el-section-div">Timekeeping &amp; Utilization by the Numbers</div>
     <div class="rh-stats" id="tk-stats-strip"></div>
@@ -1506,7 +1506,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="page" id="page-performance">
     <div class="page-hdr">
       <span class="page-title">Performance Management</span>
-      <span class="page-sub">Mid-year discussions, year-end assessments, and performance improvement</span>
+      <span class="page-sub" id="pm-sub">Performance Management</span>
     </div>
     <div class="el-section-div">Performance Management by the Numbers</div>
     <div class="rh-stats" id="pm-stats-strip"></div>
@@ -1864,6 +1864,7 @@ function showPage(id, el) {
   var page = document.getElementById('page-' + id);
   if (page) page.classList.add('active');
   if (el) el.classList.add('active');
+  updateAllSubtitles();
   // Reset stale selections before rendering the new page
   resetWorkspaceState();
   if (id === 'today')       { renderActiveEvents(); renderNeedsAttention(); }
@@ -2007,6 +2008,7 @@ function onScopeDropdownChange() {
 }
 
 function onScopeChanged() {
+  updateAllSubtitles();
   var activePage = document.querySelector('.page.active');
   if (!activePage) return;
   var pid = activePage.id;
@@ -2018,7 +2020,7 @@ function onScopeChanged() {
   }
   if (pid === 'page-recruiting') {
     // GAP 6 fix: include updateStats so stat tiles refresh with scope change
-    selId = null; updateRecruitingSubtitle(); renderList(); updateStats(); renderDetail(); renderNeedsAttention(); return;
+    selId = null; updateAllSubtitles(); renderList(); updateStats(); renderDetail(); renderNeedsAttention(); return;
   }
   if (pid === 'page-onboarding') {
     // GAP 3 fix
@@ -3710,6 +3712,25 @@ function updateRecruitingSubtitle() {
   if (el) el.textContent = 'Active candidate pipelines — ' + getRecruitingScopeLabel();
 }
 
+function updateAllSubtitles() {
+  var scope = getRecruitingScopeLabel();
+  var map = {
+    'recruiting-sub': 'Active candidate pipelines — ' + scope,
+    'ob-sub':         'Onboarding — ' + scope,
+    'tr-sub':         'Transitions — ' + scope,
+    'off-sub':        'Offboarding — ' + scope,
+    'sf-sub':         'Staffing — ' + scope,
+    'sc-sub':         'Scheduling — ' + scope,
+    'tk-sub':         'Timekeeping & Utilization — ' + scope,
+    'pm-sub':         'Performance Management — ' + scope,
+    'kpis-sub':       'KPIs — ' + scope
+  };
+  Object.keys(map).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = map[id];
+  });
+}
+
 
 function rhAllTasksDone(h) {
   var hmTasks = TASKS.filter(function(t){ return t.owner === 'Hiring Manager'; });
@@ -3743,7 +3764,7 @@ function rhMoveToOnboarding(hireId) {
 }
 function initRecruiting(){
   if(!rhReady) rhReady=true;
-  updateRecruitingSubtitle();
+  updateAllSubtitles();
   renderList(); renderDetail(); renderNeedsAttention();
 }
 
