@@ -8061,12 +8061,17 @@ function renderOffDetail() {
     var seqLocked = !isChecked && !priorDone;
     var chkCls = isChecked ? 'checked' : (seqLocked ? 'locked' : (!canCheck ? 'readonly' : ''));
     var clickAttr = (canCheck && !seqLocked) ? 'onclick="offToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
+    var descHtml = t.desc ? '<div class="task-desc'+(seqLocked?' task-subdesc':'')+'"'+(seqLocked?' style="opacity:.35"':'')+'>'+t.desc+'</div>' : '';
     var linksHtml = (t.links && t.links.length && !seqLocked)
       ? '<div class="task-links">'+t.links.map(function(l){ return '<a class="tlink" href="'+l.url+'" target="_blank">'+l.label+' &#8599;</a>'; }).join('')+'</div>'
       : '';
     return '<div class="task-row' + (seqLocked ? ' task-locked' : '') + '">' +
       '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
-      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div>'+linksHtml+'</div>' +
+      '<div class="task-body">' +
+        '<div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div>' +
+        descHtml +
+        linksHtml +
+      '</div>' +
       '<div class="task-right">'+obOwnerLabel(t.owner)+'</div>' +
     '</div>';
   }).join('');
@@ -8995,7 +9000,7 @@ function elRenderShow() {
             (done ? 'background:var(--green);border:2px solid var(--green)' : 'background:transparent;border:2px solid var(--border)') + '">' +
             (done ? '<span style="color:#fff;font-size:11px;font-weight:800">&#x2713;</span>' : '') +
           '</div>' +
-          '<span style="color:' + (done ? 'var(--muted)' : 'var(--fb)') + ';' + (done ? 'text-decoration:line-through' : '') + '">' + step.label + '</span>' +
+          '<span style="color:' + (done ? 'var(--muted)' : 'var(--fb)') + '">' + step.label + '</span>' +
         '</div>';
       });
       html += '</div>';
@@ -9092,7 +9097,7 @@ function elRenderShow() {
             (step.done ? 'background:var(--green);border:2px solid var(--green)' : 'background:transparent;border:2px solid var(--border)') + '">' +
             (step.done ? '<span style="color:#fff;font-size:11px;font-weight:800">&#x2713;</span>' : '') +
           '</div>' +
-          '<span style="color:' + (step.done ? 'var(--muted)' : 'var(--fb)') + ';' + (step.done ? 'text-decoration:line-through' : '') + '">' + step.label + '</span>' +
+          '<span style="color:' + (step.done ? 'var(--muted)' : 'var(--fb)') + '">' + step.label + '</span>' +
         '</div>';
       });
       html += '</div>';
