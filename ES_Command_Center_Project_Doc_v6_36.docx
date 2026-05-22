@@ -1,0 +1,239 @@
+**ES Command Center**   ·   Project Documentation & Design Reference   ·   v36.14   ·   May 22, 2026
+
+**ES Command Center**
+
+Project Documentation & Design Reference
+
+*Freeman Exhibitor Services  ·  Version 36.14  ·  May 22, 2026*
+
+# **1.  Project Overview**
+
+The ES Command Center is a web-based leadership dashboard built for Freeman Exhibitor Services leaders. It surfaces real-time operational intelligence, compliance deadlines, and actionable workspaces across all 9 Leader Resource responsibility areas.
+
+| **Property** | **Value** |
+| --- | --- |
+| **Live URL** | https://cwgaibler.github.io/ES_Command_Center/ |
+| **GitHub Repo** | https://github.com/CWGaibler/ES_Command_Center |
+| **Stack** | index.html (lean shell) + data/ folder. Vanilla JavaScript. No framework. GitHub Pages hosting. |
+| **Auth** | SHA-256 passphrase gate. Upgrade to Okta/SharePoint SSO before broader rollout. |
+| **Storage version** | STORAGE_VERSION = 4. Version bump triggers full data reset for all users. |
+| **Data** | 4,449 SHOWS │ 301 TEAM_MEMBERS │ 429 SURVEY_DATA records |
+| **Org** | 7 regions, 18 branches — scope selector is the universal data lens |
+
+# **2.  Build Status — v36.13 (May 20, 2026)**
+
+| **Workspace** | **Status** | **Notes** |
+| --- | --- | --- |
+| Today's Priorities | **Built** | Active Events, Needs Attention, Customer Resolution. Welcome panel. Equal-width 3-panel grid. All cards 110px fixed height with ellipsis meta truncation. |
+| KPIs | **Built** | 9 KPIs. Color-coded status pills (no progress bar). Goal label unbolded gray. Pill floated right on goal line. |
+| Recruiting & Hiring | **Built** | Compact identity card. Stage pipeline chips. ES date gate: positions frozen until Craig/Nesana set both cycle dates. t0a/t0b are enterprise-level triggers only, not per-hire tasks. |
+| Onboarding | **Built** | New Hire Details identity card. hireType + reqNum carried from RH. |
+| Transitions | **Built** | Action tile + counters. |
+| Offboarding | **Built** | Action tile + counters. |
+| Staffing | **Built** | 5-step flow. Sticky event header. |
+| Scheduling | **Built** | 3-step flow. Sticky event header. |
+| Timekeeping & Utilization | **Built v36.1** | 4 sections, 15 procedures. Reporting-structure visibility gate. VP exception. Task-level filtering. ca3 demoted to reference/best practice. |
+| Performance Management | **Built v35.12** | Record-based active queue. Initiate modal. Auto-archive. |
+| Events Lens | **Built** | Sticky header. Search bar collapses on scroll. |
+| Team Members Lens | **Built** | Sticky/scroll-collapse. Performance History section (access-controlled). |
+| Customers Lens | **Blocked** | Qualtrics pending. Contact: Christine Beishline. |
+
+# **3.  Chip ****&**** Badge Color System — v36.3 Design Standard**
+
+All chips, pills, and badges site-wide follow a single semantic color vocabulary. Color encodes meaning — not workspace, not feature. Eight roles, one color each. All chips use a 2px border (updated v36.2).
+
+| **Role** | **CSS Class** | **Color** | **Hex** | **When to Use** |
+| --- | --- | --- | --- | --- |
+| Freeman Now | .chip-now | Cobalt | #C2D8F8 / #1A40A6 | Freeman Now platform identifier only. |
+| Freeman Next | .chip-info | Cyan | #00BDF6 | Freeman Next platform, workspace/topic labels, informational category chips. |
+| Success / Complete | .chip-green | Green | #42BB37 | Task complete, plan confirmed, on track, approved, positive lifecycle event. |
+| Due Next / KPI Near | .chip-amber | Gold | #FFB500 | Next step in process (no deadline), KPI Near Goal, attention items. |
+| Due Today / Urgent | .chip-urgent | Orange | #FB471F | Task due today, Action Required, Rejected/Denied outcomes. |
+| Overdue / KPI Below | .chip-overdue | Deep Red | #C0001A | Past deadline, KPI Below Goal. Intentionally non-brand for clarity. |
+| Location | .chip-location | Fuchsia | #FF0373 | Branch, region, or scope on Needs Attention cards. Location only. |
+| Stage / Phase / Type | .chip-stage | Ghost | transparent | Pipeline stages, phases, type labels, attributes. |
+
+# **4.  Needs Attention Card Structure — Universal Rule**
+
+Every card in the Needs Attention panel follows the same structure regardless of source workspace. All three home page columns (Active Events, Needs Attention, Customer Resolution) use a fixed 110px card height with justify-content: space-between and CSS ellipsis truncation on meta lines.
+
+- Title: specific task or action name (not the workspace name). White-space: nowrap; overflow: hidden; text-overflow: ellipsis.
+
+- Supporting line: task description if one exists, blank if not. Truncated to one line with … if longer.
+
+- Status pill: Due Next (amber) → Due Today (orange) → Overdue (red). Priority wins. One pill only.
+
+- Topic pill: workspace name in cyan (Recruiting, Onboarding, Timekeeping, etc.)
+
+- Location pill: branch or scope in fuchsia (Nashville, Enterprise, Las Vegas, etc.)
+
+- Chip rows use flex-wrap: nowrap so chips never break to a second line.
+
+# **5.  Active Events Card Structure — v36.6 Design Standard**
+
+- Title row: Show name + separator + Job # (cyan, bold).
+
+- Meta line (single): Venue/facility · Date range (May 13 – May 20) · Booth count. All on one line with ellipsis truncation.
+
+- Platform chip: Freeman Now (cobalt) or Freeman Next (cyan).
+
+- No branch/producing branch shown on the card. Location context comes from the venue name.
+
+- Date format: "Mon DD – Mon DD" with en-dash. No "Move-in" or "Clear" labels.
+
+# **6.  KPI Tile Design — v36.13 Design Standard**
+
+KPI sidebar tiles (left panel of the KPIs workspace) display each metric's name, current value, goal, and performance status. The progress bar and inline colored status text were replaced in v36.13 with a cleaner pill-based layout.
+
+| **Element** | **Specification** |
+| --- | --- |
+| Metric name | Uppercase, bold, muted gray. Top of card. |
+| Current value | Large (28px bold), Freeman Blue (#001F5F). Dominant visual. |
+| Goal label | "Goal: X%" — regular weight, muted gray (#7A8099). Not bold. |
+| Status pill | Floated right on the goal line. Color-coded: green (Exceeds Goal), gold (Meets Goal), red (Below Goal). No arrows. No progress bar. |
+| Progress bar | Removed in v36.13. |
+
+# **7.  Recruiting ****&**** Hiring — ES Date Gate (v36.10)**
+
+The hiring cycle for all open positions is controlled by two enterprise-level dates set by Craig Gaibler or Nesana Wieger: the next ES Start Date and the next ES NET Class date. These are not per-hire checklist items — they are the starting gun that unlocks all open positions simultaneously.
+
+## **How the cycle works**
+
+- Open positions accumulate on the Recruiting & Hiring board as roles become available (offboards, transitions, new approvals). They are visible but frozen.
+
+- While either date is TBD, every position's checklist shows a locked state: padlock icon + "Awaiting confirmed start dates."
+
+- Craig or Nesana clicks "Set Next ES Start Date" or "Set Next ES NET Class" in their Needs Attention panel and enters a date via modal. These reminders appear automatically when both dates are blank.
+
+- The moment both dates are confirmed, all frozen positions unlock simultaneously. Each position's first task routes to the appropriate hiring manager.
+
+- Three weeks after the NET Class date passes, both dates automatically reset to TBD. This re-triggers the reminders for Craig and Nesana, starting the next cycle.
+
+## **Architecture**
+
+- t0a (Set Next ES Start Date) and t0b (Set Next ES NET Class) are enterprise-level triggers only. They are NOT included in any hire record's task checklist or TASK_STAGE_MAP.
+
+- renderNeedsAttention() checks esDateGet('start') and esDateGet('net') directly. If either is TBD, Craig/Nesana see frozen position cards. Regular hiring managers see nothing until their positions unlock.
+
+- renderDetail() gates the checklist the same way — frozen state shown instead of tasks when dates are TBD.
+
+- The saveEsDate() sync logic that previously pushed t0a/t0b checkmarks onto individual hire records has been removed.
+
+# **8.  Pop-Up Modal System — v36.7 Design Standard**
+
+All modal/popup windows across the ES Command Center follow a unified two-component system. Every modal uses the same structural template — differing only in content, field configuration, and button color intent.
+
+## **Universal Modal Rules**
+
+| **Rule** | **Value** | **Notes** |
+| --- | --- | --- |
+| Width | 460px | One standard width for all modals. max-width: 96vw for small screens. |
+| Header | #001F5F cobalt | White title (15px bold) + muted subtitle (12px, 65% opacity white). |
+| Overlay tint | rgba(0,31,95,.5) | Cobalt-tinted backdrop. Consistent with Freeman brand. |
+| Field inputs | border-radius: 999px | Full pill shape on all inputs and selects. |
+| Cancel button | Ghost pill | Transparent bg, 1.5px border, Freeman Blue text. Always left of primary. |
+| Submit button | #42BB37 green pill | Used for all standard save/submit/open/initiate/complete actions. |
+| Destructive button | #FB471F orange pill | Used only for reject/delete actions. Accompanied by warning banner. |
+| Warning banner | Orange pill banner | Shown above the form in destructive modals: "This action cannot be undone." |
+
+## **Modal Inventory**
+
+| **Modal** | **Workspace** | **Notes** |
+| --- | --- | --- |
+| Open a Position | Recruiting & Hiring | Subtitle: "Recruiting & Hiring". Standard form modal. |
+| Open a Transition | Transitions / Offboarding | Subtitle: "Transitions & Offboarding". Type toggle (Promotion / Transfer) is pill-shaped. |
+| Initiate Performance Action | Performance Management | Subtitle: "Performance Management". Error banner uses pill shape. |
+| Set Deadline | Performance Management | Subtitle: dynamic — e.g. "Mid-Year Discussion · Performance Management". |
+| Set ES / NET Date | Recruiting & Hiring | Subtitle: dynamic from calling context. Radio + inline date input pattern. |
+| Reject Candidate | Recruiting & Hiring | Subtitle: "Role — Branch". Destructive modal. Static HTML (not JS-constructed). |
+| Complete Staffing Process | Staffing | Subtitle: "Show Name · Job #N". Numbered step summary. Green Complete button. |
+
+# **9.  Timekeeping ****&**** Utilization — Reporting-Structure Visibility Logic**
+
+Introduced in v36.1. The T&U workspace is gated by reporting structure, not by title. A leader sees the workspace only if they have at least one qualifying direct report in TEAM_MEMBERS.
+
+## **Qualifying direct report titles**
+
+- Exhibitor Services Specialist
+
+- Exhibitor Services Sr Specialist
+
+- Exhibitor Services Consultant
+
+- Exhibitor Services Coordinator (see VP exception below)
+
+- Exhibitor Services Event Experience Supervisor
+
+- Exhibitor Services Sr Event Experience Supervisor
+
+- Exhibitor Services Training Supervisor
+
+## **VP Exception — title-based rule**
+
+A Vice President does not manually approve timecards for hourly direct reports. VPs are exempt from all timecard-approval tasks (k1, k2, k4, k5, k6, wf1–wf4). They retain only non-approval tasks. An Exhibitor Services Coordinator reporting directly to a VP does not count as a qualifying direct report.
+
+## **Resulting visibility by role**
+
+| **Leader** | **Title** | **T****&****U Visibility** |
+| --- | --- | --- |
+| Craig Gaibler | Sr Director | Hidden — only RDs report to him |
+| Nesana Wieger | Vice President | Hidden — VP exception applies |
+| Cory Marin | Director | Hidden — only Managers report to him |
+| Jennifer Vaughan | Regional Director | Hidden — only Directors report to her |
+| Leslie Davis | Regional Director | Hidden — only Managers/Directors report to her |
+| Lubi Garza | Regional Director | Hidden — only Directors report to him |
+| Lisette Bergeron | Regional Director | Hidden — only Directors report to her |
+| Ellen Crowley | Regional Director | Visible — has 9 ICs as direct reports |
+| Maud Langlois | Regional Director | Visible — has Consultants + Specialist as direct reports |
+| All Managers | Manager | Visible — always have qualifying direct reports |
+| Most Directors | Director | Visible — most have qualifying direct reports |
+
+# **10.  Key Functions Reference**
+
+| **Function** | **Purpose** |
+| --- | --- |
+| **buildIdentityFromTM(tm)** | Derives level, taskRole, canCheckOwner, regions, branches from a TEAM_MEMBERS record. |
+| **currentIdentity()** | Returns the active identity object. |
+| **setIdentity(key)** | Switches active identity, updates nav visibility, re-renders active page. |
+| **tkIsVisible()** | Returns true if current identity has qualifying direct reports. Gates T&U workspace. |
+| **esDateGet(type)** | Returns current ES Start Date or NET Class date. Returns "tbd" if not yet set. |
+| **esDateIsEditable()** | Returns true only for Craig/Nesana identities. Gates the date-setting modals. |
+| **renderNeedsAttention()** | Builds all NA cards. RH block gates on ES dates. T&U block wrapped in tkIsVisible() gate. |
+| **renderDetail()** | Renders hire record detail panel. Shows frozen state ("Awaiting confirmed start dates") if ES dates are TBD. |
+| **renderActiveEvents()** | Renders Active Events column cards from getScopeShows(). |
+| **kpiStatusLabel(status)** | Returns "Exceeds Goal", "Meets Goal", or "Below Goal" (no arrows). Used in KPI sidebar pills. |
+
+# **11.  Open Items ****&**** Blocked**
+
+| **Priority** | **Item** | **Owner / Contact** |
+| --- | --- | --- |
+| **Blocked** | Customers Lens — awaiting Qualtrics data integration | Christine Beishline |
+| **Pending** | 27 TEAM_MEMBERS eeNum records left blank — awaiting Workday pull | Internal |
+| **Future** | Auth upgrade: SHA-256 passphrase → Okta/SharePoint SSO before broader rollout | — |
+
+# **12.  Version History**
+
+| **Version** | **Changes** |
+| --- | --- |
+| **v36.14** | 2026-05-22 — Transitions & Offboarding detail panels rebuilt to match RH/OB structure exactly. Both now use the det-split layout: sticky identity card (pinned at top) + det-process-label divider + independently scrolling process section below. Identity cards use rh-pos-id-card with color-coded top bar (gold for Transitions, orange for Offboarding), role/name title line, meta line, semantic chips, date pill, and progress bar. Transitions: avatar in gold, Effective Date pill, New Role secondary line shown on promotions only. Offboarding: avatar in orange, Last Day pill, tenure surfaced in meta line. Revise button moved to top-right of identity card. CSS fix: lc-detail.det-split now includes display:flex;flex-direction:column matching rh-detail.det-split and pm-detail.det-split. |
+| **v36.13** | 2026-05-20 — KPI sidebar tiles: progress bar removed. Goal label changed to unbolded gray text. Status now shown as color-coded pill floated right on the goal line — green (Exceeds Goal), gold (Meets Goal), red (Below Goal). No arrows in pill labels. |
+| **v36.12** | 2026-05-20 — Hotfix: corrected mangled JS string from v36.11. JS lint verified clean before push. |
+| **v36.11** | 2026-05-20 — Hotfix: unescaped apostrophe in renderDetail gate caused site-wide blank panel. Fixed using HTML entity. |
+| **v36.10** | 2026-05-20 — Recruiting & Hiring structural fix: t0a (Set Next ES Start Date) and t0b (Set Next ES NET Class) decoupled from individual hire records entirely. They are now enterprise-level triggers only, owned by Craig/Nesana. All hire checklists now gate on whether both ES dates are set. When dates are TBD, positions display "Awaiting confirmed start dates" with a lock icon. When dates are set, all positions unlock simultaneously and tasks route to their respective hiring managers. Sync logic removed from saveEsDate(). TASK_STAGE_MAP updated to remove t0a/t0b from all stages. |
+| **v36.9** | 2026-05-20 — Header divider between Freeman logo and "ES Command Center" text widened from 1px to 2px. |
+| **v36.8** | 2026-05-20 — Recruiting & Hiring Needs Attention fix: RH block completely rewritten to match universal NA card spec. Card title is now the specific next task name (e.g. "Schedule interviews") followed by the role. Meta line is First Last · Branch. Status chip driven by that task's specific due date. One card per hire record showing only the next actionable task for the current identity. Removed aggregate "3 tasks overdue" summary pattern. |
+| **v36.7** | 2026-05-20 — Unified modal system site-wide. Cobalt (#001F5F) header on all 7 modals. Standardized 460px width. Pill-shaped inputs and buttons throughout. Green submit, orange destructive. Warning banner on Reject modal. Reject modal moved from JS-constructed to static HTML. PM Deadline modal subtitle now dynamic. Staffing modals updated to match system (emoji removed, subtitle includes Job #). |
+| **v36.6** | 2026-05-20 — Active Events: single meta line (venue · dates · booths). Removed separate booths line. |
+| **v36.5** | 2026-05-20 — Active Events: removed "Move-in" / "Clear" labels from date range. Removed producingBranch from meta line. |
+| **v36.4** | 2026-05-20 — End-to-end functional test (all identities, all workspaces). Four fixes: (1) Top nav corrected 4 broken tnGo route IDs. (2) Recruiting & Hiring: replaced native alert() with inline error banner. (3) Customer Resolution: replaced hardcoded date with renderCrPlaceholder(). (4) PM History on TM profile confirmed working. |
+| **v36.3** | 2026-05-20 — Fixed-height cards on Today's Priorities home page. All three columns use 110px fixed-height cards with padding:14px, justify-content:space-between, and CSS ellipsis meta truncation. Chip rows use flex-wrap:nowrap. |
+| **v36.2** | 2026-05-20 — Chip border weight bumped site-wide from 1.5px to 2px. Freeman Now chip updated to Cobalt D2: background #C2D8F8, text #1A40A6, border #8AAEE8. |
+| **v36.1** | 2026-05-20 — T&U reporting-structure visibility logic. New functions: tkGetQualifyingDirectReports(), tkIsVisible(), tkVisibleTasks(), tkUpdateNavVisibility(). VP exception. ca3 demoted to reference/best-practice tier. |
+| **v36.0** | 2026-05-20 — Unified chip/badge color system site-wide. New semantic CSS classes. Needs Attention cards rebuilt with 3-pill structure. |
+| **v35.16** | 2026-05-19 — Added eeNum (Workday Employee ID) to all 274 TEAM_MEMBERS records. 247 matched; 27 blank pending Workday pull. |
+| **v35.15** | 2026-05-19 — Identity System Phase 2. Removed IDENTITY_DIRECTORY. currentIdentity() and setIdentity() read exclusively from IDENTITY_FROM_TM. |
+| **v35.14** | Branch scope fixes + live validation. 4 manager overrides added. 65/65 assertions passing. |
+| **v35.13** | Identity System Consolidation Phase 1. IDENTITY_FROM_TM built at runtime from TEAM_MEMBERS. |
+| **v35.12** | PM layout alignment fixed. .pm-task-row converted from CSS Grid to Flexbox. |
+
+Freeman Exhibitor Services  ·  Confidential  ·  ES Command Center Project Documentation  ·  v36.14
