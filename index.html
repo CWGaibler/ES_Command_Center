@@ -4614,20 +4614,6 @@ function renderSfDetail() {
     var chkAttrs = chkLocked ? '' : ' data-taskid="' + t.id + '" data-showid="' + sfSelId + '"';
 
     var hintHtml = '';
-    if (!checked && !locked && !confirmed) {
-      if (t.id === 's1') hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Review the prior year history above, then check this box when ready to move on.</div>';
-      if (t.id === 's2' && !plan.serviceModel) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Use the calculator below to determine your staffing plan, then check this box when ready.</div>';
-      if (t.id === 's2' && plan.serviceModel) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Staffing plan set — check this box when you are ready to move on.</div>';
-      if (t.id === 's3' && !sfEscFieldsReady) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in the ESC configuration below, then check this box when ready.</div>';
-      if (t.id === 's3' && sfEscFieldsReady && sfEscData.count === 1) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">One Exhibitor Service Center — no naming required. Check this box when ready to move on.</div>';
-      if (t.id === 's3' && sfEscFieldsReady && sfEscData.count > 1) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Configuration complete — check this box when ready to move on.</div>';
-      if (t.id === 's4' && sfEscData.count <= 1) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Only one ESC — no assignments needed. Check this box to continue.</div>';
-      if (t.id === 's4' && sfEscData.count > 1 && !sfEscAssignReady) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Assign each role slot to an ESC below, then check this box when ready.</div>';
-      if (t.id === 's4' && sfEscData.count > 1 && sfEscAssignReady) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">All roles assigned — check this box when ready to move on.</div>';
-      if (t.id === 's5' && !sfCoverageNeeded) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">No coverage assignments required for this event. Check this box to continue.</div>';
-      if (t.id === 's5' && sfCoverageNeeded && !sfCoverageReady) hintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Fill in all coverage fields below, then check this box when ready.</div>';
-      if (t.id === 's5' && sfCoverageNeeded && sfCoverageReady) hintHtml = '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Coverage complete — check this box when ready to move on.</div>';
-    }
 
     // Inline content panels
     var inlineHtml = '';
@@ -6637,10 +6623,6 @@ function tkRenderDetail() {
       : '';
 
     var gateHintHtml = '';
-    if (gated) {
-      var gateTask = sec.tasks.find(function(x){ return x.id === t.lockedBy; });
-      gateHintHtml = '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step ' + (gateTask ? gateTask.num : '') + ' first.</div>';
-    }
 
     var rowOpacity = gated ? ' style="opacity:.45"' : '';
     var chkClass = 'task-chk' + (done?' checked':'') + (gated?' readonly':'');
@@ -7889,6 +7871,7 @@ function offTaskSet(rec) { return rec.departureType === 'resignation' ? OFF_TASK
 function offCanCheck(taskOwner) {
   var p = currentIdentity();
   if (taskOwner === 'admin') return p.taskRole === 'admin';
+  if (taskOwner === 'es') return isESWithAuthority();
   if (taskOwner === 'hm') {
     if (p.level === 'region' || p.level === 'enterprise') return false;
     return true;
@@ -8078,9 +8061,12 @@ function renderOffDetail() {
     var seqLocked = !isChecked && !priorDone;
     var chkCls = isChecked ? 'checked' : (seqLocked ? 'locked' : (!canCheck ? 'readonly' : ''));
     var clickAttr = (canCheck && !seqLocked) ? 'onclick="offToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
+    var linksHtml = (t.links && t.links.length && !seqLocked)
+      ? '<div class="task-links">'+t.links.map(function(l){ return '<a class="tlink" href="'+l.url+'" target="_blank">'+l.label+' &#8599;</a>'; }).join('')+'</div>'
+      : '';
     return '<div class="task-row' + (seqLocked ? ' task-locked' : '') + '">' +
       '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
-      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div></div>' +
+      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div>'+linksHtml+'</div>' +
       '<div class="task-right">'+obOwnerLabel(t.owner)+'</div>' +
     '</div>';
   }).join('');
@@ -9705,9 +9691,6 @@ function renderScDetail() {
     '<div class="task-body">' +
       '<div class="task-title' + (sc2done ? ' done' : '') + '"' + (sc2locked ? ' style="opacity:.35"' : '') + '>2. Identify on-site lead and supervisor</div>' +
       '<div class="task-desc"' + (sc2locked ? ' style="opacity:.5"' : '') + '>Select the on-site lead for this event. If a supervisor is assigned, select them here too. The on-site lead must fill a specific role slot in step 3.</div>' +
-      (sc2locked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 1 first.</div>' : '') +
-      (!sc2done && sc1done && !scConfirmed && !sc2leadFilled ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Select an on-site lead below, then check this box when ready.</div>' : '') +
-      (!sc2done && sc1done && !scConfirmed && sc2leadFilled ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Lead selected — check this box when ready to move on.</div>' : '') +
       (sc1done && !scConfirmed ? '<div id="sc-lead-picker-anchor" style="margin-top:10px"></div>' : '') +
     '</div>' +
     '</div>';
@@ -9724,9 +9707,6 @@ function renderScDetail() {
     '<div class="task-body">' +
       '<div class="task-title' + (sc3done ? ' done' : '') + '"' + (sc3locked ? ' style="opacity:.35"' : '') + '>3. Assign team members to event slots</div>' +
       '<div class="task-desc"' + (sc3locked ? ' style="opacity:.5"' : '') + '>Assign team members to their roles. Mark any unfilled positions as <strong>Traveler Needed</strong> to flag them for the collaborative scheduling meeting.</div>' +
-      (sc3locked ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Complete step 2 first.</div>' : '') +
-      (!sc3done && sc2done && !scConfirmed && !allSlotsResolved ? '<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:3px">Assign all slots or mark as Traveler Needed, then check this box when ready.</div>' : '') +
-      (!sc3done && sc2done && !scConfirmed && allSlotsResolved ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">All slots assigned — check this box when ready to confirm.</div>' : '') +
       (sc2done ? '<div id="sc-slot-panel-anchor" style="margin-top:10px"></div>' : '') +
     '</div>' +
     '</div>';
