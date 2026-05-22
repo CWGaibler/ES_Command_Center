@@ -623,8 +623,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .lc-person-prog-wrap{flex:1;height:4px;background:var(--border-lt);border-radius:2px;overflow:hidden}
 .lc-person-prog-fill{height:100%;border-radius:2px;transition:width .3s}
 .lc-person-prog-fill.ob{background:var(--mb)}
-.lc-person-prog-fill.tr{background:var(--gold)}
-.lc-person-prog-fill.off{background:var(--orange)}
+.lc-person-prog-fill.tr{background:var(--mb)}
+.lc-person-prog-fill.off{background:var(--mb)}
 .lc-person-prog-pct{font-size:14px;font-weight:800;color:var(--muted)}
 .sf-show-prog-row{display:flex;align-items:center;gap:6px;margin-top:5px;pointer-events:none}
 .sf-show-prog-wrap{flex:1;height:4px;background:var(--border-lt);border-radius:2px;overflow:hidden;pointer-events:none}
@@ -643,8 +643,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .lc-det-prog-wrap{height:5px;background:var(--border-lt);border-radius:3px;overflow:hidden;margin-top:7px;max-width:300px}
 .lc-det-prog-fill{height:100%;border-radius:3px;transition:width .3s}
 .lc-det-prog-fill.ob{background:var(--mb)}
-.lc-det-prog-fill.tr{background:var(--gold)}
-.lc-det-prog-fill.off{background:var(--orange)}
+.lc-det-prog-fill.tr{background:var(--mb)}
+.lc-det-prog-fill.off{background:var(--mb)}
 .lc-det-prog-lbl{font-size:14px;color:var(--muted);margin-top:3px}
 .lc-det-scroll{overflow-y:visible}
 /* owner badge on tasks */
@@ -7744,9 +7744,9 @@ function renderTrDetail() {
 
   var trIdCard =
     '<div class="rh-pos-id-card">'+
-      '<div class="rh-pos-id-bar" style="background:var(--gold)"></div>'+
+      '<div class="rh-pos-id-bar"></div>'+
       '<div class="rh-pos-id-body">'+
-        '<div class="rh-pos-avatar" style="background:var(--gold);color:var(--fb)">'+trInitials+'</div>'+
+        '<div class="rh-pos-avatar">'+trInitials+'</div>'+
         '<div style="flex:1;min-width:0">'+
           '<div class="rh-pos-role">'+rec.role+
             '<span style="font-weight:400;color:var(--border);margin:0 10px">|</span>'+
@@ -7760,7 +7760,7 @@ function renderTrDetail() {
         reviseBtn+
       '</div>'+
       '<div class="rh-pos-prog">'+
-        '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:'+pct+'%;background:var(--gold)"></div></div>'+
+        '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:'+pct+'%"></div></div>'+
         '<div class="rh-pos-prog-lbl">'+prog.done+'/'+prog.total+' tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
       '</div>'+
     '</div>';
@@ -8033,9 +8033,9 @@ function renderOffDetail() {
 
   var offIdCard =
     '<div class="rh-pos-id-card">'+
-      '<div class="rh-pos-id-bar" style="background:var(--orange)"></div>'+
+      '<div class="rh-pos-id-bar"></div>'+
       '<div class="rh-pos-id-body">'+
-        '<div class="rh-pos-avatar" style="background:var(--orange);color:#fff">'+offInitials+'</div>'+
+        '<div class="rh-pos-avatar">'+offInitials+'</div>'+
         '<div style="flex:1;min-width:0">'+
           '<div class="rh-pos-role">'+rec.role+
             '<span style="font-weight:400;color:var(--border);margin:0 10px">|</span>'+
@@ -8048,7 +8048,7 @@ function renderOffDetail() {
         reviseBtn+
       '</div>'+
       '<div class="rh-pos-prog">'+
-        '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:'+pct+'%;background:var(--orange)"></div></div>'+
+        '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:'+pct+'%"></div></div>'+
         '<div class="rh-pos-prog-lbl">'+prog.done+'/'+prog.total+' tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
       '</div>'+
     '</div>';
