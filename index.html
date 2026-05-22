@@ -1225,7 +1225,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
   <div class="page active" id="page-today">
     <div class="page-hdr">
       <span class="page-title">Today's Priorities</span>
-      <span class="page-sub" id="today-date"></span>
     </div>
     <div class="el-section-div">Welcome</div>
     <div id="tp-welcome-panel" style="background:#fff;border:2.5px solid var(--mb);border-radius:10px;padding:36px 28px;margin-bottom:14px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:150px"></div>
@@ -2373,8 +2372,6 @@ function identityCanCheckTask(owner, recordHiringManager, hireBranch) {
   var str = days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
   var el = document.getElementById('hdr-date');
   if (el) el.textContent = str;
-  var el2 = document.getElementById('today-date');
-  if (el2) el2.textContent = str;
 })();
 
 // -- RECRUITING DATA --
