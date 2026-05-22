@@ -3606,11 +3606,40 @@ function saveEsDate() {
   var val = isTbd ? 'tbd' : (picker ? picker.value : 'tbd');
   if (!isTbd && !val) { alert('Please select a date, or choose TBD.'); return; }
   esDateSet(type, val || 'tbd');
+
+  // After saving, check whether BOTH dates are now confirmed.
+  // If so, mark t0a and t0b as complete on every open hire record —
+  // both existing records and any that were waiting for these dates.
+  // If either date is reset to TBD, uncheck both on all records so
+  // the locked state returns until dates are set again.
+  var bothSet = (function() {
+    var s = esDateGet('start'); var n = esDateGet('net');
+    return s && s !== 'tbd' && n && n !== 'tbd';
+  })();
+  hires.forEach(function(h) {
+    if (h.closed) return;
+    if (bothSet) {
+      if (h.checked.indexOf('t0a') < 0) h.checked.push('t0a');
+      if (h.checked.indexOf('t0b') < 0) h.checked.push('t0b');
+    } else {
+      h.checked = h.checked.filter(function(id) { return id !== 't0a' && id !== 't0b'; });
+    }
+  });
+
   storageSaveHires();
   closeEsDateModal();
   renderEsDates();
   renderNeedsAttention();
   renderList(); renderDetail();
+}
+
+// Returns the initial checked array for a new hire record.
+// If both ES dates are already confirmed, t0a and t0b are pre-checked
+// so new records don't land in a false locked state.
+function rhInitialChecked() {
+  var s = esDateGet('start'); var n = esDateGet('net');
+  var bothSet = s && s !== 'tbd' && n && n !== 'tbd';
+  return bothSet ? ['t1', 't0a', 't0b'] : ['t1'];
 }
 
 function esDateNeedsAttentionItems() {
@@ -3809,7 +3838,7 @@ function createHire(){
     proposedStart:start, proposedNet:net,
     reqNum:'', hrRecruiter:'Megan Wierick', firstName:'', lastName:'',
     confirmedStart:'', confirmedNet:'', netRequired:'',
-    stage:'approved-not-posted', checked:['t1'], open:{}
+    stage:'approved-not-posted', checked:rhInitialChecked(), open:{}
   });
   selId = hires[0].id;
   storageSaveHires();
@@ -7847,7 +7876,7 @@ function trCloseRecord(recId) {
       whyBackfill: 'Internal Transfer', proposedStart: '', proposedNet: '',
       reqNum: '', hrRecruiter: '', firstName: '', lastName: '',
       confirmedStart: '', confirmedNet: '', rejectionNote: '',
-      phoneStipend: false, stage: 'approved-not-posted', checked: ['t1'], open: {}, closed: false
+      phoneStipend: false, stage: 'approved-not-posted', checked: rhInitialChecked(), open: {}, closed: false
     });
   }
   rec.closed = true;
@@ -8144,7 +8173,7 @@ function offCloseRecord(recId) {
       proposedStart: '', proposedNet: '', reqNum: '', hrRecruiter: '',
       firstName: '', lastName: '', confirmedStart: '', confirmedNet: '',
       rejectionNote: '', phoneStipend: false,
-      stage: 'approved-not-posted', checked: ['t1'], open: {}, closed: false
+      stage: 'approved-not-posted', checked: rhInitialChecked(), open: {}, closed: false
     });
   }
   rec.closed = true;
