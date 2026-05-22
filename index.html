@@ -2486,12 +2486,17 @@ function canViewInScope(h) {
 }
 
 function needsMyAction(h) {
-  var p = currentIdentity();
-  // Offer stage - always flag
-  if (h.stage === 'offer') return true;
-  // Flag positions where current identity has overdue tasks
-  if (countOverdue(h) > 0 && canView(h)) return true;
-  return false;
+  // Closed or not visible — never flag
+  if (h.closed) return false;
+  if (!identityCanSeeBranch(h.branch)) return false;
+  // Find the globally-first unchecked task in the active stage map
+  var activeTasks = (TASK_STAGE_MAP[h.stage] || []).map(function(tid) {
+    return TASKS.find(function(t) { return t.id === tid; });
+  }).filter(Boolean);
+  var nextTask = activeTasks.find(function(t) { return h.checked.indexOf(t.id) < 0; });
+  if (!nextTask) return false;
+  // Only flag if the current identity owns that specific next task
+  return identityCanCheckTask(nextTask.owner, h.hiringManager, h.branch);
 }
 
 // LC workspace action checks — used by renderNeedsAttention
@@ -2514,18 +2519,17 @@ function lcNeedsAction(records, taskSet, workspace) {
     if (rec.closed) return;
     if (!identityCanSeeBranch(rec.branch)) return;
     var tasks = typeof taskSet === 'function' ? taskSet(rec) : taskSet;
-    var pendingTasks = tasks.filter(function(t) {
-      return canCheckFn(t.owner) && !rec.checked[t.id];
+    // Find the single next unchecked task in sequence — the globally-first one
+    var nextTask = tasks.find(function(t) { return !rec.checked[t.id]; });
+    if (!nextTask) return; // all done
+    // Only surface a card if the current identity owns that exact next task
+    if (!canCheckFn(nextTask.owner)) return;
+    items.push({
+      rec: rec,
+      workspace: workspace,
+      nextTask: nextTask.title,
+      nextTaskDesc: nextTask.desc || ''
     });
-    if (pendingTasks.length > 0) {
-      items.push({
-        rec: rec,
-        workspace: workspace,
-        pendingCount: pendingTasks.length,
-        nextTask: pendingTasks[0].title,
-        nextTaskDesc: pendingTasks[0].desc || ''
-      });
-    }
   });
   return items;
 }
@@ -2673,12 +2677,11 @@ function renderNeedsAttention() {
       var activeTasks = (TASK_STAGE_MAP[h.stage] || []).map(function(tid) {
         return TASKS.find(function(t) { return t.id === tid; });
       }).filter(Boolean);
-      var pendingTasks = activeTasks.filter(function(t) {
-        return identityCanCheckTask(t.owner, h.hiringManager, h.branch) &&
-               h.checked.indexOf(t.id) < 0;
-      });
-      if (!pendingTasks.length) return '';
-      var nextTask = pendingTasks[0];
+      // Find the globally-first unchecked task in sequence
+      var nextTask = activeTasks.find(function(t) { return h.checked.indexOf(t.id) < 0; });
+      if (!nextTask) return '';
+      // Only show a card if the current identity owns that exact next task
+      if (!identityCanCheckTask(nextTask.owner, h.hiringManager, h.branch)) return '';
       var baseDate = h.start || h.proposedStart || '';
       var taskDueDate = baseDate ? addDays(baseDate, nextTask.off) : null;
       var taskStatus = taskDueDate ? dueStatus(taskDueDate, false) : 'upcoming';
