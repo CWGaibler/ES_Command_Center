@@ -4072,9 +4072,9 @@ function storageLoadAll() {
   // Called once on page load — restores all persisted state
   storageWipeStale();
   hires             = storageLoad('hires',             []);
-  obRecords         = storageLoad('obRecords',          []);
-  trRecords         = storageLoad('trRecords',          []);
-  offRecords        = storageLoad('offRecords',         []);
+  obRecords         = storageLoad('obRecords',          []).filter(function(r){ return !r.closed; });
+  trRecords         = storageLoad('trRecords',          []).filter(function(r){ return !r.closed; });
+  offRecords        = storageLoad('offRecords',         []).filter(function(r){ return !r.closed; });
   staffingPlans     = storageLoad('staffingPlans',      {});
   schedulingPlans   = storageLoad('schedulingPlans',    {});
   ROLE_ASSIGNMENTS  = storageLoad('roleAssignments',    {});
@@ -7603,13 +7603,13 @@ function renderObDetail() {
 function obCloseRecord(recId) {
   var rec = obRecords.find(function(r){ return r.id === recId; }); if (!rec) return;
   rec.closed = true;
-  storageSaveObRecords();
+  updateObStats(); renderObList(); renderObDetail();
   setTimeout(function() {
     obRecords = obRecords.filter(function(r){ return r.id !== recId; });
     selObId = obRecords.length ? obRecords[0].id : null;
+    storageSaveObRecords();
     updateObStats(); renderObList(); renderObDetail();
   }, 600);
-  updateObStats(); renderObList(); renderObDetail();
 }
 function initOnboarding() {
   updateObStats();
@@ -7871,13 +7871,13 @@ function trCloseRecord(recId) {
     });
   }
   rec.closed = true;
-  storageSaveTrRecords();
+  updateTrStats(); renderTrList(); renderTrDetail();
   setTimeout(function() {
     trRecords = trRecords.filter(function(r){ return r.id !== recId; });
     selTrId = trRecords.length ? trRecords[0].id : null;
+    storageSaveTrRecords();
     updateTrStats(); renderTrList(); renderTrDetail();
   }, 600);
-  updateTrStats(); renderTrList(); renderTrDetail();
 }
 function initTransitions() { updateTrStats(); renderTrList(); renderTrDetail(); }
 
@@ -8159,13 +8159,13 @@ function offCloseRecord(recId) {
     });
   }
   rec.closed = true;
-  storageSaveOffRecords();
+  updateOffStats(); renderOffList(); renderOffDetail();
   setTimeout(function() {
     offRecords = offRecords.filter(function(r){ return r.id !== recId; });
     selOffId = offRecords.length ? offRecords[0].id : null;
+    storageSaveOffRecords();
     updateOffStats(); renderOffList(); renderOffDetail();
   }, 600);
-  updateOffStats(); renderOffList(); renderOffDetail();
 }
 function initOffboarding() { updateOffStats(); renderOffList(); renderOffDetail(); }
 
