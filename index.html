@@ -635,7 +635,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 .sf-show-prog-fill.sc-progress{background:var(--mb)}
 .sf-show-prog-pct{font-size:14px;font-weight:800;color:var(--muted);pointer-events:none}
 .lc-detail{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow-y:auto;display:flex;flex-direction:column;border-top:4px solid var(--mb)}
-.lc-detail.det-split{background:transparent;border:none;border-radius:0;border-top:none;overflow:hidden}
+.lc-detail.det-split{display:flex;flex-direction:column;overflow:hidden;padding:0;background:transparent;border:none;border-radius:0;border-top:none}
 /* detail header */
 .lc-det-hdr{padding:13px 16px;border-bottom:1px solid var(--border-lt);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .lc-det-name{font-size:19.2px;font-weight:800}
@@ -7698,17 +7698,89 @@ function trSetBackfill(recId, decision) {
 function renderTrDetail() {
   var el = document.getElementById('tr-detail');
   if (!el) return;
+
+  // Save scroll position
+  var savedScroll = 0;
+  var existingScroll = el.querySelector('.det-scroll');
+  if (existingScroll) savedScroll = existingScroll.scrollTop;
+
   var visTr = trRecords.filter(function(r){ return identityCanSeeBranch(r.branch); });
   if (selTrId && !visTr.find(function(r){ return r.id === selTrId; })) {
     selTrId = visTr.length ? visTr[0].id : null;
   }
   var rec = trRecords.find(function(r){ return r.id === selTrId; });
-  if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">🔄</div><div class="lc-empty-msg">Select a transition to view details</div><div class="lc-empty-sub">Transition records are created automatically when an employee is promoted or transferred.</div></div>'; return; }
+  if (!rec) { el.className = 'lc-detail'; el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">🔄</div><div class="lc-empty-msg">Select a transition to view details</div><div class="lc-empty-sub">Transition records are created automatically when an employee is promoted or transferred.</div></div>'; return; }
+
   var tasks = trTaskSet(rec);
   var prog = trTotalProgress(rec);
   var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
-  var allDone = prog.done === prog.total;
-  var typeChip = rec.transitionType === 'promotion' ? '<span class="chip chip-stage">Promotion / Title Change</span>' : '<span class="chip chip-stage">Transfer Out of ES</span>';
+  var trAllDone = prog.done === prog.total;
+  var ov = (function() {
+    var today = new Date(); today.setHours(0,0,0,0);
+    if (!rec.effectiveDate) return 0;
+    return tasks.filter(function(t) {
+      if (rec.checked[t.id]) return false;
+      var due = new Date(rec.effectiveDate + 'T00:00:00');
+      return due < today;
+    }).length;
+  })();
+
+  // ── Identity card chips ────────────────────────────────────────────────
+  var typeChip = rec.transitionType === 'promotion'
+    ? '<span class="chip chip-stage">Promotion / Title Change</span>'
+    : '<span class="chip chip-stage">Transfer Out of ES</span>';
+  var ftptChip = rec.ftpt === 'Part-Time'
+    ? '<span class="chip chip-ghost">Part-Time</span>'
+    : '<span class="chip chip-green">Full-Time</span>';
+  var trackChip = ov > 0
+    ? '<span class="chip chip-overdue">'+ov+' Overdue</span>'
+    : '<span class="chip chip-green">On Track</span>';
+
+  // Avatar initials from role
+  var trInitials = (rec.role||'').split(' ').filter(function(w){return w.length>0;}).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase() || 'ES';
+
+  // Meta parts
+  var trMetaParts = [rec.branch, rec.hiringManager ? 'HM: '+rec.hiringManager : ''].filter(Boolean);
+
+  // Date pill — effective date
+  var trDatePill = rec.effectiveDate
+    ? '<span class="rh-pos-date-pill">Effective: '+fmtDateStr(rec.effectiveDate)+'</span>'
+    : '';
+
+  // New role secondary line — promotion only
+  var newRoleLine = (rec.transitionType === 'promotion' && rec.newRole)
+    ? '<div style="font-size:13px;color:var(--mb);font-weight:700;margin-top:1px">&#8599; '+rec.newRole+'</div>'
+    : '';
+
+  // Revise button — top-right, only when no tasks checked yet
+  var reviseBtn = trHasNoChecks(rec)
+    ? '<button class="lc-edit-btn" onclick="trEditRecord(\''+rec.id+'\')" style="margin-left:auto;align-self:flex-start">Revise</button>'
+    : '';
+
+  var trIdCard =
+    '<div class="rh-pos-id-card">'+
+      '<div class="rh-pos-id-bar" style="background:var(--gold)"></div>'+
+      '<div class="rh-pos-id-body">'+
+        '<div class="rh-pos-avatar" style="background:var(--gold);color:var(--fb)">'+trInitials+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="rh-pos-role">'+rec.role+
+            '<span style="font-weight:400;color:var(--border);margin:0 10px">|</span>'+
+            '<span style="color:var(--mb);font-size:18px;font-weight:700">'+rec.firstName+' '+rec.lastName+'</span>'+
+          '</div>'+
+          newRoleLine+
+          '<div class="rh-pos-meta">'+trMetaParts.join('<span style="color:var(--border);margin:0 6px">|</span>')+'</div>'+
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:'+(trDatePill?'5px':'0')+'">'+typeChip+ftptChip+trackChip+'</div>'+
+          (trDatePill ? '<div class="rh-pos-dates">'+trDatePill+'</div>' : '')+
+        '</div>'+
+        reviseBtn+
+      '</div>'+
+      '<div class="rh-pos-prog">'+
+        '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:'+pct+'%;background:var(--gold)"></div></div>'+
+        '<div class="rh-pos-prog-lbl">'+prog.done+'/'+prog.total+' tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
+      '</div>'+
+    '</div>';
+
+  // ── Task list ──────────────────────────────────────────────────────────
   var taskHtml = tasks.map(function(t, idx) {
     var isChecked = !!rec.checked[t.id];
     var canCheck = trCanCheck(t.owner);
@@ -7716,15 +7788,14 @@ function renderTrDetail() {
     var seqLocked = !isChecked && !priorDone;
     var chkCls = isChecked ? 'checked' : (seqLocked ? 'locked' : (!canCheck ? 'readonly' : ''));
     var clickAttr = (canCheck && !seqLocked) ? 'onclick="trToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
-    var trHintHtml = (!isChecked && !seqLocked && canCheck)
-      ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Check this box when complete.</div>'
-      : '';
     return '<div class="task-row' + (seqLocked ? ' task-locked' : '') + '">' +
       '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
-      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div>' + trHintHtml + '</div>' +
+      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div></div>' +
       '<div class="task-right">'+obOwnerLabel(t.owner)+'</div>' +
     '</div>';
   }).join('');
+
+  // ── Backfill bar ───────────────────────────────────────────────────────
   var backfillBar = '';
   if (rec.transitionType === 'transfer') {
     if (!rec.backfillDecision) {
@@ -7741,8 +7812,8 @@ function renderTrDetail() {
       backfillBar = '<div class="lc-handoff-bar" style="background:#F2F4F8;border-color:var(--border)"><div class="lc-handoff-msg" style="color:var(--muted)">🚫 Marked as RIF / No Backfill — position will not be posted</div></div>';
     }
   }
-  
-  var trAllDone = prog.done === prog.total;
+
+  // ── Close bar ──────────────────────────────────────────────────────────
   var trCanClose = trAllDone && (rec.transitionType === 'promotion' || (!!rec.backfillDecision && rec.backfillDecision !== 'pending'));
   var trCloseBar;
   if (rec.closed) {
@@ -7762,33 +7833,15 @@ function renderTrDetail() {
       missingTr.join(' and ') + '.</div></div>';
   }
 
-  var ftChipTr = rec.ftpt === 'Full-Time' ?
-    '<span class="chip chip-ghost">Full-Time</span>' :
-    rec.ftpt === 'Part-Time' ? '<span class="chip chip-pt">Part-Time</span>' : '';
+  // ── Assemble det-split layout ──────────────────────────────────────────
+  el.className = 'lc-detail det-split';
   el.innerHTML =
-    '<div class="pos-card">'+
-      '<div class="pos-card-hdr">'+
-        '<span class="pos-card-title">Employee Details</span>'+
-        '<div style="display:flex;gap:6px;align-items:center">'+
-        (trHasNoChecks(rec) ? '<button class="lc-edit-btn" onclick="trEditRecord(\''+rec.id+'\')">' +
-          'Revise</button>' : '') +
-        ftChipTr+typeChip+'</div>'+
-      '</div>'+
-      '<div class="pos-card-body">'+
-        '<div class="pos-field"><div class="pos-field-lbl">Name</div><div class="pos-field-val">'+rec.firstName+' '+rec.lastName+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Current Role</div><div class="pos-field-val">'+rec.role+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">New Role</div><div class="pos-field-val">'+(rec.newRole||'<span style="color:var(--muted);font-style:italic">Not yet set</span>')+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Branch / Team</div><div class="pos-field-val">'+rec.branch+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Hiring Manager</div><div class="pos-field-val">'+rec.hiringManager+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Transition Type</div><div class="pos-field-val" style="text-transform:capitalize">'+rec.transitionType+'</div></div>'+
-      '</div>'+
-      '<div style="padding:8px 16px 12px">'+
-        '<div class="lc-det-prog-wrap" style="max-width:100%;margin-top:0"><div class="lc-det-prog-fill tr" style="width:'+pct+'%"></div></div>'+
-        '<div class="lc-det-prog-lbl" style="margin-top:4px">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="lc-det-scroll"><div class="phase-sec">'+taskHtml+'</div></div>'+
-    backfillBar+trCloseBar;
+    '<div class="det-sticky">'+trIdCard+'</div>'+
+    '<div class="det-process-label">Transition Process</div>'+
+    '<div class="det-scroll"><div class="el-id-card" style="border-top:none;margin-bottom:0"><div class="phase-sec">'+taskHtml+'</div></div>'+
+    backfillBar+trCloseBar+'</div>';
+
+  if (savedScroll > 0) { var ns = el.querySelector('.det-scroll'); if (ns) ns.scrollTop = savedScroll; }
 }
 
 
@@ -7930,35 +7983,106 @@ function offSetBackfill(recId, decision) {
 function renderOffDetail() {
   var el = document.getElementById('off-detail');
   if (!el) return;
+
+  // Save scroll position
+  var savedScroll = 0;
+  var existingScroll = el.querySelector('.det-scroll');
+  if (existingScroll) savedScroll = existingScroll.scrollTop;
+
   var visOff = offRecords.filter(function(r){ return identityCanSeeBranch(r.branch); });
   if (selOffId && !visOff.find(function(r){ return r.id === selOffId; })) {
     selOffId = visOff.length ? visOff[0].id : null;
   }
   var rec = offRecords.find(function(r){ return r.id === selOffId; });
-  if (!rec) { el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">👋</div><div class="lc-empty-msg">Select a departure to view details</div><div class="lc-empty-sub">Offboarding records are created when a resignation or termination is initiated. Completed records marked Backfill Needed will automatically create a Recruiting requisition.</div></div>'; return; }
+  if (!rec) { el.className = 'lc-detail'; el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">👋</div><div class="lc-empty-msg">Select a departure to view details</div><div class="lc-empty-sub">Offboarding records are created when a resignation or termination is initiated. Completed records marked Backfill Needed will automatically create a Recruiting requisition.</div></div>'; return; }
+
   var tasks = offTaskSet(rec);
   var prog = offTotalProgress(rec);
   var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
-  var typeChip = rec.departureType === 'resignation' ?
-    '<span class="chip chip-stage">Resignation</span>' :
-    '<span class="chip chip-stage">Termination</span>';
+  var offAllDone = offAllTasksDone(rec);
+  var ov = (function() {
+    var today = new Date(); today.setHours(0,0,0,0);
+    if (!rec.lastDay) return 0;
+    return tasks.filter(function(t) {
+      if (rec.checked[t.id]) return false;
+      var due = new Date(rec.lastDay + 'T00:00:00');
+      return due < today;
+    }).length;
+  })();
+
+  // ── Identity card chips ────────────────────────────────────────────────
+  var typeChip = rec.departureType === 'resignation'
+    ? '<span class="chip chip-stage">Resignation</span>'
+    : '<span class="chip chip-stage">Termination</span>';
+  var ftptChip = rec.ftpt === 'Part-Time'
+    ? '<span class="chip chip-ghost">Part-Time</span>'
+    : '<span class="chip chip-green">Full-Time</span>';
+  var trackChip = ov > 0
+    ? '<span class="chip chip-overdue">'+ov+' Overdue</span>'
+    : '<span class="chip chip-green">On Track</span>';
+
+  // Avatar initials from role
+  var offInitials = (rec.role||'').split(' ').filter(function(w){return w.length>0;}).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase() || 'ES';
+
+  // Tenure
+  var tenureStr = '';
+  if (rec.hireDate) {
+    var hd = new Date(rec.hireDate);
+    var yrs = Math.floor((new Date() - hd) / (365.25*24*3600*1000));
+    tenureStr = yrs > 0 ? yrs + ' yr' + (yrs !== 1 ? 's' : '') : '< 1 yr';
+  }
+
+  // Meta parts: branch | HM | tenure
+  var offMetaParts = [rec.branch, rec.hiringManager ? 'HM: '+rec.hiringManager : '', tenureStr ? tenureStr+' tenure' : ''].filter(Boolean);
+
+  // Date pill — last day
+  var offDatePill = rec.lastDay
+    ? '<span class="rh-pos-date-pill">Last Day: '+fmtDateStr(rec.lastDay)+'</span>'
+    : '';
+
+  // Revise button — top-right, only when no tasks checked yet
+  var reviseBtn = offHasNoChecks(rec)
+    ? '<button class="lc-edit-btn" onclick="offEditRecord(\''+rec.id+'\')" style="margin-left:auto;align-self:flex-start">Revise</button>'
+    : '';
+
+  var offIdCard =
+    '<div class="rh-pos-id-card">'+
+      '<div class="rh-pos-id-bar" style="background:var(--orange)"></div>'+
+      '<div class="rh-pos-id-body">'+
+        '<div class="rh-pos-avatar" style="background:var(--orange);color:#fff">'+offInitials+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="rh-pos-role">'+rec.role+
+            '<span style="font-weight:400;color:var(--border);margin:0 10px">|</span>'+
+            '<span style="color:var(--mb);font-size:18px;font-weight:700">'+rec.firstName+' '+rec.lastName+'</span>'+
+          '</div>'+
+          '<div class="rh-pos-meta">'+offMetaParts.join('<span style="color:var(--border);margin:0 6px">|</span>')+'</div>'+
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:'+(offDatePill?'5px':'0')+'">'+typeChip+ftptChip+trackChip+'</div>'+
+          (offDatePill ? '<div class="rh-pos-dates">'+offDatePill+'</div>' : '')+
+        '</div>'+
+        reviseBtn+
+      '</div>'+
+      '<div class="rh-pos-prog">'+
+        '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:'+pct+'%;background:var(--orange)"></div></div>'+
+        '<div class="rh-pos-prog-lbl">'+prog.done+'/'+prog.total+' tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
+      '</div>'+
+    '</div>';
+
+  // ── Task list ──────────────────────────────────────────────────────────
   var taskHtml = tasks.map(function(t, idx) {
     var isChecked = !!rec.checked[t.id];
     var canCheck = offCanCheck(t.owner);
-    // Sequential gate: locked if any prior task is unchecked
     var priorDone = tasks.slice(0, idx).every(function(pt){ return !!rec.checked[pt.id]; });
     var seqLocked = !isChecked && !priorDone;
     var chkCls = isChecked ? 'checked' : (seqLocked ? 'locked' : (!canCheck ? 'readonly' : ''));
     var clickAttr = (canCheck && !seqLocked) ? 'onclick="offToggleTask(\''+rec.id+'\',\''+t.id+'\')"' : '';
-    var offHintHtml = (!isChecked && !seqLocked && canCheck)
-      ? '<div style="font-size:12px;color:var(--mb);font-style:italic;margin-top:3px">Check this box when complete.</div>'
-      : '';
     return '<div class="task-row' + (seqLocked ? ' task-locked' : '') + '">' +
       '<div class="task-chk '+chkCls+'" '+clickAttr+'><span class="chk-mark">✓</span></div>' +
-      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div>' + offHintHtml + '</div>' +
+      '<div class="task-body"><div class="task-title '+(isChecked?'done':'')+(seqLocked?' muted':'')+'">'+t.title+'</div></div>' +
       '<div class="task-right">'+obOwnerLabel(t.owner)+'</div>' +
     '</div>';
   }).join('');
+
+  // ── Backfill bar ───────────────────────────────────────────────────────
   var backfillBar = '';
   if (!rec.backfillDecision) {
     backfillBar = '<div class="lc-backfill-bar">' +
@@ -7973,8 +8097,8 @@ function renderOffDetail() {
   } else {
     backfillBar = '<div class="lc-handoff-bar" style="background:#F2F4F8;border-color:var(--border)"><div class="lc-handoff-msg" style="color:var(--muted)">🚫 Marked as RIF / No Backfill — position will not be posted</div></div>';
   }
-  
-  var offAllDone = offAllTasksDone(rec);
+
+  // ── Close bar ──────────────────────────────────────────────────────────
   var offCanClose = offAllDone && !!rec.backfillDecision && rec.backfillDecision !== 'pending';
   var offCloseBar;
   if (rec.closed) {
@@ -7993,39 +8117,15 @@ function renderOffDetail() {
       missingOff.join(' and ') + '.</div></div>';
   }
 
-  var ftChipOff = rec.ftpt === 'Full-Time' ?
-    '<span class="chip chip-ghost">Full-Time</span>' :
-    rec.ftpt === 'Part-Time' ? '<span class="chip chip-pt">Part-Time</span>' : '';
-  var tenureStr = '';
-  if (rec.hireDate) {
-    var hd = new Date(rec.hireDate);
-    var yrs = Math.floor((new Date() - hd) / (365.25*24*3600*1000));
-    tenureStr = yrs > 0 ? yrs + ' yr' + (yrs !== 1 ? 's' : '') : '< 1 yr';
-  }
+  // ── Assemble det-split layout ──────────────────────────────────────────
+  el.className = 'lc-detail det-split';
   el.innerHTML =
-    '<div class="pos-card">'+
-      '<div class="pos-card-hdr">'+
-        '<span class="pos-card-title">Employee Details</span>'+
-        '<div style="display:flex;gap:6px;align-items:center">'+
-        (offHasNoChecks(rec) ? '<button class="lc-edit-btn" onclick="offEditRecord(\''+rec.id+'\')">' +
-          'Revise</button>' : '') +
-        ftChipOff+typeChip+'</div>'+
-      '</div>'+
-      '<div class="pos-card-body">'+
-        '<div class="pos-field"><div class="pos-field-lbl">Name</div><div class="pos-field-val">'+rec.firstName+' '+rec.lastName+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Role</div><div class="pos-field-val">'+rec.role+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Branch / Team</div><div class="pos-field-val">'+rec.branch+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Hiring Manager</div><div class="pos-field-val">'+rec.hiringManager+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Departure Type</div><div class="pos-field-val" style="text-transform:capitalize">'+rec.departureType+'</div></div>'+
-        '<div class="pos-field"><div class="pos-field-lbl">Tenure</div><div class="pos-field-val">'+( tenureStr || '—')+'</div></div>'+
-      '</div>'+
-      '<div style="padding:8px 16px 12px">'+
-        '<div class="lc-det-prog-wrap" style="max-width:100%;margin-top:0"><div class="lc-det-prog-fill off" style="width:'+pct+'%"></div></div>'+
-        '<div class="lc-det-prog-lbl" style="margin-top:4px">'+prog.done+' of '+prog.total+' tasks complete ('+pct+'%)</div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="lc-det-scroll"><div class="phase-sec">'+taskHtml+'</div></div>'+
-    backfillBar+offCloseBar;
+    '<div class="det-sticky">'+offIdCard+'</div>'+
+    '<div class="det-process-label">Offboarding Process</div>'+
+    '<div class="det-scroll"><div class="el-id-card" style="border-top:none;margin-bottom:0"><div class="phase-sec">'+taskHtml+'</div></div>'+
+    backfillBar+offCloseBar+'</div>';
+
+  if (savedScroll > 0) { var ns = el.querySelector('.det-scroll'); if (ns) ns.scrollTop = savedScroll; }
 }
 
 
