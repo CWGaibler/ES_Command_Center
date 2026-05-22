@@ -8021,7 +8021,6 @@ function renderOffDetail() {
   var trackChip = offAllDone
     ? '<span class="chip chip-green">Complete</span>'
     : '<span class="chip chip-stage">In Progress</span>';
-    : '<span class="chip chip-green">On Track</span>';
 
   // Avatar initials from role
   var offInitials = (rec.role||'').split(' ').filter(function(w){return w.length>0;}).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase() || 'ES';
