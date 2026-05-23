@@ -11010,7 +11010,7 @@ var TL_AV_COLORS = [
 ];
 // ── RH REASSIGN POSITION MODAL ───────────────────────────────────────────
 function rhOpenReassignModal(hireId) {
-  var h = rhRecords.find(function(r){ return r.id === hireId; });
+  var h = hires.find(function(r){ return r.id === hireId; });
   if (!h) return;
   if (!rhCanReassign(h)) return;
 
