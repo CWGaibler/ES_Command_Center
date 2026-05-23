@@ -11106,7 +11106,7 @@ function tlFmtHireDate(d) {
   if (!d) return '';
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
   var p = d.split('-');
-  return months[parseInt(p[1])-1] + ' ' + p[0];
+  return months[parseInt(p[1])-1] + ' ' + parseInt(p[2]) + ', ' + p[0];
 }
 
 // Safe HTML escape for text inserted into HTML
@@ -11275,6 +11275,7 @@ function tlRenderDetail() {
   if (p.region)       chips += '<span class="chip chip-ghost">' + tlEsc(p.region) + '</span> ';
   if (p.ftPt)         chips += '<span class="chip chip-ghost">' + tlEsc(p.ftPt) + (p.compensation ? ' &middot; ' + tlEsc(p.compensation) : '') + '</span> ';
   if (p.hireDate)     chips += '<span class="chip chip-ghost">Hired ' + tlFmtHireDate(p.hireDate) + '</span> ';
+  if (p.birthday)     chips += '<span class="chip chip-ghost">🎂 ' + tlEsc(p.birthday) + '</span> ';
 
   var html = '<div class="tl-id-hdr">' +
     '<div class="tl-id-hdr-bar"></div>' +
