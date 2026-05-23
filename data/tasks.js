@@ -44,7 +44,7 @@ var TASKS = [
    links:[{label:'HRBP: Chastity Austin', url:'mailto:Chastity.Austin@freeman.com'}]},
 
   {phase:'Recruiting & Interviewing', id:'t5',
-   title:'Post position to job boards',
+   title:'Generate job requisition number & post to job boards',
    desc:'HR Business Partner publishes position to company site, LinkedIn, and job boards.',
    owner:'anyone', ownerLabel:'HR Business Partner', off:-49, links:[]},
 
