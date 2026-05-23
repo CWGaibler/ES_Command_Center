@@ -2523,9 +2523,56 @@ function needsMyAction(h) {
 
 // LC workspace action checks — used by renderNeedsAttention
 
+// Multi-scope scope-follows-card helper.
+// When a multi-scope leader (Ellen, Maud, Tricia, Jose, T) clicks an NA card
+// that belongs to their secondary scope, silently switches the region or branch
+// dropdown to match — staying at the same level (region→region, branch→branch).
+// Single-scope leaders are completely unaffected.
+function setScopeForBranch(branch) {
+  if (!branch) return;
+  var identity = currentIdentity();
+  // Only act for multi-scope leaders (2+ regions or 2+ branches)
+  var isMultiRegion = identity.regions && identity.regions.length > 1;
+  var isMultiBranch = identity.branches && identity.branches.length > 1;
+  if (!isMultiRegion && !isMultiBranch) return;
+
+  if (isMultiRegion) {
+    // Find which of this identity's regions contains this branch
+    var targetRegion = null;
+    identity.regions.forEach(function(r) {
+      if (BRANCH_MAP[r] && BRANCH_MAP[r].indexOf(branch) >= 0) targetRegion = r;
+    });
+    if (!targetRegion) return;
+    var rSel = document.getElementById('region-select');
+    if (rSel && rSel.value !== targetRegion) {
+      rSel.value = targetRegion;
+      // Rebuild branch dropdown for the new region (keeps nav consistent)
+      var bSel = document.getElementById('branch-select');
+      if (bSel) {
+        bSel.innerHTML = '<option value="">Select Branch</option>';
+        (BRANCH_MAP[targetRegion] || []).forEach(function(b) {
+          var opt = document.createElement('option');
+          opt.value = b; opt.textContent = b;
+          bSel.appendChild(opt);
+        });
+      }
+    }
+  } else if (isMultiBranch) {
+    // Confirm this branch belongs to this identity, then switch
+    if (identity.branches.indexOf(branch) < 0) return;
+    var bSel2 = document.getElementById('branch-select');
+    if (bSel2 && bSel2.value !== branch) {
+      bSel2.value = branch;
+    }
+  }
+  // No pill switch — scope level stays the same (region stays region, branch stays branch)
+}
+
 function naCardClick(el) {
-  var ws = el.getAttribute('data-na-ws');
-  var id = el.getAttribute('data-na-id');
+  var ws     = el.getAttribute('data-na-ws');
+  var id     = el.getAttribute('data-na-id');
+  var branch = el.getAttribute('data-na-branch');
+  setScopeForBranch(branch);
   if (ws === 'onboarding')  { selObId  = id; showPage('onboarding'); }
   if (ws === 'transitions') { selTrId  = id; showPage('transitions'); }
   if (ws === 'offboarding') { selOffId = id; showPage('offboarding'); }
@@ -2571,6 +2618,8 @@ function setViewAs(role, el) {
 
 function goToHire(el) {
   var hireId = el.getAttribute('data-gotohire');
+  var branch = el.getAttribute('data-na-branch');
+  setScopeForBranch(branch);
   var navItem = document.querySelectorAll('.nav-item')[1];
   showPage('recruiting', navItem);
   setTimeout(function(){ selId = hireId; renderList(); renderDetail(); }, 50);
@@ -2732,7 +2781,7 @@ function renderNeedsAttention() {
       var taskMeta = (h.firstName && h.lastName)
         ? h.firstName + ' ' + h.lastName + ' &middot; ' + h.branch
         : h.branch;
-      return '<div class="na-card" data-gotohire="' + h.id + '" onclick="goToHire(this)">' +
+      return '<div class="na-card" data-gotohire="' + h.id + '" data-na-branch="' + loc + '" onclick="goToHire(this)">' +
         '<div class="na-card-title">' + nextTask.title + ' &mdash; ' + h.role + '</div>' +
         (taskMeta ? '<div class="na-card-meta">' + taskMeta + '</div>' : '') +
         '<div class="na-card-tags">' + statusChip + '<span class="chip chip-info">Recruiting</span><span class="chip chip-location">' + loc + '</span></div>' +
@@ -2745,7 +2794,7 @@ function renderNeedsAttention() {
   html += obItems.map(function(item){
     var rec = item.rec;
     var taskDesc = item.nextTaskDesc ? item.nextTaskDesc.substring(0,80)+(item.nextTaskDesc.length>80?'...':'') : '';
-    return '<div class="na-card" data-na-ws="onboarding" data-na-id="'+rec.id+'" onclick="naCardClick(this)">'+
+    return '<div class="na-card" data-na-ws="onboarding" data-na-id="'+rec.id+'" data-na-branch="'+rec.branch+'" onclick="naCardClick(this)">'+
       '<div class="na-card-title">'+item.nextTask+' &mdash; '+rec.firstName+' '+rec.lastName+'</div>'+
       (taskDesc ? '<div class="na-card-meta">'+taskDesc+'</div>' : '')+
       '<div class="na-card-tags"><span class="chip chip-amber">Due Next</span><span class="chip chip-info">Onboarding</span><span class="chip chip-location">'+rec.branch+'</span></div>'+
@@ -2757,7 +2806,7 @@ function renderNeedsAttention() {
   html += trItems.map(function(item){
     var rec = item.rec;
     var taskDesc = item.nextTaskDesc ? item.nextTaskDesc.substring(0,80)+(item.nextTaskDesc.length>80?'...':'') : '';
-    return '<div class="na-card" data-na-ws="transitions" data-na-id="'+rec.id+'" onclick="naCardClick(this)">'+
+    return '<div class="na-card" data-na-ws="transitions" data-na-id="'+rec.id+'" data-na-branch="'+rec.branch+'" onclick="naCardClick(this)">'+
       '<div class="na-card-title">'+item.nextTask+' &mdash; '+rec.firstName+' '+rec.lastName+'</div>'+
       (taskDesc ? '<div class="na-card-meta">'+taskDesc+'</div>' : '')+
       '<div class="na-card-tags"><span class="chip chip-amber">Due Next</span><span class="chip chip-info">Transitions</span><span class="chip chip-location">'+rec.branch+'</span></div>'+
@@ -2769,7 +2818,7 @@ function renderNeedsAttention() {
   html += offItems.map(function(item){
     var rec = item.rec;
     var taskDesc = item.nextTaskDesc ? item.nextTaskDesc.substring(0,80)+(item.nextTaskDesc.length>80?'...':'') : '';
-    return '<div class="na-card" data-na-ws="offboarding" data-na-id="'+rec.id+'" onclick="naCardClick(this)">'+
+    return '<div class="na-card" data-na-ws="offboarding" data-na-id="'+rec.id+'" data-na-branch="'+rec.branch+'" onclick="naCardClick(this)">'+
       '<div class="na-card-title">'+item.nextTask+' &mdash; '+rec.firstName+' '+rec.lastName+'</div>'+
       (taskDesc ? '<div class="na-card-meta">'+taskDesc+'</div>' : '')+
       '<div class="na-card-tags"><span class="chip chip-amber">Due Next</span><span class="chip chip-info">Offboarding</span><span class="chip chip-location">'+rec.branch+'</span></div>'+
