@@ -1,0 +1,353 @@
+**ES Command Center**
+
+Project Documentation & Design Reference
+
+Freeman Exhibitor Services  ·  Version 36.43  ·  May 23, 2026
+
+**CONFIDENTIAL**
+
+# **1.  Project Overview**
+
+The ES Command Center is a web-based leadership dashboard built for Freeman Exhibitor Services leaders. It surfaces real-time operational intelligence, compliance deadlines, and actionable workspaces across all 9 Leader Resource responsibility areas.
+
+| **Field** | **Value** |
+| --- | --- |
+| Live URL | https://cwgaibler.github.io/ES_Command_Center/ |
+| GitHub Repo | https://github.com/CWGaibler/ES_Command_Center |
+| Stack | index.html (lean shell) + data/ folder. Vanilla JavaScript. No framework. GitHub Pages hosting. |
+| Auth | SHA-256 passphrase gate. Upgrade to Okta/SharePoint SSO before broader rollout. |
+| Storage Version | STORAGE_VERSION = 4. Version bump triggers full data reset for all users. |
+| Data | 4,449 SHOWS  │  301 TEAM_MEMBERS  │  429 SURVEY_DATA records |
+| Org | 7 regions, 18 branches — scope selector is the universal data lens |
+
+# **2.  Build Status — v36.43**
+
+| **Workspace** | **Status** | **Notes** |
+| --- | --- | --- |
+| Today's Priorities | Built | Active Events, Needs Attention, Customer Resolution. Welcome panel (150px). Equal-width 3-panel grid. 110px fixed-height cards. |
+| KPIs | Built | 9 KPIs. Color-coded status pills. Goal label unbolded gray. Pill floated right on goal line. No progress bar. |
+| Recruiting & Hiring | Built | Compact identity card. Stage pipeline. ES date gate: t0a/t0b are enterprise-level triggers. Backfill-for name shown when no candidate yet. Reassign Position button (VP/Sr. Director only, pre-task-start). |
+| Onboarding | Built | det-split layout. New Hire Details identity card. hireType + reqNum carried from RH. |
+| Transitions | Built | det-split layout. Identity card. Promotion / Transfer Out workflows. Backfill decision gate. New Role line on promotions. No overdue tracking. |
+| Offboarding | Built | det-split layout. 13-step resignation + 14-step termination mapped processes. Unique SP links. ES Leadership owner on termination step 2. Backfill push to RH on close. Closed records never persisted to storage. |
+| Staffing | Built | 5-step flow. Sticky event header. |
+| Scheduling | Built | 3-step flow. Sticky event header. |
+| Timekeeping & Utilization | Built v36.1 | 4 sections, 15 procedures. Reporting-structure visibility gate. VP exception. |
+| Performance Management | Built v35.12 | Record-based active queue. Initiate modal. Auto-archive. |
+| Events Lens | Built | Sticky header. Search bar collapses on scroll. Unfiltered by scope pills. |
+| Team Members Lens | Built | Sticky/scroll-collapse. Performance History (access-controlled). Unfiltered by scope pills. |
+| Customers Lens | BLOCKED | Qualtrics pending. Contact: Christine Beishline. |
+
+# **3.  Chip & Badge Color System — v36.3 Design Standard**
+
+All chips, pills, and badges site-wide follow a single semantic color vocabulary. Color encodes meaning — not workspace, not feature. All chips use a 2px border.
+
+| **Role** | **CSS Class** | **Color** | **Hex** | **When to Use** |
+| --- | --- | --- | --- | --- |
+| Freeman Now | .chip-now | Cobalt | #C2D8F8 / #1A40A6 | Freeman Now platform identifier only. |
+| Freeman Next | .chip-info | Cyan | #00BDF6 | Freeman Next platform, workspace/topic labels, informational category chips. |
+| Success / Complete | .chip-green | Green | #42BB37 | Task complete, plan confirmed, on track, approved. |
+| Due Next / KPI Near | .chip-amber | Gold | #FFB500 | Next step in process (no deadline), KPI Near Goal. |
+| Due Today / Urgent | .chip-urgent | Orange | #FB471F | Task due today, Action Required, Rejected/Denied. |
+| Overdue / KPI Below | .chip-overdue | Deep Red | #C0001A | Past deadline, KPI Below Goal. Intentionally non-brand for clarity. |
+| Location | .chip-location | Fuchsia | #FF0373 | Branch, region, or scope on Needs Attention cards. Location only. |
+| Stage / Phase / Type | .chip-stage | Ghost | transparent | Pipeline stages, phases, type labels, attributes. |
+
+# **4.  Needs Attention Card Structure — Universal Rule**
+
+Every card in the Needs Attention panel follows the same structure regardless of source workspace. All three home page columns use fixed 110px card height with justify-content: space-between and CSS ellipsis truncation on meta lines.
+
+| **Element** | **Spec** |
+| --- | --- |
+| Title | Specific task or action name. white-space:nowrap; overflow:hidden; text-overflow:ellipsis. |
+| Supporting line | Task description if one exists, blank if not. Truncated to one line with ellipsis. |
+| Status pill | Due Next (amber) → Due Today (orange) → Overdue (red). Priority wins. One pill only. |
+| Topic pill | Workspace name in cyan (Recruiting, Onboarding, Timekeeping, etc.) |
+| Location pill | Branch or scope in fuchsia (Nashville, Enterprise, Las Vegas, etc.) |
+| Chip rows | flex-wrap: nowrap — chips never break to a second line. |
+
+# **5.  Active Events Card Structure — v36.6 Design Standard**
+
+| **Element** | **Spec** |
+| --- | --- |
+| Title row | Show name + separator + Job # (cyan, bold). |
+| Meta line | Venue/facility · Date range (Mon DD – Mon DD) · Booth count. Single line, ellipsis truncation. |
+| Platform chip | Freeman Now (cobalt) or Freeman Next (cyan). |
+| No branch | Location context comes from venue name — no producing branch on card. |
+| Date format | "Mon DD – Mon DD" with en-dash. No "Move-in" or "Clear" labels. |
+
+# **6.  KPI Tile Design — v36.13 Design Standard**
+
+| **Element** | **Spec** |
+| --- | --- |
+| Metric name | Uppercase, bold, muted gray. Top of card. |
+| Current value | Large (28px bold), Freeman Blue (#001F5F). Dominant visual. |
+| Goal label | "Goal: X%" — regular weight, muted gray (#7A8099). Not bold. |
+| Status pill | Floated right on goal line. Green (Exceeds Goal), Gold (Meets Goal), Red (Below Goal). No arrows. |
+| Progress bar | Removed in v36.13. |
+
+# **7.  Recruiting & Hiring — ES Date Gate (v36.10 / v36.20)**
+
+The hiring cycle for all open positions is controlled by two enterprise-level dates set by Craig Gaibler or Nesana Wieger: the next ES Start Date and the next ES NET Class date. These are not per-hire checklist items — they are the starting gun that unlocks all open positions simultaneously.
+
+## **How the cycle works**
+
+| **Step** | **Description** |
+| --- | --- |
+| 1 | Open positions accumulate on the R&H board as roles become available (offboards, transitions, new approvals). They are visible but frozen. |
+| 2 | While either date is TBD, every position's checklist shows a locked state: padlock icon + "Awaiting confirmed start dates." |
+| 3 | Craig or Nesana clicks "Set Next ES Start Date" or "Set Next ES NET Class" and enters a date via modal. |
+| 4 | When both dates are confirmed, saveEsDate() auto-checks t0a and t0b on ALL open hire records simultaneously. |
+| 5 | If either date is reset to TBD, t0a and t0b are automatically unchecked on all open records. |
+| 6 | New hire records (manual, TR backfill, OFF backfill) call rhInitialChecked() — born with t0a/t0b pre-checked if dates are already set. |
+| 7 | Three weeks after NET Class date passes, both dates reset to TBD, triggering the next cycle. |
+
+## **Architecture notes**
+
+t0a and t0b are enterprise-level triggers only — NOT included in any hire record's TASK_STAGE_MAP. renderNeedsAttention() checks esDateGet() directly. renderDetail() gates the checklist on date state.
+
+## **Recruiting & Hiring — Task Owner Reference**
+
+Tasks in the R&H checklist use the owner field to route who may check them off. The owner value 'anyone' means any leader with system access can complete the step — it designates tasks owned by parties (e.g. HR Business Partner) who do not use the Command Center directly.
+
+| **owner value** | **Display label** | **Who can check** |
+| --- | --- | --- |
+| hm | Hiring Manager | The specific named HM on that record only |
+| rd | Regional Director | Any RD whose branches include the hire's branch |
+| es | ES Leadership | VP or Sr. Director only (isESWithAuthority()) |
+| admin | ES Administrator | Erii Rodriguez only (taskRole: 'admin') |
+| anyone | HR Business Partner | Any authenticated user — HR does not use the system |
+
+**Note on t5 ("Generate job requisition number & post to job boards"):** This task carries owner: 'anyone' but its checkbox is gated behind the Req # input field. The checkbox remains locked until a requisition number is entered. This is intentional — the req number must be captured before the step can be marked complete.
+
+# **8.  Pop-Up Modal System — v36.7 Design Standard**
+
+## **Universal Modal Rules**
+
+| **Rule** | **Value** | **Notes** |
+| --- | --- | --- |
+| Width | 460px | One standard width. max-width: 96vw for small screens. |
+| Header | #001F5F cobalt | White title (15px bold) + muted subtitle (12px). |
+| Overlay tint | rgba(0,31,95,.5) | Cobalt-tinted backdrop. |
+| Field inputs | border-radius: 999px | Full pill shape on all inputs and selects. |
+| Cancel button | Ghost pill | Transparent bg, 1.5px border, Freeman Blue text. |
+| Submit button | #42BB37 green pill | All standard save/submit/open/initiate/complete actions. |
+| Destructive button | #FB471F orange pill | Reject/delete actions only. Accompanied by warning banner. |
+
+## **Modal Inventory**
+
+| **Modal** | **Workspace** | **Notes** |
+| --- | --- | --- |
+| Open a Position | Recruiting & Hiring | Standard form modal. |
+| Open a Transition | Transitions / Offboarding | Type toggle (Promotion / Transfer) is pill-shaped. |
+| Initiate Performance Action | Performance Management | Error banner uses pill shape. |
+| Set Deadline | Performance Management | Subtitle: dynamic per record. |
+| Set ES / NET Date | Recruiting & Hiring | Radio + inline date input pattern. |
+| Reject Candidate | Recruiting & Hiring | Destructive modal. Static HTML. |
+| Complete Staffing Process | Staffing | Numbered step summary. Green Complete button. |
+| Reassign Position | Recruiting & Hiring | VP/Sr. Director only. HM dropdown with live preview of new branch, region, reporting chain. Pre-task-start only. |
+
+# **9.  Timekeeping & Utilization — Reporting-Structure Visibility**
+
+Introduced in v36.1. The T&U workspace is gated by reporting structure, not by title. A leader sees the workspace only if they have at least one qualifying direct report in TEAM_MEMBERS.
+
+## **Qualifying direct report titles**
+
+- Exhibitor Services Specialist
+
+- Exhibitor Services Sr Specialist
+
+- Exhibitor Services Consultant
+
+- Exhibitor Services Coordinator (see VP exception)
+
+- Exhibitor Services Event Experience Supervisor
+
+- Exhibitor Services Sr Event Experience Supervisor
+
+- Exhibitor Services Training Supervisor
+
+## **VP Exception**
+
+A Vice President does not manually approve timecards for hourly direct reports. VPs are exempt from all timecard-approval tasks (k1, k2, k4, k5, k6, wf1–wf4). An ES Coordinator reporting directly to a VP does not count as a qualifying direct report.
+
+# **10.  Key Functions Reference**
+
+| **Function** | **Purpose** |
+| --- | --- |
+| buildIdentityFromTM(tm) | Derives level, taskRole, canCheckOwner, regions, branches from TEAM_MEMBERS record. |
+| currentIdentity() | Returns the active identity object. |
+| setIdentity(key) | Switches active identity, updates nav visibility, re-renders active page. Resets scope to the identity's default. |
+| tkIsVisible() | Returns true if current identity has qualifying direct reports. Gates T&U workspace. |
+| esDateGet(type) | Returns current ES Start Date or NET Class date. Returns "tbd" if not set. |
+| esDateIsEditable() | Returns true only for Craig/Nesana identities. Gates the date-setting modals. |
+| rhInitialChecked() | Returns initial checked array for new hire records. Pre-checks t0a/t0b if both ES dates are already set. |
+| saveEsDate() | Saves ES date. If both dates now confirmed, auto-checks t0a/t0b on all open hire records. If either reset to TBD, unchecks both. |
+| needsMyAction(h) | Returns true only when current identity owns the globally-next unchecked task on hire record h. |
+| lcNeedsAction(records, taskSet, ws) | Returns NA items where current identity owns the globally-next unchecked task in each record's sequence. |
+| isEligibleHiringManager(title) | Returns true if a title qualifies as HM-eligible (VP, Director, Manager). See Section 10a. |
+| updateAllSubtitles() | No-op. Retained from v36.30. Page subtitles removed in v36.34 as redundant. |
+| renderNeedsAttention() | Builds all NA cards. RH block gates on ES dates. T&U block wrapped in tkIsVisible() gate. |
+| renderDetail() | Renders hire record detail panel. Shows frozen state if ES dates are TBD. |
+| kpiStatusLabel(status) | Returns "Exceeds Goal", "Meets Goal", or "Below Goal". |
+| setScopeForBranch(branch) | Scope-follows-card helper for multi-scope leaders. When an NA card is clicked, silently switches the active scope dropdown to match the card's branch — region→region for Ellen/Maud, branch→branch for Tricia/Jose/T. Single-scope leaders are unaffected. Scope persists for the session; only setIdentity() resets to default. |
+
+# **10a.  Hiring Manager — Definition & Logic**
+
+The term "Hiring Manager" has two distinct meanings in the ES Command Center. Both must be understood separately.
+
+## **Meaning 1 — Eligible Title (Who CAN be a Hiring Manager)**
+
+A Hiring Manager is any people leader whose title qualifies them to have direct reports within ES. Eligibility is determined solely by title using the isEligibleHiringManager(title) function.
+
+| **Category** | **Titles** |
+| --- | --- |
+| Eligible | Vice President, Sr. Director, Regional Director, Director, Manager (all variants) |
+| Not Eligible | Event Experience Supervisor, Sr. Event Experience Supervisor, Training Supervisor, Coordinator, Specialist, Sr. Specialist, Consultant, Administrator |
+
+Event Experience Supervisors are individual contributors with no direct reports and are explicitly excluded. Training Supervisors operate at an enterprise level with no branch team. All other non-management titles are ICs.
+
+This definition is used when presenting all possible HM options — e.g., the Reassign Position dropdown on the Recruiting & Hiring page.
+
+## **Meaning 2 — Record Assignment (The SPECIFIC HM on a Given Record)**
+
+When a position or lifecycle record is opened, a specific person is designated as the Hiring Manager for that record (stored as h.hiringManager). This assignment drives task ownership routing — any checklist task marked owner: 'hm' is routed exclusively to that named person via identityCanCheckTask().
+
+Example: Cayden Conner's backfill position has Joanne Peau as the assigned HM. All "Hiring Manager" tasks on that record belong to Joanne Peau specifically — not to all eligible HMs.
+
+## **Key Function**
+
+| **Function** | **Purpose** |
+| --- | --- |
+| isEligibleHiringManager(title) | Returns true if a title qualifies as HM-eligible (VP, Director, Manager). Used for dropdown population and any future HM eligibility checks. |
+
+## **Rule**
+
+Never use taskRole === 'hm' as a proxy for HM eligibility. The taskRole system controls checklist task ownership, not organizational eligibility. A Regional Director (taskRole: 'rd') is fully eligible to be a Hiring Manager on a position.
+
+# **10b.  Multi-Scope Leaders — Scope-Follows-Card Behavior (v36.42)**
+
+Five leaders in the org are responsible for more than one region or branch. The app handles these leaders as a documented edge case — not a special UI mode.
+
+## **Multi-scope leader registry**
+
+| **Leader** | **Type** | **Scopes** | **Default scope** |
+| --- | --- | --- | --- |
+| Ellen Crowley | Two regions | North Central, Las Vegas | North Central (where she lives) |
+| Maud Langlois | Two regions | Canada, Northeast | Canada (where she lives) |
+| Tricia Orme | Two branches | Nashville, Atlanta | Nashville (where she lives) |
+| Jose Medina | Two branches | Orlando, New Orleans | Orlando (where she lives) |
+| T Lam | Two branches | Denver, Reno | Denver (where she lives) |
+
+Default scope rule: when a leader is responsible for multiple locations, their default is the location where they live. This is set via the MULTI_SCOPE_OVERRIDES config object and applied on identity load via setIdentity().
+
+## **Needs Attention visibility**
+
+Multi-scope leaders see Needs Attention cards from ALL of their scopes regardless of which scope pill is currently active. This is intentional — their NA panel must reflect the full breadth of their responsibilities. The location (fuchsia) chip on each card identifies which scope the task belongs to.
+
+## **Scope-follows-card on NA click (v36.42)**
+
+When a multi-scope leader clicks a Needs Attention card that belongs to their non-default scope, the app silently switches the scope dropdown to match the card's location before opening the destination page. This ensures the relevant task list is immediately visible without requiring manual pill switching.
+
+Rules:
+- The scope level never changes — region leaders switch region→region; branch leaders switch branch→branch. The active pill (Region or Branch/Team) stays the same.
+- The switch persists for the remainder of the session. The user is not pushed back to their default mid-session.
+- Scope only resets to default on identity switch (setIdentity()) or fresh login.
+- Single-scope leaders are completely unaffected. setScopeForBranch() is a no-op for them.
+
+## **Implementation**
+
+Each NA card carries a data-na-branch attribute set to the record's branch at render time. goToHire() and naCardClick() both call setScopeForBranch(branch) before navigating to the destination page. setScopeForBranch() reads the current identity's regions/branches arrays to determine the correct scope level and target value, then updates the dropdown silently without touching the active pill.
+
+# **11.  Open Items & Blocked**
+
+| **Priority** | **Item** | **Owner / Contact** |
+| --- | --- | --- |
+| Blocked | Customers Lens — awaiting Qualtrics data integration | Christine Beishline |
+| Pending | 27 TEAM_MEMBERS eeNum records left blank — awaiting Workday pull | Internal |
+| Future | Auth upgrade: SHA-256 → Okta/SharePoint SSO before broader rollout | — |
+| Future | TEAM_MEMBERS live feed integration — data source owns employee status. IDENTITY_FROM_TM already rebuilds at runtime; no architectural changes needed. | Internal |
+| Future | TEAM_MEMBERS overlap window — brief period between Command Center close and HR feed removal is acceptable and low-risk. Self-resolving once live feed connected. | — |
+
+# **12.  Employee Lifecycle Architecture**
+
+All four Employee Lifecycle pages (Recruiting & Hiring, Onboarding, Transitions, Offboarding) share an identical det-split layout for their detail panels. This is the non-negotiable structural standard.
+
+## **det-split layout — universal structure**
+
+| **Element** | **Spec** |
+| --- | --- |
+| .det-sticky | Pinned identity card at top. Never scrolls. Contains avatar, role │ name, meta line, chips, date pill, progress bar, and optional Revise/Reassign button (top-right). |
+| .det-process-label | Section divider line with process name ("Recruiting & Hiring Process", "Offboarding Process", etc.) |
+| .det-scroll | Independently scrolling task list + backfill bar + close bar below. |
+
+## **Sequential process rule**
+
+Every process is a strict ordered sequence. Only the globally-next unchecked task in the sequence is "live." The person responsible for that step gets a Needs Attention card. Nobody downstream gets notified until their turn arrives.
+
+## **Process flow — close → backfill**
+
+When a Transition (Transfer Out) or Offboarding record is closed with backfill approved, a new hire record is automatically created on the Recruiting & Hiring board. The new record calls rhInitialChecked() to determine its starting state based on whether ES dates are already confirmed.
+
+## **Offboarding processes**
+
+| **Process** | **Steps** | **Notes** |
+| --- | --- | --- |
+| Resignation | 13 | Step 2 (Submit Offboarding Service Request) owned by ES Administrator (Erii Rodriguez). |
+| Termination | 14 | Step 2 (Grant or Deny Approval) owned by ES Leadership. Step 6 (Submit Service Request) owned by ES Administrator. |
+
+# **13.  Global Design Rules — Non-Negotiable**
+
+| **Rule** | **Detail** |
+| --- | --- |
+| No strikethrough — ever | Done states use muted color (var(--muted)) + filled green checkbox ONLY. text-decoration:line-through is NEVER used anywhere on the site. Violation of this rule will be corrected immediately. |
+| No color-coded identity cards for TR/OFF | Transitions and Offboarding identity cards use Freeman Blue (var(--mb)) for the top bar, avatar, and progress bar. No gold or orange on structural card elements. Color-coded chips are acceptable; card structure is always blue. |
+| No overdue tracking on TR/OFF | Transitions and Offboarding are open-ended sequential workflows with no per-step deadlines. Track chip shows "In Progress" or "Complete" only. Overdue tracking is exclusive to Recruiting & Hiring. |
+| Task layout: Option A | On any process page with both descriptions and links: title on top → brief description below → "Additional details ↗" pill on its own line. Never inline, never between title and description. |
+| Task copy style | All task description copy: remove unnecessary "the" articles; replace "and" with "&". Keeps descriptions concise. |
+| Section labels on all pages | Every page begins its content area with an el-section-div label. Employee Lifecycle / Team Operations / Service Excellence pages: "By the Numbers". Lens pages: "[Name] Search". |
+| No page subtitles | Page subtitles removed site-wide in v36.34 — redundant with page title and scope pills already visible in the nav. Coming Soon pages and the Today's Priorities date stamp are exceptions. |
+| Sequential NA card rule | Needs Attention surfaces only the globally-next unchecked task per record, to the identity who owns that exact step. Applies to needsMyAction() (RH), lcNeedsAction() (OB/TR/OFF), and the RH NA render block. |
+| Pre-push validation | All code changes are validated for: (1) JS syntax via node Function() parse, and (2) HTML div balance across all 20 page divs. Both checks must pass before any commit. |
+| Welcome panel height | 150px min-height. This is the confirmed final value after multiple adjustments on 2026-05-22. |
+| No merged scope views for multi-scope leaders | Multi-scope leaders (Ellen, Maud, Tricia, Jose, T) do not get a combined "all my regions/branches" pill. The nav scope selector is uniform for all users. Cross-scope NA visibility and scope-follows-card are the only exceptions built for these leaders. |
+
+# **14.  Version History**
+
+| **Version** | **Date** | **Changes** |
+| --- | --- | --- |
+| v36.43 | 2026-05-23 | RH tasks.js: rename t5 to "Generate job requisition number & post to job boards" to clarify that the req # field must be filled as part of this step. |
+| v36.42 | 2026-05-23 | Scope-follows-card for multi-scope leaders. setScopeForBranch() helper added. NA cards gain data-na-branch attribute. goToHire() and naCardClick() call setScopeForBranch() before navigating. Region leaders switch region→region; branch leaders switch branch→branch. Scope persists for session; resets only on setIdentity(). Document Section 10b added. |
+| v36.41 | 2026-05-23 | Add isEligibleHiringManager() helper. Fix Reassign Position dropdown to include all VP/Director/Manager titles. Document Hiring Manager definition (Section 10a). |
+| v36.40 | 2026-05-23 | Hotfix: rhOpenReassignModal used rhRecords instead of hires — modal never opened. |
+| v36.39 | 2026-05-23 | Move Reassign Position button inside identity card top-right, matching TR/OFF Revise pattern. |
+| v36.38 | 2026-05-23 | NA: remove redundant frozen-position cards for VP/Sr. Director; ES date cards are sufficient. |
+| v36.37 | 2026-05-23 | RH: fix Reassign button lock — exclude t1 (auto-checked on position creation) from real-task check. |
+| v36.36 | 2026-05-23 | RH: Reassign Position modal for VP/Sr. Director on untouched positions. rhCanReassign() gate. |
+| v36.35 | 2026-05-23 | TM Lens: full hire date (Mon DD, YYYY); birthday pill added to identity card. |
+| v36.34 | 2026-05-22 | Simplify all "X by the Numbers" section labels to "By the Numbers". Remove all page subtitles site-wide. updateAllSubtitles() retained as no-op. |
+| v36.31 | 2026-05-22 | Welcome panel restored to 150px. Project doc updated with all design/UX decisions from May 22 session. |
+| v36.30 | 2026-05-22 | Dynamic scope subtitles on all 9 filtered pages. (Subsequently removed in v36.34.) |
+| v36.28 | 2026-05-22 | Hotfix: restore missing rh-action-tile opening div dropped by v36.27. HTML div balance added to pre-push validation. |
+| v36.27 | 2026-05-22 | Add el-section-div section labels above stat boxes on all Employee Lifecycle, Team Operations, Service Excellence, and Lens pages. |
+| v36.23 | 2026-05-22 | Fix OB/TR/OFF close: storageSave now inside timeout after record removed. Closed records filtered on storage load. |
+| v36.21 | 2026-05-22 | TR/OFF: remove overdue date tracking. Track chip shows In Progress / Complete only. |
+| v36.20 | 2026-05-22 | RH: rhInitialChecked() helper. saveEsDate() auto-checks/unchecks t0a/t0b on all open records. |
+| v36.19 | 2026-05-22 | RH: backfill-for name shown on left panel + detail header when no candidate yet. |
+| v36.18 | 2026-05-22 | OFF task layout: Option A. Strikethrough removed from PM steps site-wide. No-strikethrough rule documented. |
+| v36.17 | 2026-05-22 | TR/OFF identity cards: reverted to Freeman Blue. Removed gold/orange overrides. |
+| v36.16 | 2026-05-22 | OFF task files: 14-step termination + 13-step resignation mapped processes. Unique SP links. ES Leadership owner added. |
+| v36.15 | 2026-05-22 | Sequential task reminder logic fixed site-wide. NA surfaces only globally-next unchecked task to its owner. |
+| v36.14 | 2026-05-22 | TR/OFF detail panels rebuilt to det-split layout matching RH/OB. Identity cards, sticky header, scrolling process section. |
+| v36.13 | 2026-05-20 | KPI sidebar: progress bar removed. Status shown as color-coded pill. Goal label unbolded gray. |
+| v36.10 | 2026-05-20 | RH structural fix: t0a/t0b decoupled from hire records. Enterprise-level triggers only. All positions gate on ES dates. |
+| v36.7 | 2026-05-20 | Unified modal system site-wide. Cobalt header, 460px width, pill inputs/buttons. |
+| v36.3 | 2026-05-20 | Fixed-height 110px cards on home page. CSS ellipsis truncation. |
+| v36.2 | 2026-05-20 | Chip borders bumped to 2px. Freeman Now chip updated to Cobalt D2. |
+| v36.1 | 2026-05-20 | T&U reporting-structure visibility logic. VP exception. tkIsVisible() gating. |
+| v36.0 | 2026-05-20 | Unified chip/badge color system site-wide. Needs Attention cards rebuilt. |
+| v35.16 | 2026-05-19 | eeNum (Workday Employee ID) added to all TEAM_MEMBERS records. 247 matched; 27 pending. |
+| v35.15 | 2026-05-19 | Identity System Phase 2. IDENTITY_FROM_TM is sole source of truth. |
+| v35.12–35.14 | 2026-05-19 | Identity system consolidation. Branch scope fixes. 65/65 assertions passing. |
+
+Freeman Exhibitor Services  ·  Confidential  ·  ES Command Center Project Documentation  ·  v36.43
