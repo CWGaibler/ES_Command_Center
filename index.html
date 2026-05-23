@@ -3144,13 +3144,13 @@ function renderDetail(){
           '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:'+(datePills?'5px':'0')+'">'+typeChip+ftptChip+trackChip+'</div>'+
           (datePills ? '<div class="rh-pos-dates">'+datePills+'</div>' : '')+
         '</div>'+
+        (rhCanReassign(h) ? '<button class="lc-edit-btn" onclick="rhOpenReassignModal(\''+h.id+'\')" style="margin-left:auto;align-self:flex-start">✎ Reassign Position</button>' : '')+
       '</div>'+
       '<div class="rh-pos-prog">'+
         '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:'+pct+'%"></div></div>'+
         '<div class="rh-pos-prog-lbl">'+done+'/'+total+' checklist tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
       '</div>'+
-    '</div>'+
-    (rhCanReassign(h) ? '<button class="lc-edit-btn" style="margin:6px 14px 10px;align-self:flex-start" onclick="rhOpenReassignModal(\''+h.id+'\')">✎ Reassign Position</button>' : '');
+    '</div>';
 
   // -- Checklist --
   var phases=[]; var seen={};
