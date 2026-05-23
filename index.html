@@ -2172,6 +2172,14 @@ function isESWithAuthority() {
   return t.indexOf('Vice President') >= 0 || /Sr\.?\s*Director/i.test(t);
 }
 
+// Returns true if the current user may reassign an open RH position.
+// Requires: VP or Sr Director AND no real tasks checked (t0a/t0b don't count).
+function rhCanReassign(h) {
+  if (!isESWithAuthority()) return false;
+  var realChecked = (h.checked || []).filter(function(id) { return id !== 't0a' && id !== 't0b'; });
+  return realChecked.length === 0;
+}
+
 // Current active identity — defaults to Craig Gaibler (full name key)
 var CURRENT_IDENTITY_KEY = 'Craig Gaibler';
 function currentIdentity() {
@@ -3158,7 +3166,8 @@ function renderDetail(){
         '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:'+pct+'%"></div></div>'+
         '<div class="rh-pos-prog-lbl">'+done+'/'+total+' checklist tasks complete'+(ov>0?' &mdash; <span style="color:var(--orange);font-weight:800">'+ov+' overdue</span>':'')+'</div>'+
       '</div>'+
-    '</div>';
+    '</div>'+
+    (rhCanReassign(h) ? '<button class="lc-edit-btn" style="margin:6px 14px 10px;align-self:flex-start" onclick="rhOpenReassignModal(\''+h.id+'\')">✎ Reassign Position</button>' : '');
 
   // -- Checklist --
   var phases=[]; var seen={};
@@ -11016,6 +11025,142 @@ var TL_AV_COLORS = [
   {name:'Shelby Glatstein',preferred:'',initials:'SG',hireDate:'',ftpt:'F',title:'Exhibitor Services Specialist',region:'North Central',branch:'Chicago',mgr:'Courtney Gonzalez',mgr2:'Mary Ligammari',mgr3:'Ellen Crowley',birthday:'',email:'' },
   {name:'Sylinda Noguez',preferred:'',initials:'SN',hireDate:'',ftpt:'F',title:'Exhibitor Services Specialist',region:'NW/SoCal',branch:'Denver',mgr:'T Lam',mgr2:'Leslie Davis',mgr3:'Craig Gaibler',birthday:'',email:'' },
 ];
+// ── RH REASSIGN POSITION MODAL ───────────────────────────────────────────
+function rhOpenReassignModal(hireId) {
+  var h = rhRecords.find(function(r){ return r.id === hireId; });
+  if (!h) return;
+  if (!rhCanReassign(h)) return;
+
+  // Build HM options — all HMs visible on the dashboard (taskRole === 'hm')
+  var hmOptions = Object.keys(IDENTITY_FROM_TM)
+    .filter(function(name) { return IDENTITY_FROM_TM[name].taskRole === 'hm'; })
+    .sort()
+    .map(function(name) {
+      var selected = name === h.hiringManager ? ' selected' : '';
+      return '<option value="' + name + '"' + selected + '>' + name + '</option>';
+    }).join('');
+
+  var overlay = document.createElement('div');
+  overlay.className = 'sf-complete-overlay';
+
+  var modal = document.createElement('div');
+  modal.className = 'sf-complete-modal';
+  modal.style.maxWidth = '460px';
+
+  // Inject lc-edit styles if not already present
+  if (!document.getElementById('lc-edit-styles')) {
+    var s = document.createElement('style');
+    s.id = 'lc-edit-styles';
+    s.textContent = '.lc-edit-row{display:flex;flex-direction:column;gap:3px}' +
+      '.lc-edit-lbl{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}' +
+      '.lc-edit-input{font-family:\'Nunito Sans\',sans-serif;font-size:13px;font-weight:700;color:var(--fb);' +
+      'border:1.5px solid var(--border);border-radius:999px;padding:7px 14px;outline:none;background:#fff;width:100%;box-sizing:border-box}' +
+      '.lc-edit-input:focus{border-color:var(--mb)}';
+    document.head.appendChild(s);
+  }
+
+  var currentHM = h.hiringManager || '—';
+  var currentBranch = h.branch || '—';
+
+  modal.innerHTML =
+    '<div class="sf-cmp-head">' +
+      '<div class="sf-cmp-icon">&#9998;</div>' +
+      '<div class="sf-cmp-title">Reassign Position</div>' +
+      '<div class="sf-cmp-sub">' + (h.role || 'Open Position') + (h.backfillFor ? ' &nbsp;&middot;&nbsp; Backfill for ' + h.backfillFor : '') + '</div>' +
+    '</div>' +
+    '<div class="sf-cmp-body" style="display:flex;flex-direction:column;gap:14px">' +
+      '<div style="font-size:12.5px;color:var(--muted);line-height:1.5;padding:8px 12px;background:#f5f7fa;border-radius:8px;border:1px solid var(--border-lt)">' +
+        'Currently assigned to <strong style="color:var(--fb)">' + currentHM + '</strong>' +
+        ' &nbsp;&middot;&nbsp; <strong style="color:var(--fb)">' + currentBranch + '</strong>.<br>' +
+        'Selecting a new hiring manager will update the branch, region, and full reporting chain.' +
+      '</div>' +
+      '<div class="lc-edit-row"><label class="lc-edit-lbl">New Hiring Manager</label>' +
+        '<select id="rh-reassign-hm" class="lc-edit-input">' +
+          '<option value="">— Select a hiring manager —</option>' +
+          hmOptions +
+        '</select>' +
+      '</div>' +
+      '<div id="rh-reassign-preview" style="display:none;font-size:12px;color:var(--muted);padding:8px 12px;background:#f0fdf0;border:1px solid #c3e6cb;border-radius:8px;line-height:1.6"></div>' +
+    '</div>' +
+    '<div class="sf-cmp-footer" style="gap:10px">' +
+      '<button class="sf-cmp-btn" id="rh-reassign-cancel">Cancel</button>' +
+      '<button class="sf-cmp-btn sf-cmp-btn-primary" id="rh-reassign-save" disabled style="opacity:.45;cursor:not-allowed">Save Changes</button>' +
+    '</div>';
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Live preview as HM is selected
+  var hmSel   = document.getElementById('rh-reassign-hm');
+  var preview = document.getElementById('rh-reassign-preview');
+  var saveBtn = document.getElementById('rh-reassign-save');
+
+  function updatePreview() {
+    var name = hmSel.value;
+    if (!name || !IDENTITY_FROM_TM[name]) {
+      preview.style.display = 'none';
+      saveBtn.disabled = true;
+      saveBtn.style.opacity = '.45';
+      saveBtn.style.cursor = 'not-allowed';
+      return;
+    }
+    // Look up TM record for new HM to get branch, region, mgr chain
+    var newTM = TEAM_MEMBERS.find(function(tm){ return tm.name === name; });
+    if (!newTM) { preview.style.display = 'none'; return; }
+    var newBranch = newTM.branch || '—';
+    var newRegion = newTM.region || '—';
+    var newMgr2   = newTM.mgr   || '—';  // HM's own manager = mgr2 for hire record
+    var newMgr3   = newTM.mgr2  || '—';  // one more level up
+
+    if (name === h.hiringManager) {
+      preview.style.background = '#fff8e1';
+      preview.style.border = '1px solid #ffe082';
+      preview.innerHTML = 'No change — this is the current hiring manager.';
+    } else {
+      preview.style.background = '#f0fdf0';
+      preview.style.border = '1px solid #c3e6cb';
+      preview.innerHTML =
+        '<strong style="color:var(--green)">&#10003; New assignment:</strong><br>' +
+        'Hiring Manager: <strong>' + name + '</strong><br>' +
+        'Branch: <strong>' + newBranch + '</strong> &nbsp;&middot;&nbsp; Region: <strong>' + newRegion + '</strong><br>' +
+        'Reporting chain: ' + newMgr2 + ' &rarr; ' + newMgr3;
+    }
+    preview.style.display = '';
+    saveBtn.disabled = false;
+    saveBtn.style.opacity = '1';
+    saveBtn.style.cursor = 'pointer';
+  }
+
+  hmSel.addEventListener('change', updatePreview);
+
+  document.getElementById('rh-reassign-cancel').addEventListener('click', function(){ overlay.remove(); });
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.remove(); });
+
+  document.getElementById('rh-reassign-save').addEventListener('click', function() {
+    var name = hmSel.value;
+    if (!name || !IDENTITY_FROM_TM[name]) return;
+    if (name === h.hiringManager) { overlay.remove(); return; }
+
+    var newTM = TEAM_MEMBERS.find(function(tm){ return tm.name === name; });
+    if (!newTM) return;
+
+    // Apply all derived fields from new HM
+    h.hiringManager      = name;
+    h.hiringManagerFirst = newTM.name.split(' ')[0];
+    h.hiringManagerLast  = newTM.name.split(' ').slice(1).join(' ');
+    h.branch             = newTM.branch  || h.branch;
+    h.region             = newTM.region  || h.region;
+    // mgr chain: new HM's own manager becomes the next level, etc.
+    if (newTM.mgr)  h.mgr2 = newTM.mgr;
+    if (newTM.mgr2) h.mgr3 = newTM.mgr2;
+
+    storageSave();
+    overlay.remove();
+    rhRenderDetail();
+    rhRenderList();
+  });
+}
+
 function tlAvColor(name) {
   var sum = 0;
   for (var i = 0; i < name.length; i++) sum += name.charCodeAt(i);
