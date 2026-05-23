@@ -7048,29 +7048,42 @@ function pmRenderWorkspace() {
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
   var dateStr = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
 
-  // ── STICKY: Identity card + progress bar ──────────────────────────────
+  // ── STICKY: Identity card — standard rh-pos-id-card structure ──────────
+  var pmMetaParts = [];
+  if (p && p.branch && p.branch !== 'Enterprise') pmMetaParts.push(p.branch);
+  var pmMetaHtml = pmMetaParts.join('<span style="color:var(--border);margin:0 6px">|</span>');
+
+  var pmTypeChip  = '<span class="chip chip-ghost">' + PM_TYPE_LABELS[rec.type] + '</span>';
+  var pmDateChip  = '<span class="chip chip-ghost">Started ' + dateStr + '</span>';
+  var pmFyChip    = '<span class="chip chip-ghost">FY' + (pmFiscalYear()%100) + '</span>';
+  var pmRemoveBtn = '<button onclick="pmDeleteRecord(&apos;' + rec.id + '&apos;)" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px;border:1.5px solid var(--border);align-self:flex-start;white-space:nowrap" title="Remove this record">Remove</button>';
+
   var stickyHtml =
-    '<div class="pm-id-card">' +
-      '<div class="pm-id-avatar">' + (PEOPLE_PHOTOS[rec.personName] ? '<img src="' + PEOPLE_PHOTOS[rec.personName] + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />' : initials) + '</div>' +
-      '<div style="flex:1;min-width:0">' +
-        '<div class="pm-id-name">' + rec.personName +
-          ' <a href="#" class="pm-profile-link" data-person="' + rec.personName.replace(/"/g,'&quot;') + '" style="font-size:12px;font-weight:700;color:var(--mb);text-decoration:none;margin-left:4px">↗ Profile</a>' +
+    '<div class="rh-pos-id-card">' +
+      '<div class="rh-pos-id-bar"></div>' +
+      '<div class="rh-pos-id-body">' +
+        '<div class="rh-pos-avatar">' + (PEOPLE_PHOTOS[rec.personName] ? '<img src="' + PEOPLE_PHOTOS[rec.personName] + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />' : initials) + '</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="rh-pos-role">' +
+            (p ? p.title : rec.personName) +
+            '<span style="font-weight:400;color:var(--border);margin:0 10px">|</span>' +
+            '<span style="color:var(--mb);font-size:18px;font-weight:700">' +
+              rec.personName +
+              ' <a href="#" class="pm-profile-link" data-person="' + rec.personName.replace(/"/g,'&quot;') + '" style="font-size:12px;font-weight:700;color:var(--mb);text-decoration:none;margin-left:4px">↗ Profile</a>' +
+            '</span>' +
+          '</div>' +
+          (pmMetaHtml ? '<div class="rh-pos-meta">' + pmMetaHtml + '</div>' : '') +
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:0">' + pmTypeChip + pmDateChip + pmFyChip + '</div>' +
         '</div>' +
-        (p ? '<div class="pm-id-title">' + p.title + (p.branch && p.branch !== 'Enterprise' ? ' &nbsp;·&nbsp; ' + p.branch : '') + '</div>' : '') +
-        '<div class="pm-id-chips">' +
-          '<span class="chip chip-ghost" style="font-size:11px">' + PM_TYPE_LABELS[rec.type] + '</span>' +
-          '<span class="chip chip-ghost" style="font-size:11px">Started ' + dateStr + '</span>' +
-          '<span class="chip chip-ghost" style="font-size:11px">FY' + (pmFiscalYear()%100) + '</span>' +
+        pmRemoveBtn +
+      '</div>' +
+      '<div class="rh-pos-prog">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">' +
+          '<div class="rh-pos-prog-lbl">' + done + ' of ' + tasks.length + ' steps complete (' + pct + '%)</div>' +
+          (rec.type !== 'pip' ? '<button class="pm-reset-btn" onclick="pmResetRecord(&apos;' + rec.id + '&apos;)">Reset Steps</button>' : '') +
         '</div>' +
+        '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:' + pct + '%;background:' + (pct===100?'var(--green)':'var(--mb)') + '"></div></div>' +
       '</div>' +
-      '<button onclick="pmDeleteRecord(&apos;' + rec.id + '&apos;)" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px;border:1.5px solid var(--border);margin-left:auto;align-self:flex-start;white-space:nowrap" title="Remove this record">Remove</button>' +
-    '</div>' +
-    '<div class="rh-pos-prog">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">' +
-        '<div class="rh-pos-prog-lbl">' + done + ' of ' + tasks.length + ' steps complete (' + pct + '%)</div>' +
-        (rec.type !== 'pip' ? '<button class="pm-reset-btn" onclick="pmResetRecord(&apos;' + rec.id + '&apos;)">Reset Steps</button>' : '') +
-      '</div>' +
-      '<div class="rh-pos-prog-bar"><div class="rh-pos-prog-fill" style="width:' + pct + '%;background:' + (pct===100?'var(--green)':'var(--mb)') + '"></div></div>' +
     '</div>';
 
   // ── PIP placeholder — sticky identity + scroll with placeholder content ──
