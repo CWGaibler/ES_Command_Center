@@ -2552,6 +2552,17 @@ function goToHire(el) {
   setTimeout(function(){ selId = hireId; renderList(); renderDetail(); }, 50);
 }
 
+function goToTeamMember(name) {
+  // Navigate to Team Members lens and pre-populate search with the person's name
+  var lensNav = document.querySelector('.nav-item[data-page="lenses"]') ||
+                Array.from(document.querySelectorAll('.nav-item')).find(function(n){ return n.textContent.trim().startsWith('Lenses'); });
+  showPage('team', lensNav);
+  setTimeout(function() {
+    var inp = document.getElementById('tl-search-input');
+    if (inp) { inp.value = name; tlSearchInput(name); }
+  }, 80);
+}
+
 
 function renderWelcomePanel() {
   var panel = document.getElementById('tp-welcome-panel');
@@ -2640,6 +2651,28 @@ function renderCrPlaceholder() {
       '<div class="event-meta">SEMA Show · Opened ' + openedStr + '</div>' +
       '<div class="event-tags"><span class="chip chip-amber">Open</span><span class="chip chip-ghost">Backroom</span></div>' +
     '</div>';
+}
+
+function getBirthdayItems() {
+  var p = currentIdentity();
+  if (!p || !p.name) return [];
+  var today = new Date();
+  var todayMonth = today.getMonth() + 1; // 1-12
+  var todayDay   = today.getDate();
+  var months = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+
+  return TEAM_MEMBERS.filter(function(tm) {
+    if (!tm.birthday) return false;
+    // Must be in current identity's reporting chain
+    if (tm.mgr !== p.name && tm.mgr2 !== p.name && tm.mgr3 !== p.name) return false;
+    // Parse birthday "Mon DD"
+    var parts = tm.birthday.split(' ');
+    if (parts.length !== 2) return false;
+    var bMonth = months[parts[0]];
+    var bDay   = parseInt(parts[1], 10);
+    if (!bMonth || !bDay) return false;
+    return bMonth === todayMonth && bDay === todayDay;
+  });
 }
 
 function renderNeedsAttention() {
@@ -2826,7 +2859,23 @@ function renderNeedsAttention() {
   }).join('');
 
   // Empty state
-  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length + travelerItems.length + esDateItems.length + (typeof tkUndoneToday !== 'undefined' ? tkUndoneToday.length : 0) + (typeof tkUndoneOverdue !== 'undefined' ? tkUndoneOverdue.length : 0);
+  // ── Birthday cards ──────────────────────────────────────────────────────
+  var birthdayItems = getBirthdayItems();
+  html += birthdayItems.map(function(tm) {
+    var today = new Date();
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var dateStr = tm.birthday; // e.g. "May 23"
+    return '<div class="na-card" onclick="goToTeamMember(\''+tm.name+'\')">' +
+      '<div class="na-card-title">\uD83C\uDF82 ' + tm.name + '\'s Birthday</div>' +
+      '<div class="na-card-meta">' + dateStr + (tm.title ? ' \u00B7 ' + tm.title : '') + '</div>' +
+      '<div class="na-card-tags">' +
+        '<span class="chip chip-urgent">Today</span>' +
+        '<span class="chip chip-location">' + (tm.branch || tm.region || '') + '</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  var totalItems = rhItems.length + obItems.length + trItems.length + offItems.length + travelerItems.length + esDateItems.length + birthdayItems.length + (typeof tkUndoneToday !== 'undefined' ? tkUndoneToday.length : 0) + (typeof tkUndoneOverdue !== 'undefined' ? tkUndoneOverdue.length : 0);
   if (totalItems === 0) {
     html = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No items need your attention right now.</div>';
   }
