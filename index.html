@@ -2694,24 +2694,7 @@ function renderNeedsAttention() {
     return s && s !== 'tbd' && n && n !== 'tbd';
   })();
   var rhItems = hires.filter(needsMyAction);
-  if (!esDatesReady) {
-    // Dates not yet set — show one frozen card per visible open position for Craig/Nesana
-    // (regular HMs see nothing until their positions unlock)
-    if (esDateIsEditable()) {
-      var frozenItems = hires.filter(function(h) {
-        return !h.closed && identityCanSeeBranch(h.branch) &&
-               ['approved-not-posted','approved','candidate-selected'].indexOf(h.stage) >= 0;
-      });
-      html += frozenItems.map(function(h) {
-        var loc = h.branch || '';
-        return '<div class="na-card" data-gotohire="' + h.id + '" onclick="goToHire(this)">' +
-          '<div class="na-card-title">' + h.role + '</div>' +
-          '<div class="na-card-meta">Awaiting confirmed start dates</div>' +
-          '<div class="na-card-tags"><span class="chip chip-ghost">On Hold</span><span class="chip chip-info">Recruiting</span><span class="chip chip-location">' + loc + '</span></div>' +
-        '</div>';
-      }).join('');
-    }
-  } else {
+  if (esDatesReady) {
     html += rhItems.map(function(h) {
       var activeTasks = (TASK_STAGE_MAP[h.stage] || []).map(function(tid) {
         return TASKS.find(function(t) { return t.id === tid; });
