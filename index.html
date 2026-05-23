@@ -2167,6 +2167,22 @@ function buildIdentityDropdown() {
 // ── ES AUTHORITY CHECK ────────────────────────────────────────────────────
 // Returns true for VP and Sr. Director only — replaces all
 // CURRENT_IDENTITY_KEY==='craig'||...'nesana' checks throughout the app.
+
+// Returns true if a given title is eligible to be a Hiring Manager.
+// Eligible: Vice President, any Director (incl. Sr./Regional), any Manager.
+// Excluded: Event Experience Supervisor, Training Supervisor, Coordinator,
+//           Specialist, Consultant, Administrator -- no direct reports.
+// Note: 'Hiring Manager' has two distinct meanings in the app:
+//   - Eligible title: isEligibleHiringManager(title) -- who CAN be an HM
+//   - Record assignment: h.hiringManager -- the SPECIFIC HM on a given record
+//     (used for task ownership routing via identityCanCheckTask())
+function isEligibleHiringManager(title) {
+  if (!title) return false;
+  if (title.indexOf('Vice President') >= 0) return true;
+  if (title.indexOf('Director') >= 0) return true;
+  if (title.indexOf('Manager') >= 0) return true;
+  return false;
+}
 function isESWithAuthority() {
   var t = currentIdentity().title || '';
   return t.indexOf('Vice President') >= 0 || /Sr\.?\s*Director/i.test(t);
@@ -11016,7 +11032,7 @@ function rhOpenReassignModal(hireId) {
 
   // Build HM options — all HMs visible on the dashboard (taskRole === 'hm')
   var hmOptions = Object.keys(IDENTITY_FROM_TM)
-    .filter(function(name) { return IDENTITY_FROM_TM[name].taskRole === 'hm'; })
+    .filter(function(name) { return isEligibleHiringManager(IDENTITY_FROM_TM[name].title); })
     .sort()
     .map(function(name) {
       var selected = name === h.hiringManager ? ' selected' : '';
