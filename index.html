@@ -2176,7 +2176,7 @@ function isESWithAuthority() {
 // Requires: VP or Sr Director AND no real tasks checked (t0a/t0b don't count).
 function rhCanReassign(h) {
   if (!isESWithAuthority()) return false;
-  var realChecked = (h.checked || []).filter(function(id) { return id !== 't0a' && id !== 't0b'; });
+  var realChecked = (h.checked || []).filter(function(id) { return id !== 't0a' && id !== 't0b' && id !== 't1'; });
   return realChecked.length === 0;
 }
 
