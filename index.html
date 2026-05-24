@@ -3331,7 +3331,7 @@ function renderDetail(){
           }
         }
         // After t5 is checked: inject Yes/No internal candidate decision prompt
-        if (ck && h.internalCandidate === null) {
+        if (ck && h.internalCandidate == null) {
           var icYesCls = 'btn-net-choice';
           var icNoCls  = 'btn-net-choice';
           rcHintHtml += '<div style="margin-top:10px;padding:10px 12px;background:var(--fb-xlt);border-radius:8px;border:1.5px solid var(--border-lt)">' +
@@ -3345,6 +3345,20 @@ function renderDetail(){
         }
       }
 
+      // t6: gate if internalCandidate choice not yet made (covers null AND undefined)
+      if (t.id === 't6' && !locked && h.internalCandidate == null) {
+        rcHintHtml = '<div style="margin-top:10px;padding:10px 12px;background:var(--fb-xlt);border-radius:8px;border:1.5px solid var(--border-lt)">' +
+          '<div style="font-size:13px;font-weight:700;color:var(--fb);margin-bottom:6px">Is there a targeted internal candidate for this role?</div>' +
+          '<div style="font-size:12px;color:var(--muted);margin-bottom:8px">If yes, the process will shift to an internal promotion path. If no, standard open recruiting continues.</div>' +
+          '<div style="display:flex;gap:8px">' +
+            '<button class="btn-net-choice" onclick="rhSetInternalCandidate(\'' + h.id + '\',\'yes\')">Yes — Internal Candidate</button>' +
+            '<button class="btn-net-choice" onclick="rhSetInternalCandidate(\'' + h.id + '\',\'no\')">No — Open Search</button>' +
+          '</div>' +
+        '</div>';
+        locked = true;
+        chkCls = 'task-chk locked';
+        chkAttrs = '';
+      }
       // t6: replace with internal candidate identification task on internal path
       if (t.id === 't6' && isInternalPath && !locked) {
         var tipEmp = h.tipEmployee;
