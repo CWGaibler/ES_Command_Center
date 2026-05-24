@@ -3633,6 +3633,23 @@ function renderDetail(){
         var tmRec = TEAM_MEMBERS.find(function(e){ return e.name === tip.name; });
         if (tmRec) { tmRec.title = hire.role; }
       }
+      // Internal promotion path: auto-close when t14 is checked (last step)
+      if (hire.internalCandidate === 'yes' && tId === 't14' && hire.checked.indexOf('t14') >= 0) {
+        var tip2 = hire.tipEmployee;
+        var promoName = (hire.firstName && hire.lastName)
+          ? hire.firstName + ' ' + hire.lastName
+          : (tip2 ? tip2.name : 'Employee');
+        var promoRole = hire.role || 'new role';
+        hire.closed = true;
+        storageSaveHires();
+        setTimeout(function() {
+          hires = hires.filter(function(x){ return x.id !== hire.id; });
+          selId = hires.length ? hires[0].id : null;
+          renderList(); renderDetail(); updateStats(); renderNeedsAttention();
+          rhShowPromoConfirm(promoName, promoRole);
+        }, 50);
+        return;
+      }
       storageSaveHires();
       renderList(); renderDetail(); updateStats();
     };
