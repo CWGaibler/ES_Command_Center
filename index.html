@@ -3386,7 +3386,7 @@ function renderDetail(){
         +'<div class="'+chkCls+'"'+chkAttrs+'><span class="chk-mark">&#10003;</span></div>'
         +'<div class="task-body">'
           +(displayTitle?'<div class="task-title'+(ck?' done':'')+(locked?' muted':'')+'">'+displayTitle+'</div>':'')
-          +'<div class="task-desc'+(ck?' task-checked':'')+(displayTitle?' task-subdesc':'')+(locked?' style="opacity:.35"':'')+'>'+displayDesc+'</div>'+lnks
+          +'<div class="task-desc'+(ck?' task-checked':'')+(displayTitle?' task-subdesc':'')+'"'+(locked?' style="opacity:.35"':'')+'>'+displayDesc+'</div>'+lnks
           +rcHintHtml
         +'</div>'
         +'<div class="task-right">'
