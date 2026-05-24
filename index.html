@@ -3999,10 +3999,19 @@ function updateAllSubtitles() {
 
 
 function rhAllTasksDone(h) {
-  var hmTasks = TASKS.filter(function(t){ return t.owner === 'Hiring Manager'; });
+  // Filter by owner:'hm' (not ownerLabel). On internal path, t7/t8/t13 are auto-skipped so exclude them.
+  var hmTasks = TASKS.filter(function(t){
+    if (t.owner !== 'hm') return false;
+    if (h.internalCandidate === 'yes' && (t.id === 't7' || t.id === 't8' || t.id === 't13')) return false;
+    return true;
+  });
   return hmTasks.every(function(t){ return h.checked.indexOf(t.id) >= 0; });
 }
 function rhIsOfferAccepted(h) {
+  if (h.internalCandidate === 'yes') {
+    // Internal promotion: no background check / confirmed start date — offer stage + name is sufficient
+    return !!(h.firstName && h.lastName && h.stage === 'offer');
+  }
   return (h.firstName && h.lastName && (h.confirmedStart || h.proposedStart)) || h.stage === 'complete';
 }
 function rhMoveToOnboarding(hireId) {
