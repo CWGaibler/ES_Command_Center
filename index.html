@@ -3305,6 +3305,17 @@ function renderDetail(){
           chkAttrs = '';
         }
       }
+      // Internal candidate path: skip t6/t7/t8 (replaced by tip flow) and t13 (no background check)
+      var isInternalPath = (h.internalCandidate === 'yes');
+      if (isInternalPath && (t.id === 't7' || t.id === 't8' || t.id === 't13')) {
+        // Mark as auto-checked so sequential gating and phase completion work correctly
+        if (h.checked.indexOf(t.id) < 0) {
+          h.checked.push(t.id);
+          storageSaveHires();
+        }
+        return; // skip rendering this task entirely
+      }
+
       // t5: req # input — must be filled before checkbox is checkable
       if (t.id === 't5' && !locked) {
         if (!ck) {
@@ -3320,19 +3331,70 @@ function renderDetail(){
             chkAttrs = '';
           }
         }
+        // After t5 is checked: inject Yes/No internal candidate decision prompt
+        if (ck && h.internalCandidate === null) {
+          var icYesCls = 'btn-net-choice';
+          var icNoCls  = 'btn-net-choice';
+          rcHintHtml += '<div style="margin-top:10px;padding:10px 12px;background:var(--fb-xlt);border-radius:8px;border:1.5px solid var(--border-lt)">' +
+            '<div style="font-size:13px;font-weight:700;color:var(--fb);margin-bottom:6px">Is there a targeted internal candidate for this role?</div>' +
+            '<div style="font-size:12px;color:var(--muted);margin-bottom:8px">If yes, the process will shift to an internal promotion path. If no, standard open recruiting continues.</div>' +
+            '<div style="display:flex;gap:8px">' +
+              '<button class="'+icYesCls+'" onclick="rhSetInternalCandidate(\''+h.id+'\',\'yes\')">Yes — Internal Candidate</button>' +
+              '<button class="'+icNoCls+'"  onclick="rhSetInternalCandidate(\''+h.id+'\',\'no\')">No — Open Search</button>' +
+            '</div>' +
+          '</div>';
+        }
       }
-      clHtml+='<div class="task-row'+(locked?' step-locked':'')+'">'+
-        '<div class="'+chkCls+'"'+chkAttrs+'><span class="chk-mark">&#10003;</span></div>'+
-        '<div class="task-body">'+
-          (t.title?'<div class="task-title'+(ck?' done':'')+(locked?' muted':'')+'">'+t.title+'</div>':'')+
-          '<div class="task-desc'+(ck?' task-checked':'')+(t.title?' task-subdesc':'')+'"'+(locked?' style="opacity:.35"':'')+'>'+t.desc+'</div>'+lnks+
-          rcHintHtml+
-        '</div>'+
-        '<div class="task-right">'+
-          '<span class="task-owner"'+(locked?' style="opacity:.35"':'')+'>'+t.ownerLabel+'</span>'+
-          '<span class="task-due due-'+(locked?'upcoming':st)+'">'+(ck?'Complete':locked?'&mdash;':fmtDate(due))+'</span>'+
-        '</div>'+
-      '</div>';
+
+      // t6: replace with internal candidate identification task on internal path
+      if (t.id === 't6' && isInternalPath && !locked) {
+        var tipEmp = h.tipEmployee;
+        if (!tipEmp) {
+          // Show employee search
+          rcHintHtml = '<div style="margin-top:8px">' +
+            '<div style="font-size:12px;color:var(--muted);margin-bottom:4px">Search for the targeted internal candidate:</div>' +
+            '<div style="position:relative">' +
+              '<input id="rh-tip-search-'+h.id+'" type="text" placeholder="Search by name..." autocomplete="off" ' +
+              'style="font-family:\'Nunito Sans\',sans-serif;font-size:13px;font-weight:700;color:var(--fb);border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;outline:none;width:100%;background:var(--white);box-sizing:border-box" ' +
+              'oninput="rhTipEmpSearch(\''+h.id+'\')" />' +
+              '<div id="rh-tip-drop-'+h.id+'" class="lc-search-drop" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:200;background:var(--white);border:1.5px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,31,95,.12);max-height:220px;overflow-y:auto"></div>' +
+            '</div>' +
+          '</div>';
+          locked = true;
+          chkCls = 'task-chk locked';
+          chkAttrs = '';
+        } else {
+          // Employee selected — show their info, allow checkbox
+          rcHintHtml = '<div style="margin-top:8px;padding:8px 12px;background:var(--fb-xlt);border-radius:8px;border:1.5px solid var(--border-lt);display:flex;align-items:center;gap:10px">' +
+            '<span style="font-size:20px">👤</span>' +
+            '<div>' +
+              '<div style="font-size:13px;font-weight:800;color:var(--fb)">'+tipEmp.name+'</div>' +
+              '<div style="font-size:12px;color:var(--muted)">'+tipEmp.title+' &nbsp;·&nbsp; '+tipEmp.branch+'</div>' +
+            '</div>' +
+            '<button onclick="rhClearTipEmployee(\''+h.id+'\')" style="margin-left:auto;font-size:11px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:999px;padding:2px 8px;cursor:pointer">Change</button>' +
+          '</div>';
+        }
+      }
+
+      // Override t6 title/desc for internal candidate path
+      var displayTitle = t.title;
+      var displayDesc  = t.desc;
+      if (t.id === 't6' && isInternalPath) {
+        displayTitle = 'Identify & confirm targeted internal candidate';
+        displayDesc  = 'Select the internal employee being promoted into this role. Their name will appear on the position record immediately.';
+      }
+      clHtml+='<div class="task-row'+(locked?' step-locked':'')+'">'
+        +'<div class="'+chkCls+'"'+chkAttrs+'><span class="chk-mark">&#10003;</span></div>'
+        +'<div class="task-body">'
+          +(displayTitle?'<div class="task-title'+(ck?' done':'')+(locked?' muted':'')+'">'+displayTitle+'</div>':'')
+          +'<div class="task-desc'+(ck?' task-checked':'')+(displayTitle?' task-subdesc':'')+(locked?' style="opacity:.35"':'')+'>'+displayDesc+'</div>'+lnks
+          +rcHintHtml
+        +'</div>'
+        +'<div class="task-right">'
+          +'<span class="task-owner"'+(locked?' style="opacity:.35"':'')+'>'+t.ownerLabel+'</span>'
+          +'<span class="task-due due-'+(locked?'upcoming':st)+'">'+(ck?'Complete':locked?'&mdash;':fmtDate(due))+'</span>'
+        +'</div>'
+      +'</div>';
     });
     clHtml+='</div></div>';
 
@@ -3353,25 +3415,39 @@ function renderDetail(){
         '</div>';
       }
     } else if(phase === 'Recruiting & Interviewing') {
-      var p2Done = ['t4','t5','t6','t7','t8','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
+      var tipTasksDone = h.internalCandidate === 'yes'
+        ? ['t4','t5','t6','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; })
+        : false;
+      var p2Done = h.internalCandidate === 'yes'
+        ? tipTasksDone
+        : ['t4','t5','t6','t7','t8','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
       var canAdv2 = (currentIdentity().name === h.hiringManager) || isESWithAuthority();
       if(p2Done && canAdv2 && h.stage === 'approved') {
+        var prefFirst = (h.tipEmployee && h.tipEmployee.firstName) ? h.tipEmployee.firstName : (h.firstName||'');
+        var prefLast  = (h.tipEmployee && h.tipEmployee.lastName)  ? h.tipEmployee.lastName  : (h.lastName||'');
         phaseAdvBtn = '<div class="phase-advance-bar" style="flex-direction:column;align-items:flex-start;gap:10px">'+
-          '<span class="phase-advance-msg">&#10003; Recruiting &amp; Interviewing complete &mdash; enter selected candidate\'s name to confirm</span>'+
+          '<span class="phase-advance-msg">&#10003; Recruiting &amp; Interviewing complete &mdash; confirm selected candidate to advance</span>'+
           '<div style="display:flex;gap:8px;align-items:center;width:100%">'+
-            '<input id="rh-cand-first-'+h.id+'" type="text" placeholder="First name" value="'+(h.firstName||'')+'" style="font-family:\'Nunito Sans\',sans-serif;font-size:13px;font-weight:700;color:var(--fb);border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;outline:none;flex:1;background:var(--white)" />'+
-            '<input id="rh-cand-last-'+h.id+'" type="text" placeholder="Last name" value="'+(h.lastName||'')+'" style="font-family:\'Nunito Sans\',sans-serif;font-size:13px;font-weight:700;color:var(--fb);border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;outline:none;flex:1;background:var(--white)" />'+
+            '<input id="rh-cand-first-'+h.id+'" type="text" placeholder="First name" value="'+prefFirst+'" style="font-family:\'Nunito Sans\',sans-serif;font-size:13px;font-weight:700;color:var(--fb);border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;outline:none;flex:1;background:var(--white)" />'+
+            '<input id="rh-cand-last-'+h.id+'" type="text" placeholder="Last name" value="'+prefLast+'" style="font-family:\'Nunito Sans\',sans-serif;font-size:13px;font-weight:700;color:var(--fb);border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;outline:none;flex:1;background:var(--white)" />'+
             '<button onclick="rhConfirmCandidate(\''+h.id+'\')" class="btn-phase-advance">Candidate Selected &rarr;</button>'+
           '</div>'+
         '</div>';
       }
     } else if(phase === 'Job Offer') {
       var t13Rdy = !!(h.proposedStart && h.confirmedStart && h.confirmedNet && h.proposedNet && h.firstName && h.lastName && h.reqNum);
-      var p3Done = t13Rdy && ['t10','t11','t12','t13','t14'].every(function(tid){ return h.checked.indexOf(tid) >= 0; }) && !!(h.netRequired);
+      var jobOfferTasks = h.internalCandidate === 'yes'
+        ? ['t10','t11','t12','t14']
+        : ['t10','t11','t12','t13','t14'];
+      var p3Done = (h.internalCandidate === 'yes' || t13Rdy) &&
+        jobOfferTasks.every(function(tid){ return h.checked.indexOf(tid) >= 0; }) && !!(h.netRequired);
       var canAdv3 = (currentIdentity().name === h.hiringManager) || isESWithAuthority();
       if(p3Done && canAdv3 && h.stage === 'candidate-selected') {
+        var p3Msg = h.internalCandidate === 'yes'
+          ? '&#10003; Job Offer complete — offer letter signed'
+          : '&#10003; Job Offer complete — background check cleared';
         phaseAdvBtn = '<div class="phase-advance-bar">'+
-          '<span class="phase-advance-msg">&#10003; Job Offer complete &mdash; background check cleared</span>'+
+          '<span class="phase-advance-msg">'+p3Msg+'</span>'+
           '<button onclick="rhAdvanceStage(\''+ h.id +'\')" class="btn-phase-advance">Mark as Offer Stage &rarr;</button>'+
         '</div>';
       }
@@ -3409,7 +3485,9 @@ function renderDetail(){
       '</div>';
     }
   } else if(h.stage === 'approved') {
-    var phase2Done = ['t4','t5','t6','t7','t8','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
+    var phase2Done = h.internalCandidate === 'yes'
+      ? ['t4','t5','t6','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; })
+      : ['t4','t5','t6','t7','t8','t9'].every(function(tid){ return h.checked.indexOf(tid) >= 0; });
     // t9 is owned by the HM — they or ES Leadership can advance
     var canAdv = (currentIdentity().name === h.hiringManager) || isESWithAuthority();
     if(phase2Done) {
@@ -3511,6 +3589,34 @@ function renderDetail(){
       if (!identityCanCheckTask(tOwner, hire.hiringManager, hire.branch)) return;
       var i = hire.checked.indexOf(tId);
       if (i >= 0) hire.checked.splice(i, 1); else hire.checked.push(tId);
+      // t12 on internal candidate path: offer letter signed → push backfill for vacated position
+      if (tId === 't12' && hire.internalCandidate === 'yes' && hire.tipEmployee &&
+          hire.checked.indexOf('t12') >= 0) {
+        var tip = hire.tipEmployee;
+        var hmParts = (tip.mgr || '').trim().split(' ');
+        hires.unshift({
+          id: 'h' + Date.now(),
+          role: tip.title,
+          ftpt: tip.ftpt === 'F' ? 'Full-Time' : tip.ftpt === 'P' ? 'Part-Time' : (tip.ftpt || 'Full-Time'),
+          branch: tip.branch,
+          hiringManager: tip.mgr || '',
+          hiringManagerFirst: hmParts[0] || '',
+          hiringManagerLast: hmParts.slice(1).join(' ') || '',
+          hireType: 'backfill',
+          backfillFor: tip.firstName + ' ' + tip.lastName,
+          backfillForFirst: tip.firstName,
+          backfillForLast: tip.lastName,
+          whyBackfill: 'Internal Promotion',
+          proposedStart: '', proposedNet: '',
+          reqNum: '', hrRecruiter: '', firstName: '', lastName: '',
+          confirmedStart: '', confirmedNet: '', netRequired: '',
+          internalCandidate: null, tipEmployee: null,
+          stage: 'approved-not-posted', checked: rhInitialChecked(), open: {}, closed: false
+        });
+        // Update tipEmployee's title in TEAM_MEMBERS to reflect their new role
+        var tmRec = TEAM_MEMBERS.find(function(e){ return e.name === tip.name; });
+        if (tmRec) { tmRec.title = hire.role; }
+      }
       storageSaveHires();
       renderList(); renderDetail(); updateStats();
     };
@@ -3770,6 +3876,78 @@ function rhSetNetRequired(hireId, val) {
   renderDetail();
 }
 
+function rhSetInternalCandidate(hireId, val) {
+  var h = hires.find(function(x){ return x.id === hireId; });
+  if (!h) return;
+  h.internalCandidate = val; // 'yes' or 'no'
+  if (val === 'no') { h.tipEmployee = null; }
+  storageSaveHires();
+  renderList(); renderDetail();
+}
+
+function rhTipEmpSearch(hireId) {
+  var searchEl = document.getElementById('rh-tip-search-' + hireId);
+  var dropEl   = document.getElementById('rh-tip-drop-'   + hireId);
+  if (!searchEl || !dropEl) return;
+  var q = (searchEl.value || '').toLowerCase();
+  if (!q) { dropEl.style.display = 'none'; return; }
+  var pool = TEAM_MEMBERS.filter(function(e) {
+    return e.name.toLowerCase().indexOf(q) >= 0 ||
+           (e.preferred && e.preferred.toLowerCase().indexOf(q) >= 0);
+  }).slice().sort(function(a, b) {
+    return a.name.split(' ').slice(-1)[0].localeCompare(b.name.split(' ').slice(-1)[0]);
+  }).slice(0, 8);
+  if (!pool.length) {
+    dropEl.innerHTML = '<div style="padding:10px 12px;font-size:13px;color:var(--muted)">No employees found</div>';
+    dropEl.style.display = 'block'; return;
+  }
+  var html = '';
+  pool.forEach(function(e) {
+    var display = e.preferred ? e.name + ' (' + e.preferred + ')' : e.name;
+    var meta = [e.title, e.branch].filter(Boolean).join('  ·  ');
+    html += '<div class="lc-drop-item" onclick="rhTipEmpSelect(\'' + hireId + '\',\'' + e.name.replace(/'/g,"\\'") + '\')">' +
+            '<div class="lc-drop-name">' + display + '</div>' +
+            '<div class="lc-drop-meta">' + meta + '</div></div>';
+  });
+  dropEl.innerHTML = html;
+  dropEl.style.display = 'block';
+}
+
+function rhTipEmpSelect(hireId, empName) {
+  var h = hires.find(function(x){ return x.id === hireId; });
+  var emp = TEAM_MEMBERS.find(function(e){ return e.name === empName; });
+  if (!h || !emp) return;
+  var nameParts = emp.name.trim().split(' ');
+  h.tipEmployee = {
+    name: emp.name,
+    firstName: nameParts[0],
+    lastName: nameParts.slice(1).join(' '),
+    title: emp.title,
+    branch: emp.branch,
+    ftpt: emp.ftpt,
+    mgr: emp.mgr,
+    eeNum: emp.eeNum || ''
+  };
+  // Immediately surface the candidate name on the identity card
+  h.firstName = h.tipEmployee.firstName;
+  h.lastName  = h.tipEmployee.lastName;
+  storageSaveHires();
+  renderList(); renderDetail();
+}
+
+function rhClearTipEmployee(hireId) {
+  var h = hires.find(function(x){ return x.id === hireId; });
+  if (!h) return;
+  h.tipEmployee = null;
+  h.firstName = '';
+  h.lastName  = '';
+  if (h.checked.indexOf('t6') >= 0) {
+    h.checked.splice(h.checked.indexOf('t6'), 1);
+  }
+  storageSaveHires();
+  renderList(); renderDetail();
+}
+
 function updateStats() {
   var visible = hires.filter(canView);
   var open=0, pending=0, inproc=0, offer=0, ov=0;
@@ -3941,6 +4119,7 @@ function createHire(){
     id:'h'+Date.now(),
     role:role, ftpt:ftpt, branch:branch, hiringManager:hm,
     hireType:'new', backfillFor:'',
+    internalCandidate: null, tipEmployee: null,
     proposedStart:start, proposedNet:net,
     reqNum:'', hrRecruiter:'Megan Wierick', firstName:'', lastName:'',
     confirmedStart:'', confirmedNet:'', netRequired:'',
