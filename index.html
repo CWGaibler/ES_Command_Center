@@ -8497,7 +8497,7 @@ function lcNewRecord(ws) {
     sBtn.textContent = 'Termination';  sBtn.setAttribute('data-type','termination');
     document.getElementById('lc-submit-btn').textContent = 'Initiate a Departure';
   }
-  pBtn.classList.add('active'); sBtn.classList.remove('active'); if (tBtn) tBtn.classList.remove('active');
+  pBtn.classList.add('active'); sBtn.classList.remove('active');
   lcModalUpdateFields();
   var drop = document.getElementById('lc-search-drop');
   if (drop) drop.classList.remove('open');
