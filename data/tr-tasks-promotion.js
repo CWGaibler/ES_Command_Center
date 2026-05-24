@@ -1,7 +1,7 @@
 /* TR_TASKS_PROMOTION — extracted from index.html */
 var TR_TASKS_PROMOTION = [
   {id:'trp1', title:'Confirm employee eligibility per Career Opportunities and Promotions & Transfers guidelines', owner:'hm'},
-  {id:'trp2', title:'Request approval from ES Leadership — include current title/tenure, proposed title, reasoning, effective date, current and desired pay', owner:'hm'},
+  {id:'trp2', title:'Request approval at all levels — share current title/tenure, proposed title, reasoning, effective date, and current and desired pay. Your Regional Director and ES Leadership must all be aligned before moving forward.', owner:'hm'},
   {id:'trp3', title:'ES Leadership reviews and responds to title or org change request', owner:'es'},
   {id:'trp4', title:'Acknowledge and document the role change — confirm effective date, update team roster', owner:'hm'},
   {id:'trp5', title:'Announce the change to the team — celebrate employee growth and clarify new responsibilities', owner:'hm'},
