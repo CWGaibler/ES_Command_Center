@@ -3539,6 +3539,9 @@ function renderDetail(){
   var handoffBar = '';
   if (h.closed) {
     handoffBar = '<div class="rh-handoff-bar"><div class="rh-handoff-msg">&#10003; Record closed &mdash; candidate moved to Onboarding.</div></div>';
+  } else if (h.internalCandidate === 'yes') {
+    // Internal promotion: no onboarding handoff. Record auto-closes on last task.
+    handoffBar = '';
   } else {
     var canHandoff = rhIsOfferAccepted(h) && rhAllTasksDone(h);
     if (canHandoff) {
@@ -4014,6 +4017,35 @@ function rhIsOfferAccepted(h) {
   }
   return (h.firstName && h.lastName && (h.confirmedStart || h.proposedStart)) || h.stage === 'complete';
 }
+function rhShowPromoConfirm(name, role) {
+  var overlay = document.createElement('div');
+  overlay.className = 'sf-complete-overlay';
+  overlay.id = 'rh-promo-confirm-overlay';
+  var modal = document.createElement('div');
+  modal.className = 'sf-complete-modal';
+  modal.innerHTML =
+    '<div class="sf-cmp-head">' +
+      '<div class="sf-cmp-title">&#10003; Internal Promotion Complete</div>' +
+      '<div class="sf-cmp-sub">' + name + ' &nbsp;&middot;&nbsp; ' + role + '</div>' +
+    '</div>' +
+    '<div class="sf-cmp-body">' +
+      '<div style="font-size:13.5px;color:var(--fb);line-height:1.6;margin-bottom:14px">' +
+        '<strong>' + name + '</strong> has been promoted to <strong>' + role + '</strong>. ' +
+        'Their title has been updated in the system and the R&amp;H record is now closed.' +
+      '</div>' +
+      '<div style="background:#EAFAF0;border:1px solid rgba(66,187,55,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--fb)">' +
+        'Their vacated position has been added to the Open Positions board and is ready to begin the hiring process.' +
+      '</div>' +
+    '</div>' +
+    '<div class="sf-cmp-footer">' +
+      '<button class="sf-cmp-btn sf-cmp-btn-primary" id="rh-promo-confirm-ok">Got it</button>' +
+    '</div>';
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  document.getElementById('rh-promo-confirm-ok').addEventListener('click', function() { overlay.remove(); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+}
+
 function rhMoveToOnboarding(hireId) {
   var h = hires.find(function(x){ return x.id === hireId; }); if (!h) return;
   h.closed = true;
