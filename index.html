@@ -1765,7 +1765,6 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
       <div class="lc-type-row">
         <button class="lc-type-btn active" id="lc-type-btn-primary" data-type="promotion" onclick="lcModalSetType(this)">Promotion / Title Change</button>
         <button class="lc-type-btn" id="lc-type-btn-secondary" data-type="transfer" onclick="lcModalSetType(this)">Transfer Out of ES</button>
-        <button class="lc-type-btn" id="lc-type-btn-tertiary" data-type="targeted-internal-promotion" onclick="lcModalSetType(this)">Targeted Internal Promotion</button>
       </div>
       <div class="lc-field-grid">
         <div class="lc-search-wrap">
@@ -1836,7 +1835,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--
 <script src="data/ob-tasks.js"></script>
 <script src="data/tr-tasks-transfer.js"></script>
 <script src="data/tr-tasks-promotion.js"></script>
-<script src="data/tr-tasks-targeted-promotion.js"></script>
+
 <script src="data/off-tasks-resignation.js"></script>
 <script src="data/off-tasks-termination.js"></script>
 <script src="data/tasks.js"></script>
@@ -7927,7 +7926,6 @@ selTrId = null;
 
 function trTaskSet(rec) {
   if (rec.transitionType === 'promotion') return TR_TASKS_PROMOTION;
-  if (rec.transitionType === 'targeted-internal-promotion') return TR_TASKS_TARGETED_PROMOTION;
   return TR_TASKS_TRANSFER;
 }
 
@@ -7981,7 +7979,7 @@ function trTotalProgress(rec) {
 function updateTrStats() {
   var vis = lcScopeFilter(trRecords);
   document.getElementById('tr-stat-total').textContent = vis.length;
-  document.getElementById('tr-stat-promo').textContent = vis.filter(function(r){ return r.transitionType==='promotion' || r.transitionType==='targeted-internal-promotion'; }).length;
+  document.getElementById('tr-stat-promo').textContent = vis.filter(function(r){ return r.transitionType==='promotion'; }).length;
   document.getElementById('tr-stat-transfer').textContent = vis.filter(function(r){ return r.transitionType==='transfer'; }).length;
 }
 
@@ -7995,7 +7993,7 @@ function renderTrList() {
     var pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
     var sel = rec.id === selTrId ? ' sel' : '';
     var typeChip = rec.transitionType === 'promotion' ? 'chip-stage' : 'chip-stage';
-    var typeLabel = rec.transitionType === 'promotion' ? 'Promotion' : rec.transitionType === 'targeted-internal-promotion' ? 'Targeted Promotion' : 'Transfer Out';
+    var typeLabel = rec.transitionType === 'promotion' ? 'Promotion' : 'Transfer Out';
     return '<div class="lc-person-item'+sel+'" onclick="trSelectPerson(\''+rec.id+'\')">' +
       '<div class="lc-person-name">'+rec.firstName+' '+rec.lastName+'</div>' +
       '<div class="lc-person-role">'+rec.role+' &mdash; '+rec.branch+'</div>' +
@@ -8041,8 +8039,6 @@ function renderTrDetail() {
   // ── Identity card chips ────────────────────────────────────────────────
   var typeChip = rec.transitionType === 'promotion'
     ? '<span class="chip chip-stage">Promotion / Title Change</span>'
-    : rec.transitionType === 'targeted-internal-promotion'
-    ? '<span class="chip chip-info">Targeted Internal Promotion</span>'
     : '<span class="chip chip-stage">Transfer Out of ES</span>';
   var ftptChip = rec.ftpt === 'Part-Time'
     ? '<span class="chip chip-ghost">Part-Time</span>'
@@ -8062,8 +8058,8 @@ function renderTrDetail() {
     ? '<span class="rh-pos-date-pill">Effective: '+fmtDateStr(rec.effectiveDate)+'</span>'
     : '';
 
-  // New role secondary line — promotion and targeted-internal-promotion
-  var newRoleLine = ((rec.transitionType === 'promotion' || rec.transitionType === 'targeted-internal-promotion') && rec.newRole)
+  // New role secondary line — promotion only
+  var newRoleLine = (rec.transitionType === 'promotion' && rec.newRole)
     ? '<div style="font-size:13px;color:var(--mb);font-weight:700;margin-top:1px">&#8599; '+rec.newRole+'</div>'
     : '';
 
@@ -8129,7 +8125,7 @@ function renderTrDetail() {
   }
 
   // ── Close bar ──────────────────────────────────────────────────────────
-  var trCanClose = trAllDone && (rec.transitionType === 'promotion' || rec.transitionType === 'targeted-internal-promotion' || (!!rec.backfillDecision && rec.backfillDecision !== 'pending'));
+  var trCanClose = trAllDone && (rec.transitionType === 'promotion' || (!!rec.backfillDecision && rec.backfillDecision !== 'pending'));
   var trCloseBar;
   if (rec.closed) {
     trCloseBar = '<div class="lc-complete-bar"><div class="lc-complete-msg">&#10003; Transition complete &mdash; record closed.</div></div>';
@@ -8490,18 +8486,15 @@ function lcNewRecord(ws) {
 
   var pBtn = document.getElementById('lc-type-btn-primary');
   var sBtn = document.getElementById('lc-type-btn-secondary');
-  var tBtn = document.getElementById('lc-type-btn-tertiary');
   if (ws === 'tr') {
     document.getElementById('lc-modal-title').textContent = 'OPEN A TRANSITION';
     pBtn.textContent = 'Promotion / Title Change'; pBtn.setAttribute('data-type','promotion');
     sBtn.textContent = 'Transfer Out of ES';       sBtn.setAttribute('data-type','transfer');
-    if (tBtn) { tBtn.textContent = 'Targeted Internal Promotion'; tBtn.setAttribute('data-type','targeted-internal-promotion'); tBtn.style.display = ''; }
     document.getElementById('lc-submit-btn').textContent = 'Open Transition';
   } else {
     document.getElementById('lc-modal-title').textContent = 'INITIATE A DEPARTURE';
     pBtn.textContent = 'Resignation';  pBtn.setAttribute('data-type','resignation');
     sBtn.textContent = 'Termination';  sBtn.setAttribute('data-type','termination');
-    if (tBtn) { tBtn.style.display = 'none'; }
     document.getElementById('lc-submit-btn').textContent = 'Initiate a Departure';
   }
   pBtn.classList.add('active'); sBtn.classList.remove('active'); if (tBtn) tBtn.classList.remove('active');
@@ -8523,7 +8516,7 @@ function lcModalUpdateFields() {
   var ws = lcModalWorkspace;
   var type = lcModalType;
   var showBackfill = (ws==='off' || type==='transfer');
-  var showNewRole  = (ws==='tr' && (type==='promotion' || type==='targeted-internal-promotion'));
+  var showNewRole  = (ws==='tr' && type==='promotion');
   var newRoleRow  = document.getElementById('lc-new-role-row');
   var backfillRow = document.getElementById('lc-backfill-row');
   var dateLabel   = document.getElementById('lc-date-label');
@@ -8596,7 +8589,7 @@ function lcModalSubmit() {
   var needsBackfill = (ws==='off' || type==='transfer');
   var backfill = needsBackfill ? document.getElementById('lc-backfill').value : '';
   if (needsBackfill && !backfill) { alert('Please select a backfill decision.'); return; }
-  if (ws==='tr' && (type==='promotion' || type==='targeted-internal-promotion')) {
+  if (ws==='tr' && type==='promotion') {
     var newRole = document.getElementById('lc-new-role').value;
     if (!newRole) { alert('Please select a new role / title.'); return; }
   }
@@ -8610,7 +8603,7 @@ function lcModalSubmit() {
       firstName:firstName, lastName:lastName, role:emp.title,
       branch:emp.branch, ftpt:ftpt, hiringManager:emp.mgr,
       hireDate:emp.hireDate, email:emp.email, transitionType:type,
-      newRole: (type==='promotion' || type==='targeted-internal-promotion') ? document.getElementById('lc-new-role').value : '',
+      newRole: type==='promotion' ? document.getElementById('lc-new-role').value : '',
       effectiveDate:dateVal, backfillDecision:backfill||null, checked:{}, closed:false
     };
     trRecords.unshift(newRec); selTrId = newRec.id; storageSaveTrRecords();
@@ -12106,8 +12099,7 @@ function showLcEditModal(ws, rec) {
 
   var typeOptions = isTr
     ? '<option value="promotion"' + (rec.transitionType==='promotion'?' selected':'') + '>Promotion / Title Change</option>' +
-      '<option value="transfer"' + (rec.transitionType==='transfer'?' selected':'') + '>Transfer Out of ES</option>' +
-      '<option value="targeted-internal-promotion"' + (rec.transitionType==='targeted-internal-promotion'?' selected':'') + '>Targeted Internal Promotion</option>'
+      '<option value="transfer"' + (rec.transitionType==='transfer'?' selected':'') + '>Transfer Out of ES</option>'
     : '<option value="resignation"' + (rec.departureType==='resignation'?' selected':'') + '>Resignation</option>' +
       '<option value="termination"' + (rec.departureType==='termination'?' selected':'') + '>Termination</option>';
 
