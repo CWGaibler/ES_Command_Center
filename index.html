@@ -7760,6 +7760,8 @@ function trCanCheck(taskOwner) {
     if (p.level === 'region' || p.level === 'enterprise') return false;
     return true;
   }
+  if (taskOwner === 'rd')     return p.level === 'region';
+  if (taskOwner === 'anyone') return true;
   return false;
 }
 
