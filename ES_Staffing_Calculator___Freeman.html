@@ -1389,7 +1389,7 @@ function calculate(){
   // Circle image: show logo > branch logo > initials fallback
   var logoSrc=getShowLogo(raw,s);
   var circleHtml=logoSrc
-    ? '<div style="width:136px;height:136px;border-radius:50%;flex-shrink:0;background:url('+JSON.stringify(logoSrc)+') center/cover no-repeat"></div>'
+    ? '<div style="width:136px;height:136px;border-radius:50%;flex-shrink:0;background:url(&quot;'+logoSrc+'&quot;) center/cover no-repeat"></div>'
     : '<div class="tl-photo" style="background:var(--freeman-blue);color:#fff">'+
         (s.producingBranch||s.region||'ES').replace(/^\d+\s*-\s*/,'').slice(0,2).toUpperCase()+
       '</div>';
